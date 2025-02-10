@@ -17,9 +17,14 @@ export default function EditOffer() {
     const [formValues, setFormValues] = useState([
         {
             service: "",
-            sub_service: "",
+            sub_services: {
+                id: "",
+                address: "",
+                address_name: "",
+                sub_service_name: "",
+            },
             name: "",
-            type: "",
+            type: "fixed",
             freq_name: "",
             frequency: "",
             fixed_price: "",
@@ -39,6 +44,7 @@ export default function EditOffer() {
             month_date: 1,
             monthday_selection_type: "weekday",
             workers: [{ jobHours: "" }],
+            Comments: "",
         },
     ]);
     const [status, setStatus] = useState("");

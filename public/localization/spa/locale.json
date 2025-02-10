@@ -274,7 +274,9 @@
         "noProblem": "Sin problema",
         "noOfProblem": "Número de problemas",
         "declaration_form": "Formulario de declaración",
-        "Submit": "Enviar"
+        "Submit": "Enviar",
+        "cleaner": "limpiador",
+        "general_worker": "Trabajador general"
     },
     "modal": {
         "title": "Modal",

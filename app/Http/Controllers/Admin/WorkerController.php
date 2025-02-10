@@ -575,9 +575,27 @@ class WorkerController extends Controller
     public function edit($id)
     {
         $worker = User::find($id);
+        \Log::info($worker->role);
+        $role = "";
+
+        $cleanerRoles = ['Cleaner', 'уборщик', 'מנקה', 'limpiador'];
+    
+        // Define possible roles for general worker
+        $generalWorkerRoles = ['General worker', 'Общий рабочий', 'עובד כללי', 'Trabajador general'];
+
+        // Check if the worker's role matches any of the cleaner roles
+        if (in_array($worker->role, $cleanerRoles)) {
+            $role = 'cleaner';
+        }
+
+        // Check if the worker's role matches any of the general worker roles
+        if (in_array($worker->role, $generalWorkerRoles)) {
+            $role = 'general_worker';
+        }
 
         return response()->json([
             'worker' => $worker,
+            'role' => $role
         ]);
     }
 
@@ -639,6 +657,32 @@ class WorkerController extends Controller
             ], 404);
         }
 
+        $role = $request->role;
+        $lng = $request->lng;
+        if($role == 'cleaner'){
+            if ($lng == "heb") {
+                $role = "מנקה";
+            }elseif ($lng == "en") {
+                $role = "Cleaner";
+            }elseif ($lng == "ru") {
+                $role = "уборщик";
+            }else{
+                $role = "limpiador";
+            }
+        }else if($role == 'general_worker'){
+            if ($lng == "heb") {
+                $role = "עובד כללי";
+            }elseif ($lng == "en") {
+                $role = "General worker";
+            }elseif ($lng == "ru") {
+                $role = "Общий рабочий";
+            }else{
+                $role = "Trabajador general";
+            }
+        }else{
+            $role = $request->role;
+        }
+
         $worker->update([
             'firstname'     => $request->firstname,
             'lastname'      => ($request->lastname) ? $request->lastname : '',
@@ -648,7 +692,7 @@ class WorkerController extends Controller
             'longitude'     => $request->longitude,
             'renewal_visa'  => $request->renewal_visa,
             'gender'        => $request->gender,
-            'role'          => $request->role,
+            'role'          => $role,
             'payment_per_hour'  => $request->payment_hour,
             'worker_id'     => $request->worker_id,
             'lng'           => $request->lng,

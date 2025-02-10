@@ -192,6 +192,8 @@ export default function EditWorker() {
         axios
             .get(`/api/admin/workers/${params.id}/edit`, { headers })
             .then((response) => {
+                console.log(response.data);
+                
                 const _worker = response.data.worker;
                 const {
                     passcode,
@@ -216,7 +218,7 @@ export default function EditWorker() {
                     phone: _worker.phone,
                     renewal_date: _worker.renewal_visa,
                     gender: _worker.gender,
-                    role: _worker.role,
+                    role: response?.data?.role,
                     payment_hour: _worker.payment_per_hour,
                     worker_id: _worker.worker_id,
                     company_type: _worker.company_type,
@@ -282,630 +284,639 @@ export default function EditWorker() {
         getAvailableSkill();
         getManpowerCompanies();
     }, []);
-    return (
-        <div id="container">
-            <Sidebar />
-            <div id="content">
-                <div className="edit-customer">
-                    <h1 className="page-title editEmployer">Edit Worker</h1>
-                    <div className="dashBox p-0 p-md-4" style={{ background: "inherit", border: "none" }}>
-                        <form>
-                            <div className="row">
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.f_name")} *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formValues.firstname}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    firstname: e.target.value,
-                                                });
-                                            }}
-                                            className="form-control"
-                                            required
-                                            placeholder={t("workerInviteForm.enter_first_name")}
-                                        />
-                                        {errors.firstname ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.firstname}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.l_name")}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formValues.lastname}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    lastname: e.target.value,
-                                                });
-                                            }}
-                                            className="form-control"
-                                            placeholder={t("workerInviteForm.enter_last_name")}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.email")}
-                                        </label>
-                                        <input
-                                            type="tyoe"
-                                            value={formValues.email}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    email: e.target.value,
-                                                });
-                                            }}
-                                            className="form-control"
-                                            readOnly
-                                            placeholder={t("worker.settings.email")}
-                                        />
-                                        {errors.email ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.email}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">{t("worker.settings.phone")}</label>
-                                        <PhoneInput
-                                            country={'il'}
-                                            value={formValues.phone}
-                                            onChange={(phone, country) => {
-                                                // Remove leading '0' after country code
-                                                const dialCode = country.dialCode;
-                                                let formattedPhone = phone;
-                                                if (phone.startsWith(dialCode + '0')) {
-                                                    formattedPhone = dialCode + phone.slice(dialCode.length + 1);
-                                                }
-                                                handleFormValuesChange('phone', formattedPhone)
-                                            }}
-                                            inputClass="form-control"
-                                            inputProps={{
-                                                name: 'phone',
-                                                required: true,
-                                                placeholder: t("worker.settings.phone"),
-                                            }}
-                                        />
-                                        {errors.phone ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.phone}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.gender")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="male"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        gender: e.target.value,
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.gender === "male"
-                                                }
-                                            />
-                                            {t("worker.settings.male")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="female"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        gender: e.target.value,
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.gender ===
-                                                    "female"
-                                                }
-                                            />
-                                            {t("worker.settings.female")}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("nonIsrailContract.role")}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formValues.role}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    role: e.target.value,
-                                                });
-                                            }}
-                                            className="form-control"
-                                            placeholder={t("nonIsrailContract.role")}
-                                        />
-                                        {errors.role && (
-                                            <small className="text-danger mb-1">
-                                                {errors.role}
-                                            </small>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.p_ph")} (ILS)
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formValues.payment_hour}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    payment_hour:
-                                                        e.target.value,
-                                                });
-                                            }}
-                                            className="form-control"
-                                            placeholder={t("worker.settings.p_ph")}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.w_id")}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formValues.worker_id}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    worker_id: e.target.value,
-                                                });
-                                            }}
-                                            className="form-control"
-                                            placeholder={t("worker.settings.w_id")}
-                                        />
-                                        {errors.worker_id ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.worker_id}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.pass")} *
-                                        </label>
-                                        <input
-                                            type="password"
-                                            onChange={(e) =>
-                                                setPassword(e.target.value)
-                                            }
-                                            className="form-control"
-                                            required
-                                            placeholder={t("worker.settings.pass")}
-                                            autoComplete="new-password"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.lng")}
-                                        </label>
 
-                                        <select
-                                            className="form-control"
-                                            value={lng}
-                                            onChange={(e) =>
-                                                setLng(e.target.value)
-                                            }
-                                        >
-                                            <option value="heb">Hebrew</option>
-                                            <option value="en">English</option>
-                                            <option value="ru">Russian</option>
-                                            <option value="spa">Spanish</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.country")}
-                                        </label>
+    console.log(formValues);
+    
 
-                                        <select
-                                            className="form-control"
-                                            value={country}
-                                            onChange={(e) =>
-                                                setCountry(e.target.value)
-                                            }
-                                        >
-                                            {countries &&
-                                                countries.map((item, index) => (
-                                                    <option
-                                                        value={item.name}
-                                                        key={index}
-                                                    >
-                                                        {item.name}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Payment Method
-                                        </label>
-
-                                        <select
-                                            className="form-control"
-                                            value={payment}
-                                            onChange={(e) =>
-                                                setPayment(e.target.value)
-                                            }
-                                        >
-                                            <option value="">--- please select ---</option>
-                                            <option value="cheque">Cheque</option>
-                                            <option value="money_transfer">Money Transfer</option>
-                                        </select>
-                                        {errors?.payment_type ? (
-                                            <small className="text-danger mb-1">
-                                                {errors?.payment_type}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
-                                {country != "Israel" && (
+        return (
+            <div id="container">
+                <Sidebar />
+                <div id="content">
+                    <div className="edit-customer">
+                        <h1 className="page-title editEmployer">Edit Worker</h1>
+                        <div className="dashBox p-0 p-md-4" style={{ background: "inherit", border: "none" }}>
+                            <form>
+                                <div className="row">
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                {t("worker.settings.renewal_visa")}{" "}
+                                                {t("worker.settings.f_name")} *
                                             </label>
                                             <input
-                                                type="date"
-                                                value={formValues.renewal_date}
+                                                type="text"
+                                                value={formValues.firstname}
                                                 onChange={(e) => {
                                                     setFormValues({
                                                         ...formValues,
-                                                        renewal_date:
-                                                            e.target.value,
+                                                        firstname: e.target.value,
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder={t("worker.settings.renewal_visa")}
+                                                required
+                                                placeholder={t("workerInviteForm.enter_first_name")}
                                             />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {
-                                    payment === "money_transfer" && (
-
-                                        <>
-                                            <div className="col-sm-6">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        Full Name
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={bankDetails.full_name}
-                                                        name="full_name"
-                                                        onChange={handleChange}
-                                                        className="form-control"
-                                                        placeholder="Enter Full Name"
-                                                    />
-                                                    {errors?.full_name ? (
-                                                        <small className="text-danger mb-1">
-                                                            {errors?.full_name}
-                                                        </small>
-                                                    ) : (
-                                                        ""
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        Bank Name
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={bankDetails.bank_name}
-                                                        name="bank_name"
-                                                        onChange={handleChange}
-                                                        className="form-control"
-                                                        placeholder="Enter Bank Name"
-                                                    />
-                                                    {errors?.bank_name ? (
-                                                        <small className="text-danger mb-1">
-                                                            {errors?.bank_name}
-                                                        </small>
-                                                    ) : (
-                                                        ""
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        Bank Number
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={bankDetails.bank_no}
-                                                        name="bank_no"
-                                                        onChange={handleChange}
-                                                        className="form-control"
-                                                        placeholder="Enter Bank Number"
-                                                    />
-                                                    {errors?.bank_number ? (
-                                                        <small className="text-danger mb-1">
-                                                            {errors?.bank_number}
-                                                        </small>
-                                                    ) : (
-                                                        ""
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        Branch Number
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={bankDetails.branch_no}
-                                                        name="branch_no"
-                                                        onChange={handleChange}
-                                                        className="form-control"
-                                                        placeholder="Enter Branch Number"
-                                                    />
-                                                    {errors?.branch_number ? (
-                                                        <small className="text-danger mb-1">
-                                                            {errors?.branch_number}
-                                                        </small>
-                                                    ) : (
-                                                        ""
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        Acount Number
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={bankDetails.account_no}
-                                                        name="account_no"
-                                                        onChange={handleChange}
-                                                        className="form-control"
-                                                        placeholder="Enter Account Number"
-                                                    />
-                                                    {errors?.account_number ? (
-                                                        <small className="text-danger mb-1">
-                                                            {errors?.account_number}
-                                                        </small>
-                                                    ) : (
-                                                        ""
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </>
-                                    )
-                                }
-
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("global.company")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="my-company"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        company_type:
-                                                            e.target.value,
-                                                        manpower_company_id: "",
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.company_type ===
-                                                    "my-company"
-                                                }
-                                            />
-                                            {t("admin.global.myCompany")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="manpower"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        company_type:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.company_type ===
-                                                    "manpower"
-                                                }
-                                            />
-                                            {t("admin.global.manpower")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="freelancer"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        company_type:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.company_type ===
-                                                    "freelancer"
-                                                }
-                                            />
-                                            {t("admin.global.freelancer")}
-                                        </label>
-                                    </div>
-                                    <div>
-                                        {errors.company_type ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.company_type}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
-                                {formValues.company_type === "manpower" && (
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t("admin.global.manpower")}
-                                            </label>
-
-                                            <select
-                                                name="manpower-id"
-                                                className="form-control"
-                                                value={
-                                                    formValues.manpower_company_id
-                                                }
-                                                onChange={(e) =>
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        manpower_company_id:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                            >
-                                                <option value="">
-                                                    {t("admin.global.select_manpower")}
-                                                </option>
-                                                {manpowerCompanies.map(
-                                                    (mpc, index) => (
-                                                        <option
-                                                            value={mpc.id}
-                                                            key={mpc.id}
-                                                        >
-                                                            {mpc.name}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            {errors.manpower_company_id ? (
+                                            {errors.firstname ? (
                                                 <small className="text-danger mb-1">
-                                                    {errors.manpower_company_id}
+                                                    {errors.firstname}
                                                 </small>
                                             ) : (
                                                 ""
                                             )}
                                         </div>
                                     </div>
-                                )}
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">{t("global.Type")}</label>
-                                        <select
-                                            className="form-control"
-                                            value={employmentType}
-                                            onChange={(e) => setEmploymentType(e.target.value)}
-                                        >
-                                            <option value="">{t("worker.settings.pleaseSelect")}</option>
-                                            <option value="fixed">{t("worker.settings.fixed")}</option>
-                                            <option value="hourly">{t("worker.settings.hourly")}</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {employmentType === "fixed" && (
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label className="control-label">{t("worker.settings.salary")}</label>
+                                            <label className="control-label">
+                                                {t("worker.settings.l_name")}
+                                            </label>
                                             <input
-                                                type="number"
+                                                type="text"
+                                                value={formValues.lastname}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        lastname: e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
-                                                placeholder={t("worker.settings.salary")}
-                                                value={salary}
-                                                onChange={(e) => setSalary(e.target.value)}
+                                                placeholder={t("workerInviteForm.enter_last_name")}
                                             />
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("admin.global.location")}
-                                </label>
-                                <LoadScript
-                                    googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
-                                    libraries={libraries}
-                                >
-                                    {/* <GoogleMap
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.email")}
+                                            </label>
+                                            <input
+                                                type="tyoe"
+                                                value={formValues.email}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        email: e.target.value,
+                                                    });
+                                                }}
+                                                className="form-control"
+                                                readOnly
+                                                placeholder={t("worker.settings.email")}
+                                            />
+                                            {errors.email ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.email}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">{t("worker.settings.phone")}</label>
+                                            <PhoneInput
+                                                country={'il'}
+                                                value={formValues.phone}
+                                                onChange={(phone, country) => {
+                                                    // Remove leading '0' after country code
+                                                    const dialCode = country.dialCode;
+                                                    let formattedPhone = phone;
+                                                    if (phone.startsWith(dialCode + '0')) {
+                                                        formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                    }
+                                                    handleFormValuesChange('phone', formattedPhone)
+                                                }}
+                                                inputClass="form-control"
+                                                inputProps={{
+                                                    name: 'phone',
+                                                    required: true,
+                                                    placeholder: t("worker.settings.phone"),
+                                                }}
+                                            />
+                                            {errors.phone ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.phone}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.gender")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="male"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            gender: e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.gender === "male"
+                                                    }
+                                                />
+                                                {t("worker.settings.male")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="female"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            gender: e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.gender ===
+                                                        "female"
+                                                    }
+                                                />
+                                                {t("worker.settings.female")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("nonIsrailContract.role")}
+                                            </label>
+                                            <select
+                                                className="form-control"
+                                                value={formValues.role}
+                                                onChange={(e) =>
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        role: e.target.value,
+                                                    })
+                                                }
+                                            >
+                                                <option value="cleaner">
+                                                    {t("global.cleaner", { lng: formValues.lng })}
+                                                </option>
+                                                <option value="general_worker">
+                                                    {t("global.general_worker", { lng: formValues.lng })}
+                                                </option>
+                                            </select>
+                                            {errors.role && (
+                                                <small className="text-danger mb-1">
+                                                    {errors.role}
+                                                </small>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.p_ph")} (ILS)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formValues.payment_hour}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        payment_hour:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                className="form-control"
+                                                placeholder={t("worker.settings.p_ph")}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.w_id")}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formValues.worker_id}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        worker_id: e.target.value,
+                                                    });
+                                                }}
+                                                className="form-control"
+                                                placeholder={t("worker.settings.w_id")}
+                                            />
+                                            {errors.worker_id ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.worker_id}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.pass")} *
+                                            </label>
+                                            <input
+                                                type="password"
+                                                onChange={(e) =>
+                                                    setPassword(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder={t("worker.settings.pass")}
+                                                autoComplete="new-password"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.lng")}
+                                            </label>
+
+                                            <select
+                                                className="form-control"
+                                                value={lng}
+                                                onChange={(e) =>
+                                                    setLng(e.target.value)
+                                                }
+                                            >
+                                                <option value="heb">Hebrew</option>
+                                                <option value="en">English</option>
+                                                <option value="ru">Russian</option>
+                                                <option value="spa">Spanish</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.country")}
+                                            </label>
+
+                                            <select
+                                                className="form-control"
+                                                value={country}
+                                                onChange={(e) =>
+                                                    setCountry(e.target.value)
+                                                }
+                                            >
+                                                {countries &&
+                                                    countries.map((item, index) => (
+                                                        <option
+                                                            value={item.name}
+                                                            key={index}
+                                                        >
+                                                            {item.name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Payment Method
+                                            </label>
+
+                                            <select
+                                                className="form-control"
+                                                value={payment}
+                                                onChange={(e) =>
+                                                    setPayment(e.target.value)
+                                                }
+                                            >
+                                                <option value="">--- please select ---</option>
+                                                <option value="cheque">Cheque</option>
+                                                <option value="money_transfer">Money Transfer</option>
+                                            </select>
+                                            {errors?.payment_type ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors?.payment_type}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                    {country != "Israel" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    {t("worker.settings.renewal_visa")}{" "}
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    value={formValues.renewal_date}
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            renewal_date:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    className="form-control"
+                                                    placeholder={t("worker.settings.renewal_visa")}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {
+                                        payment === "money_transfer" && (
+
+                                            <>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Full Name
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.full_name}
+                                                            name="full_name"
+                                                            onChange={handleChange}
+                                                            className="form-control"
+                                                            placeholder="Enter Full Name"
+                                                        />
+                                                        {errors?.full_name ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors?.full_name}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Bank Name
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.bank_name}
+                                                            name="bank_name"
+                                                            onChange={handleChange}
+                                                            className="form-control"
+                                                            placeholder="Enter Bank Name"
+                                                        />
+                                                        {errors?.bank_name ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors?.bank_name}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Bank Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.bank_no}
+                                                            name="bank_no"
+                                                            onChange={handleChange}
+                                                            className="form-control"
+                                                            placeholder="Enter Bank Number"
+                                                        />
+                                                        {errors?.bank_number ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors?.bank_number}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Branch Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.branch_no}
+                                                            name="branch_no"
+                                                            onChange={handleChange}
+                                                            className="form-control"
+                                                            placeholder="Enter Branch Number"
+                                                        />
+                                                        {errors?.branch_number ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors?.branch_number}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Acount Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.account_no}
+                                                            name="account_no"
+                                                            onChange={handleChange}
+                                                            className="form-control"
+                                                            placeholder="Enter Account Number"
+                                                        />
+                                                        {errors?.account_number ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors?.account_number}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )
+                                    }
+
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("global.company")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="my-company"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            company_type:
+                                                                e.target.value,
+                                                            manpower_company_id: "",
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.company_type ===
+                                                        "my-company"
+                                                    }
+                                                />
+                                                {t("admin.global.myCompany")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="manpower"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            company_type:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.company_type ===
+                                                        "manpower"
+                                                    }
+                                                />
+                                                {t("admin.global.manpower")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="freelancer"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            company_type:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.company_type ===
+                                                        "freelancer"
+                                                    }
+                                                />
+                                                {t("admin.global.freelancer")}
+                                            </label>
+                                        </div>
+                                        <div>
+                                            {errors.company_type ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.company_type}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                    {formValues.company_type === "manpower" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    {t("admin.global.manpower")}
+                                                </label>
+
+                                                <select
+                                                    name="manpower-id"
+                                                    className="form-control"
+                                                    value={
+                                                        formValues.manpower_company_id
+                                                    }
+                                                    onChange={(e) =>
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            manpower_company_id:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                >
+                                                    <option value="">
+                                                        {t("admin.global.select_manpower")}
+                                                    </option>
+                                                    {manpowerCompanies.map(
+                                                        (mpc, index) => (
+                                                            <option
+                                                                value={mpc.id}
+                                                                key={mpc.id}
+                                                            >
+                                                                {mpc.name}
+                                                            </option>
+                                                        )
+                                                    )}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                {errors.manpower_company_id ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.manpower_company_id}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">{t("global.Type")}</label>
+                                            <select
+                                                className="form-control"
+                                                value={employmentType}
+                                                onChange={(e) => setEmploymentType(e.target.value)}
+                                            >
+                                                <option value="">{t("worker.settings.pleaseSelect")}</option>
+                                                <option value="fixed">{t("worker.settings.fixed")}</option>
+                                                <option value="hourly">{t("worker.settings.hourly")}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {employmentType === "fixed" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">{t("worker.settings.salary")}</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    placeholder={t("worker.settings.salary")}
+                                                    value={salary}
+                                                    onChange={(e) => setSalary(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("admin.global.location")}
+                                    </label>
+                                    <LoadScript
+                                        googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
+                                        libraries={libraries}
+                                    >
+                                        {/* <GoogleMap
                                             mapContainerStyle={containerStyle}
                                             center={center}
                                             zoom={15}
@@ -937,138 +948,138 @@ export default function EditWorker() {
                                             )}
                                             <Marker />
                                         </GoogleMap> */}
-                                    <Autocomplete
-                                        onLoad={(e) => setPlace(e)}
-                                        onPlaceChanged={handlePlaceChanged}
-                                    >
-                                        <input
-                                            type="text"
-                                            placeholder={t("workerInviteForm.search_your_address")}
-                                            className="form-control mt-1"
-                                        />
-                                    </Autocomplete>
-                                </LoadScript>
-                            </div>
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("workerInviteForm.full_address")}{" "}
-                                    <small className="text-pink mb-1">
-                                        &nbsp; ({t("workerInviteForm.auto_complete")})
-                                    </small>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={address}
-                                    className="form-control"
-                                    placeholder={t("workerInviteForm.enter_your_address")}
-                                    readOnly
-                                />
-                                {errors.address ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.address}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-                            <div className="col-sm-12">
+                                        <Autocomplete
+                                            onLoad={(e) => setPlace(e)}
+                                            onPlaceChanged={handlePlaceChanged}
+                                        >
+                                            <input
+                                                type="text"
+                                                placeholder={t("workerInviteForm.search_your_address")}
+                                                className="form-control mt-1"
+                                            />
+                                        </Autocomplete>
+                                    </LoadScript>
+                                </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        {t("worker.settings.skills")}
+                                        {t("workerInviteForm.full_address")}{" "}
+                                        <small className="text-pink mb-1">
+                                            &nbsp; ({t("workerInviteForm.auto_complete")})
+                                        </small>
                                     </label>
+                                    <input
+                                        type="text"
+                                        value={address}
+                                        className="form-control"
+                                        placeholder={t("workerInviteForm.enter_your_address")}
+                                        readOnly
+                                    />
+                                    {errors.address ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.address}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
-                                <div className="form-check mb-3">
-                                    <label className="form-check-label">
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            onChange={handleAllSkills}
-                                        />
-                                        <strong>{t("modal.select_all")}</strong>
-                                    </label>
-                                </div>
-
-                                {avl_skill.map((item, index) => (
-                                    <div className="form-check" key={index}>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t("worker.settings.skills")}
+                                        </label>
+                                    </div>
+                                    <div className="form-check mb-3">
                                         <label className="form-check-label">
                                             <input
                                                 type="checkbox"
                                                 className="form-check-input"
-                                                name="skills"
-                                                value={item.id}
-                                                onChange={handleSkills}
-                                                checked={skill.includes(
-                                                    item.id.toString()
-                                                )}
+                                                onChange={handleAllSkills}
                                             />
-                                            {item.name}
+                                            <strong>{t("modal.select_all")}</strong>
                                         </label>
                                     </div>
-                                ))}
-                            </div>
-                            <div className="col-sm-12 mt-4">
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        {t("worker.settings.areYouAfraid")}
-                                    </label>
-                                </div>
-                                {animalArray &&
-                                    animalArray.map((item, index) => (
-                                        <div
-                                            className="form-check"
-                                            key={item.key}
-                                        >
+
+                                    {avl_skill.map((item, index) => (
+                                        <div className="form-check" key={index}>
                                             <label className="form-check-label">
                                                 <input
-                                                    ref={
-                                                        elementsRef.current[
-                                                        index
-                                                        ]
-                                                    }
                                                     type="checkbox"
                                                     className="form-check-input"
-                                                    name={item.key}
-                                                    value={item.key}
+                                                    name="skills"
+                                                    value={item.id}
+                                                    onChange={handleSkills}
+                                                    checked={skill.includes(
+                                                        item.id.toString()
+                                                    )}
                                                 />
                                                 {item.name}
                                             </label>
                                         </div>
                                     ))}
-                            </div>
-                            <div className="form-group mt-4">
-                                <label className="control-label">{t("worker.settings.status")}</label>
-                                <select
-                                    className="form-control"
-                                    value={itemStatus}
-                                    onChange={(e) =>
-                                        setItemStatus(e.target.value)
-                                    }
-                                >
-                                    <option value="1">{t("worker.settings.Enable")}</option>
-                                    <option value="0">{t("worker.settings.Disable")}</option>
-                                </select>
-                                {errors.status ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.status}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-                            <div className="form-group text-center">
-                                <input
-                                    type="submit"
-                                    onClick={handleUpdate}
-                                    className="btn navyblue"
-                                    disabled={isSubmitting}
-                                    value={t("workerInviteForm.submit")}
-                                />
-                            </div>
-                        </form>
+                                </div>
+                                <div className="col-sm-12 mt-4">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t("worker.settings.areYouAfraid")}
+                                        </label>
+                                    </div>
+                                    {animalArray &&
+                                        animalArray.map((item, index) => (
+                                            <div
+                                                className="form-check"
+                                                key={item.key}
+                                            >
+                                                <label className="form-check-label">
+                                                    <input
+                                                        ref={
+                                                            elementsRef.current[
+                                                            index
+                                                            ]
+                                                        }
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        name={item.key}
+                                                        value={item.key}
+                                                    />
+                                                    {item.name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                </div>
+                                <div className="form-group mt-4">
+                                    <label className="control-label">{t("worker.settings.status")}</label>
+                                    <select
+                                        className="form-control"
+                                        value={itemStatus}
+                                        onChange={(e) =>
+                                            setItemStatus(e.target.value)
+                                        }
+                                    >
+                                        <option value="1">{t("worker.settings.Enable")}</option>
+                                        <option value="0">{t("worker.settings.Disable")}</option>
+                                    </select>
+                                    {errors.status ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.status}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+                                <div className="form-group text-center">
+                                    <input
+                                        type="submit"
+                                        onClick={handleUpdate}
+                                        className="btn navyblue"
+                                        disabled={isSubmitting}
+                                        value={t("workerInviteForm.submit")}
+                                    />
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
+                {loading && <FullPageLoader visible={loading} />}
             </div>
-            {loading && <FullPageLoader visible={loading} />}
-        </div>
-    );
+        );
 }

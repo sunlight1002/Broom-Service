@@ -416,10 +416,10 @@ export default function AddWorker() {
                                                 }
                                             >
                                                 <option value="cleaner">
-                                                    Cleaner
+                                                    {t("global.cleaner")}
                                                 </option>
                                                 <option value="general_worker">
-                                                    General worker
+                                                    {t("global.general_worker")}
                                                 </option>
                                             </select>
                                             {errors.role && (

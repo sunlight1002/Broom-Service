@@ -293,13 +293,13 @@ class DashboardController extends Controller
             $noticeAll[$k]->data = "Form 101 has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::WORKER_CONTRACT_SIGNED) {
-            $noticeAll[$k]->data = "Contract form has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Contract form has been signed by <a href='/admin/workers/view/" . ($notice->user->id ?? $notice->id) . "'>" . ($notice->user->firstname ?? $notice->firstname) . " " . ($notice->user->lastname ?? $notice->lastname) .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::SAFETY_GEAR_SIGNED) {
-            $noticeAll[$k]->data = "Safety and Gear form has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Safety and Gear form has been signed by <a href='/admin/workers/view/" . ($notice->user->id ?? $notice->id) . "'>" . ($notice->user->firstname ?? $notice->firstname) . " " . ($notice->user->lastname ?? $notice->lastname) .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::INSURANCE_SIGNED) {
-            $noticeAll[$k]->data = "Insurance form has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Insurance form has been signed by <a href='/admin/workers/view/" . ($notice->user->id ?? $notice->id) . "'>" . ($notice->user->firstname ?? $notice->firstname) . " " . ($notice->user->lastname ?? $notice->lastname) .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::CLIENT_REVIEWED) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();

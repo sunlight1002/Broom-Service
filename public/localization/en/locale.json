@@ -321,7 +321,9 @@
         "type": "Type",
         "doc_num": "Doc num",
         "sum": "Sum",
-        "file": "File"
+        "file": "File",
+        "cleaner": "Cleaner",
+        "general_worker": "General Worker"
     },
     "modal": {
         "title": "Modal",

@@ -37,7 +37,7 @@ if(!function_exists('generateShortUrl')) {
         if (empty($urlData)) {
             return null;  
         }
-        $token = substr(md5(uniqid()), 0, 15);
+        $token = substr(md5(uniqid()), 0, 6);
         
         $shortUrl = ShortUrl::create([
             'url' => $urlData,

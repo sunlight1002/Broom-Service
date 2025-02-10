@@ -126,6 +126,7 @@ class WorkerLeadWebhookController extends Controller
     {
         $get_data = $request->getContent();
         $data_returned = json_decode($get_data, true);
+        \Log::info($data_returned);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
         $lng = "en";
 
@@ -176,6 +177,7 @@ class WorkerLeadWebhookController extends Controller
 
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
                 $messageInput = strtolower(trim($input));
+                \Log::info($messageInput);
 
                 $pattern1 = '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(\d+)$/i';
                 // '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(\d+)?$/i'
