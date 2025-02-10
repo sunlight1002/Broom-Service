@@ -1353,7 +1353,9 @@
             "worker_includes": "עובד כולל",
             "client_includes": "לקוחות כוללים",
             "worker_excludes": "עובד לא כולל",
-            "client_excludes": "לא כולל לקוחות"
+            "client_excludes": "לא כולל לקוחות",
+            "claim": "תביעה",
+            "claim_request": "בקשת תביעה"
         },
         "modal": {
             "title": "מודל",
