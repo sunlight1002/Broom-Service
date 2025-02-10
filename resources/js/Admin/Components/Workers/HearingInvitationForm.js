@@ -19,7 +19,7 @@ import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 const HearingInvitation = () => {
-    const [workerState, setWorker] = useState([]);
+    const [worker, setWorker] = useState([]);
     const [totalTeam, setTotalTeam] = useState([]);
     const [team, setTeam] = useState("");
     const [bstatus, setBstatus] = useState("");
@@ -42,7 +42,7 @@ const HearingInvitation = () => {
     const [formattedSelectedDate, setFormattedSelectedDate] = useState('');
 
     const location = useLocation();
-    const { worker, getWorkerDetails } = location.state || {};
+    // const { worker, getWorkerDetails } = location.state || {};
 
     const params = useParams();
     const alert = useAlert();
@@ -184,7 +184,7 @@ const HearingInvitation = () => {
                             alert.error(res.data.errors[e]);
                         }
                     } else {
-                        const workerId = worker.id; 
+                        const workerId = worker.id;
                         if (res.data.action === "redirect") {
                             window.location = navigate(`/admin/workers/view/${workerId}`);
                         } else {
@@ -218,7 +218,7 @@ const HearingInvitation = () => {
                         alert.error(res.data.errors[e]);
                     }
                 } else {
-                    const workerId = worker.id; 
+                    const workerId = worker.id;
                     setTimeout(() => {
                         navigate(`/admin/workers/view/${workerId}`);
                     }, 1000);
@@ -238,10 +238,13 @@ const HearingInvitation = () => {
 
     const getWorker = () => {
         axios
-            .get(`/api/admin/workers/${params.id}`, { headers })
+            .get(`/api/admin/workers/${params.id}/edit`, { headers })
             .then((res) => {
-                const { worker } = res.data;
-                setWorker(worker);
+                setWorker(res.data?.worker);
+            })
+            .catch((e) => {
+                console.log(e);
+
             });
     };
 
@@ -357,7 +360,10 @@ const HearingInvitation = () => {
             getTeamEvents(team);
             getTeamAvailability();
         }
-    }, [team, selectedDate]);   
+    }, [team, selectedDate]);
+
+    console.log(worker);
+    
 
     return (
         <div id="container">
@@ -367,7 +373,7 @@ const HearingInvitation = () => {
                     <h4>
                         {t("worker.settings.invitation_for_hearing")}
                     </h4>
-                    <hr/>
+                    <hr />
                 </div>
                 <div className="dashBox maxWidthControl p-4 sch-meet">
                     <div className="row">
@@ -439,16 +445,16 @@ const HearingInvitation = () => {
                                     {t("admin.hearing.hearingPurpose")}
                                 </label>
                                 <input
-                                        type="text"
-                                        name="purpose_text"
-                                        id="purpose_text"
-                                        value={purposeText}
-                                        onChange={(e) => {
-                                            setPurposeText(e.target.value);
-                                        }}
-                                        placeholder="Enter purpose please"
-                                        className="form-control"
-                                    />
+                                    type="text"
+                                    name="purpose_text"
+                                    id="purpose_text"
+                                    value={purposeText}
+                                    onChange={(e) => {
+                                        setPurposeText(e.target.value);
+                                    }}
+                                    placeholder="Enter purpose please"
+                                    className="form-control"
+                                />
                             </div>
                         </div>
                     </div>
@@ -493,29 +499,18 @@ const HearingInvitation = () => {
                         <div className="col-sm-4">
                             <div className="form-group">
                                 <label>{t("admin.hearing.Property")}</label>
-                                <select
+                                <input
+                                    type="text"
                                     name="address_id"
                                     id="address_id"
-                                    value={address}
-                                    onChange={(e) => {
-                                        setAddress(e.target.value);
-                                    }}
-                                    className="form-control"
-                                >
-                                    <option value="">
-                                        {t("admin.hearing.options.pleaseSelect")}
-                                    </option>
-                                    {addresses &&
-                                        addresses.map((addr, i) => (
-                                            <option value={addr.id} key={i}>
-                                                {addr.name}
-                                            </option>
-                                        ))}
-                                </select>
+                                    value={worker?.address}
+                                        className="form-control"
+                                    placeholder="Insert Meeting Link"
+                                />
                             </div>
                         </div>
                     </div>
-    
+
                     <div className="mSchedule">
                         {meetVia == "on-site" && (
                             <>
@@ -554,12 +549,11 @@ const HearingInvitation = () => {
                                                             (t, index) => {
                                                                 return (
                                                                     <li
-                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${
-                                                                            selectedTime ===
+                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${selectedTime ===
                                                                             t
-                                                                                ? "bg-primary text-white"
-                                                                                : "text-primary"
-                                                                        }`}
+                                                                            ? "bg-primary text-white"
+                                                                            : "text-primary"
+                                                                            }`}
                                                                         key={
                                                                             index
                                                                         }
@@ -601,9 +595,9 @@ const HearingInvitation = () => {
                 </div>
             </div>
             <FullPageLoader visible={isLoading} />
-        </div>
+        </div >
     );
-    
+
 
 };
 

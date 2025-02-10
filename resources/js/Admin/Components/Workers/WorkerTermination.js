@@ -105,6 +105,15 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                         {t("Hearing Protocol")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        className={`nav-link ${activeTab === 'showClaims' ? 'active' : ''}`}
+                        onClick={() => handleTabChange('showClaims')}
+                        role="tab"
+                    >
+                        Show Claims
+                    </a>
+                </li>
             </ul>
 
             <div className="tab-content" style={{ background: "#fff" }}>
@@ -114,6 +123,11 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                     </div>
                 )}
                 {activeTab === 'hearingProtocol' && (
+                    <div className="tab-pane active show" role="tabpanel">
+                        <HearingProtocol worker={worker} getWorkerDetails={getWorkerDetails}/>
+                    </div>
+                )}
+                {activeTab === 'showClaims' && (
                     <div className="tab-pane active show" role="tabpanel">
                         <HearingProtocol worker={worker} getWorkerDetails={getWorkerDetails}/>
                     </div>

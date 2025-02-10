@@ -40,6 +40,7 @@ import WorkerDashboard from "./Worker/WorkerDashboard";
 import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
 import HearingInvitation from "./Admin/Components/Workers/HearingInvitationForm";
+import DisplayClaims from "./Admin/Components/Workers/DisplayClaims";
 import Hearing from "./Worker/Pages/Hearing/Hearing";
 import Protocol from "./Worker/Pages/Protocol/Protocol";
 import Availability from "./Worker/Pages/Availability/Availability";
@@ -769,6 +770,11 @@ export default function MyRoutes() {
                                 exact
                                 path="workers/view/:id/hearing-invitation"
                                 element={<HearingInvitation />}
+                            />
+                            <Route
+                                exact
+                                path="workers/view/:id/show-claims"
+                                element={<DisplayClaims />}
                             />
                             <Route
                                 exact

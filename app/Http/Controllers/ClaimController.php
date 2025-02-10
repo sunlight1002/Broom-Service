@@ -314,7 +314,7 @@ class ClaimController extends Controller
                 return response()->json([
                     'message' => 'Claim created successfully, PDF generated and stored.',
                     'claim' => $claim
-                ], 201);
+                ], 200);
 
             } catch (\Exception $e) {
                 \Log::error('Error generating PDF: ' . $e->getMessage());
@@ -324,8 +324,9 @@ class ClaimController extends Controller
 
         return response()->json([
             'message' => 'Claim created successfully.',
-            'claim' => $claim
-        ], 201);
+            'claim' => $claim,
+            'success' => true
+        ], 200);
     }
 
     // Retrieve claims for a specific worker

@@ -2562,6 +2562,8 @@ Equipo de Broom Service",
 
 Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been scheduled.
 
+'If you reject the hearing invitation, it means you give up your chance to be at the hearing and to state your claims. The decision of the company will be made based on the information we have and without your presence.'
+
 Accept/Reject :worker_hearing
 
 Best regards,
@@ -2570,6 +2572,8 @@ Broom Service Team",
                 'message_heb' => "שלום, *:worker_name*
 
 רק תזכורת ידידותית לכך שהפגישה שלך *:team_name* ב-*:date* בין *:start_time* עד *:end_time* נקבעה.
+
+״אם אתה דוחה את ההזמנה לשימוע, זה אומר שאתה מוותר על ההזדמנות שלך להיות בשימוע ולהביע את טענותיך. החלטת החברה תתקבל על סמך המידע שבידינו וללא נוכחותך״.
 
 קבל/דחה :שמוע_עובד
 
@@ -2580,6 +2584,8 @@ Broom Service Team",
 
 Solo un recordatorio amistoso de que su reunión *:team_name* para el *:date* entre *:start_time* y *:end_time* ha sido programada.
 
+'Si rechaza la invitación a la audiencia, significa que renuncia a su oportunidad de estar presente en la misma y de exponer sus reclamaciones. La decisión de la empresa se tomará en base a la información que tengamos y sin su presencia.'
+
 Aceptar/Rechazar :worker_hearing
 
 Saludos cordiales,
@@ -2588,6 +2594,8 @@ Equipo de Broom Service",
                 'message_ru' => "Привет, *:worker_name*
 
 Просто дружеское напоминание, что ваша встреча *:team_name* на *:date* между *:start_time* и *:end_time* запланирована.
+
+«Если вы отклоните приглашение на слушание, это будет означать, что вы отказываетесь от возможности присутствовать на слушании и изложить свои требования. Решение компании будет принято на основе имеющейся у нас информации и без вашего присутствия».
 
 Принять/Отклонить :worker_hearing
 

@@ -401,6 +401,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/hearing-protocol/comments', [HearingCommentController::class, 'getComments']);
 
     Route::post('/claims', [ClaimController::class, 'store']);
+    Route::get('/claims/{workerId}', [ClaimController::class, 'showWorkerClaims']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);

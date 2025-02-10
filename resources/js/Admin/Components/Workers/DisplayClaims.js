@@ -17,7 +17,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import FilterButtons from "../../../Components/common/FilterButton";
 
-const WorkersHearing = ({ worker, getWorkerDetails }) => {
+const DisplayClaims = ({ worker, getWorkerDetails }) => {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
@@ -409,4 +409,4 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
     );
 };
 
-export default WorkersHearing;
+export default DisplayClaims;
