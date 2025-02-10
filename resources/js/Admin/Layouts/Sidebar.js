@@ -111,82 +111,81 @@ export default function Sidebar() {
                 </Link>
             </div>
             <ul className="list-group">
-                <li className="list-group-item">
-                    <NavLink to="/admin/dashboard"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="d-flex align-items-center">
-                            <HiOutlineSquares2X2 className="font-28" />
-                        </i>{t("admin.sidebar.dashboard")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/leads"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-poll-h font-28"></i>{t("admin.sidebar.leads")}
-                    </NavLink>
-                </li>
-                {/* <li className="list-group-item">
-                    <NavLink to="/admin/clients"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-user-tie font-20"></i>{t("admin.sidebar.clients")}
-                    </NavLink>
-                </li> */}
-                <li className={`list-group-item ${isClientDropdownOpen ? "active" : ""}`}>
-                    <div className="fence commonDropdown">
-                        <div>
-                            <a
-                                href="/admin/clients"
-                                className={`text-left ${isClientDropdownOpen ? "active text-white" : ""}`}
-                                data-toggle="collapse"
-                                onClick={toggleClientDropdown}
-                                aria-expanded={isClientDropdownOpen}
-                                aria-controls="clientDropdown"
-                            >
-                                <i className={`fa-solid fa-user-tie font-20 ${isClientDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.clients")}{" "}
-                                <i className={`fa-solid fa-angle-down ${isClientDropdownOpen ? "text-white rotate-180" : ""}`}
-                                    style={{ rotate: isClientDropdownOpen ? "180deg" : "" }}></i>
-                            </a>
-                        </div>
-                        <div
-                            id="clientDropdown"
-                            className={`collapse ${isClientDropdownOpen ? "show" : ""}`}
-                            aria-labelledby="clientDropdown"
-                        >
-                            <div className="card-body">
-                                <ul className="list-group">
-                                    {/* <li className={`list-group-item ${isActive(routes.clients) ? "active" : ""}`}>
+                {
+                    role !== "hr" && (
+                        <>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/dashboard"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="d-flex align-items-center">
+                                        <HiOutlineSquares2X2 className="font-28" />
+                                    </i>{t("admin.sidebar.dashboard")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/leads"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-poll-h font-28"></i>{t("admin.sidebar.leads")}
+                                </NavLink>
+                            </li>
+                            <li className={`list-group-item ${isClientDropdownOpen ? "active" : ""}`}>
+                                <div className="fence commonDropdown">
+                                    <div>
+                                        <a
+                                            href="/admin/clients"
+                                            className={`text-left ${isClientDropdownOpen ? "active text-white" : ""}`}
+                                            data-toggle="collapse"
+                                            onClick={toggleClientDropdown}
+                                            aria-expanded={isClientDropdownOpen}
+                                            aria-controls="clientDropdown"
+                                        >
+                                            <i className={`fa-solid fa-user-tie font-20 ${isClientDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.clients")}{" "}
+                                            <i className={`fa-solid fa-angle-down ${isClientDropdownOpen ? "text-white rotate-180" : ""}`}
+                                                style={{ rotate: isClientDropdownOpen ? "180deg" : "" }}></i>
+                                        </a>
+                                    </div>
+                                    <div
+                                        id="clientDropdown"
+                                        className={`collapse ${isClientDropdownOpen ? "show" : ""}`}
+                                        aria-labelledby="clientDropdown"
+                                    >
+                                        <div className="card-body">
+                                            <ul className="list-group">
+                                                {/* <li className={`list-group-item ${isActive(routes.clients) ? "active" : ""}`}>
                                         <Link to={routes.clients} onClick={(e) => e.stopPropagation()} style={isActive(routes.clients) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i> All Client
                                         </Link>
                                     </li> */}
-                                    <li className={`list-group-item ${isActive(routes.pendingClient) ? "active" : ""}`}>
-                                        <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.activeClient) ? "active" : ""}`}>
-                                        <Link to={routes.activeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.activeClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.freezeClient) ? "active" : ""}`}>
-                                        <Link to={routes.freezeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.freezeClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.pastClient) ? "active" : ""}`}>
-                                        <Link to={routes.pastClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pastClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+                                                <li className={`list-group-item ${isActive(routes.pendingClient) ? "active" : ""}`}>
+                                                    <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.activeClient) ? "active" : ""}`}>
+                                                    <Link to={routes.activeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.activeClient) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.freezeClient) ? "active" : ""}`}>
+                                                    <Link to={routes.freezeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.freezeClient) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.pastClient) ? "active" : ""}`}>
+                                                    <Link to={routes.pastClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pastClient) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
+                                                    </Link>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </>
+                    )
+                }
 
                 <li className="list-group-item">
                     <NavLink to="/admin/workers"
@@ -230,93 +229,103 @@ export default function Sidebar() {
                         <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.workerHearing")}
                     </NavLink>
                 </li> */}
-                <li className="list-group-item">
-                    <NavLink to="/admin/schedule"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.meetings")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/offered-price"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-tags font-20"></i>{t("admin.sidebar.offers")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/contracts"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-clipboard-list font-20"></i>{t("admin.sidebar.contracts")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/jobs"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/schedule-requests"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/expanses"
-                        className="d-flex align-items-center"
-                    >
-                        <GiReceiveMoney className="font-20 mr-2" /> {t("global.expenses")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/facebook-insights"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2" />{t("admin.sidebar.fb_insights")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/chat"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-message font-20"></i>{t("admin.sidebar.whatsapp")}
-                    </NavLink>
-                </li>
+                {
+                    role !== "hr" && (
+                        <>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/schedule"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.meetings")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/offered-price"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-tags font-20"></i>{t("admin.sidebar.offers")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/contracts"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-clipboard-list font-20"></i>{t("admin.sidebar.contracts")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/jobs"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/schedule-requests"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/expanses"
+                                    className="d-flex align-items-center"
+                                >
+                                    <GiReceiveMoney className="font-20 mr-2" /> {t("global.expenses")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/facebook-insights"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2" />{t("admin.sidebar.fb_insights")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/chat"
+                                    className="d-flex align-items-center"
+                                >
+                                    <i className="fa-solid fa-message font-20"></i>{t("admin.sidebar.whatsapp")}
+                                </NavLink>
+                            </li>
 
-                <li className="list-group-item">
-                    <NavLink to="/admin/messenger">
-                        <i className="fa-solid fa-comment font-20"></i>{t("admin.sidebar.messenger")}
-                    </NavLink>
-                </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/messenger">
+                                    <i className="fa-solid fa-comment font-20"></i>{t("admin.sidebar.messenger")}
+                                </NavLink>
+                            </li>
 
-                <li className="list-group-item">
-                    <NavLink to="/admin/custom-message">
-                        <i className="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
-                    </NavLink>
-                </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/custom-message">
+                                    <i className="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
+                                </NavLink>
+                            </li>
 
-                <li className="list-group-item">
-                    <NavLink to="/admin/payments">
-                        <i className="fa-solid fa-cart-shopping font-20"></i>{t("admin.sidebar.payments")}
-                    </NavLink>
-                </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/payments">
+                                    <i className="fa-solid fa-cart-shopping font-20"></i>{t("admin.sidebar.payments")}
+                                </NavLink>
+                            </li>
+                        </>
+                    )
+                }
 
-                {role !== "member" && (
+                {role !== "member" && role !== "hr" && (
                     <li className="list-group-item">
                         <NavLink to="/admin/income">
                             <i className="fa-solid fa-ils font-20"></i>{t("admin.sidebar.earnings")}
                         </NavLink>
                     </li>
                 )}
-                <li className="list-group-item">
-                    <NavLink to="/admin/notifications">
-                        <i className="fa-solid fa-bullhorn font-20"></i>{t("admin.sidebar.notification")}
-                    </NavLink>
-                </li>
+                {
+                    role !== "hr" && (
+                        <li className="list-group-item">
+                            <NavLink to="/admin/notifications">
+                                <i className="fa-solid fa-bullhorn font-20"></i>{t("admin.sidebar.notification")}
+                            </NavLink>
+                        </li>
+                    )
+                }
 
                 <li className={`list-group-item ${isDropdownActive ? "active" : ""}`}>
                     <div id="myFence" className="fence commonDropdown">
@@ -346,7 +355,7 @@ export default function Sidebar() {
                         >
                             <div className="card-body">
                                 <ul className="list-group">
-                                    {role !== "member" && (
+                                    {role !== "member" && role !== "hr" && (
                                         <li className={`list-group-item ${isActive(routes.manageTeam) ? "active" : ""}`}>
                                             <Link to={routes.manageTeam} style={isActive(routes.manageTeam) ? { color: "white" } : { color: "#757589" }}>
                                                 <i className="fa fa-angle-right"></i>{" "}
@@ -354,42 +363,48 @@ export default function Sidebar() {
                                             </Link>
                                         </li>
                                     )}
-                                    <li className={`list-group-item ${isActive(routes.services) ? "active" : ""}`}>
-                                        <Link to={routes.services} style={isActive(routes.services) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.services")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.manpowerCompanies) ? "active" : ""}`}>
-                                        <Link to={routes.manpowerCompanies} style={isActive(routes.manpowerCompanies) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.manpower")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.manageTime) ? "active" : ""}`}>
-                                        <Link to={routes.manageTime} style={isActive(routes.manageTime) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.manageTime")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
-                                        <Link to={routes.holidays} style={isActive(routes.holidays) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.holidays")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.waTemplates) ? "active text-white" : ""}`}>
-                                        <Link to={routes.waTemplates} style={isActive(routes.waTemplates) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.templates.title")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.payslipSettings) ? "active" : ""}`}>
-                                        <Link to={routes.payslipSettings} style={isActive(routes.payslipSettings) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.payslip_settings")}
-                                        </Link>
-                                    </li>
+                                    {
+                                        role !== "hr" && (
+                                            <>
+                                                <li className={`list-group-item ${isActive(routes.services) ? "active" : ""}`}>
+                                                    <Link to={routes.services} style={isActive(routes.services) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.services")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.manpowerCompanies) ? "active" : ""}`}>
+                                                    <Link to={routes.manpowerCompanies} style={isActive(routes.manpowerCompanies) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.manpower")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.manageTime) ? "active" : ""}`}>
+                                                    <Link to={routes.manageTime} style={isActive(routes.manageTime) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.manageTime")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
+                                                    <Link to={routes.holidays} style={isActive(routes.holidays) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.holidays")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.waTemplates) ? "active text-white" : ""}`}>
+                                                    <Link to={routes.waTemplates} style={isActive(routes.waTemplates) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.templates.title")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.payslipSettings) ? "active" : ""}`}>
+                                                    <Link to={routes.payslipSettings} style={isActive(routes.payslipSettings) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.payslip_settings")}
+                                                    </Link>
+                                                </li>
+                                            </>
+                                        )
+                                    }
                                     <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>
                                         <Link to={routes.accountSettings} style={isActive(routes.accountSettings) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i>{" "}

@@ -486,6 +486,7 @@ export default function AddTeam() {
                                     <input
                                         type="radio"
                                         name="role"
+                                        id="member"
                                         value="member"
                                         style={{ height: "unset" }}
                                         checked={role == "member"}
@@ -493,10 +494,13 @@ export default function AddTeam() {
                                             setRole(e.target.value)
                                         }
                                     />{" "}
+                                    <label htmlFor="member">
                                     {t("worker.settings.makeMember")}
+                                    </label>
                                     <input
                                         type="radio"
                                         name="role"
+                                        id="admin"
                                         value="admin"
                                         style={{
                                             height: "unset",
@@ -507,7 +511,22 @@ export default function AddTeam() {
                                             setRole(e.target.value)
                                         }
                                     />{" "}
-                                    {t("worker.settings.makeAdministrator")}
+                                    <label htmlFor="admin">{t("worker.settings.makeAdministrator")}</label>
+                                    <input
+                                        type="radio"
+                                        name="role"
+                                        id="hr"
+                                        value="hr"
+                                        style={{
+                                            height: "unset",
+                                            marginLeft: "10px",
+                                        }}
+                                        checked={role == "hr"}
+                                        onChange={(e) =>
+                                            setRole(e.target.value)
+                                        }
+                                    />{" "}
+                                    <label htmlFor="hr">Hr</label>
                                 </div>
                                 <div className="form-group">
                                     <input
