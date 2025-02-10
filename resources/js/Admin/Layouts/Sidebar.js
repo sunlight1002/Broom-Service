@@ -111,18 +111,19 @@ export default function Sidebar() {
                 </Link>
             </div>
             <ul className="list-group">
+
+                <li className="list-group-item">
+                    <NavLink to="/admin/dashboard"
+                        className="d-flex align-items-center"
+                    >
+                        <i className="d-flex align-items-center">
+                            <HiOutlineSquares2X2 className="font-28" />
+                        </i>{t("admin.sidebar.dashboard")}
+                    </NavLink>
+                </li>
                 {
                     role !== "hr" && (
                         <>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/dashboard"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="d-flex align-items-center">
-                                        <HiOutlineSquares2X2 className="font-28" />
-                                    </i>{t("admin.sidebar.dashboard")}
-                                </NavLink>
-                            </li>
                             <li className="list-group-item">
                                 <NavLink to="/admin/leads"
                                     className="d-flex align-items-center"
