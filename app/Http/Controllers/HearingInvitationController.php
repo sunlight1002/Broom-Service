@@ -41,128 +41,13 @@ class HearingInvitationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'user_id' => 'required|integer',
-    //         'team_id' => 'nullable|integer',
-    //         'start_date' => 'required|date',
-    //         'start_time' => 'required|string',
-    //         'meet_via' => 'required|string',
-    //         'meet_link' => 'nullable|string',
-    //         'purpose' => 'nullable|string',
-    //         'booking_status' => 'nullable|string',
-    //         'address_id' => 'nullable|integer',
-    //     ]);
-    
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 422);
-    //     }
-    
-    //     $startTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request->input('start_time'))->format('h:i A');
-    //     $endTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $startTime)->addMinutes(30)->format('h:i A');
-    
-    //     $invitationData = $request->only([
-    //         'user_id', 
-    //         'team_id', 
-    //         'start_date', 
-    //         'meet_via', 
-    //         'meet_link', 
-    //         'purpose', 
-    //         'booking_status', 
-    //         'address_id'
-    //     ]);
-    
-    //     $invitationData['start_time'] = $startTime; 
-    //     $invitationData['end_time'] = $endTime;  
-    
-    //     // Create the invitation record
-    //     $invitation = HearingInvitation::create($invitationData);
-    
-    //     // Get the worker and team name here before using them in the PDF generation
-    //     $worker = User::find($request->input('user_id'));
-    //     $teamName = null;
-    
-    //     if ($request->input('team_id')) {
-    //         $team = Admin::find($request->input('team_id'));
-    //         $teamName = $team ? $team->name : "No team specified";
-    //     }
-    
-    //     // Generate the PDF content using the worker's details
-    //     $htmlContent = '
-    //     <html>
-    //     <head>
-    //         <style>
-    //             body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.7; }
-    //             .header { text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 25px; }
-    //             .content { margin: 20px; }
-    //             .content p { margin-bottom: 10px; }
-    //             .footer { margin-top: 40px; text-align: right; margin-right: 20px; }
-    //             .date { text-align: right; }
-    //             .honor { text-align: left; }
-    //             ol { margin-left: 20px; }
-    //         </style>
-    //     </head>
-    //     <body>
-    //         <div class="content">
-    //             <p class="date">Date: ' . $request->input('start_date') . '</p>
-    //             <p class="honor">In honor of: ' . ($worker->firstname . ' ' . $worker->lastname) . '</p>
-    //             <div class="header">Summons for a Hearing</div>
-    //             <p>We would like to inform you that on ' . $request->input('start_date') . ', at ' . $startTime . ', a hearing will be held for you before Ms./Mr. ' . ($teamName ?? 'Not specified') . ', ' . ($teamName ? 'Team Manager' : 'Position not specified') . ', at the company\'s offices, in order to consider your continued employment in the company, for the following reasons:</p>
-    //             <ol>
-    //                 <li>' . $request->input('purpose') . '</li>
-    //             </ol>
-    //             <p>For your information, a lender/lawyer can also participate in the hearing on your behalf. Also, you may respond in writing to what is claimed in this letter and attach any document that supports your arguments.</p>
-    //             <p>The hearing will be conducted openly and in good faith, and we will consider your requests/claims, as much as possible.</p>
-    //         </div>
-    //         <div class="footer">
-    //             <p>Sincerely,</p>
-    //             <p>' . ($teamName ?? 'Not specified') . '</p>
-    //         </div>
-    //     </body>
-    //     </html>';
-
-    //     // Generate and save the PDF
-    //     $pdf = PDF::loadHTML($htmlContent);
-    //     $pdfPath = 'pdfs/hearing_invitation_' . $invitation->id . '.pdf';
-    //     $pdf->save(public_path($pdfPath));
-    
-    //     // Update the invitation record with the file path
-    //     $invitation->update(['file' => $pdfPath]);
-    
-    //     // Continue with notification logic
-    //     if ($worker) {
-    //         // Prepare the notification data
-    //         $notificationData = [
-    //             'worker' => [
-    //                 'phone' => $worker->phone,
-    //                 'lng' => $worker->lng,
-    //                 'firstname' => $worker->firstname,
-    //                 'lastname' => $worker->lastname,
-    //             ], 
-    //             'start_date' => $request->input('start_date'),
-    //             'start_time' => $startTime,
-    //             'end_time' => $endTime,
-    //             'purpose' => $request->input('purpose'),
-    //             'team_name' => $teamName,
-    //             'id' => $invitation->id,
-    //         ];
-    
-    //         // Dispatch the WhatsApp notification event
-    //         event(new WhatsappNotificationEvent([
-    //             'type' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
-    //             'notificationData' => $notificationData
-    //         ]));         
-    //     }
-    
-    //     return response()->json(['message' => 'Hearing Invitation created successfully', 'data' => $invitation], 201);
-    // }
-    
 
     public function store(Request $request)
     {
+        \Log::info($request->all());
+       
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer',
+            'user_id' => 'required|integer|exists:users,id',
             'team_id' => 'nullable|integer',
             'start_date' => 'required|date',
             'start_time' => 'required|string',
@@ -177,36 +62,67 @@ class HearingInvitationController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $startTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request->input('start_time'))->format('h:i A');
-        $endTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $startTime)->addMinutes(30)->format('h:i A');
+        $hebrewMeridianMap = [
+            'לפנה"צ' => 'AM',
+            'בבוקר' => 'AM',
+            'לפני הצהריים' => 'AM',
+            'לפנות בוקר' => 'AM',
+            'אחה"צ' => 'PM',
+            'אחרי הצהריים' => 'PM',
+            'בערב' => 'PM',
+        ];
 
-        $invitationData = $request->only([
-            'user_id', 
-            'team_id', 
-            'start_date', 
-            'meet_via', 
-            'meet_link', 
-            'purpose', 
-            'booking_status', 
-            'address_id'
-        ]);
+        $startTimeInput = $request->input('start_time');
 
-        $invitationData['start_time'] = $startTime; 
-        $invitationData['end_time'] = $endTime;  
-
-        // Create the invitation record
-        $invitation = HearingInvitation::create($invitationData);
-
-        // Get the worker and team name
-        $worker = User::find($request->input('user_id'));
-        $teamName = null;
-
-        if ($request->input('team_id')) {
-            $team = Admin::find($request->input('team_id'));
-            $teamName = $team ? $team->name : "No team specified";
+        foreach ($hebrewMeridianMap as $hebrew => $english) {
+            if (str_contains($startTimeInput, $hebrew)) {
+                $startTimeInput = str_replace($hebrew, $english, $startTimeInput);
+                break;
+            }
         }
 
-        \Log::info("lng",["lng:" => $worker->lng]);
+        try {
+            $startTime = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $startTimeInput)->format('h:i A');
+            $endTime = Carbon::parse($startTime)->addMinutes(30)->format('h:i A');
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid time format'], 422);
+        }
+
+        $team = Admin::find($request->input('team_id'));
+        if(!$team){
+            return response()->json(['error' => 'Team not found'], 404);
+        }
+        $worker = User::find($request->input('user_id'));
+        if(!$worker){
+            return response()->json(['error' => 'Worker not found'], 404);
+        }
+
+        $teamId = $team->id ?? null;
+        $teamName = $team->name ?? null;
+
+        if($worker && $worker->lng == "heb"){
+            $teamName = $team ? $team->heb_name : null;
+        }else{
+            $teamName = $team ? $team->name : null;
+        }
+
+
+        if (!$worker) {
+            return response()->json(['error' => 'Worker not found'], 404);
+        }
+
+        \Log::info($teamId);
+
+        $invitation = HearingInvitation::create([
+            'user_id' => $request->input('user_id'),
+            'team_id' => $teamId,
+            'start_date' => $request->input('start_date'),
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'meet_via' => $request->input('meet_via'),
+            'meet_link' => $request->input('meet_link'),
+            'purpose' => $request->input('purpose'),
+        ]);
 
         $htmlContent = '';
         switch ($worker->lng) {
@@ -371,7 +287,7 @@ class HearingInvitationController extends Controller
                 'team_name' => $teamName,
                 'id' => $invitation->id,
             ];
-
+            \Log::info('Notification data: ' . json_encode($notificationData));
             event(new WhatsappNotificationEvent([
                 'type' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
                 'notificationData' => $notificationData

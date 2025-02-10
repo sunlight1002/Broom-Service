@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\WhatsAppBotWorkerState;
 use App\Models\WorkerLeads;
 use Illuminate\Support\Facades\Log;
 
@@ -63,12 +64,18 @@ class MakeWorkerLead extends Command
             $client = Client::where('phone',$formattedPhone)->first();
             $workerLead = WorkerLeads::where('phone', $formattedPhone)->first();
 
+
             if (!$user && !$client && !$workerLead) {
 
                 $workerLead = WorkerLeads::create([
                     'phone' => $formattedPhone,
                     'lng' => $lng,
                     'status' => "pending",
+                ]);
+
+                WhatsAppBotWorkerState::create([
+                    'worker_lead_id' => $workerLead->id,
+                    'step' => 4
                 ]);
 
                 $this->sendMessage($formattedPhone, $lng);

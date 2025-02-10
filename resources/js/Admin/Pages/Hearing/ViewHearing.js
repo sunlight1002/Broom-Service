@@ -1,26 +1,20 @@
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import axios from "axios";
 import { default as Moment, default as moment } from "moment";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAlert } from "react-alert";
-import { Button, Modal } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import Select from "react-select";
 
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
-import Map from "../../Components/Map/map";
 import Sidebar from "../../Layouts/Sidebar";
 
 
 function ViewHearing() {
-    // const { id } = useParams();
-    // const [client, setClient] = useState([]);
+
     const [totalTeam, setTotalTeam] = useState([]);
     const [team, setTeam] = useState("");
     const [bstatus, setBstatus] = useState("");
@@ -38,13 +32,7 @@ function ViewHearing() {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
-    const [place, setPlace] = useState();
-    const [allWorkers, setAllWorkers] = useState([]);
     const [workers, setWorkers] = useState([]);
-
-    // const params = useParams();
-    // const wid = params.id;
-
     
     const { workerId, hid } = useParams();
 
@@ -52,10 +40,6 @@ function ViewHearing() {
     const alert = useAlert();
     const navigate = useNavigate();
     const { t } = useTranslation();
-    // const queryParams = new URLSearchParams(window.location.search);
-    // const sid = queryParams.get("hid");
-    
-    // const urlParamAction = queryParams.get("action");
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -151,41 +135,6 @@ function ViewHearing() {
         }
     };
 
-    // const createAndSendMeeting = (_scheduleID) => {
-    //     setIsLoading(true);
-
-    //     axios
-    //         .post(
-    //             `/api/admin/schedule/${_scheduleID}/create-event`,
-    //             {},
-    //             {
-    //                 headers,
-    //             }
-    //         )
-    //         .then((res) => {
-    //             setIsLoading(false);
-
-    //             if (res.data.errors) {
-    //                 for (let e in res.data.errors) {
-    //                     alert.error(res.data.errors[e]);
-    //                 }
-    //             } else {
-    //                 setTimeout(() => {
-    //                     navigate("/admin/workers-hearings");
-    //                 }, 1000);
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             setIsLoading(false);
-    //             if (error.response.data.error.message) {
-    //                 Swal.fire({
-    //                     title: "Error!",
-    //                     text: error.response.data.error.message,
-    //                     icon: "error",
-    //                 });
-    //             }
-    //         });
-    // };
 
     const getWorker = () => {
         axios
@@ -409,14 +358,6 @@ function ViewHearing() {
                 <h1 className="page-title">
                     {t("admin.hearing.scheduleHearing")}
                 </h1>
-                <button 
-                    className="text-white navyblue text-left mr-2 w-full"
-                    style={{ padding: "5px", borderRadius: "5px" }}
-                    onClick={handleCreateClaim}
-                >
-                    <i className="fas fa-upload"></i>
-                    Create Claim
-                </button>
                 <div className="dashBox maxWidthControl p-4 sch-meet">
                     <div className="row mt-4">
                         <div className="col-sm-6">

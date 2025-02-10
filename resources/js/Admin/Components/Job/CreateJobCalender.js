@@ -26,6 +26,8 @@ export default function CreateJobCalender({
     distance,
     prevWorker,
 }) {
+    console.log(distance);
+    
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
@@ -123,9 +125,9 @@ export default function CreateJobCalender({
 
     const getWorkers = useCallback(
         async (_service, _calendarStartDate, _calendarEndDate) => {
-            if (hasFetched) return;
-
-            setHasFetched(true);
+            // if (hasFetched) return;
+            
+            // setHasFetched(true);
             try {
                 setLoading(true);
                 const res = await axios.get(`/api/admin/all-workers`, {
@@ -134,7 +136,7 @@ export default function CreateJobCalender({
                         filter: true,
                         start_date: calendarStartDate ?? _calendarStartDate,
                         end_date: calendarEndDate ?? _calendarEndDate,
-                        distance,
+                        distance : distance,
                         service_id: _service.service,
                         has_cat: _service.address.is_cat_avail,
                         has_dog: _service.address.is_dog_avail,
@@ -148,7 +150,6 @@ export default function CreateJobCalender({
                 const workers = res.data.workers;
 
                 setAllWorkers(workers);
-                console.time("get");
                 let WorkerAvailability = getWorkerAvailabilities(workers);
 
                 console.timeEnd("get");

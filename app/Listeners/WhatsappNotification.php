@@ -480,6 +480,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD:
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM:
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING:
+                    case WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
