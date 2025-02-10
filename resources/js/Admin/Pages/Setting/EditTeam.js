@@ -6,6 +6,7 @@ import axios from "axios";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { useTranslation } from "react-i18next";
 
 export default function EditTeam() {
     const [name, setName] = useState(null);
@@ -29,6 +30,7 @@ export default function EditTeam() {
         branch_no: null,
         account_no: null
     })
+    const { t } = useTranslation();
 
     const alert = useAlert();
     const param = useParams();
@@ -189,25 +191,25 @@ export default function EditTeam() {
                                     <label className="control-label">
                                         Phone
                                     </label>
-                                        <PhoneInput
-                                            country={'il'}
-                                            value={phone}
-                                            onChange={(phone, country) => {
-                                                // Remove leading '0' after country code
-                                                const dialCode = country.dialCode;
-                                                let formattedPhone = phone;
-                                                if (phone.startsWith(dialCode + '0')) {
-                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
-                                                }
-                                                setPhone(formattedPhone);
-                                            }}
-                                            inputClass="form-control"
-                                            inputProps={{
-                                                name: 'phone',
-                                                required: true,
-                                                placeholder: "Enter phone",
-                                            }}
-                                        />
+                                    <PhoneInput
+                                        country={'il'}
+                                        value={phone}
+                                        onChange={(phone, country) => {
+                                            // Remove leading '0' after country code
+                                            const dialCode = country.dialCode;
+                                            let formattedPhone = phone;
+                                            if (phone.startsWith(dialCode + '0')) {
+                                                formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                            }
+                                            setPhone(formattedPhone);
+                                        }}
+                                        inputClass="form-control"
+                                        inputProps={{
+                                            name: 'phone',
+                                            required: true,
+                                            placeholder: "Enter phone",
+                                        }}
+                                    />
                                     {errors?.phone ? (
                                         <small className="text-danger mb-1">
                                             {errors?.phone}
@@ -557,26 +559,48 @@ export default function EditTeam() {
                                 <div className="form-group">
                                     <input
                                         type="radio"
-                                        value="member"
                                         name="role"
+                                        id="member"
+                                        value="member"
+                                        style={{ height: "unset" }}
                                         checked={role == "member"}
                                         onChange={(e) =>
                                             setRole(e.target.value)
                                         }
-                                        style={{ height: "unset" }}
                                     />{" "}
-                                    Make Member
+                                    <label htmlFor="member">
+                                        {t("worker.settings.makeMember")}
+                                    </label>
                                     <input
                                         type="radio"
-                                        value="admin"
                                         name="role"
+                                        id="admin"
+                                        value="admin"
+                                        style={{
+                                            height: "unset",
+                                            marginLeft: "10px",
+                                        }}
                                         checked={role == "admin"}
                                         onChange={(e) =>
                                             setRole(e.target.value)
                                         }
-                                        style={{ height: "unset" }}
                                     />{" "}
-                                    Make Administrator
+                                    <label htmlFor="admin">{t("worker.settings.makeAdministrator")}</label>
+                                    <input
+                                        type="radio"
+                                        name="role"
+                                        id="hr"
+                                        value="hr"
+                                        style={{
+                                            height: "unset",
+                                            marginLeft: "10px",
+                                        }}
+                                        checked={role == "hr"}
+                                        onChange={(e) =>
+                                            setRole(e.target.value)
+                                        }
+                                    />{" "}
+                                    <label htmlFor="hr">Hr</label>
                                 </div>
                                 <div className="form-group">
                                     <input
