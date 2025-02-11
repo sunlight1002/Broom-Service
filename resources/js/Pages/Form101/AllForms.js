@@ -53,7 +53,7 @@ function AllForms() {
     const type = QueryParams.get("type");
 
     const decodeId = Base64.decode(param.id);
-    let numbersOnly = decodeId.replace(/\D/g, '');
+    let numbersOnly = decodeId?.replace(/\D/g, '');
 
     const [id, setId] = useState(numbersOnly);
     const [formId, setFormId] = useState(param.formId ? Base64.decode(param.formId) : null)
@@ -228,21 +228,35 @@ function AllForms() {
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
             employeeDateOfAliyah: yup.date().nullable(),
             employeeCity: yup.string()
-                .test('is-city-required', t("form101.errorMsg.CityReq"), function (value) {
+                .test('is-city-required', function (value) {
                     const { employeecountry } = this.parent; // Get the country value from the parent schema
-                    if (employeecountry === "Israel") {
-                        return value && hebrewRegex.test(value);
+                    console.log(employeecountry);
+
+                    if (!value) {
+                        return this.createError({ message: t("form101.errorMsg.CityReq") });
                     }
-                    return value != null; // If not Israel, just check if there's a value
+
+                    if (employeecountry === "Israel" && !hebrewRegex.test(value)) {
+                        return this.createError({ message: t("form101.errorMsg.hebrew") });
+                    }
+
+                    return true; // Validation passed
                 }),
 
             employeeStreet: yup.string()
-                .test('is-street-required', t("form101.errorMsg.StreetReq"), function (value) {
+                .test('is-street-required', function (value) {
                     const { employeecountry } = this.parent; // Get the country value from the parent schema
-                    if (employeecountry === "Israel") {
-                        return value && hebrewRegex.test(value);
+                    console.log(employeecountry);
+
+                    if (!value) {
+                        return this.createError({ message: t("form101.errorMsg.StreetReq") });
                     }
-                    return value != null; // If not Israel, just check if there's a value
+
+                    if (employeecountry === "Israel" && !hebrewRegex.test(value)) {
+                        return this.createError({ message: t("form101.errorMsg.hebrew") });
+                    }
+
+                    return true; // Validation passed
                 }),
             employeeHouseNo: yup
                 .string()
@@ -1454,7 +1468,7 @@ function AllForms() {
                 }
                 if (_worker?.first_date && _worker?.first_date !== null) {
                     console.log(_worker?.first_date);
-                    
+
                     setFieldValue("DateOfBeginningWork", _worker?.first_date);
                 }
 
@@ -1543,7 +1557,7 @@ function AllForms() {
     console.log(errors?.DateOfBeginningWork);
 
     console.log(touched);
-    
+
 
     return (
         <div className=" mt-4 mb-5 bg-transparent " style={{

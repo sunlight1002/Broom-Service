@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\WorkerController;
 use App\Http\Controllers\Admin\WorkerLeadsController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\JobCommentController;
+use App\Http\Controllers\Admin\InsuranceCompanyController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ServicesController;
@@ -291,6 +292,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('client/{client_id}/cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
+    Route::post('add-contacts/{id}', [ClientController::class, 'addContactsToClient']);
+    Route::get('get-contacts/{id}', [ClientController::class, 'getContactsByClient']);
 
     Route::get('close-doc/{id}/{type}', [InvoiceController::class, 'closeDoc']);
     Route::post('cancel-doc', [InvoiceController::class, 'cancelDoc']);
@@ -345,6 +348,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('manpower-companies-list', [ManpowerCompaniesController::class, 'allCompanies']);
     Route::post('manpower-companies/{id}', [ManpowerCompaniesController::class, 'update']);
     Route::resource('manpower-companies', ManpowerCompaniesController::class)->except(['create', 'show', 'edit', 'update']);
+
+    Route::get('insurance-companies', [InsuranceCompanyController::class, 'index']);
+    Route::post('insurance-companies', [InsuranceCompanyController::class, 'updateOrCreate']);
 
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);

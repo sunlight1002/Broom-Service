@@ -197,6 +197,7 @@ import CustomMessage from "./Admin/Pages/Setting/CustomMessage";
 import AdminDocument from "./Admin/Components/Documents/AdminDocument";
 import ClientForgotPassword from "./Client/Auth/ClientForgotPassword";
 import AddScheduleRequest from "./Admin/Components/Dashboard/AddScheduleRequest";
+import InsuranceCompany from "./Admin/Pages/Setting/InsuranceCompany";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -633,7 +634,7 @@ export default function MyRoutes() {
                                 path="expanses"
                                 element={<Expanses />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="add-schedule-requests"
                                 element={<AddScheduleRequest />}
@@ -865,6 +866,11 @@ export default function MyRoutes() {
                                 exact
                                 path="manpower-companies"
                                 element={<ManpowerCompanies />}
+                            />
+                            <Route
+                                exact
+                                path="insurance-companies"
+                                element={<InsuranceCompany />}
                             />
                             <Route
                                 exact

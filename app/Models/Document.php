@@ -16,6 +16,7 @@ class Document extends Model
         'name', 
         'file',
         'userable_type',
+        'date',
         'userable_id'
     ];
 

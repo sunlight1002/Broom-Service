@@ -49,7 +49,6 @@ export default function AddScheduleRequest({ mode }) {
         }
         try {
            const res = await axios.post(`/api/admin/add-schedule-request`, data, { headers });
-           console.log(res);
            setFormValues({
                worker_ids: [],
                client_ids: [],

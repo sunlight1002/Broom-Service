@@ -85,7 +85,7 @@ const HearingProtocol = () => {
         <Sidebar />
         <div id="content pl-0">
             <h1 className="page-title">Hearing Protocol</h1>
-            <div className="dashBox maxWidthControl p-4 sch-meet">
+            <div className="sch-meet">
                 <div className="row mt-4">
                     <div className="col-sm-6">
                         <div className="flex space-x-6">
