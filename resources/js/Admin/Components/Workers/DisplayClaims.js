@@ -45,7 +45,7 @@ const DisplayClaims = ({ worker }) => {
         <Card className=" mb-4 ">
             <Card.Body>
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h4>{t("admin.hearing.title")}</h4>
+                    <h4>{t("admin.global.claim")}</h4>
                     <Form.Control 
                         type="text" 
                         placeholder={t("admin.hearing.searchPlaceholder")}

@@ -49,7 +49,6 @@ class DocumentController extends Controller
     public function save(Request $request)
     {
         $data = $request->all();
-        \Log::info($data);
         $user = User::find($data['id']);
         
         if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
@@ -141,6 +140,7 @@ class DocumentController extends Controller
             $user->documents()->create([
                 'document_type_id' => $data['doc_id'],
                 'name'             => $documentName,
+                'date'             => $data['date'] ?? null,
                 'file'             => $file_name,
             ]);
         }

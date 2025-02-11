@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import moment from "moment";
 
 const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
     const { t } = useTranslation();
@@ -11,12 +12,16 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
 
     const [selectedDocType, setSelectedDocType] = useState("");
     const [otherDocName, setOtherDocName] = useState("");
+    const [date, setDate] = useState(moment().format("YYYY-MM-DD"));
 
     const handleDocData = (e) => {
         e.preventDefault();
         const data = new FormData();
         data.append("id", param.id);
         data.append("doc_id", selectedDocType);
+        if(date){
+            data.append("date", date);
+        }
         if (docFile.current && docFile.current.files.length > 0) {
             data.append("file", docFile.current.files[0]);
         }
@@ -45,6 +50,19 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
         }
     }, [isOpen]);
 
+    const handleSelectedDocType = (e) => {
+        const target = e.target;
+
+        // const selectedOption = target.options[target.selectedIndex];
+        // console.log(selectedOption.getAttribute("name"));
+
+
+        setSelectedDocType(target.value);
+        if (e.target.value === "9") {
+            setOtherDocName("");
+        }
+    };
+
     return (
         <Modal
             size="xl"
@@ -70,17 +88,35 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                                 className="form-control"
                                 ref={docTypeRef}
                                 value={selectedDocType}
-                                onChange={(e) => setSelectedDocType(e.target.value)}
+                                onChange={(e) => handleSelectedDocType(e)}
                             >
                                 <option value="">{t("global.select_default_option")}</option>
                                 {docTypes.map((d) => (
-                                    <option value={d.id} key={d.id}>
+                                    <option value={d.id} name={d.slug} key={d.id}>
                                         {d.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
                     </div>
+
+                    {selectedDocType == "3" && (
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">{t("global.date")}</label>
+                                <div className="d-flex align-items-center flex-wrap">
+                                    <input
+                                        className="form-control my-1"
+                                        type="date"
+                                        placeholder="Enter Date"
+                                        name="date"
+                                        value={date}
+                                        onChange={(e) => setDate(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Other Document Name (Conditional) */}
                     {selectedDocType == "9" && (

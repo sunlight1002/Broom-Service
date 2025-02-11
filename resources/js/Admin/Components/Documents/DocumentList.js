@@ -6,9 +6,6 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
         return filename.split(".").pop();
     };
 
-    console.log(worker,"worker");
-    
-
     return (
         <div>
             {arr.map(
@@ -34,7 +31,7 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
                                             style={{ fontWeight: "600" }}
                                         >
                                             {Moment(worker.updated_at).format(
-                                                "Y"
+                                                "DD-MM-Y"
                                             )}
                                         </span>
                                     </div>
@@ -102,7 +99,10 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
                                     className="noteDate"
                                     style={{ fontWeight: "600" }}
                                 >
-                                    {Moment(d.created_at).format("DD-MM-Y")}
+                                    {d.document_type && d.document_type.id == "3" ?
+                                        Moment(d.date).format("DD-MM-Y") :
+                                        Moment(d.created_at).format("DD-MM-Y")
+                                    }
                                 </span>
                             </div>
                             <div className="col-sm-3 col-3">

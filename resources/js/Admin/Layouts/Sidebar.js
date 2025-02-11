@@ -69,6 +69,7 @@ export default function Sidebar() {
         manageTeam: "/admin/manage-team",
         services: "/admin/services",
         manpowerCompanies: "/admin/manpower-companies",
+        insuranceCompanies: "/admin/insurance-companies",
         manageTime: "/admin/manage-time",
         accountSettings: "/admin/settings",
         holidays: "/admin/holidays",
@@ -377,6 +378,12 @@ export default function Sidebar() {
                                                     <Link to={routes.manpowerCompanies} style={isActive(routes.manpowerCompanies) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i>{" "}
                                                         {t("admin.sidebar.settings.manpower")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.insuranceCompanies) ? "active" : ""}`}>
+                                                    <Link to={routes.insuranceCompanies} style={isActive(routes.insuranceCompanies) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("global.insurance_companies")}
                                                     </Link>
                                                 </li>
                                                 <li className={`list-group-item ${isActive(routes.manageTime) ? "active" : ""}`}>

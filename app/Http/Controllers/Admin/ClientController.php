@@ -1024,6 +1024,98 @@ class ClientController extends Controller
             'message' => 'Comment has been deleted successfully'
         ]);
     }
+
+
+    public function addContactsToClient(Request $request, $clientId)
+    {
+        \Log::info($request->all());
+    
+        $request->validate([
+            '*.name' => 'required|string|max:255',
+            '*.phone' => 'required|string|max:20',
+            '*.address_notification' => 'boolean',
+            '*.payment_notification' => 'boolean',
+            '*.addresses' => 'array',
+            '*.addresses.*' => 'exists:client_property_addresses,id',
+        ]);
+    
+        try {
+            foreach ($request->all() as $contact) {
+                if (!empty($contact['address_notification']) && !empty($contact['addresses'])) {
+                    foreach ($contact['addresses'] as $addressId) {
+                        $propertyAddress = ClientPropertyAddress::find($addressId);
+                        if ($propertyAddress) {
+                            $propertyAddress->update([
+                                'contact_person_name' => $contact['name'],
+                                'contact_person_phone' => $contact['phone']
+                            ]);
+                        }
+                    }
+                }
+    
+                if (!empty($contact['payment_notification'])) {
+                    $client = Client::find($clientId);
+                    if ($client) {
+                        $client->update([
+                            'contact_person_name' => $contact['name'],
+                            'contact_person_phone' => $contact['phone']
+                        ]);
+                    }
+                }
+            }
+    
+            return response()->json([
+                'message' => 'Contacts added successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to add contacts.',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    public function getContactsByClient($id)
+    {
+        $client = Client::with('property_addresses')->find($id);
+    
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found!',
+            ], 404);
+        }
+    
+        $propertyAddresses = $client->property_addresses;
+        $clientName = $client->contact_person_name;
+        $clientPhone = $client->contact_person_phone;
+    
+        $response = [
+            'exist' => null, 
+            'matched_addresses' => [], // IDs of addresses where details match client
+            'unique_addresses' => []   // IDs of addresses with unique details
+        ];
+    
+        // If client contact details exist, mark "exist" as "client"
+        if (!empty($clientName) && !empty($clientPhone)) {
+            $response['exist'] = 'client';
+        }
+    
+        foreach ($propertyAddresses as $address) {
+            if (!empty($address->contact_person_name) && !empty($address->contact_person_phone)) {
+                if ($address->contact_person_name === $clientName && $address->contact_person_phone === $clientPhone) {
+                    $response['matched_addresses'][] = $address->id;
+                } else {
+                    $response['unique_addresses'][] = $address;
+                }
+            }
+        }
+    
+        return response()->json($response);
+    }
+    
+
     
     public function clienStatusLog(Request $request)
     {

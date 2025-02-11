@@ -318,7 +318,13 @@
         "sum": "סכום",
         "file": "קובץ",
         "cleaner": "מנקה",
-        "general_worker": "עובד כללי"
+        "general_worker": "עובד כללי",
+        "insurance_companies": "חברות ביטוח",
+        "update_insurance_company": "עדכון חברת ביטוח",
+        "contacts": "אנשי קשר",
+        "address_contact": "כתובת איש קשר",
+        "payment_contact": "איש קשר לתשלום",
+        "remove": "הסר"
     },
     "modal": {
         "title": "מודל",

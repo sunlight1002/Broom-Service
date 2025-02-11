@@ -11,6 +11,7 @@ import Files from "./Files";
 import PropertyAddressTable from "../common/PropertyAddressTable";
 import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
+import ContactsTable from "../common/ContactsTable";
 
 export default function ProfileDetails({
     client,
@@ -258,6 +259,18 @@ export default function ProfileDetails({
                                         {t("admin.client.property_address")}
                                     </a>
                                 </li>
+                                {/* <li className="nav-item" role="presentation">
+                                    <a
+                                        id="contacts-tab"
+                                        className="nav-link navyblueColor"
+                                        data-toggle="tab"
+                                        href="#tab-contacts"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        {t("global.contacts")}
+                                    </a>
+                                </li> */}
                             </ul>
                             <div className="tab-content border-0 px-0 pt-2">
                                 <div
@@ -516,6 +529,14 @@ export default function ProfileDetails({
                                 >
                                     <PropertyAddressTable clientId={param.id} />
                                 </div>
+                                {/* <div
+                                    id="tab-contacts"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="rejected-tab"
+                                >
+                                    <ContactsTable clientId={param.id} client={client} />
+                                </div> */}
                             </div>
                         </div>
                     </div>

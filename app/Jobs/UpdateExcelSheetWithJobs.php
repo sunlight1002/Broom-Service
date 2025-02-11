@@ -83,15 +83,25 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
                 $sheets[] = $this->sheetName;
             }
             $sheets = array_reverse($sheets);
+            $currentDate = Carbon::createFromFormat('Y-m-d', '2025-02-08');
+            $lastLoggedMonth = null;  // Variable to keep track of the last logged month
+
             foreach ($sheets as $key => $sheet) {
                 $sheetId = $this->getSheetId($sheet);
+                $staticDate = "2025-02-08";
 
-                $currentDate = "2025-02-08";
+
                 $jobs = Job::with(['client', 'worker', 'offer.service', 'contract'])
-                        ->where('start_date', '>=', $currentDate)
+                        ->where('start_date', '>=', $staticDate)
                         ->get();
                 foreach($jobs as $job) {
-                    $this->addJobToGoogleSheet($job, $sheet, $sheetId);
+                    $this->addJobToGoogleSheet($job, $sheet, $sheetId, $currentDate, $lastLoggedMonth);
+                    $currentDate->addDay();
+                    // Check if the month has changed
+                    if ($currentDate->format('Y-m') !== $lastLoggedMonth) {
+                        Log::info('Month Completed: ' . $currentDate->format('F Y'));
+                        // $lastLoggedMonth = $currentDate->format('Y-m');
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -100,54 +110,44 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         }
     }
 
-    public function initGoogleConfig()
+
+    public function addJobToGoogleSheet($job, $sheet, $sheetId, $startDate, $lastLoggedMonth = null)
     {
-        // Retrieve the Google Sheet ID from settings
-        $this->spreadsheetId = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_SHEET_ID)
-            ->value('value');
 
-        $this->googleRefreshToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
-            ->value('value');
+        $sheetName = $sheet;
 
-        if (!$this->googleRefreshToken) {
-            throw new Exception('Error: Google Refresh Token not found.');
+        if($startDate->format('Y-m') !== $lastLoggedMonth) {
+            Log::info('Month Completed: ' . $startDate->format('F Y'));
+            $this->createNewSheet($this->spreadsheetId, $startDate->format('F Y'));
+            $sheetName = $startDate->format('F Y');
         }
-
-        // Refresh the access token
-        $googleClient = $this->getClient();
-        $googleClient->refreshToken($this->googleRefreshToken);
-        $response = $googleClient->fetchAccessTokenWithRefreshToken($this->googleRefreshToken);
-        $this->googleAccessToken = $response['access_token'];
-
-        // Save the new access token
-        Setting::updateOrCreate(
-            ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-            ['value' => $this->googleAccessToken]
-        );
-
-        if (!$this->googleAccessToken) {
-            throw new Exception('Error: Google Access Token not found.');
-        }
-    }
-
-
-    public function addJobToGoogleSheet($job, $sheetName, $sheetId)
-    {
         $spreadsheetId = $this->spreadsheetId;
         
-        $checkRange = "{$sheetName}!A:A"; 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->googleAccessToken,
-            'Content-Type' => 'application/json',
-        ])->get("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$checkRange}?majorDimension=ROWS");
+        $existingRows = $this->getSheetData($sheetName, $spreadsheetId);
+
+        $lastHighlightedRow = $this->findLastHighlightedRow($sheetName);
+
+        if ($lastHighlightedRow) {
+            $nextRow = $lastHighlightedRow + 3; // Skip 2 rows below the last highlighted row
+        } else {
+            $nextRow = count($existingRows) + 1;
+        }        
+
+        $jobDate = Carbon::parse($job->start_date)->format('Y-m-d'); // Convert job start date
     
-        $existingRows = json_decode($response->body(), true)['values'] ?? [];
-        $nextRow = count($existingRows) + 1; // Find the next empty row
+        $highlightDate = null;
+    
+         if ($jobDate == $startDate->format('Y-m-d')) {
+            $highlightDate = $jobDate; // Store the job date for cell D3
+        }
+
+        // Apply background color if date is set
+        if ($highlightDate) {
+            $this->setCellBackgroundColor($sheetId, "D{$nextRow}", [0.0, 1.0, 0.0], $highlightDate); // Green background
+        }
         
         // Construct range explicitly to force strict placement
-        $updateRange = "{$sheetName}!A{$nextRow}:Z{$nextRow}";
+        $updateRange = "{$sheetName}!A{$nextRow}";
     
         $client = $job->client ?? null;
         $offer = $job->offer ?? null;
@@ -184,6 +184,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         $addressName = ClientPropertyAddress::where('id', $job->address_id)->value('address_name');
     
         $serviceName = $client->lng == "heb" ? $service->heb_name : $service->name;
+
     
         $jobData = [
             $client->invoicename ?? "",
@@ -224,8 +225,6 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
             \Log::error("Failed to update job data.");
             return;
         }
-    
-        \Log::info("Added Job ID {$job->id} to Google Sheet at row: " . $nextRow);
     
         // Apply dropdowns & checkboxes
         $fields = [];
@@ -279,6 +278,19 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         return $response->body();
     }
     
+
+    public function getSheetData($sheetName, $spreadsheetId){
+
+        $checkRange = "{$sheetName}!A:A"; 
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->get("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$checkRange}?majorDimension=ROWS");
+    
+        $existingRows = json_decode($response->body(), true)['values'] ?? [];
+    
+        return $existingRows;
+    }
 
 
     public function updateGoogleSheetFields($fields)
@@ -414,6 +426,99 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
     }
 
 
+    public function setCellBackgroundColor($sheetId, $cell, $rgb, $highlightDate)
+    {
+        \Log::info($highlightDate);  // For logging purposes
+    
+        $spreadsheetId = $this->spreadsheetId;
+    
+        // Prepare the range for the entire row
+        $range = [
+            "sheetId" => $sheetId,
+            "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
+            "endRowIndex" => $this->convertRowCol($cell)["row"],
+            "startColumnIndex" => 0, // Start from the first column
+            "endColumnIndex" => 40, // Adjust based on the number of columns you have
+        ];
+
+        $dateCellRange = [
+            "sheetId" => $sheetId,
+            "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
+            "endRowIndex" => $this->convertRowCol($cell)["row"],
+            "startColumnIndex" => 3,  // Column D is index 3 (0-based index)
+            "endColumnIndex" => 4,    // End at column D
+        ];
+    
+        // Create the request body to update both the background color and cell value
+        $requestBody = [
+            "requests" => [
+                [
+                    "repeatCell" => [
+                        "range" => $range,
+                        "cell" => [
+                            "userEnteredFormat" => [
+                                "backgroundColor" => [
+                                    "red" => $rgb[0],
+                                    "green" => $rgb[1],
+                                    "blue" => $rgb[2],
+                                ],
+                            ],
+                        ],
+                        "fields" => "userEnteredFormat.backgroundColor"  // Include both formatting and value fields
+                    ],
+                ],
+                [
+                    "repeatCell" => [
+                        "range" => $dateCellRange,
+                        "cell" => [
+                            "userEnteredValue" => ["stringValue" => $highlightDate],  // Store the date in D column
+                        ],
+                        "fields" => "userEnteredValue",
+                    ],
+                ],
+            ],
+        ];
+    
+        // Send the batch update request to Google Sheets
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $requestBody);
+    
+        // Log response or handle any errors
+        if ($response->failed()) {
+            \Log::error("Failed to update background color and value: " . $response->body());
+        } else {
+            \Log::info("Successfully updated background color and value.");
+        }
+    
+        return $response->body();
+    }
+    
+
+    public function findLastHighlightedRow($sheetName)
+    {
+        $spreadsheetId = $this->spreadsheetId;
+        $range = "{$sheetName}!A1:Z1000"; // Adjust range based on expected data
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->get("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$range}?majorDimension=ROWS");
+
+        $rows = json_decode($response->body(), true)['values'] ?? [];
+        
+        $lastHighlightedRow = null;
+        foreach ($rows as $index => $row) {
+            if (isset($row[3]) && $row[3] !== "") { // Assuming column D (index 3) holds highlighted job dates
+                $lastHighlightedRow = $index + 1; // Convert to 1-based index
+            }
+        }
+        
+        return $lastHighlightedRow;
+    }
+
+
 
     private function getSheetId($sheetName)
     {
@@ -497,6 +602,39 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
             \Log::info("New sheet '$sheetTitle' created successfully.");
         } else {
             \Log::error("Failed to create a new sheet: " . $response->body());
+        }
+    }
+
+
+    public function initGoogleConfig()
+    {
+        // Retrieve the Google Sheet ID from settings
+        $this->spreadsheetId = Setting::query()
+            ->where('key', SettingKeyEnum::GOOGLE_SHEET_ID)
+            ->value('value');
+
+        $this->googleRefreshToken = Setting::query()
+            ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
+            ->value('value');
+
+        if (!$this->googleRefreshToken) {
+            throw new Exception('Error: Google Refresh Token not found.');
+        }
+
+        // Refresh the access token
+        $googleClient = $this->getClient();
+        $googleClient->refreshToken($this->googleRefreshToken);
+        $response = $googleClient->fetchAccessTokenWithRefreshToken($this->googleRefreshToken);
+        $this->googleAccessToken = $response['access_token'];
+
+        // Save the new access token
+        Setting::updateOrCreate(
+            ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+            ['value' => $this->googleAccessToken]
+        );
+
+        if (!$this->googleAccessToken) {
+            throw new Exception('Error: Google Access Token not found.');
         }
     }
 

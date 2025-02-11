@@ -323,7 +323,13 @@
         "sum": "Sum",
         "file": "File",
         "cleaner": "Cleaner",
-        "general_worker": "General Worker"
+        "general_worker": "General Worker",
+        "insurance_companies": "Insurance Companies",
+        "update_insurance_company": "Update Insurance Company",
+        "contacts": "Contacts",
+        "address_contact": "Address Contact",
+        "payment_contact": "Payment Contact",
+        "remove": "Remove"
     },
     "modal": {
         "title": "Modal",
