@@ -1426,6 +1426,8 @@
             "Pending": "Pending",
             "Uninterested": "Uninterested",
             "Unanswered": "Unanswered",
+            "Hiring":"Hiring",
+            "Not_hired":"Not hired",
             "Irrelevant": "Irrelevant",
             "Rejected": "Rejected",
             "Will_think": "Will think",
