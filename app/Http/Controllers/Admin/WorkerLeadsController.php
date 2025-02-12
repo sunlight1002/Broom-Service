@@ -20,13 +20,14 @@ class WorkerLeadsController extends Controller
             'heb' => "🌟 תודה שפנית ל- Job4Service! 🌟\n\nאנחנו מגייסים אנשי מקצוע לניקיון בתים למשרה חלקית ומלאה באזור תל אביב.\n\n✅ להגשת מועמדות יש להצטייד באחד מהבאים:\n- תעודת זהות ישראלית\n- עבודת ויזה (B1)\n- אשרת פליט (כחול)\n\nענה על השאלות הבאות כדי להמשיך:\n1. האם יש לך ניסיון בניקיון בתים?\n(ענה 'כן' או 'לא')\n\nאם אתה רוצה לשנות שפה, עבור English Press 1 עבור русская пресса 2 ועבור prensa española 3",
             'spa' => "🌟 ¡Gracias por contactar a Job4Service! 🌟\n\nEstamos contratando profesionales de limpieza de casas para puestos de tiempo parcial y completo en el área de Tel Aviv.\n\n✅ Para postularte, debes tener uno de los siguientes:\n- Identificación israelí\n- Visa de trabajo B1\n- Visa de refugiado (azul)\n\nResponde estas preguntas para continuar:\n1. ¿Tienes experiencia en limpieza de casas?\n(Responde 'Sí' o 'No')\n\nsi desea cambiar el idioma, entonces para עיתונות עברית 4 para русская пресса 3 y para English press 1",
             'rus' => "🌟 Спасибо, что обратились в Job4Service! 🌟\n\nМы ищем уборщиков домов на полный и неполный рабочий день в районе Тель-Авива.\n✅ Для подачи заявки вам необходимо иметь один из следующих документов:\n- Израильское удостоверение личности\n- Рабочая виза B1\n- Статус беженца (синяя виза)\n\nПожалуйста, ответьте на два вопроса:\n1. Есть ли у вас опыт уборки домов?\n(Пожалуйста, ответьте «Да» или «Нет»)\n\nЕсли вы хотите изменить язык, для עיתונות עברית 4 для English press 1 и для prensa española 3",
-       ],
+        ],
     ];
 
     public function index(Request $request)
     {
         $columns = [
             'id',
+            'created_at',
             'firstname',
             'lastname',
             'email',
@@ -73,6 +74,7 @@ class WorkerLeadsController extends Controller
         $workerLeads = $workerLeads->map(function ($lead) {
             return [
                 'id' => $lead->id,
+                'created_at' => $lead->created_at->format('d/m/Y'),
                 'name' => $lead->firstname . ' ' . $lead->lastname,
                 'email' => $lead->email,
                 'phone' => $lead->phone,
@@ -99,9 +101,9 @@ class WorkerLeadsController extends Controller
 
             // Validate the request
             $request->validate([
-                'firstname' => 'required|string|max:255',
-                'lastname' => 'required|string|min:2|max:255',
-                'email' => 'required|email|max:255|unique:worker_leads,email',
+                'firstname' => 'nullable|string|max:255',
+                'lastname' => 'nullable|string|min:2|max:255',
+                'email' => 'nullable|email|max:255|unique:worker_leads,email',
                 'phone' => 'required|string|max:15', // Adjust max length as needed
                 'status' => 'required|string',
                 'role' => 'required|string',
@@ -116,7 +118,7 @@ class WorkerLeadsController extends Controller
 
             $role = $request->role ?? 'cleaner';
             $lng = $request->lng;
-    
+
             if ($role == 'cleaner') {
                 $role = match ($lng) {
                     'heb' => "מנקה",
@@ -132,7 +134,7 @@ class WorkerLeadsController extends Controller
                     default => "Trabajador general"
                 };
             }
-    
+
             // Create a new worker lead
             $workerLead = WorkerLeads::create([
                 'firstname' => $request->firstname,
@@ -144,17 +146,17 @@ class WorkerLeadsController extends Controller
                 'lng' => $request->lng
             ]);
 
-            if($request->send_bot_message) {
+            if ($request->send_bot_message) {
                 try {
                     $m = $this->botMessages['step0']['heb'];
-    
-                    $result = sendWorkerWhatsappMessage($workerLead->phone, array('name' => ucfirst($workerLead->firstname).' '.ucfirst($workerLead->lastname), 'message' => $m));
+
+                    $result = sendWorkerWhatsappMessage($workerLead->phone, array('name' => ucfirst($workerLead->firstname) . ' ' . ucfirst($workerLead->lastname), 'message' => $m));
 
                     WhatsAppBotWorkerState::updateOrCreate(
                         ['worker_lead_id' => $workerLead->id],
                         ['step' => 0, 'language' => 'heb']
                     );
-    
+
                     WorkerWebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -163,21 +165,20 @@ class WorkerLeadsController extends Controller
                         'read' => 1,
                         'flex' => 'A',
                     ]);
-
                 } catch (\Throwable $th) {
                     logger($th);
                 }
             }
-    
+
             return response()->json([
                 'message' => 'Worker Lead created successfully',
                 'data' => $workerLead,
             ], 201); // 201 status code for created resource
-    
+
         } catch (ValidationException $e) {
             // Log validation errors
             Log::error('Validation Error:', $e->errors());
-    
+
             return response()->json([
                 'message' => 'Validation Error',
                 'errors' => $e->errors(),

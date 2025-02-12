@@ -5,7 +5,6 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Button, Modal } from "react-bootstrap";
 
-
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -20,10 +19,10 @@ export default function WorkerLead() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
     const [filter, setFilter] = useState("All");
     const [workerLeadId, setWorkerLeadId] = useState(null);
-    const [status, setStatus] = useState("pending")
+    const [status, setStatus] = useState("pending");
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
 
@@ -34,37 +33,39 @@ export default function WorkerLead() {
     };
 
     const leaveStatuses = {
-        "pending": t("admin.leads.Pending"), 
-        "irrelevant": t("admin.leads.Irrelevant"), 
-        "rejected": t("admin.leads.Rejected"), 
-        "will-think": t("admin.leads.Will_think"), 
-        "unanswered": t("admin.leads.Unanswered")
+        pending: t("admin.leads.Pending"),
+        irrelevant: t("admin.leads.Irrelevant"),
+        rejected: t("admin.leads.Rejected"),
+        "will-think": t("admin.leads.Will_think"),
+        unanswered: t("admin.leads.Unanswered"),
     };
     const statusArr = {
-        "pending": "pending",
-        "rejected": "rejected",
-        "irrelevant": "irrelevant",
-        "unanswered": "unanswered"
+        pending: "pending",
+        rejected: "rejected",
+        irrelevant: "irrelevant",
+        unanswered: "unanswered",
     };
 
     const toggleChangeStatusModal = (_id) => {
-        setIsOpen(!isOpen)
-        setWorkerLeadId(_id)
-    }
-
-
+        setIsOpen(!isOpen);
+        setWorkerLeadId(_id);
+    };
 
     const handleChangeStatus = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const response = await axios.post(`/api/admin/worker-leads/${workerLeadId}/status`, { status }, { headers });
-            setLoading(false)
-            setIsOpen(false)
+            const response = await axios.post(
+                `/api/admin/worker-leads/${workerLeadId}/status`,
+                { status },
+                { headers }
+            );
+            setLoading(false);
+            setIsOpen(false);
             $(tableRef.current).DataTable().ajax.reload();
         } catch (error) {
             console.error(error);
         }
-    }
+    };
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -82,15 +83,34 @@ export default function WorkerLead() {
                         );
                     },
                     data: function (d) {
-                        d.status = filterRef.current === "All" ? null : filterRef.current; // Use ref here
+                        d.status =
+                            filterRef.current === "All"
+                                ? null
+                                : filterRef.current; // Use ref here
                     },
                 },
                 order: [[0, "desc"]],
                 columns: [
                     { title: "ID", data: "id", visible: false },
-                    { title: t("admin.global.Name"), data: "name" },
                     {
-                        title: t("admin.global.Email"), data: "email",
+                        title: t("global.date"),
+                        data: "created_at",
+                        responsivePriority: 1,
+                        render: function (data) {
+                            return `${data ? data : null}`;
+                        },
+                        width: "10%",
+                    },
+                    {
+                        title: t("admin.global.Name"),
+                        data: "name",
+                        render: function (data) {
+                            return `${data ? data : null}`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Email"),
+                        data: "email",
                         render: function (data) {
                             return `${data ? data : null}`;
                         },
@@ -100,18 +120,30 @@ export default function WorkerLead() {
                         data: "phone",
                         render: function (data) {
                             return `+${data}`;
-                        }
+                        },
                     },
+                    // {
+                    //     title: t("admin.global.Status"),
+                    //     data: "status",
+                    //     render: function (data) {
+                    //         const _statusColor = leadStatusColor(data);
+                    //         return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 100px; text-align: center;">
+                    //         ${data}
+                    //     </p>`;
+                    //     },
+                    // },
                     {
                         title: t("admin.global.Status"),
                         data: "status",
-                        render: function (data) {
+                        render: function (data, type, row) {
                             const _statusColor = leadStatusColor(data);
-                            return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 100px; text-align: center;">
-                            ${data}
-                        </p>`;
+                            return `<p class="status-clickable" data-id="${row.id}" 
+                                       style="cursor: pointer; background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 100px; text-align: center;">
+                                    ${data}
+                                </p>`;
                         },
                     },
+
                     {
                         title: t("admin.global.action"),
                         data: null,
@@ -124,14 +156,23 @@ export default function WorkerLead() {
                                         <i class="fa fa-ellipsis-vertical"></i> 
                                     </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>
-                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.Edit")}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.view")}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${
+                                            row.id
+                                        }">${t(
+                                "admin.leads.change_status"
+                            )}</button>
+                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.Delete")}</button>
                                     </div> 
                                 </div>`;
-                        }
-
+                        },
                     },
                 ],
                 ordering: true,
@@ -144,14 +185,20 @@ export default function WorkerLead() {
                 columnDefs: [
                     {
                         targets: 3,
-                        className: 'text-left'
+                        className: "text-left",
                     },
                     {
-                        targets: '_all',
-                        createdCell: function (td, cellData, rowData, row, col) {
-                            $(td).addClass('custom-cell-class');
-                        }
-                    }
+                        targets: "_all",
+                        createdCell: function (
+                            td,
+                            cellData,
+                            rowData,
+                            row,
+                            col
+                        ) {
+                            $(td).addClass("custom-cell-class");
+                        },
+                    },
                 ],
                 initComplete: function () {
                     // Explicitly set the initial page after table initialization
@@ -164,8 +211,7 @@ export default function WorkerLead() {
             const table = $(tableRef.current).DataTable();
             table.page(initialPage).draw("page");
         }
-    }
-
+    };
 
     const getCurrentPageNumber = () => {
         const table = $(tableRef.current).DataTable();
@@ -207,10 +253,23 @@ export default function WorkerLead() {
             navigate(`/admin/worker-leads/view/${_id}`);
         });
 
-        $(tableRef.current).on("click", ".dt-change-status-btn", function () {
-            const _id = $(this).data("id");
-            toggleChangeStatusModal(_id);
-        });
+        // $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+        //     const _id = $(this).data("id");
+        //     toggleChangeStatusModal(_id);
+        // });
+        $(tableRef.current).on(
+            "click",
+            ".dt-change-status-btn, .status-clickable",
+            function () {
+                const _id =
+                    $(this).data("id") ||
+                    $(this)
+                        .closest("tr")
+                        .find(".dt-change-status-btn")
+                        .data("id");
+                toggleChangeStatusModal(_id);
+            }
+        );
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
@@ -237,28 +296,36 @@ export default function WorkerLead() {
         filterRef.current = filter; // Update the ref with the latest filter
         const table = $(tableRef.current).DataTable();
         table.ajax.reload(null, false); // Reload the table without resetting pagination
-        table.columns.adjust().draw();  // This forces a redraw to fix the column shifting issue
-
+        table.columns.adjust().draw(); // This forces a redraw to fix the column shifting issue
     }, [filter]);
 
     const handleDelete = (id) => {
         Swal.fire({
             title: t("Are you sure?"),
             text: t("You won't be able to revert this!"),
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: t("Yes, delete it!")
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: t("Yes, delete it!"),
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`/api/admin/worker-leads/${id}`, { headers })
-                    .then(response => {
-                        Swal.fire(t("Deleted!"), t("Your file has been deleted."), 'success');
+                axios
+                    .delete(`/api/admin/worker-leads/${id}`, { headers })
+                    .then((response) => {
+                        Swal.fire(
+                            t("Deleted!"),
+                            t("Your file has been deleted."),
+                            "success"
+                        );
                         $(tableRef.current).DataTable().ajax.reload(); // Reload DataTable
                     })
-                    .catch(error => {
-                        Swal.fire(t("Error!"), t("There was an error deleting the record."), 'error');
+                    .catch((error) => {
+                        Swal.fire(
+                            t("Error!"),
+                            t("There was an error deleting the record."),
+                            "error"
+                        );
                     });
             }
         });
@@ -271,7 +338,9 @@ export default function WorkerLead() {
                 <div className="titleBox customer-title">
                     <div className="d-flex justify-content-between">
                         <div className="">
-                            <h1 className="page-title">{t("worker.leaveRequest")}</h1>
+                            <h1 className="page-title">
+                                {t("worker.leaveRequest")}
+                            </h1>
                         </div>
                         <div className="">
                             <Link
@@ -284,9 +353,18 @@ export default function WorkerLead() {
                         </div>
                     </div>
                 </div>
-                <div className="dashBox pt-4 pb-4" style={{ backgroundColor: "inherit", border: "none" }}>
+                <div
+                    className="dashBox pt-4 pb-4"
+                    style={{ backgroundColor: "inherit", border: "none" }}
+                >
                     <div className="row">
-                        <div style={{ fontWeight: "bold", marginTop: 10, marginLeft: 15 }}>
+                        <div
+                            style={{
+                                fontWeight: "bold",
+                                marginTop: 10,
+                                marginLeft: 15,
+                            }}
+                        >
                             {t("global.filter")}
                         </div>
                         <div>
@@ -296,20 +374,34 @@ export default function WorkerLead() {
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />
-                            {Object.entries(leaveStatuses).map(([key, value]) => (
-                                <FilterButtons
-                                    text={value}
-                                    name={key}
-                                    className="px-3 mr-1"
-                                    key={key}
-                                    selectedFilter={filter}
-                                    setselectedFilter={(status) => setFilter(status)}
-                                />
-                            ))}
+                            {Object.entries(leaveStatuses).map(
+                                ([key, value]) => (
+                                    <FilterButtons
+                                        text={value}
+                                        name={key}
+                                        className="px-3 mr-1"
+                                        key={key}
+                                        selectedFilter={filter}
+                                        setselectedFilter={(status) =>
+                                            setFilter(status)
+                                        }
+                                    />
+                                )
+                            )}
                         </div>
                     </div>
-                    <div className="dashBox pt-4 pb-4 w-100" style={{ backgroundColor: "inherit", border: "none", overflowX: "auto" }}>
-                        <table ref={tableRef} className="display table table-bordered w-100" />
+                    <div
+                        className="dashBox pt-4 pb-4 w-100"
+                        style={{
+                            backgroundColor: "inherit",
+                            border: "none",
+                            overflowX: "auto",
+                        }}
+                    >
+                        <table
+                            ref={tableRef}
+                            className="display table table-bordered w-100"
+                        />
                     </div>
                 </div>
                 {loading && <FullPageLoader visible={loading} />}
@@ -368,7 +460,3 @@ export default function WorkerLead() {
         </div>
     );
 }
-
-
-
-
