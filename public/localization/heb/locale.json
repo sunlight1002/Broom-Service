@@ -1084,7 +1084,8 @@
                 "ratingReq": "הדירוג נדרש",
                 "reviewReq": "שדה הביקורת נדרש",
                 "Error": "שגיאה!",
-                "title": "סקירה ודירוג משרה",
+                "General": "כללי",
+                "title": "דירוג וביקורת עבודה",
                 "Services": "שירותים",
                 "Frequency": "תדירות",
                 "hours": "שעות",
@@ -1093,9 +1094,12 @@
                 "Worker": "עובד",
                 "Date": "תאריך",
                 "Shift": "משמרת",
-                "Rating": "דירוג",
+                "Rating": "דרג",
                 "Review": "ביקורת",
-                "Submit": "שלח"
+                "ReviewPlaceholder": "הביקורת שלך כאן",
+                "Submit": "שלח",
+                "Cancel": "בטל"
+
             }
         },
         "property_address": {

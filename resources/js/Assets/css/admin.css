@@ -4310,3 +4310,61 @@ tbody tr:hover {
   z-index: 10;
   background-color: #fafbfc;
 }
+.no-wrap {
+  white-space: nowrap;
+ 
+}
+.review-card{
+  background-color: #e5ebf196;
+  margin-right: 15px;
+  margin-left: 15px;
+  border-width: 1px;
+  
+  border-style: solid;
+  
+}
+.review-label{
+  font-weight: 500;
+  color: #2F4054;
+  margin-left: 20px;
+  margin-right: 10px;
+ 
+}
+.review-header{
+  margin-top: 20px;
+  color: #2F4054;
+  margin-left: 20px;
+  margin-right: 10px;
+  font-weight: bold;
+ 
+}
+.rating{
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ width: 100%;
+ flex:1
+}
+.buttons-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; 
+}
+
+.buttons-container .btn {
+  margin-left: 10px; 
+}
+.review-control {
+  display: block;
+  width: 205%;
+  margin-right: 10px;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+}
