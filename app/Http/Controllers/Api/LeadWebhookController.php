@@ -2804,8 +2804,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         $teammsg = "שלום צוות,\n\n:client_name שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:\n':message'\n\nאנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.\n:comment_link";
                         $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                         $teammsg = str_replace([
-                            ':client_name', ':message', ':comment_link
-                            '], [
+                            ':client_name', ':message', ':comment_link'], [
                                 $clientName, '*' . trim($scheduleChange->comments) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin')
                             ], $teammsg);
 

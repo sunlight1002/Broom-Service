@@ -63,7 +63,7 @@ class FetchFacebookLeads extends Command
         $baseUrl = 'https://graph.facebook.com/v21.0/'; // Use the latest API version
 
         // Calculate yesterday's date range
-        $yesterdayStart = Carbon::now()->startOfDay()->timestamp;
+        $yesterdayStart = Carbon::now('UTC')->subMinutes(10)->timestamp;
         $yesterdayEnd = Carbon::now()->timestamp;
 
         try {
@@ -79,7 +79,7 @@ class FetchFacebookLeads extends Command
             }
 
             $pagesData = $pagesResponse->json();
-
+            
             foreach ($pagesData['data'] as $page) {
                 $pageId = $page['id'];
                 $pageName = $page['name'];
@@ -118,7 +118,6 @@ class FetchFacebookLeads extends Command
 
                 $formsData = $formsResponse->json();
                 // \Log::info($formsData);
-
                 if (empty($formsData['data'])) {
                     $this->info("No lead forms found for Page: $pageName");
                     continue;
@@ -134,16 +133,23 @@ class FetchFacebookLeads extends Command
                     $afterCursor = null;
 
                     do {
+                        $filtering = [
+                            [
+                                'field'    => 'time_created',
+                                'operator' => 'GREATER_THAN',
+                                'value'    => $yesterdayStart
+                            ]
+                        ];
                         $leadsParams = [
-                            'fields' => 'field_data,created_time',
-                            'since'  => $yesterdayStart,
-                            'until'  => $yesterdayEnd,
+                            'fields' => 'field_data,created_time,campaign_name,ad_id,campaign_id',
+                            'limit' => 100,
+                            'filtering' => $filtering,
                         ];
 
                         if ($afterCursor) {
                             $leadsParams['after'] = $afterCursor;
                         }
-
+                        
                         $leadsResponse = Http::withToken($pageAccessToken)
                             ->get($baseUrl . "$formId/leads", $leadsParams);
 
@@ -154,67 +160,16 @@ class FetchFacebookLeads extends Command
 
                         $leadsData = $leadsResponse->json();
                         if (empty($leadsData['data'])) {
+                            sleep(2);
                             break;
                         }
-
                         // Process leads
                         foreach ($leadsData['data'] as $lead) {
+                            sleep(2);
                             $fieldData = $lead['field_data'];
                             $createdTime = $lead['created_time'];
-                            $leadId = $lead['id']; // Lead ID from Facebook
-
-                            // Fetch lead details including ad_id
-                            $leadDetailsResponse = Http::withToken($accessToken)
-                                ->get($baseUrl . "$leadId", [
-                                    'fields' => 'ad_id', // We are fetching only the ad_id
-                                ]);
-
-                            if ($leadDetailsResponse->failed()) {
-                                $this->error('Error fetching details for lead ID ' . $leadId);
-                                continue;
-                            }
-
-                            $leadDetails = $leadDetailsResponse->json();
-                            $adId = $leadDetails['ad_id'] ?? null;
-
-                            if (!$adId) {
-                                $this->error("No ad ID for lead ID $leadId");
-                                continue;
-                            }
-
-                            // Step 2: Fetch campaign ID by querying the ad details
-                            $adDetailsResponse = Http::withToken($accessToken)
-                                ->get($baseUrl . "$adId", [
-                                    'fields' => 'campaign_id', // Fetch the campaign_id associated with the ad
-                                ]);
-
-                            if ($adDetailsResponse->failed()) {
-                                $this->error('Error fetching details for ad ID ' . $adId);
-                                continue;
-                            }
-
-                            $adDetails = $adDetailsResponse->json();
-                            $campaignId = $adDetails['campaign_id'] ?? null;
-
-                            if (!$campaignId) {
-                                $this->error("No campaign ID for ad ID $adId");
-                                continue;
-                            }
-
-                            // Step 3: Fetch the full campaign details to ensure it’s the main campaign
-                            $campaignDetailsResponse = Http::withToken($accessToken)
-                                ->get($baseUrl . "$campaignId", [
-                                    'fields' => 'id,name', // Fetch campaign name and id for storing purposes
-                                ]);
-
-                            if ($campaignDetailsResponse->failed()) {
-                                $this->error('Error fetching campaign details for campaign ID ' . $campaignId);
-                                continue;
-                            }
-
-                            $campaignDetails = $campaignDetailsResponse->json();
-                            $mainCampaignId = $campaignDetails['id'] ?? null;
-                            $campaignName = $campaignDetails['name'] ?? 'Unknown Campaign';
+                            $mainCampaignId = $lead['campaign_id'] ?? null;
+                            $campaignName = $lead['campaign_name'] ?? 'Unknown Campaign';
 
 
                             $leadInfo = [
@@ -227,8 +182,6 @@ class FetchFacebookLeads extends Command
                                 $leadInfo[$field['name']] = $field['values'][0] ?? null;
                             }
 
-                            $email = null;
-
                             $name = isset($leadInfo['full_name']) && !empty($leadInfo['full_name']) ? explode(' ', $leadInfo['full_name']) : explode(' ', 'lead ' . $lead['id']);
 
                             $phone = isset($leadInfo['phone_number']) && !empty($leadInfo['phone_number']) ? str_replace('+', '', $leadInfo['phone_number']) : '';
@@ -238,15 +191,16 @@ class FetchFacebookLeads extends Command
                             }
 
                             $lng = 'heb';
-                            // if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
-                            //     $lng = 'en';
-                            // }
-                            $client = Client::where('email', $email)
-                                ->orWhere('phone', $phone)
+                            if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
+                                $lng = 'en';
+                            }
+                            if(empty($phone)) {
+                                continue;
+                            }
+                            $client = Client::where('phone', $phone)
                                 ->first();
-
                             if ($client) {
-
+                               
                                  // Check if the client has a "verified" contract
                                 $hasVerifiedContract = $client->contract()->where('status', 'verified')->exists();
 
@@ -270,7 +224,7 @@ class FetchFacebookLeads extends Command
                             } else {
                                 // Create a new client if no match is found
                                 $client = Client::create([
-                                    'email'          => $email,
+                                    'email'          => null,
                                     'payment_method' => 'cc',
                                     'password'       => Hash::make($lead['id']),
                                     'passcode'       => $lead['id'],
@@ -282,7 +236,6 @@ class FetchFacebookLeads extends Command
                                     'campaign_id'    => $mainCampaignId,
                                     'source'         => 'fblead',
                                 ]);
-
 
 
                                 try {
@@ -338,16 +291,18 @@ class FetchFacebookLeads extends Command
                                 ]);
 
                             //   // Step 4: Update or Create the FacebookInsights entry for the campaign
-                            //     $facebookInsight = FacebookInsights::firstOrCreate(
-                            //         ['campaign_id' => $mainCampaignId],
-                            //         ['campaign_name' => $campaignName] // Replace with actual campaign name
-                            //     );
+                                $facebookInsight = FacebookInsights::firstOrCreate(
+                                    ['campaign_id' => $mainCampaignId],
+                                    ['campaign_name' => $campaignName] // Replace with actual campaign name
+                                );
 
                                 // Update lead_count for the campaign
                                 $facebookInsight->increment('lead_count', 1);
+
+                                
                             }
 
-
+                     
                         }
 
                         // Check for pagination
