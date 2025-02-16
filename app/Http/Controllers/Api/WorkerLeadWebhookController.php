@@ -179,27 +179,27 @@ class WorkerLeadWebhookController extends Controller
                 $messageInput = strtolower(trim($input));
                 \Log::info($messageInput);
 
-                $pattern1 = '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(\d+)$/i';
+                $pattern1 = '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(?(?=\2h)(\d+)|(\d+)?)$/i';
                 // '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(\d+)?$/i'
                 $pattern2 = '/^(new|חדש)\s+([\s\S]+?)\s+(ours|mp)\s+(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})$/is';
-                $input = implode(' ', array_map('trim', explode("\n", $messageInput)));  
+                $input = implode(' ', array_map('trim', explode("\n", $messageInput)));
 
                 $last_input = Cache::get('manpower');
                 \Log::info($last_input);
-            
-                if (preg_match($pattern1, $messageInput, $matches) 
+
+                if (preg_match($pattern1, $messageInput, $matches)
                     && ($message_data[0]['chat_id'] == config('services.whatsapp_groups.relevant_with_workers'))) {
 
                     $phoneNumber = trim($matches[1]); // Extracts the phone number
                     $statusInput = strtolower($matches[2]); // Extracts the status (h/n/u/t)
-                    $numericValue = intval($matches[3]); // Extracts the numeric value (e.g., 55)
+                    $numericValue = intval($matches[3] ?? 0); // Extracts the numeric value (e.g., 55)
                     // $numericValue = isset($matches[3]) ? intval($matches[3]) : null; // Extracts numeric value (if present)
 
                     \Log::info('Phone: ' . $phoneNumber . ' | Status: ' . $statusInput . ' | Value: ' . $numericValue);
-            
+
                     // Find the workerLead based on the phone number
                     $workerLead = WorkerLeads::where('phone', $phoneNumber)->first();
-            
+
                     if ($workerLead) {
                         // Determine the status
                         switch ($statusInput) {
@@ -217,9 +217,9 @@ class WorkerLeadWebhookController extends Controller
                                 $workerLead->status = "not-hired";
                                 break;
                         }
-            
+
                         $workerLead->save();
-            
+
                         // Send appropriate WhatsApp message
                         match ($workerLead->status) {
                             "hiring" => [
@@ -231,15 +231,15 @@ class WorkerLeadWebhookController extends Controller
                             "will-think" => $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD),
                             default => null
                         };
-            
+
                         return response()->json(['status' => 'Worker status updated', 'value' => $numericValue], 200);
                     }
-            
+
                     return response()->json(['status' => 'Worker not found'], 404);
-                } else if((preg_match($pattern2, $input, $matches)) 
+                } else if((preg_match($pattern2, $input, $matches))
                     && ($message_data[0]['chat_id'] == config('services.whatsapp_groups.relevant_with_workers'))) {
                     // Log the matches to check
-                    $language = (strtolower(trim($matches[1])) == 'new') ? 'en' : 'heb'; 
+                    $language = (strtolower(trim($matches[1])) == 'new') ? 'en' : 'heb';
                     $workerName = trim($matches[2]);
                     $nameParts = explode(' ', $workerName);
                     // Extract the first name (first word)
@@ -247,7 +247,7 @@ class WorkerLeadWebhookController extends Controller
                     // Combine the remaining parts as the last name
                     $lastName = implode(' ', array_slice($nameParts, 1));
 
-                    $companyType = ($matches[3] === 'ours') ? 'my-company' : 'manpower'; 
+                    $companyType = ($matches[3] === 'ours') ? 'my-company' : 'manpower';
                     $phoneNumber = trim($matches[4]);
 
                     // Check if the worker already exists
@@ -276,7 +276,7 @@ class WorkerLeadWebhookController extends Controller
                         }else if($workerLead->company_type == 'my-company'){
                             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
                         }
-                
+
                         return response()->json([
                             'status' => 'New worker added',
                             'name' => $workerName,
@@ -299,7 +299,7 @@ class WorkerLeadWebhookController extends Controller
                                 Cache::forget('manpower', $last_input);
                             }
                 }
-            
+
 
                 return response()->json(['status' => 'Message format invalid or already processed'], 400);
             }

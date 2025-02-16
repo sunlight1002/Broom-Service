@@ -38,12 +38,17 @@ export default function WorkerLead() {
         rejected: t("admin.leads.Rejected"),
         "will-think": t("admin.leads.Will_think"),
         unanswered: t("admin.leads.Unanswered"),
+        hiring: t("admin.leads.Hiring"),
+        "not-hired": t("admin.leads.Not_hired"),
     };
     const statusArr = {
         pending: "pending",
         rejected: "rejected",
         irrelevant: "irrelevant",
         unanswered: "unanswered",
+        hiring: "hiring",
+        "will-think": "will-think",
+        "not-hired": "not-hired",
     };
 
     const toggleChangeStatusModal = (_id) => {
@@ -136,6 +141,7 @@ export default function WorkerLead() {
                         title: t("admin.global.Status"),
                         data: "status",
                         render: function (data, type, row) {
+                            console.log("Data", data);
                             const _statusColor = leadStatusColor(data);
                             return `<p class="status-clickable" data-id="${row.id}" 
                                        style="cursor: pointer; background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 100px; text-align: center;">

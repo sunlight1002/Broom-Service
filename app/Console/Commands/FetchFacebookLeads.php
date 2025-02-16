@@ -238,9 +238,9 @@ class FetchFacebookLeads extends Command
                             }
 
                             $lng = 'heb';
-                            if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
-                                $lng = 'en';
-                            }
+                            // if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
+                            //     $lng = 'en';
+                            // }
                             $client = Client::where('email', $email)
                                 ->orWhere('phone', $phone)
                                 ->first();
@@ -347,7 +347,7 @@ class FetchFacebookLeads extends Command
                                 $facebookInsight->increment('lead_count', 1);
                             }
 
-                     
+
                         }
 
                         // Check for pagination

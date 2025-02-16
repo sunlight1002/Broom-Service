@@ -10,9 +10,10 @@ import { useAlert } from "react-alert";
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import { useTranslation } from "react-i18next";
-import 'moment/locale/he';
-    
-
+import "moment/locale/he";
+import { Card } from "react-bootstrap";
+import { LuSave } from "react-icons/lu";
+import { LuFolderClosed } from "react-icons/lu";
 export default function ReviewJob() {
     const params = useParams();
     const [job, setJob] = useState(null);
@@ -87,7 +88,7 @@ export default function ReviewJob() {
     }, []);
 
     console.log(job);
-    
+
     return (
         <div id="container">
             <ClientSidebar />
@@ -101,50 +102,37 @@ export default function ReviewJob() {
                         {job && (
                             <div className="card-body">
                                 <form>
-                                    <div className="row">
-                                        <div className="col-sm-3 col-lg-2">
-                                            <div className="form-group">
-                                                <label className="control-label">
+                                    {/* <div className="d-flex">
+                                        <Card className="review-card">
+                                            <div>
+                                                <label className="control-label  review-header">
                                                     {t(
-                                                        "client.jobs.review.Services"
+                                                        "client.jobs.review.General"
                                                     )}
                                                 </label>
-                                                <p>{lng == "heb" ? job.jobservice.heb_name : job.jobservice.name}</p>
+                                                <div className=" d-flex">
+                                                    <label className="control-label review-label">
+                                                        {t(
+                                                            "client.jobs.review.Services"
+                                                        )}
+                                                        :
+                                                    </label>
+                                                    <p className="no-wrap">
+                                                        {lng == "heb"
+                                                            ? job.jobservice
+                                                                  .heb_name
+                                                            : job.jobservice
+                                                                  .name}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="col-sm-3 col-lg-2">
-                                            <div className="form-group">
-                                                <label className="control-label">
-                                                    {t(
-                                                        "client.jobs.review.Frequency"
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    {job.jobservice.freq_name}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-3 col-lg-4">
-                                            <div className="form-group">
-                                                <label className="control-label">
-                                                    {t(
-                                                        "client.jobs.review.Property"
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    {
-                                                        job.property_address
-                                                            .geo_address
-                                                    }
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4">
-                                            <div className="form-group">
-                                                <label className="control-label">
+
+                                            <div className=" d-flex no-wrap">
+                                                <label className="control-label review-label">
                                                     {t(
                                                         "client.jobs.review.GenderPreference"
                                                     )}
+                                                    :
                                                 </label>
                                                 <p
                                                     style={{
@@ -158,18 +146,16 @@ export default function ReviewJob() {
                                                     }
                                                 </p>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-sm-4 col-md-2">
-                                            <div className="form-group">
-                                                <label className="control-label">
+
+                                            <div className=" d-flex">
+                                                <label className="control-label review-label">
                                                     {t(
                                                         "client.jobs.review.Worker"
                                                     )}
+                                                    :
                                                 </label>
                                                 {job.worker ? (
-                                                    <p>
+                                                    <p className="no-wrap">
                                                         {job.worker.firstname +
                                                             " " +
                                                             job.worker.lastname}
@@ -178,40 +164,241 @@ export default function ReviewJob() {
                                                     <p>NA</p>
                                                 )}
                                             </div>
-                                        </div>
-                                        <div className="col-sm-4 col-md-2">
-                                            <div className="form-group">
-                                                <label className="control-label">
+                                        </Card>
+                                        <Card className="review-card">
+                                            <div className="col-sm-3 col-lg-2">
+                                                <div>
+                                                    <label className="control-label review-header ">
+                                                        {t(
+                                                            "client.jobs.review.Frequency"
+                                                        )}
+                                                        :
+                                                    </label>
+                                                    <p
+                                                        className="no-wrap"
+                                                        style={{
+                                                            marginLeft: "20px",
+                                                        }}
+                                                    >
+                                                        {
+                                                            job.jobservice
+                                                                .freq_name
+                                                        }
+                                                    </p>
+                                                </div>
+
+                                                <div className=" d-flex">
+                                                    <label className="control-label review-label">
+                                                        {t(
+                                                            "client.jobs.review.Date"
+                                                        )}
+                                                        :
+                                                    </label>
+                                                    <p className="no-wrap">
+                                                        {moment(job.start_date)
+                                                            .locale(
+                                                                lng === "heb"
+                                                                    ? "he"
+                                                                    : "en"
+                                                            )
+                                                            .format(
+                                                                lng === "heb"
+                                                                    ? "dddd, D MMMM YYYY"
+                                                                    : "ddd, MMM D YYYY"
+                                                            )}{" "}
+                                                    </p>
+                                                </div>
+
+                                                <div className=" d-flex">
+                                                    <label className="control-label review-label">
+                                                        {t(
+                                                            "client.jobs.review.Shift"
+                                                        )}
+                                                        :
+                                                    </label>
+                                                    <p className="no-wrap">
+                                                        {job.shifts}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                        <Card className="review-card">
+                                            <div className="col-sm-3 col-lg-4">
+                                                <div className=" no-wrap">
+                                                    <label className="control-label review-header">
+                                                        {t(
+                                                            "client.jobs.review.Property"
+                                                        )}
+                                                    </label>
+                                                    <p
+                                                        style={{
+                                                            marginLeft: "20px",
+                                                        }}
+                                                    >
+                                                        {
+                                                            job.property_address
+                                                                .geo_address
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </div> */}
+                                    <div className="d-flex flex-wrap">
+                                        <Card className="review-card col-sm-12 col-md-6 col-lg-4">
+                                            <div>
+                                                <label className="control-label review-header">
+                                                    {t(
+                                                        "client.jobs.review.General"
+                                                    )}
+                                                </label>
+                                                <div className="d-flex">
+                                                    <label className="control-label review-label">
+                                                        {t(
+                                                            "client.jobs.review.Services"
+                                                        )}
+                                                        :
+                                                    </label>
+                                                    <p className="no-wrap">
+                                                        {lng === "heb"
+                                                            ? job.jobservice
+                                                                  .heb_name
+                                                            : job.jobservice
+                                                                  .name}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="d-flex no-wrap">
+                                                <label className="control-label review-label">
+                                                    {t(
+                                                        "client.jobs.review.GenderPreference"
+                                                    )}
+                                                    :
+                                                </label>
+                                                <p
+                                                    style={{
+                                                        textTransform:
+                                                            "capitalize",
+                                                    }}
+                                                >
+                                                    {
+                                                        job.property_address
+                                                            .prefer_type
+                                                    }
+                                                </p>
+                                            </div>
+
+                                            <div className="d-flex">
+                                                <label className="control-label review-label">
+                                                    {t(
+                                                        "client.jobs.review.Worker"
+                                                    )}
+                                                    :
+                                                </label>
+                                                {job.worker ? (
+                                                    <p className="no-wrap">
+                                                        {job.worker.firstname +
+                                                            " " +
+                                                            job.worker.lastname}
+                                                    </p>
+                                                ) : (
+                                                    <p>NA</p>
+                                                )}
+                                            </div>
+                                        </Card>
+
+                                        <Card className="review-card col-sm-12 col-md-6 col-lg-4">
+                                            <div>
+                                                <label className="control-label review-header">
+                                                    {t(
+                                                        "client.jobs.review.Frequency"
+                                                    )}
+                                                    :
+                                                </label>
+                                                <p
+                                                    className="no-wrap"
+                                                    style={{
+                                                        marginLeft: "20px",
+                                                    }}
+                                                >
+                                                    {job.jobservice.freq_name}
+                                                </p>
+                                            </div>
+
+                                            <div className="d-flex">
+                                                <label className="control-label review-label">
                                                     {t(
                                                         "client.jobs.review.Date"
                                                     )}
+                                                    :
                                                 </label>
-                                                <p>
+                                                <p className="no-wrap">
                                                     {moment(job.start_date)
-                                                        .locale(lng === "heb" ? "he" : "en") // Set the locale
-                                                        .format(lng === "heb" ? "dddd, D MMMM YYYY" : "ddd, MMM D YYYY")} {/* Localized format */}
+                                                        .locale(
+                                                            lng === "heb"
+                                                                ? "he"
+                                                                : "en"
+                                                        ) // Set the locale
+                                                        .format(
+                                                            lng === "heb"
+                                                                ? "dddd, D MMMM YYYY"
+                                                                : "ddd, MMM D YYYY"
+                                                        )}{" "}
+                                                    {/* Localized format */}
                                                 </p>
-
                                             </div>
-                                        </div>
-                                        <div className="col-sm-4 col-md-2">
-                                            <div className="form-group">
-                                                <label className="control-label">
+
+                                            <div className="d-flex">
+                                                <label className="control-label review-label">
                                                     {t(
                                                         "client.jobs.review.Shift"
                                                     )}
+                                                    :
                                                 </label>
-                                                <p>{job.shifts}</p>
+                                                <p className="no-wrap">
+                                                    {job.shifts}
+                                                </p>
                                             </div>
-                                        </div>
+                                        </Card>
+
+                                        <Card className="review-card col-sm-12 col-md-6 col-lg-4">
+                                            <div
+                                                style={{ marginBottom: "20px" }}
+                                            >
+                                                <label className="control-label review-header">
+                                                    {t(
+                                                        "client.jobs.review.Property"
+                                                    )}
+                                                </label>
+                                                <p
+                                                    style={{
+                                                        marginLeft: "20px",
+                                                    }}
+                                                >
+                                                    {
+                                                        job.property_address
+                                                            .geo_address
+                                                    }
+                                                </p>
+                                            </div>
+                                        </Card>
                                     </div>
+
                                     <hr />
-                                    <div className="row">
-                                        <div className="form-group px-3">
-                                            <label className="control-label">
+                                    <div>
+                                        <div className="px-3">
+                                            <label
+                                                className="control-label "
+                                                style={{
+                                                    fontWeight: 600,
+                                                    color: "#2F4054",
+                                                    fontSize: "18px",
+                                                }}
+                                            >
                                                 {t("client.jobs.review.Rating")}
                                             </label>
-                                            <div>
+                                            <div className="d-flex justify-content-center">
                                                 <Rating
                                                     initialValue={
                                                         formValues.rating
@@ -233,16 +420,19 @@ export default function ReviewJob() {
                                     <div className="row">
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label className="control-label">
+                                                <label
+                                                    className="control-label"
+                                                    style={{ marginLeft: 10 }}
+                                                >
                                                     {t(
                                                         "client.jobs.review.Review"
                                                     )}
                                                 </label>
                                                 <textarea
-                                                    className="form-control"
+                                                    className="review-control"
                                                     rows="5"
                                                     placeholder={t(
-                                                        "client.jobs.review.Review"
+                                                        "client.jobs.review.ReviewPlaceholder"
                                                     )}
                                                     value={formValues.review}
                                                     onChange={(e) => {
@@ -260,16 +450,37 @@ export default function ReviewJob() {
                                     {/* submit button */}
                                     {!job.rating && (
                                         <div className="row">
-                                            <div className="col-sm-12">
+                                            <div className="col-sm-12 buttons-container">
                                                 <button
                                                     type="button"
-                                                    className="btn btn-primary"
+                                                    className="btn navyblue"
+                                                    disabled={isLoading}
+                                                >
+                                                    {/* {t(
+                                                        "client.jobs.review.Cancel"
+                                                    )} */}
+                                                    <span className="d-flex align-items-center">
+                                                        <LuSave className="mr-1" />
+                                                        {t(
+                                                            "client.jobs.review.Cancel"
+                                                        )}
+                                                    </span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn navyblue"
                                                     onClick={handleSubmit}
                                                     disabled={isLoading}
                                                 >
-                                                    {t(
+                                                    {/* {t(
                                                         "client.jobs.review.Submit"
-                                                    )}
+                                                    )} */}
+                                                    <span className="d-flex align-items-center">
+                                                        <LuSave className="mr-1" />
+                                                        {t(
+                                                            "client.jobs.review.Submit"
+                                                        )}
+                                                    </span>
                                                 </button>
                                             </div>
                                         </div>
