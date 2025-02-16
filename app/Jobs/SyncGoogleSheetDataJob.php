@@ -59,12 +59,19 @@ class SyncGoogleSheetDataJob implements ShouldQueue
     {
         $serviceMap = [
             '3*' => '3 Star',
+            '2' => '2 Star',
+            '2*' => '2 Star',
             '3' => '3 Star',
             '4*' => '4 Star',
+            '*4' => '4 Star',
             '5*' => '5 Star',
             '5' => '5 Star',
             '4' => '4 Star',
             'משרד' => 'Office Cleaning',
+            'airbnb' => 'Airbnb',
+            'window cleaning' => 'window cleaning',
+            'חלונות 8' => 'window cleaning',
+            'שיפוץ' => 'Cleaning After Renovation',
         ];
 
         $frequencyMap = [
@@ -229,24 +236,87 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             }
                             // $IcountData = $this->getIcountClientInfo($client);
                             if ($client) {
+                                $jobConfirm = trim($row[5] ?? '');
+                                $jobCompleted = trim($row[6] ?? '');
+
+                                if($jobConfirm != 'TRUE' && $jobCompleted != 'TRUE') {
+                                    continue;
+                                }
+
                                 $client_ids[] = $client->id;
-                                $fields = [];
+                                $rowCount = $index + 1;
+                                $offerId = trim($row[2] ?? '');
+                                // Find offer
+                                $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
+                                if (!$offer) {
+                                    echo "Row {$rowCount}: Offer not found in CRM (Offer id in Sheet: {$offerId}, Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    continue;
+                                }
 
-                                $selectedAddress = $row[17] ?? null;
+                                $selectedService = $serviceMap[trim($row[11] ?? null) ?? null] ?? null;
+                                if ($selectedService) {
+                                    $selectedService = Services::where('name', $selectedService)->first();
+                                }
 
-                                $selectedWorker = $row[8] ?? null;
-                                $bestMatch = null;
-                                $highestSimilarity = 0;
+                                $selectedFrequency = $frequencyMap[$row[18] ?? null] ?? null;
+                                if ($selectedFrequency) {
+                                    $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
+                                }
 
+                                $services = [];
+                                $frequencies = [];
+                                $selectedOfferDataArr = [];
 
-                                foreach ($workers as $worker) {
-                                    if($worker->sheet_name == trim($selectedWorker)) {
-                                        $bestMatch = $worker->fullname;
+                                $data = json_decode($offer->services, true);
+                                if (count($data) == 1) {
+                                    $selectedOfferDataArr[] = $data[0];
+                                    $services[] = $data[0]['name'];
+                                    $frequencies[] = $data[0]['freq_name'];
+                                } else {
+                                    foreach ($data as $d) {
+                                        if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
+                                            $selectedOfferDataArr[] = $d;
+                                        }
+                                        $services[] = $d['name'];
+                                        $frequencies[] = $d['freq_name'];
                                     }
                                 }
+
+                                if (empty($selectedOfferDataArr)) {
+                                    $sheetService = trim($row[11] ?? null);
+                                    $sheetFrequency = $selectedFrequency->name ?? null;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Frequency and service not match in PO (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    continue;
+                                }
+                                $selectedOfferData = [];
+                                $workerHours = $row[13] ?? null;
+                                $workerHours = str_replace(',', '.', $workerHours);
+                                if (count($selectedOfferDataArr) > 1) {
+                                    foreach ($selectedOfferDataArr as $d) {
+                                        $jobHours = Arr::pluck($d['workers'], 'jobHours');
+                                        $isFound = in_array($workerHours, $jobHours);
+                                        if ($isFound) {
+                                            $selectedOfferData[] = $d;
+                                        }
+                                    }
+                                } else {
+                                    $selectedOfferData[] = $selectedOfferDataArr[0] ?? null;
+                                }
+
+
+
+                                if(count($selectedOfferData) > 1) {
+                                    $sheetService = trim($row[11] ?? null);
+                                    $sheetFrequency = $selectedFrequency->name ?? null;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    continue;
+                                }
+
+                                // Update invoice name or client name in sheet
                                 $invoiceName = trim($row[0]);
-                                if(empty($invoiceName)) {
-                                    if(!empty($client->invoicename)) {
+                                $fields = [];
+                                if (empty($invoiceName)) {
+                                    if (!empty($client->invoicename)) {
                                         $invoiceName = $client->invoicename;
                                     } else {
                                         $invoiceName = $client->firstname . ' ' . $client->lastname;
@@ -258,6 +328,17 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         'value' => trim($invoiceName),
                                     ];
                                 }
+                                $selectedAddress = $row[17] ?? null;
+                                $selectedWorker = $row[8] ?? null;
+                                $bestMatch = null;
+
+
+                                foreach ($workers as $worker) {
+                                    if ($worker->sheet_name == trim($selectedWorker)) {
+                                        $bestMatch = $worker->fullname;
+                                    }
+                                }
+
 
                                 $fields[] = [
                                     'sheetId' => $sheetId, // Sheet ID
@@ -266,157 +347,46 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                     'values' => $workers->pluck('fullname')->toArray(), // Dropdown options
                                     'value' => $bestMatch,
                                 ];
-                                $service = $row[11] ?? null;
-                                $workerHours = $row[13] ?? null;
-                                $workerHours = str_replace(',', '.', $workerHours);
-                                $selectedService = $serviceMap[trim($row[11] ?? null) ?? null] ?? null;
-                                if ($selectedService) {
-                                    $selectedService = Services::where('name', $selectedService)->first();
-                                }
 
-                                $selectedFrequency = $frequencyMap[$row[18] ?? null] ?? null;
-                                if ($selectedFrequency) {
-                                    $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
-                                }
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "M" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $services, // Dropdown options
+                                    'value' => count($services) == 1 ? $services[0] : ($selectedOfferData[0]['name'] ?? null),
+                                ];
 
-                                $offer = null;
-                                $services = [];
-                                $frequencies = [];
-                                $selectedOfferDataArr = [];
-                                $selectedOfferData = null;
-                                if (is_numeric(trim($row[2]))) {
-                                    $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
-                                    \Log::info($offer);
-                                    if ($offer) {
-                                        $data = json_decode($offer->services, true);
-                                        if (count($data) == 1) {
-                                            $selectedOfferDataArr[] = $data[0];
-                                            $services[] = $data[0]['name'];
-                                            $frequencies[] = $data[0]['freq_name'];
-                                        } else {
-                                            foreach ($data as $d) {
-                                                // $jobHours = Arr::pluck($d['workers'], 'jobHours');
-                                                // $isFound = in_array($workerHours, $jobHours);
-                                                if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
-                                                    $selectedOfferDataArr[] = $d;
-                                                }
-                                                $services[] = $d['name'];
-                                                $frequencies[] = $d['freq_name'];
-                                            }
-                                        }
 
-                                        $this->handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
-                                    }
-                                } else {
-                                    $offers = $client->offers;
-                                    foreach ($offers as $offer) {
-                                        $data = json_decode($offer->services, true);
-                                        if (count($data) == 1) {
-                                            $selectedOfferDataArr[] = $data[0];
-                                            $services[] = $data[0]['name'];
-                                            $frequencies[] = $data[0]['freq_name'];
-                                        } else {
-                                            foreach ($data as $d) {
-                                                // $jobHours = Arr::pluck($d['workers'], 'jobHours');
-                                                // $isFound = in_array($workerHours, $jobHours);
-
-                                                if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
-                                                    $selectedOfferDataArr[] = $d;
-                                                }
-                                                $services[] = $d['name'];
-                                                $frequencies[] = $d['freq_name'];
-                                            }
-                                        }
-                                    }
-                                }
-                                // \Log::info($offers);
-
-                                if(count($selectedOfferDataArr) > 1) {
-                                    foreach($selectedOfferDataArr as $d) {
-                                        $jobHours = Arr::pluck($d['workers'], 'jobHours');
-                                        $isFound = in_array($workerHours, $jobHours);
-                                        if($isFound) {
-                                            $selectedOfferData = $d;
-                                        }
-                                    }
-                                } else {
-                                    $selectedOfferData = $selectedOfferDataArr[0] ?? null;
-                                }
-
-                                // if($index == 21) {
-                                //     dd($selectedOfferData);
-                                // }
-
-                                if (!empty($services)) {
-                                    $fields[] = [
-                                        'sheetId' => $sheetId, // Sheet ID
-                                        'cell' => "M" . ($index + 1), // Cell location
-                                        'type' => 'dropdown', // Field type
-                                        'values' => $services, // Dropdown options
-                                        'value' => count($services) == 1 ? $services[0] : ($selectedOfferData['name'] ?? null),
-                                    ];
-                                } else {
-                                    $fields[] = [
-                                        'sheetId' => $sheetId, // Sheet ID
-                                        'cell' => "M" . ($index + 1), // Cell location
-                                        'type' => 'dropdown', // Field type
-                                        'values' => $serviceArr, // Dropdown options
-                                        'value' => count($serviceArr) == 1 ? $serviceArr[0] : ($selectedOfferData['name'] ?? null),
-                                    ];
-                                }
                                 $selectedFrequencyName = null;
-                                if($selectedFrequency) {
-                                    if($client->lng == 'en') {
+                                if ($selectedFrequency) {
+                                    if ($client->lng == 'en') {
                                         $selectedFrequencyName = $selectedFrequency->name;
                                     } else {
                                         $selectedFrequencyName = $selectedFrequency->name_heb;
                                     }
                                 }
 
-                                if (!empty($frequencies)) {
-                                    $fields[] = [
-                                        'sheetId' => $sheetId, // Sheet ID
-                                        'cell' => "Q" . ($index + 1), // Cell location
-                                        'type' => 'dropdown', // Field type
-                                        'values' => $frequencies, // Dropdown options
-                                        'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
-                                    ];
-                                } else {
-                                    $fields[] = [
-                                        'sheetId' => $sheetId, // Sheet ID
-                                        'cell' => "Q" . ($index + 1), // Cell location
-                                        'type' => 'dropdown', // Field type
-                                        'values' => $frequencyArr, // Dropdown options
-                                        'value' => count($frequencyArr) == 1 ? $frequencyArr[0] : ($selectedFrequencyName ?? null),
-                                    ];
-                                }
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "Q" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $frequencies, // Dropdown options
+                                    'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
+                                ];
 
-                                $addresses = $client->property_addresses()->when($selectedOfferData, function($q) use ($selectedOfferData) {
-                                    $q->where('id', $selectedOfferData['address']);
-                                })->get()->pluck('address_name')->toArray();
-                                $bestMatch = null;
-                                $highestSimilarity = 0;
-
-                                foreach ($addresses as $address) {
-                                    similar_text($selectedAddress, $address, $percent);
-                                    if ($percent > $highestSimilarity) {
-                                        $highestSimilarity = $percent;
-                                        $bestMatch = $address;
-                                    }
-
-                                    similar_text($address, $selectedAddress, $percent);
-                                    if ($percent > $highestSimilarity) {
-                                        $highestSimilarity = $percent;
-                                        $bestMatch = $address;
-                                    }
+                                $addresses = $client->property_addresses;
+                                $addressesArr = $addresses->pluck('address_name')->toArray();
+                                $selectedAddress = '';
+                                if(isset($selectedOfferData[0]['address'])) {
+                                    $selectedAddress = $addresses->where('id', $selectedOfferData[0]['address'])->first()->address_name ?? '';
                                 }
 
                                 $fields[] = [
                                     'sheetId' => $sheetId, // Sheet ID
                                     'cell' => "T" . ($index + 1), // Cell location
                                     'type' => 'dropdown', // Field type
-                                    'values' => $addresses, // Dropdown options
-                                    'value' => (count($addresses) == 1) ? $addresses[0] : (($highestSimilarity > 50) ? $bestMatch : null),
+                                    'values' => $addressesArr, // Dropdown options
+                                    'value' => count($addressesArr) == 1 ? $addressesArr[0] : $selectedAddress,
                                 ];
 
                                 if ($selectedOfferData) {
@@ -424,77 +394,29 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         'sheetId' => $sheetId, // Sheet ID
                                         'cell' => "D" . ($index + 1), // Cell location
                                         'type' => 'number', // Field type
-                                        'value' => $selectedOfferData['totalamount'] ?? null,
+                                        'value' => $selectedOfferData[0]['totalamount'] ?? null,
                                     ];
                                 }
+
+
+
+                                $services[] = trim($row[11] ?? '');
+                                // continue;
+
+
                                 // \Log::info('Fields', ['fields' => $fields]);
                                 // echo json_encode($fields) . PHP_EOL;
-                                $response = $this->updateGoogleSheetFields($fields);
+                                // $response = $this->updateGoogleSheetFields($fields);
                                 // echo $response . PHP_EOL;
-                                sleep(3);
-                                echo ($index + 1) . PHP_EOL;
-                            }
-
-
-                            // dd($client);
-
-                            // Decode Offer services
-                            // if ($offer) {
-
-                            // $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))->pluck('id', 'address_name')->toArray();
-                            //     \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
-
-                            // $servicesData = json_decode($offer->services, true);
-                            // $isMatch = false;
-
-                            // foreach ($servicesData as $serviceData) {
-                            //     // Check if address ID exists in the database and matches an address name
-                            //     $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
-                            //     \Log::info("Address Match", ['addressMatch' => $addressMatch]);
-
-                            //     // Check if the name matches the provided service array
-                            //     $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
-
-                            //     // Check frequency match
-                            //     $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
-
-                            //     // Log and process if everything matches
-                            //     if ($addressMatch && $serviceMatch && $frequencyMatch) {
-                            //         $isMatch = true;
-
-                            //         \Log::info('Matching Offer Record Found', [
-                            //             'Offer ID' => $offer->id,
-                            //             'Service Data' => $serviceData,
-                            //             'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
-                            //         ]);
-
-                            //         // Decide what to do with the matched record here
-                            //         break;
-                            //     }
-                            // }
-
-                            //     if (!$isMatch) {
-                            //         \Log::warning('No Matching Record Found for Offer ID: ' . $offer->id);
-                            //     }
-                            // } else {
-                            //     \Log::error('No Offer Found for ID: ' . trim($row[2]) . ' and Client ID: ' . $client->id);
-                            // }
-
-                            $serviceName = $serviceMap[trim($service)] ?? null;
-                            if (!empty($serviceName)) {
-                            }
-                            if (!$offer && $client) {
-                                // $offer = $client->offers()->where('status', 'accepted')->orderBy('created_at', 'DESC')->first();
-                            }
-                            if (!$offer) {
-
-                                $services = [];
+                                // sleep(1);
+                                // echo ($index + 1) . PHP_EOL;
                             }
                         }
                     }
                 }
+                dd(array_unique($services));
+                dd(implode(',', array_unique($client_ids)));
             }
-            dd(implode(',', array_unique($client_ids)));
 
 
             $rows = [];
@@ -928,18 +850,18 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 // \Log::info($selectedService);
 
                 $ServiceFrequency = ServiceSchedule::where('name', $frequencies[0])
-                ->orWhere('name_heb', $frequencies[0])
-                ->first();
+                    ->orWhere('name_heb', $frequencies[0])
+                    ->first();
 
                 $contract = Contract::with('offer')
-                ->where('offer_id', $offer->id)
-                // ->whereHas('offer', function ($query) use ($ServiceFrequency) {
-                //     $query->whereJsonContains('services->frequency', $ServiceFrequency->id); // Correct JSON path
-                // })
-                ->get(); // Fetch all matching results
-            
-            \Log::info($contract->offer->toArray()); // Convert to array before logging
-            
+                    ->where('offer_id', $offer->id)
+                    // ->whereHas('offer', function ($query) use ($ServiceFrequency) {
+                    //     $query->whereJsonContains('services->frequency', $ServiceFrequency->id); // Correct JSON path
+                    // })
+                    ->get(); // Fetch all matching results
+
+                \Log::info($contract->offer->toArray()); // Convert to array before logging
+
                 if (!$contract) {
                     return response()->json([
                         'message' => 'Contract not found'
@@ -1250,7 +1172,6 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         } catch (\Throwable $th) {
             throw $th;
         }
-
     }
 
 

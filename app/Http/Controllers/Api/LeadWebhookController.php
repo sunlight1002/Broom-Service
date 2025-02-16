@@ -199,26 +199,42 @@ Broom Service Team 🌹",
                 return response()->json(['errors' => $validator->messages()]);
             }
 
-            $lead_exists = Client::where('phone', $request->phone)->orWhere('email', $request->email)->exists();
+            // Remove all special characters from the phone number
+            $phone = preg_replace('/[^0-9+]/', '', $request->phone);
+
+            // Adjust phone number formatting
+            if (strpos($phone, '0') === 0) {
+                $phone = '972' . substr($phone, 1);
+            }
+            if (strpos($phone, '+') === 0) {
+                $phone = substr($phone, 1);
+            }
+
+            // Ensure phone starts with '972'
+            if (strlen($phone) === 9 || strlen($phone) === 10) {
+                $phone = '972' . $phone;
+            }
+
+
+            $lead_exists = Client::where('phone', $phone)->orWhere('email', $request->email)->exists();
             if (!$lead_exists) {
                 $lead = new Client;
             } else {
-                $lead = Client::where('phone', 'like', '%' . $request->phone . '%')->first();
+                $lead = Client::where('phone', 'like', '%' . $phone . '%')->first();
                 if (empty($lead)) {
                     $lead = Client::where('email', $request->email)->first();
                 }
-                $lead = Client::find($lead->id);
             }
             $nm = explode(' ', $request->name);
 
             $lead->firstname     = $nm[0];
             $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
-            $lead->phone         = $request->phone;
+            $lead->phone         = $phone;
             $lead->email         = $request->email;
             $lead->status        = 0;
-            $lead->lng = 'en';
-            $lead->password      = Hash::make($request->phone);
-            $lead->passcode      = $request->phone;
+            $lead->lng = 'heb';
+            $lead->password      = Hash::make(Str::random(20));
+            $lead->passcode      = $phone;
             $lead->geo_address   = $request->has('address') ? $request->address : '';
             $lead->save();
 
@@ -361,7 +377,7 @@ Broom Service Team 🌹",
                             $client->lastname = $lastName ?? '';
                             $client->email = null;
                             $client->status = 0;
-                            $client->password = Hash::make($phone);
+                            $client->password = Hash::make(Str::random(20));
                             $client->passcode = $phone;
                             $client->geo_address = '';
                             $client->lng = ($lng);
@@ -446,7 +462,7 @@ Broom Service Team 🌹",
                 $lead->phone         = $from;
                 $lead->email         = "";
                 $lead->status        = 0;
-                $lead->password      = Hash::make($from);
+                $lead->password      = Hash::make(Str::random(20));
                 $lead->passcode      = $from;
                 $lead->geo_address   = '';
                 $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
@@ -460,7 +476,7 @@ Broom Service Team 🌹",
                 ]);
 
                 die('Template send to new client');
-            } else if ($client->disable_notification == 1) {
+            } else if ($client && $client->disable_notification == 1) {
                 \Log::info('notification disabled');
                 die('notification disabled');
             }
@@ -1631,7 +1647,6 @@ If you would like to speak to a human representative, please send a message with
             if (empty($lead)) {
                 $lead = Client::where('email', $request->email)->first();
             }
-            $lead = Client::find($lead->id);
         }
         $name = explode(' ', $request->name);
 
@@ -1640,8 +1655,8 @@ If you would like to speak to a human representative, please send a message with
         $lead->phone = $phone;
         $lead->email = $request->email;
         $lead->status = 0;
-        $lead->lng = 'en';
-        $lead->password = Hash::make($phone);
+        $lead->lng = 'heb';
+        $lead->password = Hash::make(Str::random(20));
         $lead->passcode = $phone;
         $lead->save();
 
@@ -2264,7 +2279,7 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
-                   
+
                     $scheduleChange = new ScheduleChange();
                     $scheduleChange->user_type = get_class($client);
                     $scheduleChange->user_id = $client->id;
@@ -2477,7 +2492,7 @@ If you would like to speak to a human representative, please send a message with
                     $lead->phone         = $from;
                     $lead->email         = "";
                     $lead->status        = 0;
-                    $lead->password      = Hash::make($from);
+                    $lead->password      = Hash::make(Str::random(20));
                     $lead->passcode      = $from;
                     $lead->geo_address   = '';
                     $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
@@ -2574,7 +2589,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
                     $personalizedMessage = str_replace([':client_name', ':client_message'], [$clientName, '*' . trim($input) . '*'], $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-                    
+
                     $scheduleChange = new ScheduleChange();
                     $scheduleChange->user_type = get_class($client);
                     $scheduleChange->user_id = $client->id;
@@ -2582,7 +2597,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     $scheduleChange->comments = $input;
                     $scheduleChange->save();
                     $clientMessageStatus->delete();
-                    
+
                     break;
 
                 case 'stop':
@@ -2791,7 +2806,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         $teammsg = str_replace([
                             ':client_name', ':message', ':comment_link
                             '], [
-                                $clientName, '*' . trim($scheduleChange->comments) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') 
+                                $clientName, '*' . trim($scheduleChange->comments) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin')
                             ], $teammsg);
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
