@@ -423,6 +423,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
         try {
             if ($offer) {
                 if(!$selectedService || !$selectedFrequency) {
+                    \Log::info("No service or frequency selected". $offer->id);
                     return;
                 }
 
@@ -433,6 +434,10 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 \Log::info("firstClient ID: " . $offer->client_id);
 
                 $contract = $offer->contract;
+                if(!$contract) {
+                    \Log::info("No contract found for offer ID: " . $offer->id);
+                    return;
+                }
                 // \Log::info($contract->id);
                 $Service = $offer->service;
                 $serviceId = $selectedService->id;
@@ -753,6 +758,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'address_id'        => $selectedService['address']['id'],
                             'original_worker_id'     => $worker->id,
                             'original_shifts'        => $slotsInString,
+                            'keep_prev_worker'      => true
                         ]);
 
                         // Create entry in ParentJobs
@@ -767,6 +773,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'start_date' => $job_date,
                             'next_start_date'   => $next_job_date,
                             'status' => $status, // You can set this according to your needs
+                            'keep_prev_worker'      => true
                         ]);
 
 

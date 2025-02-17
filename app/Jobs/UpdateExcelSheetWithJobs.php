@@ -69,12 +69,12 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
     public function handle()
     {
         try {
-
             $this->initGoogleConfig();
             $sheets = [];
+    
             if (!$this->sheetName) {
                 $sheets = $this->getAllSheetNames();
-
+    
                 if (count($sheets) <= 0) {
                     Log::info("No sheet found", ['sheets' => $sheets]);
                     return;
@@ -82,33 +82,66 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
             } else {
                 $sheets[] = $this->sheetName;
             }
-            $sheets = array_reverse($sheets);
-            $currentDate = Carbon::createFromFormat('Y-m-d', '2025-02-08');
-            $lastLoggedMonth = null;  // Variable to keep track of the last logged month
-
-            foreach ($sheets as $key => $sheet) {
+    
+            $sheets = array_reverse($sheets); // Start with the latest sheet
+            $currentDate = Carbon::createFromFormat('Y-m-d', '2025-02-22');
+            $endDate = Carbon::createFromFormat('Y-m-d', '2025-08-31');
+            $lastLoggedMonth = $currentDate->format('Y-m'); // Track current month
+    
+            foreach ($sheets as &$sheet) { // Using reference to update dynamically
                 $sheetId = $this->getSheetId($sheet);
-                $staticDate = "2025-02-08";
-
-
-                $jobs = Job::with(['client', 'worker', 'offer.service', 'contract'])
-                        ->where('start_date', '>=', $staticDate)
-                        ->get();
-                foreach($jobs as $job) {
-                    $this->addJobToGoogleSheet($job, $sheet, $sheetId, $currentDate, $lastLoggedMonth);
-                    $currentDate->addDay();
-                    // Check if the month has changed
+                Log::info("Processing sheet: {$sheet}");
+    
+                while ($currentDate->lte($endDate)) { // Ensure loop stops at end date
+                    // 🔥 **Detect if the month has changed**
                     if ($currentDate->format('Y-m') !== $lastLoggedMonth) {
-                        Log::info('Month Completed: ' . $currentDate->format('F Y'));
-                        // $lastLoggedMonth = $currentDate->format('Y-m');
+                        Log::info('Month Completed: ' . Carbon::parse($lastLoggedMonth . '-01')->format('F Y'));
+    
+                        // Move to the first day of the next month
+                        $currentDate->startOfMonth();
+                        $lastLoggedMonth = $currentDate->format('Y-m'); // Update last logged month
+                        Log::info("New month started: " . $currentDate->format('F Y'));
                     }
+    
+                    $startOfDay = $currentDate->startOfDay()->format('Y-m-d H:i:s');
+                    $endOfDay = $currentDate->endOfDay()->format('Y-m-d H:i:s');
+    
+                    // 🔥 **Fix: Use BETWEEN to match jobs correctly**
+                    $jobs = Job::with(['client', 'worker', 'offer.service', 'contract'])
+                        ->whereBetween('start_date', [$startOfDay, $endOfDay])
+                        ->get();
+    
+                    if ($jobs->isNotEmpty()) { // Use `isNotEmpty()` instead of `!empty()`
+    
+                        foreach ($jobs as $job) {
+                            Log::info("Processing Job ID: " . $job->id);
+                            $this->addJobToGoogleSheet($job, $sheet, $sheetId, $currentDate, $lastLoggedMonth);
+                        }
+                    } else {
+                        Log::info("No jobs for date: " . $currentDate->format('Y-m-d'));
+                    }
+    
+                    // Move to the next day
+                    $currentDate->addDay();
                 }
             }
         } catch (\Exception $e) {
-            dd($e);
             Log::error("An error occurred: " . $e->getMessage());
+            dd($e);
         }
     }
+
+
+    public function highlightDate($sheetId, $date)
+    {
+        // Example of how to highlight the date
+        $dateCell = "D" . $this->convertRowCol("D3")['row']; // Example location of the date cell (change to actual location)
+        $rgb = [0.0, 1.0, 0.0]; // Green background
+    
+        // Call your setCellBackgroundColor method here
+        $this->setCellBackgroundColor($sheetId, $dateCell, $rgb, $date->format('Y-m-d'));
+    }
+    
 
 
     public function addJobToGoogleSheet($job, $sheet, $sheetId, $startDate, $lastLoggedMonth = null)
@@ -125,25 +158,22 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         
         $existingRows = $this->getSheetData($sheetName, $spreadsheetId);
 
-        $lastHighlightedRow = $this->findLastHighlightedRow($sheetName);
-
-        if ($lastHighlightedRow) {
-            $nextRow = $lastHighlightedRow + 3; // Skip 2 rows below the last highlighted row
-        } else {
-            $nextRow = count($existingRows) + 1;
-        }        
+        $nextRow = count($existingRows) + 1;
 
         $jobDate = Carbon::parse($job->start_date)->format('Y-m-d'); // Convert job start date
     
         $highlightDate = null;
-    
+        \Log::info("jobDate: " . $jobDate);
+        
          if ($jobDate == $startDate->format('Y-m-d')) {
             $highlightDate = $jobDate; // Store the job date for cell D3
+            \Log::info("highlightDate: " . $highlightDate);
         }
 
         // Apply background color if date is set
         if ($highlightDate) {
             $this->setCellBackgroundColor($sheetId, "D{$nextRow}", [0.0, 1.0, 0.0], $highlightDate); // Green background
+            $nextRow = count($existingRows) + 3;
         }
         
         // Construct range explicitly to force strict placement
@@ -163,6 +193,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         $workerId = ParentJobs::where('id', $job->parent_job_id)->value('worker_id');
         $worker = User::where('id', $workerId)->first();
         $frequency = ServiceSchedule::where('period', $job->schedule)->first();
+        \Log::info("frequency: " . json_encode($frequency));
         $frequencyName = $frequency->name_heb ?? null;
     
         $jsonServices = isset($offer->services) ? json_decode($offer->services, true) : [];
@@ -170,11 +201,15 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         if (!empty($jsonServices)) {
             foreach ($jsonServices as $jsonService) {
                 if ($jsonService['frequency'] == $frequency->id) {
+                    \Log::info($jsonService['service']);
                     $serviceId = $jsonService['service'];
                 }
             }
         }
-        $service = Services::find($serviceId);
+        if($serviceId) {
+            \Log::info("serviceId: " . $serviceId);
+            $service = Services::find($serviceId);
+        }
     
         $startTime = Carbon::createFromFormat('H:i:s', $job->start_time);
         $endTime = Carbon::createFromFormat('H:i:s', $job->end_time);
@@ -190,26 +225,19 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
             $client->invoicename ?? "",
             $client->id ?? "",
             $offer->id ?? "",
-            "", // Empty cell
-            "", // Empty cell
-            "", // Checkbox
-            "", // Checkbox
-            "", // Empty cell
+            "","","","","",
             ($worker->firstname ?? "")." ".($worker->lastname ?? ""), // Default selected worker
             ($worker->firstname ?? "")." ".($worker->lastname ?? ""), // Worker dropdown
             ($job->start_time ?? "")." - ".($job->end_time ?? ""),
             "", // Empty cell
             $serviceName, // Default selected service
             $diffInHours.":".$diffInMinutes, // Duration in HH:MM
-            "", // Empty cell
-            "", // Empty cell
+            "","",
             $frequencyName ?? "", // Default selected frequency
             $addressName ?? "",
             "", // Empty cell
             $addressName ?? "", // Default selected address
-            "", // Empty cell
-            "", // Empty cell
-            "", // Empty cell
+            "","","",
             $job->id ?? ""
         ];
     
@@ -219,6 +247,8 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         ])->put("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$updateRange}?valueInputOption=USER_ENTERED", [
             "values" => [$jobData]
         ]);
+
+        sleep(1);
     
         $updatedRange = json_decode($response->body(), true)['updatedRange'] ?? null;
         if (!$updatedRange) {
@@ -273,9 +303,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         ];
     
         $res = $this->updateGoogleSheetFields($fields);
-        \Log::info([$res]);
-    
-        return $response->body();
+        return $sheetName; 
     }
     
 
@@ -313,8 +341,6 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
                 "startColumnIndex" => $this->convertRowCol($cell)["col"] - 1,
                 "endColumnIndex" => $this->convertRowCol($cell)["col"]
             ];
-            \Log::info("Cell {$cell} converted to:", $this->convertRowCol($cell));
-
 
             switch ($fieldType) {
                 case 'dropdown':
@@ -428,8 +454,6 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
 
     public function setCellBackgroundColor($sheetId, $cell, $rgb, $highlightDate)
     {
-        \Log::info($highlightDate);  // For logging purposes
-    
         $spreadsheetId = $this->spreadsheetId;
     
         // Prepare the range for the entire row
@@ -500,23 +524,44 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
     {
         $spreadsheetId = $this->spreadsheetId;
         $range = "{$sheetName}!A1:Z1000"; // Adjust range based on expected data
-
+    
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->googleAccessToken,
             'Content-Type' => 'application/json',
         ])->get("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$range}?majorDimension=ROWS");
-
+    
         $rows = json_decode($response->body(), true)['values'] ?? [];
         
         $lastHighlightedRow = null;
+        $lastOccupiedRow = count($rows); // Get the last occupied row
+    
         foreach ($rows as $index => $row) {
-            if (isset($row[3]) && $row[3] !== "") { // Assuming column D (index 3) holds highlighted job dates
+            \Log::info("Row {$index}: ", $row);
+            if (isset($row[3]) && $row[3] !== "") { // Assuming column D (index 3) has highlighted dates
                 $lastHighlightedRow = $index + 1; // Convert to 1-based index
             }
         }
-        
-        return $lastHighlightedRow;
+    
+        // if ($lastHighlightedRow) {
+        //     // Ensure we find the next completely empty row after the last highlighted one
+        //     $nextRow = $lastHighlightedRow + 3; // Skip 2 rows below the last highlighted row
+    
+        //     // If nextRow exceeds the last occupied row, ensure it moves correctly
+        //     if ($nextRow <= $lastOccupiedRow) {
+        //         for ($i = $nextRow; $i <= $lastOccupiedRow; $i++) {
+        //             if (!isset($rows[$i]) || empty(array_filter($rows[$i]))) { 
+        //                 return $i + 1; // First empty row
+        //             }
+        //         }
+        //     }
+    
+        //     return $nextRow;
+        // }
+    
+        // return $lastOccupiedRow + 1; // Default to the next available row
+        return;
     }
+    
 
 
 

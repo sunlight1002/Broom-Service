@@ -406,9 +406,9 @@ class SyncGoogleSheetDataJob implements ShouldQueue
 
                                 // \Log::info('Fields', ['fields' => $fields]);
                                 // echo json_encode($fields) . PHP_EOL;
-                                // $response = $this->updateGoogleSheetFields($fields);
+                                $response = $this->updateGoogleSheetFields($fields);
                                 // echo $response . PHP_EOL;
-                                // sleep(1);
+                                sleep(1);
                                 // echo ($index + 1) . PHP_EOL;
                             }
                         }

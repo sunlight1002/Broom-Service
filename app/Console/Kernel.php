@@ -48,7 +48,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('lead:fetch-facebook-leads')->everyFiveMinutes();
         $schedule->command('campaign:create')->hourly();
 
-        $schedule->command('client:review-job-request')->dailyAt('08:00');
+        // $schedule->command('client:review-job-request')->dailyAt('08:00');
 
         // $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
         // $schedule->command('meeting:reminder')->hourly();
