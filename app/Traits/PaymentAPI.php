@@ -345,6 +345,7 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
+        \Log::info("asdff");
         // $requestData = [
         //     'data' => [
         //         'client_name' => $client['firstname'] ?? null,
@@ -403,6 +404,8 @@ trait PaymentAPI
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
 
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+        \Log::info("sdfssdfsdfsfsdfsdfsdfs");
+        \Log::info($serviceDate);
 
         $postData = [
             "cid"  => $iCountCompanyID,

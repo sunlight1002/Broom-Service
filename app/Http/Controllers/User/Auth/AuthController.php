@@ -6,6 +6,7 @@ use App\Enums\WorkerFormTypeEnum;
 use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
 use App\Models\ManpowerCompany;
+use App\Models\InsuranceCompany;
 use App\Events\InsuranceFormSigned;
 use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
@@ -1280,6 +1281,7 @@ class AuthController extends Controller
     public function saveInsuranceForm(Request $request, $id)
     {
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::find($id);
+        $insuranceCompany = InsuaranceCompany::first();
     
         if (!$worker) {
             return response()->json([
@@ -1353,6 +1355,16 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
             event(new InsuranceFormSigned($worker, $form));
+            
+            // if($insuranceCompany->email){
+            //     App::setLocale('heb');
+            //     // Send email
+            //     Mail::send('/manpowerCompany', $emailData, function ($message) use ($worker, $manpowerCompany, $file_name) {
+            //         $message->to($manpowerCompany->email)
+            //             ->subject(__('mail.manpower_company.subject'))
+            //             ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+            //     });
+            // }
         }
     
         return response()->json([

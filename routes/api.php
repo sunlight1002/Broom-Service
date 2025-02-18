@@ -16,6 +16,7 @@ use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
 use App\Http\Controllers\Admin\ServicesController;
+use App\Http\Controllers\Admin\JobController as AdminJobController;
 use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\RefundClaimController;
 use App\Http\Controllers\User\DashboardController;
@@ -152,6 +153,14 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     // Route::get('/schedule-changes', [ScheduleChangeController::class, 'getAllScheduleChanges']);
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
 });
+
+
+Route::group(['middleware' => ['auth:api', 'api_token']], function () {
+    Route::put('jobs/{id}/cancel', [AdminJobController::class, 'cancelJobByGoogleSheet']);
+    Route::post('jobs/{id}/update-job-done', [AdminJobController::class, 'updateJobDoneByGoogleSheet']);
+});
+
+
 Route::post('document/save', [DocumentController::class, 'save']);
 
 Route::get('get-sub-services/{id}', [ServicesController::class, 'getSubServices']);

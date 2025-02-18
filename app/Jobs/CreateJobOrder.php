@@ -109,10 +109,11 @@ class CreateJobOrder implements ShouldQueue
 
             if ($job->is_job_done) {
                 $items[] = [
-                    'description' => $client->lng == 'heb' ? $service->heb_name : $service->name . " - " . Carbon::parse($service->created_at)->format('d-m-Y'),
+                    'description' => $client->lng == 'heb' ? $service->heb_name . " - " . Carbon::parse($service->created_at)->format('d.m') : $service->name . " - " . Carbon::parse($service->created_at)->format('d.m'),
                     'unitprice' => $job->subtotal_amount,
                     'quantity' => 1
                 ];
+                \Log::info([$items]);
             }
 
             // $cancellationFees = JobCancellationFee::query()
@@ -122,7 +123,7 @@ class CreateJobOrder implements ShouldQueue
 
             // foreach ($cancellationFees as $key => $fee) {
             //     $items[] = [
-            //         "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d-m-Y') . " - " . __('mail.job_status.cancellation_fee'),
+            //         "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d.m') . " - " . __('mail.job_status.cancellation_fee'),
             //         "unitprice"   => $fee->cancellation_fee_amount,
             //         "quantity"    => 1,
             //     ];
@@ -135,7 +136,7 @@ class CreateJobOrder implements ShouldQueue
 
             if($cancellationFees) {
                 $items[] = [
-                        "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d-m-Y') . " - " . __('mail.job_status.cancellation_fee'),
+                        "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d.m') . " - " . __('mail.job_status.cancellation_fee'),
                         "unitprice"   => $cancellationFees->cancellation_fee_amount,
                         "quantity"    => 1,
                     ];
@@ -143,7 +144,7 @@ class CreateJobOrder implements ShouldQueue
 
             if ($job->extra_amount) {
                 $items[] = [
-                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d-m-Y') . " - " . __('mail.job_common.extra_amount'),
+                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d.m') . " - " . __('mail.job_common.extra_amount'),
                     "unitprice"   => $job->extra_amount,
                     "quantity"    => 1,
                 ];
@@ -151,7 +152,7 @@ class CreateJobOrder implements ShouldQueue
 
             $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-            $serviceDate = Carbon::parse($service->created_at)->format('d-m-Y');
+            $serviceDate = Carbon::parse($service->created_at)->format('d.m');
 
             $order = $this->generateOrderDocument(
                 $client,

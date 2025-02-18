@@ -592,6 +592,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     break;
                         
                                 case "After noon":
+                                case "Afternoon":
                                 case "אחה״צ":
                                     $startTime = "16:00:00";
                                     break;

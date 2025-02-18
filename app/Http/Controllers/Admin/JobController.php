@@ -1399,6 +1399,7 @@ class JobController extends Controller
     public function cancelJob(Request $request, $id)
     {
         $job = Job::query()->with('client')->find($id);
+        \Log::info($job);
 
         if (!$job) {
             return response()->json([
@@ -1570,6 +1571,185 @@ class JobController extends Controller
             //     $messages->subject($sub);
             // });
 
+            //send notification to worker
+            $job = $job->toArray();
+            $worker = $job['worker'];
+            $emailData = [
+                'by'            => $data['by']
+            ];
+            event(new JobNotificationToWorker($worker, $job, $emailData));
+        }
+
+        return response()->json([
+            'msg' => 'Job cancelled succesfully!'
+        ]);
+    }
+
+
+    public function cancelJobByGoogleSheet(Request $request, $id)
+    {
+        $job = Job::query()->with('client')->find($id);
+        \Log::info($job);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        $client = $job->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        if (
+            $job->status == JobStatusEnum::COMPLETED ||
+            $job->is_job_done
+        ) {
+            return response()->json([
+                'message' => 'Job already completed',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::PROGRESS) {
+            return response()->json([
+                'message' => 'Job is in progress',
+            ], 403);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
+        $repeatancy = $request->get('repeatancy');
+        $until_date = $request->get('untilDate');
+        \Log::info($request->all());
+
+
+        $jobs = Job::query()
+            ->with(['worker', 'offer', 'client', 'jobservice', 'propertyAddress'])
+            ->whereIn('status', [
+                JobStatusEnum::SCHEDULED,
+                JobStatusEnum::UNSCHEDULED,
+            ])
+            ->when($repeatancy == 'until_date' && !empty($until_date), function ($q) use ($until_date) {
+                return $q->whereDate('start_date', '<=', Carbon::parse($until_date)->format('Y-m-d'));
+            })
+            ->when($repeatancy == 'one_time', function ($q) use ($id) {
+                return $q->where('id', $id);
+            })
+            ->where('job_group_id', $job->job_group_id)
+            ->get();
+
+        $admin = Admin::where('role', 'admin')->first();
+
+        foreach ($jobs as $key => $job) {
+            $feePercentage = $request->fee;
+            $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+            JobCancellationFee::create([
+                'job_id' => $job->id,
+                'job_group_id' => $job->job_group_id,
+                'cancellation_fee_percentage' => $feePercentage,
+                'cancellation_fee_amount' => $feeAmount,
+                'cancelled_user_role' => 'admin',
+                'cancelled_by' => $admin->id,
+                'action' => CancellationActionEnum::CANCELLATION,
+                'duration' => $repeatancy,
+                'until_date' => $until_date,
+            ]);
+
+            $job->update([
+                'status' => JobStatusEnum::CANCEL,
+                'cancellation_fee_percentage' => $feePercentage,
+                'cancellation_fee_amount' => $feeAmount,
+                'cancelled_by_role' => 'admin',
+                'cancelled_by' => $admin->id,
+                'cancelled_at' => now(),
+                'cancelled_for' => $repeatancy,
+                'cancel_until_date' => $until_date,
+            ]);
+
+            CreateJobOrder::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id,null);
+
+            if ($job->offer && $job->offer->services) {
+                $services = json_decode($job->offer->services, true); 
+    
+                // Remove `is_one_time` field if it exists in any service
+                $services = array_map(function ($service) {
+                    if (isset($service['is_one_time'])) {
+                        unset($service['is_one_time']);
+                    }
+                    return $service;
+                }, $services);
+    
+                // Save the updated services back to the offer
+                $job->offer->services = json_encode($services);
+                $job->offer->save();
+            }
+
+            $offer = $job->offer;
+            $offerArr = $offer->toArray();
+                $services = json_decode($offerArr['services']);
+                
+                if (isset($services)) {
+                    $s_names = '';
+                    $s_templates_names = '';
+                    foreach ($services as $k => $service) {
+                        if ($k != count($services) - 1 && $service->template != "others") {
+                            $s_names .= $service->name . ", ";
+                            $s_templates_names .= $service->template . ", ";
+                        } else if ($service->template == "others") {
+                            if ($k != count($services) - 1) {
+                                $s_names .= $service->other_title . ", ";
+                                $s_templates_names .= $service->template . ", ";
+                            } else {
+                                $s_names .= $service->other_title;
+                                $s_templates_names .= $service->template;
+                            }
+                        } else {
+                            $s_names .= $service->name;
+                            $s_templates_names .= $service->template;
+                        }
+                    }
+                }
+                $offerArr['services'] = $services;
+                $offerArr['service_names'] = $s_names;
+                $offerArr['service_template_names'] = $s_templates_names;
+
+                $property = null;
+
+                $addressId = $services[0]->address;
+                if (isset($addressId)) {
+                    $address = ClientPropertyAddress::find($addressId);
+                    if (isset($address)) {
+                        $property = $address;
+                    }
+                }
+
+            $data = array(
+                'by'         => 'admin',
+                'email'      => $admin->email??"",
+                'admin'      => $admin?->toArray()??[],
+                'job'        => $job?->toArray()??[],
+                'offer'      => $offerArr ?? null,
+                'property'   => $property ?? null
+            );
+
+            if (isset($job->client) && !empty($job->client->phone)) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                    "notificationData" => $data
+                ]));
+            }
+            App::setLocale('en');
+
+            $ln = $job->client->lng;
             //send notification to worker
             $job = $job->toArray();
             $worker = $job['worker'];
@@ -1888,7 +2068,9 @@ class JobController extends Controller
             ], 403);
         }
 
-     
+        $job->update([
+            'is_job_done' => $request->checked
+        ]);
 
         if ($job->is_job_done) {
             $job->status = JobStatusEnum::COMPLETED;
@@ -1919,8 +2101,101 @@ class JobController extends Controller
                     ]
                 ]));
             }
-
+            $job->save();
             CreateJobOrder::dispatch($job->id);
+        } else {
+            if ($job->is_order_generated) {
+                $order = $job->order;
+
+                if ($order->status == 'Closed') {
+                    return response()->json([
+                        'message' => 'Job order is already closed',
+                    ], 403);
+                }
+
+                $closeDocResponse = $this->cancelICountDocument(
+                    $order->order_id,
+                    'order',
+                    'Creating another order'
+                );
+
+                if ($closeDocResponse['status'] != true) {
+                    return response()->json([
+                        'message' => $closeDocResponse['reason']
+                    ], 500);
+                }
+
+                $order->update(['status' => 'Cancelled']);
+
+                $order->jobs()->update([
+                    'isOrdered' => 'c',
+                    'order_id' => NULL,
+                    'is_order_generated' => false
+                ]);
+
+                event(new ClientOrderCancelled($order->client, $order));
+
+            }
+        }
+
+
+        return response()->json([
+            'message' => 'Job has been updated',
+        ]);
+    }
+
+
+    public function updateJobDoneByGoogleSheet(Request $request, $id)
+    {
+        $job = Job::with(['order'])->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
+        $job->update([
+            'is_job_done' => $request->checked
+        ]);
+
+        if ($job->is_job_done) {
+            $job->status = JobStatusEnum::COMPLETED;
+            $this->updateJobAmount($job->id);
+            $todayNextJob = Job::where('worker_id', $job->worker_id)
+                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                ->whereDate('start_date', now())
+                ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                ->whereRaw("STR_TO_DATE(start_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
+                ->first();
+
+            if($todayNextJob) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
+                    "notificationData" => [
+                        'job' => $todayNextJob->toArray(),
+                        'client' => $todayNextJob->client->toArray(),
+                        'worker' => $todayNextJob->worker->toArray(),
+                    ]
+                ]));
+            } else {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY,
+                    "notificationData" => [
+                        'job' => $job->toArray(),
+                        'client' => $job->client->toArray(),
+                        'worker' => $job->worker->toArray(),
+                    ]
+                ]));
+            }
+            $job->save();
+            CreateJobOrder::dispatch($job->id)->onConnection('sync');
         } else {
             if ($job->is_order_generated) {
                 $order = $job->order;
@@ -1954,12 +2229,10 @@ class JobController extends Controller
                 event(new ClientOrderCancelled($order->client, $order));
             }
         }
-        $job->update([
-            'is_job_done' => $request->checked
-        ]);
-
+        $job->refresh();
         return response()->json([
             'message' => 'Job has been updated',
+            'order' => $job->order ?? null
         ]);
     }
 
