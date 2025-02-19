@@ -1356,15 +1356,15 @@ class AuthController extends Controller
             }
             event(new InsuranceFormSigned($worker, $form));
             
-            // if($insuranceCompany->email){
-            //     App::setLocale('heb');
-            //     // Send email
-            //     Mail::send('/manpowerCompany', $emailData, function ($message) use ($worker, $manpowerCompany, $file_name) {
-            //         $message->to($manpowerCompany->email)
-            //             ->subject(__('mail.manpower_company.subject'))
-            //             ->attach(storage_path("app/public/signed-docs/{$file_name}"));
-            //     });
-            // }
+            if($insuranceCompany->email){
+                App::setLocale('heb');
+                // Send email
+                Mail::send('/insuaranceCompany', $emailData, function ($message) use ($worker, $insuranceCompany, $file_name) {
+                    $message->to($insuaranceCompany->email)
+                        ->subject(__('mail.insuarance_company.subject'))
+                        ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+                });
+            }
         }
     
         return response()->json([

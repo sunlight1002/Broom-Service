@@ -158,6 +158,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 Route::group(['middleware' => ['auth:api', 'api_token']], function () {
     Route::put('jobs/{id}/cancel', [AdminJobController::class, 'cancelJobByGoogleSheet']);
     Route::post('jobs/{id}/update-job-done', [AdminJobController::class, 'updateJobDoneByGoogleSheet']);
+    Route::post('jobs/{id}/switch-worker', [AdminJobController::class, 'switchWorkerInGoogleSheet']);
+    Route::post('jobs/make-job', [AdminJobController::class, 'makeJobInGoogleSheet']);
 });
 
 
