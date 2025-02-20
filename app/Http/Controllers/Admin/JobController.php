@@ -1593,20 +1593,20 @@ class JobController extends Controller
     {
         $job = Job::query()->with('client')->find($id);
         \Log::info($job);
-
+    
         if (!$job) {
             return response()->json([
                 'message' => 'Job not found'
             ], 404);
         }
-
+    
         $client = $job->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-
+    
         if (
             $job->status == JobStatusEnum::COMPLETED ||
             $job->is_job_done
@@ -1615,24 +1615,23 @@ class JobController extends Controller
                 'message' => 'Job already completed',
             ], 403);
         }
-
+    
         if ($job->status == JobStatusEnum::PROGRESS) {
             return response()->json([
                 'message' => 'Job is in progress',
             ], 403);
         }
-
+    
         if ($job->status == JobStatusEnum::CANCEL) {
             return response()->json([
                 'message' => 'Job already cancelled'
             ], 403);
         }
-
+    
         $repeatancy = $request->get('repeatancy');
         $until_date = $request->get('untilDate');
         \Log::info($request->all());
-
-
+    
         $jobs = Job::query()
             ->with(['worker', 'offer', 'client', 'jobservice', 'propertyAddress'])
             ->whereIn('status', [
@@ -1647,13 +1646,16 @@ class JobController extends Controller
             })
             ->where('job_group_id', $job->job_group_id)
             ->get();
-
+    
         $admin = Admin::where('role', 'admin')->first();
-
+    
+        // Store all cancelled job IDs
+        $cancelledJobIds = [];
+    
         foreach ($jobs as $key => $job) {
             $feePercentage = $request->fee;
             $feeAmount = ($feePercentage / 100) * $job->total_amount;
-
+    
             JobCancellationFee::create([
                 'job_id' => $job->id,
                 'job_group_id' => $job->job_group_id,
@@ -1665,7 +1667,7 @@ class JobController extends Controller
                 'duration' => $repeatancy,
                 'until_date' => $until_date,
             ]);
-
+    
             $job->update([
                 'status' => JobStatusEnum::CANCEL,
                 'cancellation_fee_percentage' => $feePercentage,
@@ -1676,10 +1678,13 @@ class JobController extends Controller
                 'cancelled_for' => $repeatancy,
                 'cancel_until_date' => $until_date,
             ]);
-
+    
+            // Add the cancelled job ID to the array
+            $cancelledJobIds[] = $job->id;
+    
             CreateJobOrder::dispatch($job->id);
-            ScheduleNextJobOccurring::dispatch($job->id,null);
-
+            ScheduleNextJobOccurring::dispatch($job->id, null);
+    
             if ($job->offer && $job->offer->services) {
                 $services = json_decode($job->offer->services, true); 
     
@@ -1695,77 +1700,81 @@ class JobController extends Controller
                 $job->offer->services = json_encode($services);
                 $job->offer->save();
             }
-
+    
             $offer = $job->offer;
             $offerArr = $offer->toArray();
-                $services = json_decode($offerArr['services']);
-                
-                if (isset($services)) {
-                    $s_names = '';
-                    $s_templates_names = '';
-                    foreach ($services as $k => $service) {
-                        if ($k != count($services) - 1 && $service->template != "others") {
-                            $s_names .= $service->name . ", ";
+            $services = json_decode($offerArr['services']);
+    
+            if (isset($services)) {
+                $s_names = '';
+                $s_templates_names = '';
+                foreach ($services as $k => $service) {
+                    if ($k != count($services) - 1 && $service->template != "others") {
+                        $s_names .= $service->name . ", ";
+                        $s_templates_names .= $service->template . ", ";
+                    } else if ($service->template == "others") {
+                        if ($k != count($services) - 1) {
+                            $s_names .= $service->other_title . ", ";
                             $s_templates_names .= $service->template . ", ";
-                        } else if ($service->template == "others") {
-                            if ($k != count($services) - 1) {
-                                $s_names .= $service->other_title . ", ";
-                                $s_templates_names .= $service->template . ", ";
-                            } else {
-                                $s_names .= $service->other_title;
-                                $s_templates_names .= $service->template;
-                            }
                         } else {
-                            $s_names .= $service->name;
+                            $s_names .= $service->other_title;
                             $s_templates_names .= $service->template;
                         }
+                    } else {
+                        $s_names .= $service->name;
+                        $s_templates_names .= $service->template;
                     }
                 }
-                $offerArr['services'] = $services;
-                $offerArr['service_names'] = $s_names;
-                $offerArr['service_template_names'] = $s_templates_names;
-
-                $property = null;
-
-                $addressId = $services[0]->address;
-                if (isset($addressId)) {
-                    $address = ClientPropertyAddress::find($addressId);
-                    if (isset($address)) {
-                        $property = $address;
-                    }
+            }
+    
+            $offerArr['services'] = $services;
+            $offerArr['service_names'] = $s_names;
+            $offerArr['service_template_names'] = $s_templates_names;
+    
+            $property = null;
+    
+            $addressId = $services[0]->address ?? null;
+            if (isset($addressId)) {
+                $address = ClientPropertyAddress::find($addressId);
+                if (isset($address)) {
+                    $property = $address;
                 }
-
+            }
+    
             $data = array(
                 'by'         => 'admin',
-                'email'      => $admin->email??"",
-                'admin'      => $admin?->toArray()??[],
-                'job'        => $job?->toArray()??[],
+                'email'      => $admin->email ?? "",
+                'admin'      => $admin?->toArray() ?? [],
+                'job'        => $job?->toArray() ?? [],
                 'offer'      => $offerArr ?? null,
                 'property'   => $property ?? null
             );
-
+    
             if (isset($job->client) && !empty($job->client->phone)) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
                     "notificationData" => $data
                 ]));
             }
+    
             App::setLocale('en');
-
-            $ln = $job->client->lng;
-            //send notification to worker
-            $job = $job->toArray();
-            $worker = $job['worker'];
+    
+            $worker = $job['worker'] ?? null;
             $emailData = [
-                'by'            => $data['by']
+                'by' => $data['by']
             ];
-            event(new JobNotificationToWorker($worker, $job, $emailData));
+    
+            if ($worker) {
+                event(new JobNotificationToWorker($worker, $job, $emailData));
+            }
         }
-
+    
         return response()->json([
-            'msg' => 'Job cancelled succesfully!'
+            'msg' => 'Job cancelled successfully!',
+            'cancelled_job_ids' => $cancelledJobIds
         ]);
     }
+    
 
     public function deleteJobTime($id)
     {
@@ -2665,7 +2674,6 @@ class JobController extends Controller
     public function makeJobInGoogleSheet(Request $request)
     {
         $row = $request->all();
-        \Log::info($row);
         try {
             $currentDate = $this->convertDate($row["date"]);
             $clientId = null;
@@ -2698,24 +2706,6 @@ class JobController extends Controller
             $serviceId = $selectedService->id;
             $selectedFrequency = ServiceSchedule::where('name_heb', $frequencyName)->first();
 
-            \Log::info($currentDate);
-            \Log::info($clientId);
-            \Log::info($offerId);
-            \Log::info($selectedWorker);
-            \Log::info($shift);
-            \Log::info($ServiceName);
-            \Log::info($properHours);
-            \Log::info($frequencyName);
-            \Log::info($currentDateObj);
-            \Log::info($day);
-            \Log::info($offer);
-            \Log::info($client);
-            \Log::info($contract);
-            \Log::info($worker);
-            \Log::info($serviceId);
-            \Log::info($selectedFrequency);
-
-            
             if ($offer) {
 
                 $jobData = Job::where('offer_id', $offer->id)

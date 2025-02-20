@@ -178,7 +178,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
          
          $weekdayEnglish = $date->format('l'); // Get weekday in English
          $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
-         $formattedDate = $date->format('d.m') . " " . $weekdayHebrew; // Format: "20.02 חמישי"
+         $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
      
          // Highlight the date with text in Hebrew
          $this->setCellBackgroundColor($sheetId, $dateCell, $rgb, $formattedDate, $dateRow);
@@ -566,7 +566,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
     public function findLastHighlightedRow($sheetName)
     {
         $spreadsheetId = $this->spreadsheetId;
-        $range = "{$sheetName}!A1:Z1000";  // Check a larger range to capture rows up to 1002
+        $range = "{$sheetName}!A1:Z";  // Check a larger range to capture rows up to 1002
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->googleAccessToken,
             'Content-Type' => 'application/json',
@@ -664,7 +664,8 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
                 [
                     "addSheet" => [
                         "properties" => [
-                            "title" => $sheetTitle
+                            "title" => $sheetTitle,
+                            "rightToLeft" => true
                         ]
                     ]
                 ]
