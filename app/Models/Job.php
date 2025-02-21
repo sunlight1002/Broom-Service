@@ -75,6 +75,7 @@ class Job extends Model
         'worker_notified',
         'admin_notified',
         'wednesday_notified',
+        'offer_service',
     ];
 
     /**
@@ -107,6 +108,7 @@ class Job extends Model
         'cancelled_at' => 'datetime',
         'cancel_until_date' => 'date:Y-m-d',
         'job_opening_timestamp' => 'datetime',
+        'offer_service' => 'array',
     ];
 
     public static function boot()
