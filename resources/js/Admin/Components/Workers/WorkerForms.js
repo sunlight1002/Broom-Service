@@ -16,7 +16,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     const [ManpowerSaftyForm, setManpowerSaftyForm] = useState(false);
     const [form, setForm] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isManpower, setIsManpower] = useState(worker?.company_type == "manpower" ? true : false)
     const navigate = useNavigate();
+
 
     const alert = useAlert();
 
@@ -31,7 +33,6 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
         axios
             .get(`/api/getAllForms/${worker.id}`)
             .then((res) => {
-                console.log(res);
                 const formsData = res.data.forms;
 
                 if (formsData.length > 0) {
@@ -54,6 +55,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     setContractForm(_contractForm);
                     setSafetyAndGearForm(_saftyGearForm);
                     setInsuranceForm(_insuranceForm);
+                    
                     setManpowerSaftyForm(_manpowerForm);
                     setForm(_form101Forms.length > 0);
                 }
@@ -90,13 +92,13 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     } else if (type == "safety_and_gear_form") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=4`, "_blank");
                     } else if (type == "safety_and_gear_form_manpower") {
-                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=3`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=2`, "_blank");
                     } else if (type == "form_insurance") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
                     } else if (type == "2form101") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
                     } else if (type == "manpower") {
-                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?type=manpower`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1&type=manpower`, "_blank");
                     }
                     getForm();
                 } catch (error) {
@@ -112,13 +114,13 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
         } else if (type == "contract") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=5`, "_blank");
         } else if (type == "safety_and_gear_form") {
-            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=4`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?${isManpower ? `page=2` : `page=4`}`, "_blank");
         } else if (type == "form_insurance") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
         } else if (type == "2form101") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
         } else if (type == "manpower") {
-            window.open(`/worker-forms/${Base64.encode(form_id.toString())}?type=manpower`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1&type=manpower`, "_blank");
         }
     }
 
@@ -313,7 +315,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             </span>
                                         ) : (
                                             <span className="btn btn-warning"
-                                                onClick={() => window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=3`, "_blank")}
+                                                onClick={() => handleNotSigned(safetyAndGearForm?.id, "safety_and_gear_form")}
                                             >
                                                 {t("global.notSigned")}
                                             </span>

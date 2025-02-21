@@ -8,14 +8,14 @@ use App\Jobs\UpdateExcelSheetWithJobs;
 use App\Jobs\SyncGoogleSheetDataJob;
 
 
-class SyncGoogleSheetData extends Command
+class AddJobsInGoogleSheet extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:google-sheet-data';
+    protected $signature = 'add:jobs-in-google-sheet';
 
     /**
      * The console command description.
@@ -41,7 +41,6 @@ class SyncGoogleSheetData extends Command
      */
     public function handle()
     {
-        // dispatch(new SyncExcelSheetAndMakeJob())->onConnection('sync');
-        dispatch(new SyncGoogleSheetDataJob())->onConnection('sync');
+        dispatch(new SyncExcelSheetAndMakeJob())->onConnection('sync');
     }
 }

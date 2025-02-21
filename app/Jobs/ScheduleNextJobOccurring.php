@@ -3,10 +3,22 @@
 namespace App\Jobs;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\SettingKeyEnum;
 use App\Models\Job;
 use App\Models\ManageTime;
+use App\Models\Client;
+use App\Models\User;
+use App\Models\Contract;
+use App\Models\ClientPropertyAddress;
+use App\Models\Offer;
+use App\Models\Services;
+use App\Models\ServiceSchedule;
+use App\Models\JobHours;
+use App\Models\JobService;
+use App\Models\Setting;
 use App\Models\Notification;
 use App\Traits\JobSchedule;
+use App\Traits\GoogleAPI;
 use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Exception;
@@ -25,24 +37,35 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Http;
+use App\Jobs\SyncGoogleSheetAddJobOccurring;
+
+
 
 
 class ScheduleNextJobOccurring implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, JobSchedule, PriceOffered;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, JobSchedule, PriceOffered, GoogleAPI;
 
     protected $jobID;
     protected $startDate;
+    protected $spreadsheetId;
+    protected $googleAccessToken;
+    protected $googleRefreshToken;
+    protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
+    protected $sheetName = null;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($jobID, $startDate)
+    public function __construct($jobID, $startDate, $sheetName = null)
     {
         $this->jobID = $jobID;
         $this->startDate = $startDate;
+        $this->sheetName = $sheetName;
+
     }
 
     /**
@@ -59,6 +82,8 @@ class ScheduleNextJobOccurring implements ShouldQueue
      */
     public function handle()
     {
+        $i = 0;
+
         $job = Job::query()
             ->with('client')
             ->where('schedule', '!=', 'na')
@@ -87,20 +112,20 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
                 $preferredWeekDay = $job->jobservice->config['preferred_weekday'];
 
-                $sixMonthsFromNow = Carbon::now()->addMonths(6);  // Calculate date 6 months from now
+                $sixMonthsFromNow = Carbon::now()->addMonths(2);  // Calculate date 6 months from now
 
                 // Check if startDate is provided
                 if ($this->startDate) {
                     $job_start_date = Carbon::parse($this->startDate);
 
                     // Run scheduleNextJob only once with startDate
-                    $nextJobDate =  $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays);
+                    $nextJobDate =  $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays, $i);
 
                 } else {
                      $job_start_date = Carbon::parse($job->start_date);
 
                     do {
-                        $nextJobDate = $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays);
+                        $nextJobDate = $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays, $i);
 
                         // If the next job date is after 6 months, stop the scheduling
                         if (Carbon::parse($nextJobDate)->gt($sixMonthsFromNow)) {
@@ -117,12 +142,10 @@ class ScheduleNextJobOccurring implements ShouldQueue
         }  catch (Exception $e) {
             \Log::error("Error occurred in ScheduleNextJobOccurring: " . $e->getMessage());
         }
-
-
     }
 
 
-    protected function scheduleNextJob($job_date, $selectedService,  $client, $job, $preferredWeekDay, $workingWeekDays){
+    protected function scheduleNextJob($job_date, $selectedService,  $client, $job, $preferredWeekDay, $workingWeekDays, &$i){
             $next_job_date = $this->scheduleNextJobDate($job_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
 
             if ($job->cancelled_for == 'until_date') {
@@ -306,6 +329,130 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 );
             }
 
+            // SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
+            // $this->syncSheet($nextJob);
+
             return $next_job_date;
     }
+
+
+    public function syncSheet($job)
+    {
+ 
+        try {
+            $months = [
+                "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+                "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
+            ];
+            // Convert date to Hebrew weekday format
+            $hebrewWeekdays = [
+                "Sunday" => "ראשון",
+                "Monday" => "שני",
+                "Tuesday" => "שלישי",
+                "Wednesday" => "רביעי",
+                "Thursday" => "חמישי",
+                "Friday" => "שישי",
+                "Saturday" => "שבת"
+            ];
+    
+            $this->initGoogleConfig();
+            $job_start_date = $job->start_date;
+    
+            if (!$job_start_date) {
+                \Log::error("Job start date is missing.");
+                return;
+            }
+
+            $jobStartDate = Carbon::parse($job_start_date);
+    
+            \Log::info("Job start date: $job_start_date");
+    
+            // Extract month from job start date
+            $monthNumber = date('n', strtotime($job_start_date)) - 1;
+            $sheet = $months[$monthNumber] ?? null;
+    
+            \Log::info("Target sheet: $sheet");
+    
+            // Check if the sheet exists; if not, create it
+            $sheetId = $this->getSheetId($sheet);
+            $isNewSheet = false;
+    
+            if (!$sheetId) {
+                \Log::info("Sheet $sheet not found. Creating new sheet...");
+                $this->createNewSheet($this->spreadsheetId, $sheet);
+                sleep(1);
+                $sheetId = $this->getSheetId($sheet);
+                $isNewSheet = true;
+    
+                // Light Green Background (RGB: 144, 195, 131)
+                $rgb = [0.5647, 0.7647, 0.5137];
+
+                $weekdayEnglish = $jobStartDate->format('l'); // Get weekday in English
+                $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
+                $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
+    
+                // **Highlight the first row with the job start date**
+                $highlightedRowIndex = 1;
+                $this->setCellBackgroundColor($sheetId, "D{$highlightedRowIndex}", $rgb, $formattedDate, $highlightedRowIndex);
+                \Log::info("Inserted highlighted date row for $formattedDate at row $highlightedRowIndex");
+            }
+    
+            // Retrieve sheet data
+            $data = $this->getGoogleSheetData($sheet);
+            if (empty($data)) {
+                \Log::warning("Sheet $sheet is empty.");
+            }
+    
+            $insertRowIndex = null;
+    
+            // If it's a new sheet, insert job record after the highlighted row
+            if ($isNewSheet) {
+                $insertRowIndex = 2;
+            } else {
+                foreach ($data as $index => $row) {
+                    if ($index == 0) continue;
+    
+                    // Check if column 4 (index 3) contains a date pattern
+                    if (!empty($row[3]) && (
+                        preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
+                        preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
+                    )) {
+                        $currentDate = $this->convertDate($row[3], $sheet);
+                        \Log::info("Extracted current date: $currentDate");
+    
+                        if ($currentDate == $job_start_date) {
+                            \Log::info("Matching date found at row $index");
+                            $insertRowIndex = $index + 1;
+                            break;
+                        }
+                    }
+                }
+            }
+    
+            if ($insertRowIndex !== null) {
+                $row_index = $this->findNextDateRowIndex($data, $insertRowIndex) ?? $insertRowIndex;
+            } else {
+                $lastOccupiedRow = $this->findLastHighlightedRow($sheet);
+                \Log::info("Last occupied row: $lastOccupiedRow");
+                $row_index = $lastOccupiedRow + 3;
+
+                $weekdayEnglish = $jobStartDate->format('l'); // Get weekday in English
+                $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
+                $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
+                $rgb = [0.5647, 0.7647, 0.5137];
+
+                $this->setCellBackgroundColor($sheetId, "D{$row_index}", $rgb, $formattedDate, $row_index);
+                $row_index +=2;
+
+            }
+    
+            \Log::info("Final row index: $row_index");
+            $data1 = $this->insertRowAbove($sheet, $row_index, $job, $sheetId);
+            \Log::info(['data' => $data1]);
+    
+        } catch (\Exception $e) {
+            \Log::error("An error occurred: " . $e->getMessage());
+        }
+    }
+
 }

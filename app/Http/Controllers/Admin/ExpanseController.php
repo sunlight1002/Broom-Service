@@ -250,6 +250,7 @@ class ExpanseController extends Controller
     
         // Decode JSON response
         $responseData = $response->json();
+        \Log::info($responseData);
         $httpCode = $response->status();
     
         // Handle errors

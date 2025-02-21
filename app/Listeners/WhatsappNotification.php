@@ -16,7 +16,7 @@ use App\Models\ShortUrl;
 
 class WhatsappNotification
 {
-    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken;
+    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken, $whapiWorkerJobApiToken;
 
     /**
      * Create the event listener.
@@ -29,6 +29,7 @@ class WhatsappNotification
         $this->whapiApiToken = config('services.whapi.token');
         $this->whapiWorkerApiToken = config('services.whapi.worker_token');
         $this->whapiClientApiToken = config('services.whapi.client_token');
+        $this->whapiWorkerJobApiToken = config('services.whapi.worker_job_token');
     }
 
     private function replaceClientFields($text, $clientData, $eventData)
@@ -708,6 +709,13 @@ class WhatsappNotification
                 }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE || $eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE){
                     \Log::info('NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE');
                     $token = $this->whapiClientApiToken;
+                }else if(
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM ||
+                    $eventType == WhatsappMessageTemplateEnum::REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER
+                    ){
+                    $token = $this->whapiWorkerJobApiToken;
                 }else{
                     $token = $this->whapiApiToken;
                 }

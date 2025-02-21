@@ -287,19 +287,18 @@ class WorkerLeadWebhookController extends Controller
                 }
 
                 if($last_input){
-                        $selectedCompanyId = intval($messageInput);
-                            // Update the worker's lead with the selected company ID
-                            $workerLead = WorkerLeads::where('id', $last_input)->first();
-                            if ($workerLead) {
-                                $workerLead->manpower_company_id = $selectedCompanyId;
-                                $workerLead->save();
+                    $selectedCompanyId = intval($messageInput);
+                    // Update the worker's lead with the selected company ID
+                    $workerLead = WorkerLeads::where('id', $last_input)->first();
+                    if ($workerLead) {
+                        $workerLead->manpower_company_id = $selectedCompanyId;
+                        $workerLead->save();
 
-                                // Send confirmation message to the user
-                                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
-                                Cache::forget('manpower', $last_input);
-                            }
+                        // Send confirmation message to the user
+                        $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
+                        Cache::forget('manpower', $last_input);
+                    }
                 }
-
 
                 return response()->json(['status' => 'Message format invalid or already processed'], 400);
             }
