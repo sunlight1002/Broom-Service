@@ -265,9 +265,10 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                             }
                                         }
 
-                                        if($row[5] == TRUE){
-                                            $this->handleJob($row, $offer, $client, $currentDate,$selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
-                                        }
+
+                                        // if($row[5] != "FALSE" && $row[6] != "FALSE"){
+                                            $this->handleJob($row, $offer, $client, $currentDate,$selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet);
+                                        // }
                                     }
                                 } else {
                                     $offers = $client->offers;
@@ -418,7 +419,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
     }
 
 
-    private function handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService)
+    private function handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index = null, $sheet)
     {
         try {
             if ($offer) {
@@ -427,11 +428,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     return;
                 }
 
-                // if($row[5] == FALSE && $row[6] == FALSE){
-                //     return;
-                // }
-                \Log::info("firstOffer ID: " . $offer->id);
-                \Log::info("firstClient ID: " . $offer->client_id);
+                if($row[5] == "FALSE" && $row[6] == "FALSE"){
+                    return;
+                }
 
                 $contract = $offer->contract;
                 if(!$contract) {
@@ -732,6 +731,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
 
                         $status = JobStatusEnum::SCHEDULED;
+                        $statusCompleted = JobStatusEnum::COMPLETED;
 
                         if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $worker->id)) {
                             \Log::info("Job time is conflicting with another job. Job will be unscheduled.");
@@ -740,7 +740,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                         $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
                         $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
-
                         $job = Job::create([
                             'worker_id'     => $worker->id,
                             'client_id'     => $contract->client_id,
@@ -752,7 +751,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'shifts'        => $slotsInString,
                             'schedule'      => $repeat_value,
                             'schedule_id'   => $s_id,
-                            'status'        => $status,
+                            'status'        => $row[6] == "TRUE" ? $statusCompleted : $status,
                             'subtotal_amount'  => $total_amount,
                             'total_amount'  => $total_amount,
                             'next_start_date'   => $next_job_date,
@@ -808,6 +807,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             $job->workerShifts()->create($shift);
                         }
 
+                        $this->updateColumnInRow($index + 1, "X", $job->id, $sheet);
+
                         // $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
                         // // Send notification to client
@@ -835,6 +836,22 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
     }
 
+
+    public function updateColumnInRow($rowIndex, $columnLetter, $value, $sheet = null){
+        $updateRange = "{$sheet}!{$columnLetter}{$rowIndex}";
+            $jobData = [
+                $value
+            ];
+            
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->googleAccessToken,
+                'Content-Type' => 'application/json',
+            ])->put("{$this->googleSheetEndpoint}{$this->spreadsheetId}/values/{$updateRange}?valueInputOption=USER_ENTERED", [
+                "values" => [$jobData]
+            ]);
+            \Log::info($response->body());
+            return $response->body();
+    }
 
 
     public function detectLanguage($text)

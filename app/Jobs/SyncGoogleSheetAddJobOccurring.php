@@ -173,7 +173,7 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                 $rgb = [0.5647, 0.7647, 0.5137];
 
                 $this->setCellBackgroundColor($sheetId, "D{$row_index}", $rgb, $formattedDate, $row_index);
-                $row_index +=2;
+                $row_index +=1;
 
             }
     
@@ -298,7 +298,8 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                         "startIndex" => $rowIndex - 1, // Zero-based index
                         "endIndex" => $rowIndex
                     ],
-                    "inheritFromBefore" => false
+                    "inheritFromBefore" => false,
+                    "inheritFromAfter" => false
                 ]
             ]
         ];
@@ -696,7 +697,7 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                                 ],
                             ],
                         ],
-                        "fields" => "userEnteredFormat.backgroundColor"  // Include both formatting and value fields
+                        "fields" => "userEnteredFormat.backgroundColor",  // Include both formatting and value fields
                     ],
                 ],
                 [

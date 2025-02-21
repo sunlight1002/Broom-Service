@@ -112,7 +112,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
                 $preferredWeekDay = $job->jobservice->config['preferred_weekday'];
 
-                $sixMonthsFromNow = Carbon::now()->addMonths(6);  // Calculate date 6 months from now
+                $sixMonthsFromNow = Carbon::now()->addMonths(2);  // Calculate date 6 months from now
 
                 // Check if startDate is provided
                 if ($this->startDate) {
@@ -142,8 +142,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
         }  catch (Exception $e) {
             \Log::error("Error occurred in ScheduleNextJobOccurring: " . $e->getMessage());
         }
-
-
     }
 
 
@@ -331,7 +329,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 );
             }
 
-            SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
+            // SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
             // $this->syncSheet($nextJob);
 
             return $next_job_date;
