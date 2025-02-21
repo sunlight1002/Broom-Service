@@ -362,14 +362,16 @@ trait PaymentAPI
         // // Wrap the data in a Request object
         // $request = new Request($requestData);
 
-        // Call createOrUpdateUser with the constructed Request
-        $iCountResponse = $this->createOrUpdateUser($client);
+        if(!$client->icount_client_id) {
+            // Call createOrUpdateUser with the constructed Request
+            $iCountResponse = $this->createOrUpdateUser($client);
 
-        $iCountData = $iCountResponse->json();
+            $iCountData = $iCountResponse->json();
 
-        // Update client with iCount client_id
-        if (isset($iCountData['client_id'])) {
-            $client->update(['icount_client_id' => $iCountData['client_id']]);
+            // Update client with iCount client_id
+            if (isset($iCountData['client_id'])) {
+                $client->update(['icount_client_id' => $iCountData['client_id']]);
+            }
         }
 
         $address = $client->property_addresses()->first();
@@ -657,7 +659,7 @@ trait PaymentAPI
 
         return $data;
     }
-    
+
 
     private function refundICountDocument($doc_data, $percentage)
     {
@@ -665,33 +667,33 @@ trait PaymentAPI
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
             ->value('value');
-    
+
         $iCountUsername = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
             ->value('value');
-    
+
         $iCountPassword = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
-    
+
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
-    
+
         // Adjust totals based on the percentage
         $totalsum = $doc_data['doc_info']['totalsum'] ?? 0;
         $afterdiscount = $doc_data['doc_info']['afterdiscount'] ?? 0;
         $total_with_vat = $doc_data['doc_info']['totalwithvat'] ?? 0;
-    
+
         // Calculate new amounts
         $adjusted_totalsum = $totalsum * ($percentage / 100);
         $adjusted_afterdiscount = $afterdiscount * ($percentage / 100);
         $adjusted_total_with_vat = $total_with_vat * ($percentage / 100);
-    
+
         // Update item prices proportionally
         $items = $doc_data['doc_info']['items'] ?? [];
         foreach ($items as &$item) {
             $item['unitprice'] = $item['unitprice'] * ($percentage / 100);
         }
-    
+
         // Prepare the postData
         $postData = [
             "cid"            => $iCountCompanyID,
@@ -719,7 +721,7 @@ trait PaymentAPI
             "cash"           => $doc_data['doc_info']['cash'] ?? [],
             "comment"        => $doc_data['doc_info']['comment'] ?? '',
         ];
-    
+
         // Make the POST request
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -727,17 +729,17 @@ trait PaymentAPI
             $url,
             $postData
         );
-    
+
         $json = $response->json();
-    
+
         // Handle the response
         if ($response->status() !== 200) {
             throw new Exception('Error creating refund document: ' . ($json['reason'] ?? 'Unknown error'));
         }
-    
+
         return $json;
     }
-    
+
 
 
     private function getIcountDocUrl($docnum, $doctype) {
@@ -779,7 +781,7 @@ trait PaymentAPI
         }
 
         return $data;
-        
+
     }
 
     private function generateInvoiceDocument(
@@ -789,40 +791,40 @@ trait PaymentAPI
         $otherInvDocOptions
     ) {
         $address = $client->property_addresses()->first();
-    
+
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
             ->value('value');
-    
+
         $iCountUsername = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
             ->value('value');
-    
+
         $iCountPassword = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
-    
+
         // Consolidate items and totals from all orders
         $items = [];
         $totalsum = 0;
         $discount = 0;
-    
+
         foreach ($orders as $order) {
             if ($order->amount == 0) {
                 continue;
             }
-        
+
             $orderItems = json_decode($order->items, true); // Decode items per order
             $items = array_merge($items, $orderItems); // Merge items from all orders
             $totalsum += $order->amount;
             $discount += $order->discount_amount;
         }
-    
+
         $total = $totalsum - $discount;
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
-    
+
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
-    
+
         $postData = [
             "cid" => $iCountCompanyID,
             "lang" => ($client->lng == 'heb') ? 'he' : 'en',
@@ -847,30 +849,30 @@ trait PaymentAPI
             "email_to" => $client->email,
             "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : [],
         ];
-    
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post(
             $url,
             $postData
         );
-    
+
         $json = $response->json();
         $http_code = $response->status();
-    
+
         if ($http_code != 200) {
             throw new Exception('Error : Failed to create invoice document');
         }
-    
+
         if (!$json["status"]) {
             throw new Exception($json["reason"], 500);
         }
-    
+
         $documentInfoJson = $this->getICountDocument($json['docnum'], 'invoice');
-    
+
         return $documentInfoJson;
     }
-    
+
 
 
     private function generateInvRecDocument(
