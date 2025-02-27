@@ -126,11 +126,11 @@ class WorkerLeadWebhookController extends Controller
     {
         $get_data = $request->getContent();
         $data_returned = json_decode($get_data, true);
-        \Log::info($data_returned);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
         $lng = "en";
-
+        
         if (!$messageId) {
+            \Log::info('Invalid message data');
             return response()->json(['status' => 'Invalid message data'], 400);
         }
 

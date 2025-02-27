@@ -36,8 +36,8 @@ We’d love to hear your feedback about your experience.
 Your input is important to us to maintain our high standards and ensure every visit meets your expectations.
 
 We’d love to hear your feedback about the service you received:
-1️⃣ If you were satisfied with the service.
-2️⃣ If you have any comments or requests for the supervisor.
+7️⃣ If you were satisfied with the service.
+8️⃣ If you have any comments or requests for the supervisor.
 
 Please reply with the appropriate number.",
         "heb" => "שלום :client_name,
@@ -46,8 +46,8 @@ Please reply with the appropriate number.",
 המשוב שלכם חשוב לנו כדי לשמור על הסטנדרטים הגבוהים שלנו ולוודא שכל ביקור יעמוד בציפיותיכם.
 
 נשמח לדעת איך התרשמתם מהשירות שקיבלתם:
-1️⃣ אם הייתם מרוצים מהשירות שקיבלתם.
-2️⃣ אם יש לכם הערות או בקשות שנוכל להעביר למפקח להמשך טיפול.
+7️⃣ אם הייתם מרוצים מהשירות שקיבלתם.
+8️⃣ אם יש לכם הערות או בקשות שנוכל להעביר למפקח להמשך טיפול.
 
 אנא השיבו עם המספר המתאים."
     ];
@@ -80,7 +80,7 @@ Please reply with the appropriate number.",
             $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
             $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
             sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
-            Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));
+            Cache::put('client_review' . $client->id, true, now()->addDay(1));
         }
     }
 }

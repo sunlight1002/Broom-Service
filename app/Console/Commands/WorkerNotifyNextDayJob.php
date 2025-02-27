@@ -50,6 +50,7 @@ class WorkerNotifyNextDayJob extends Command
 
         $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
+            ->whereIn('worker_id', ['209','185'])
             ->whereNotNull('worker_id')
             ->whereHas('worker')
     //     ->whereDoesntHave('workerMetas', function ($query) {
