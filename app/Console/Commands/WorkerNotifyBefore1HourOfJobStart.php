@@ -47,13 +47,12 @@ class WorkerNotifyBefore1HourOfJobStart extends Command
      */
     public function handle()
     {
+        \Log::info('Current Time:', [now()]);
+
         $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
+            ->whereIn('worker_id', ['209','185'])
             ->whereHas('worker')
-            // ->whereDoesntHave('workerMetas', function ($query) {
-            //     $query->where('worker_id', DB::raw('jobs.worker_id'));
-            //     $query->where('key', 'reminder_to_worker_1_hour_before_job_start');
-            // })
             ->whereDoesntHave('workerMetas', function ($query) {
                 $query->whereColumn('job_id', 'jobs.id') // Match by job_id
                       ->whereColumn('worker_id', 'jobs.worker_id') 
@@ -69,6 +68,7 @@ class WorkerNotifyBefore1HourOfJobStart extends Command
             ->get();
 
         foreach ($jobs as $key => $job) {
+            \Log::info($job->toArray());
             $worker = $job->worker;
             $client = $job->client;
             if ($worker) {

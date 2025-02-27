@@ -55,8 +55,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('client:update-lead-status')->hourly();
 
         // $schedule->command('notifyclientforcontract')->hourly();
-        $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
-        $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
+        // $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
+        // $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
 
         $schedule->command('notifyTeamAndClientTommorowMeeting')->dailyAt('19:00');
 

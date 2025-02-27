@@ -1702,7 +1702,7 @@ If you would like to speak to a human representative, please send a message with
         $data_returned = json_decode($get_data, true);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
 
-        // \Log::info($data_returned);
+        \Log::info($data_returned);
 
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
@@ -1746,13 +1746,11 @@ If you would like to speak to a human representative, please send a message with
                 ->orWhereJsonContains('extra', [['phone' => $from]])
                 ->first();
 
-                if ($client) {
-                    \Log::info('Client already exists');
-                }
             $msgStatus = null;
 
             if($client){
                 $msgStatus = Cache::get('client_review' . $client->id);
+                \Log::info($msgStatus . ' ' . $client->id);
                 $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
                 if (!empty($msgStatus) && ($input == '7' || $input == '8')) {
                     \Log::info('Client already reviewed');
@@ -1794,9 +1792,7 @@ If you would like to speak to a human representative, please send a message with
                     die('Monday msg reply is pending.');
                 }
             }
-            \Log::info($from.' '.$input);
             $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
-            \Log::info($clientMessageStatus);
 
             $last_menu = null;
             $send_menu = null;
@@ -1805,8 +1801,6 @@ If you would like to speak to a human representative, please send a message with
                 $menu_option = explode('->', $clientMessageStatus->menu_option);
                 $last_menu = end($menu_option);
             }
-
-            \Log::info($last_menu);
 
             WebhookResponse::create([
                 'status' => 1,
