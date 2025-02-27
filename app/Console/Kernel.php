@@ -28,10 +28,10 @@ class Kernel extends ConsoleKernel
 
         // Worker reminder
         // $schedule->command('worker:send_invitation')->dailyAt('09:00');
-        // $schedule->command('worker:notify-next-day-job-at-5-pm')->dailyAt('17:00');
-        // $schedule->command('worker:notify-next-day-job-at-6-pm')->dailyAt('18:00');
-        // $schedule->command('worker:notify-worker-confirm-on-your-way-before-1-hour')->everyMinute();
-        // $schedule->command('worker:job-not-finished-on-time')->everyMinute();
+        $schedule->command('worker:notify-next-day-job-at-5-pm')->dailyAt('17:00');
+        $schedule->command('worker:notify-next-day-job-at-6-pm')->dailyAt('18:00');
+        $schedule->command('worker:notify-worker-confirm-on-your-way-before-1-hour')->everyMinute();
+        $schedule->command('worker:job-not-finished-on-time')->everyMinute();
 
         // Team reminder
         $schedule->command('team:notify-team-if-worker-not-confirm-before-30-mins')->everyMinute();
