@@ -2057,8 +2057,8 @@ If you would like to speak to a human representative, please send a message with
                                     $email = trim($row[1]);
                                 }
 
-                                if (($id || $email) && !empty($row[9])) {
-                                    $shifts[] = trim($row[9] ?? '');
+                                if (($id || $email) && !empty($row[10])) {
+                                    $shifts[] = trim($row[10] ?? '');
                                     if ($id == $client->id || (!empty($email) && $email == $client->email)) {
                                         $currentDateObj = Carbon::parse($currentDate); // Current date
                                         $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
@@ -2066,7 +2066,7 @@ If you would like to speak to a human representative, please send a message with
                                         $shift = "";
                                         $day = $currentDateObj->format('l');
                                         if($client->lng == 'en') {
-                                            switch (trim($row[9])) {
+                                            switch (trim($row[10])) {
                                                 case 'יום':
                                                 case 'בוקר':
                                                 case '7 בבוקר':
@@ -2089,11 +2089,11 @@ If you would like to speak to a human representative, please send a message with
                                                     break;
 
                                                 default:
-                                                    $shift = $row[9];
+                                                    $shift = $row[10];
                                                     break;
                                             }
                                         } else {
-                                            switch (trim($row[9])) {
+                                            switch (trim($row[10])) {
                                                 case 'יום':
                                                 case 'בוקר':
                                                 case '7 בבוקר':
@@ -2117,7 +2117,7 @@ If you would like to speak to a human representative, please send a message with
 
 
                                                 default:
-                                                    $shift = $row[9];
+                                                    $shift = $row[10];
                                                     break;
                                             }
                                             switch ($day) {
