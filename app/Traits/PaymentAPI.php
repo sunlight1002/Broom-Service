@@ -345,23 +345,6 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
-        \Log::info("asdff");
-        // $requestData = [
-        //     'data' => [
-        //         'client_name' => $client['firstname'] ?? null,
-        //         'firstname' => $client['firstname'] ?? null,
-        //         'lastname' => $client['lastname'] ?? null,
-        //         'id' => $client['id'] ?? null,
-        //         'phone' => $client['phone'] ?? null,
-        //         'email' => $client['email'] ?? null,
-        //         'vat_number' => $client['vat_number'] ?? null,
-        //         'status' => $client['status'] ?? null,
-        //         'invoicename' => $client['invoicename'] ? $client['invoicename'] : ($client['firstname'] ." " . $client['lastname']),
-        //     ],
-        // ];
-        // // Wrap the data in a Request object
-        // $request = new Request($requestData);
-
         if(!$client->icount_client_id) {
             // Call createOrUpdateUser with the constructed Request
             $iCountResponse = $this->createOrUpdateUser($client);
@@ -406,18 +389,16 @@ trait PaymentAPI
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
 
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
-        \Log::info("sdfssdfsdfsfsdfsdfsdfs");
-        \Log::info($serviceDate);
 
         $postData = [
             "cid"  => $iCountCompanyID,
             "lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "user" => $iCountUsername,
             "pass" => $iCountPassword,
-            "email" => $client->email,
+            // "email" => $client->email,
             "doctype" => 'order',
-            "client_name" => $client->invoicename ? $client->invoicename : ($client->firstname . ' ' . $client->lastname),
-            "client_address" => $address ? $address->geo_address : '',
+            // "client_name" => $client->invoicename ? $client->invoicename : ($client->firstname . ' ' . $client->lastname),
+            // "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "doc_date" => $serviceDate,
@@ -429,7 +410,7 @@ trait PaymentAPI
             "duedate" => $duedate,
             "send_email" => 0,
             "email_to_client" => 0,
-            "email_to" => $client->email,
+            // "email_to" => $client->email,
         ];
 
         if($client->icount_client_id) {

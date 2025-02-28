@@ -281,6 +281,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         $frequencies[] = $d['freq_name'];
                                     }
                                 }
+                                // \Log::info($offers);
 
                                 if (empty($selectedOfferDataArr)) {
                                     $sheetService = trim($row[11] ?? null);
@@ -1172,6 +1173,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         } catch (\Throwable $th) {
             throw $th;
         }
+           
     }
 
 

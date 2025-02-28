@@ -142,7 +142,7 @@ Please reply with the appropriate number.",
                 $clientName = "*".($client->firstname ?? '') . ' ' . ($client->lastname ?? '')."*";
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
                 sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
-                Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));
+                Cache::put('client_review' . $client->id, true, now()->addDay(1));
             }
         }
 

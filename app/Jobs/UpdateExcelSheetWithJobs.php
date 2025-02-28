@@ -178,7 +178,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
          
          $weekdayEnglish = $date->format('l'); // Get weekday in English
          $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
-         $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
+         $formattedDate = $weekdayHebrew . " " . $date->format('d.m');
      
          // Highlight the date with text in Hebrew
          $this->setCellBackgroundColor($sheetId, $dateCell, $rgb, $formattedDate, $dateRow);

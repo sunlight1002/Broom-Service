@@ -348,7 +348,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
-                dd(implode(',', array_unique($client_ids)));
             }
             dd(implode(',', array_unique($client_ids)));
         } catch (\Exception $e) {

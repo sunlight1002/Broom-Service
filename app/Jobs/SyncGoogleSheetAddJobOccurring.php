@@ -69,7 +69,6 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     public function handle()
     {
         $job = $this->syncJob; // Use renamed property
-        \Log::info("Job ID: $job->id");
         try {
             $months = [
                 "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
@@ -88,6 +87,7 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     
             $this->initGoogleConfig();
             $job_start_date = $job->start_date;
+
     
             if (!$job_start_date) {
                 \Log::error("Job start date is missing.");
@@ -96,13 +96,12 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
 
             $jobStartDate = Carbon::parse($job_start_date);
     
-            \Log::info("Job start date: $job_start_date");
+            \Log::info("Job start date jobID: $job_start_date $job->id");
+
     
             // Extract month from job start date
             $monthNumber = date('n', strtotime($job_start_date)) - 1;
             $sheet = $months[$monthNumber] ?? null;
-    
-            \Log::info("Target sheet: $sheet");
     
             // Check if the sheet exists; if not, create it
             $sheetId = $this->getSheetId($sheet);
@@ -113,6 +112,9 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                 $this->createNewSheet($this->spreadsheetId, $sheet);
                 sleep(1);
                 $sheetId = $this->getSheetId($sheet);
+
+                $rIndex = $this->insertHeading($sheet, $sheetId);
+
                 $isNewSheet = true;
     
                 // Light Green Background (RGB: 144, 195, 131)
@@ -123,9 +125,8 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                 $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
     
                 // **Highlight the first row with the job start date**
-                $highlightedRowIndex = 1;
-                $this->setCellBackgroundColor($sheetId, "D{$highlightedRowIndex}", $rgb, $formattedDate, $highlightedRowIndex);
-                \Log::info("Inserted highlighted date row for $formattedDate at row $highlightedRowIndex");
+                $highlightedRowIndex = $rIndex + 3;
+                $this->setCellBackgroundColor($sheetId, "D{$highlightedRowIndex}", $rgb, $formattedDate, $highlightedRowIndex, $sheet);
             }
     
             // Retrieve sheet data
@@ -138,10 +139,14 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     
             // If it's a new sheet, insert job record after the highlighted row
             if ($isNewSheet) {
-                $insertRowIndex = 2;
+                [$lastOccupiedRow, $foundDateCell] = array_values($this->findLastHighlightedRow($sheet));
+                \Log::info("Last occupied row from findLastHighlightedRow: $lastOccupiedRow");
+                $insertRowIndex = $lastOccupiedRow + 2;
             } else {
                 foreach ($data as $index => $row) {
-                    if ($index == 0) continue;
+                    if ($index == 0){
+                        continue;
+                    };
     
                     // Check if column 4 (index 3) contains a date pattern
                     if (!empty($row[3]) && (
@@ -153,7 +158,7 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     
                         if ($currentDate == $job_start_date) {
                             \Log::info("Matching date found at row $index");
-                            $insertRowIndex = $index + 1;
+                            $insertRowIndex = $index + 3;
                             break;
                         }
                     }
@@ -163,23 +168,36 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
             if ($insertRowIndex !== null) {
                 $row_index = $this->findNextDateRowIndex($data, $insertRowIndex) ?? $insertRowIndex;
             } else {
-                $lastOccupiedRow = $this->findLastHighlightedRow($sheet);
+                $isGreater = false;
+                [$lastOccupiedRow, $foundDateCell] = array_values($this->findLastHighlightedRow($sheet));
+                $ro = $this->findNextDateRowIndex($data, $lastOccupiedRow);
+                \Log::info("Last occupied row from findNextDateRowIndex: $ro");
+                
                 \Log::info("Last occupied row: $lastOccupiedRow");
-                $row_index = $lastOccupiedRow + 3;
+                // \Log::info("Found date cell: $foundDateCell");
+
+                if($job_start_date < $foundDateCell){
+                    $isGreater = true;
+                    $row_index = $lastOccupiedRow - 3;
+                }else{
+                    $row_index = $lastOccupiedRow + 3;
+                }
 
                 $weekdayEnglish = $jobStartDate->format('l'); // Get weekday in English
                 $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
                 $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
                 $rgb = [0.5647, 0.7647, 0.5137];
+                
+                $this->insertEmptyRow($sheetId, $row_index - 1, 1);
 
-                $this->setCellBackgroundColor($sheetId, "D{$row_index}", $rgb, $formattedDate, $row_index);
-                $row_index +=1;
-
+                $result = $this->setCellBackgroundColor($sheetId, "D{$row_index}", $rgb, $formattedDate, $row_index, $sheet);
+                \Log::info("Result from setCellBackgroundColor rowIndex: " . $result["rowIndex"]);
+                $row_index = $result["rowIndex"] + 2;  // Use "rowIndex" (not "row_index")   
+                $this->insertEmptyRow($sheetId, $row_index - 1, 1);
+                sleep(1);
             }
-    
             \Log::info("Final row index: $row_index");
             $data1 = $this->insertRowAbove($sheet, $row_index, $job, $sheetId);
-            \Log::info(['data' => $data1]);
     
         } catch (\Exception $e) {
             \Log::error("An error occurred: " . $e->getMessage());
@@ -203,6 +221,77 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     }
     
 
+    public function insertEmptyRow($sheetId, $rowIndex, $numRows = 1)
+    {
+        $spreadsheetId = $this->spreadsheetId;
+    
+        // ✅ **Step 1: Insert Rows**
+        $insertRequest = [
+            "requests" => [
+                [
+                    "insertDimension" => [
+                        "range" => [
+                            "sheetId" => $sheetId,
+                            "dimension" => "ROWS",
+                            "startIndex" => $rowIndex - 1, // Convert to zero-based index
+                            "endIndex" => $rowIndex - 1 + $numRows
+                        ],
+                        "inheritFromBefore" => false  // Ensure new rows don't inherit styles
+                    ]
+                ]
+            ]
+        ];
+    
+        // Make API Request to insert rows
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $insertRequest);
+    
+        // ✅ **Check if Insertion Failed**
+        if ($response->failed()) {
+            \Log::error("Failed to insert empty row(s): " . $response->body());
+            return false;
+        }
+    
+        // ✅ **Step 2: Clear Formatting & Data Validation for Inserted Rows**
+        $clearRequest = [
+            "requests" => [
+                [
+                    "updateCells" => [
+                        "range" => [
+                            "sheetId" => $sheetId,
+                            "startRowIndex" => $rowIndex - 1,  // Start from inserted row
+                            "endRowIndex" => $rowIndex - 1 + $numRows,  // Cover all inserted rows
+                            "startColumnIndex" => 0,
+                        ],
+                        "rows" => array_fill(0, $numRows, ["values" => []]), // Empty values to reset all inserted rows
+                        "fields" => "userEnteredFormat,dataValidation" // Clear formatting & validation
+                    ]
+                ]
+            ]
+        ];
+    
+        // Make API Request to clear formatting
+        $clearResponse = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $clearRequest);
+    
+        // ✅ **Check if Clearing Failed**
+        if ($clearResponse->failed()) {
+            \Log::error("Failed to clear formatting: " . $clearResponse->body());
+            return false;
+        }
+    
+        return [
+            "insert_response" => $response->json(),
+            "clear_response" => $clearResponse->json()
+        ];
+    }
+    
+
+
 
     public function insertRowAbove($sheetName, $rowIndex, $job, $sheetId = null)
     {
@@ -212,13 +301,14 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         $offer = $job->offer;
         $contract = $job->contract;
         $worker = $job->worker;
-        $workerName = ($worker->firstname ?? null)." ".($worker->lastname ?? null);
+        $workerName = ($worker->firstname ?? null) . " " . ($worker->lastname ?? null);
     
         // Fetch dropdown options
         $workerArr = User::where('status', 1)->get()->pluck('firstname')->toArray();
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
         $frequencyArr = ServiceSchedule::where('status', 1)->get()->pluck('name_heb')->toArray();
         $addressArr = ClientPropertyAddress::where('client_id', $client->id)->get()->pluck('address_name')->toArray();
+        $totalAmount = null;
     
         // Fetch service and frequency details
         $jsonServices = isset($offer->services) ? json_decode($offer->services, true) : [];
@@ -228,6 +318,11 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
             foreach ($jsonServices as $jsonService) {
                 $serviceId = $jsonService['service'];
                 $frequencyId = $jsonService['frequency'];
+                if($jsonService['type'] == "fixed") {
+                    $totalAmount = $jsonService['totalamount'];
+                }else if($jsonService['type'] == "hourly") {
+                    $totalAmount = $jsonService['rateperhour'] * $jsonService['workers'][0]['jobHours'];
+                }
             }
         }
         if ($serviceId) {
@@ -251,6 +346,8 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         }
     
         $addressName = ClientPropertyAddress::where('id', $job->address_id)->value('address_name');
+
+        // $this->insertEmptyRow($this->getSheetId($sheetName), $rowIndex);
     
         // 🔹 **Get Current Sheet Size**
         $sheetMetadata = Http::withHeaders([
@@ -262,19 +359,19 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         $currentSheet = collect($sheets)->firstWhere('properties.title', $sheetName);
         $currentRowCount = $currentSheet['properties']['gridProperties']['rowCount'] ?? 1000;
     
-        \Log::info("Current sheet row count: {$currentRowCount}");
-    
         // 🔹 **If rowIndex > sheet size, expand the sheet**
         if ($rowIndex > $currentRowCount) {
+            \Log::info("Sheet needs to be expanded");
             $resizeRequest = [
                 "requests" => [
                     [
                         "updateSheetProperties" => [
                             "properties" => [
                                 "sheetId" => $this->getSheetId($sheetName),
-                                "gridProperties" => ["rowCount" => $rowIndex] // Set new row count
+                                "gridProperties" => ["rowCount" => $rowIndex]
                             ],
-                            "fields" => "gridProperties.rowCount"
+                            "fields" => "gridProperties.rowCount",
+                            "inheritFromBefore" => false
                         ]
                     ]
                 ]
@@ -284,8 +381,6 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                 'Authorization' => 'Bearer ' . $this->googleAccessToken,
                 'Content-Type' => 'application/json',
             ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $resizeRequest);
-    
-            \Log::info("Resized sheet {$sheetName} to {$rowIndex} rows");
         }
     
         // 🔹 **Insert a New Row**
@@ -296,10 +391,9 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                         "sheetId" => $this->getSheetId($sheetName),
                         "dimension" => "ROWS",
                         "startIndex" => $rowIndex - 1, // Zero-based index
-                        "endIndex" => $rowIndex
+                        "endIndex" => $rowIndex 
                     ],
-                    "inheritFromBefore" => false,
-                    "inheritFromAfter" => false
+                    "inheritFromBefore" => false
                 ]
             ]
         ];
@@ -309,25 +403,53 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
             'Content-Type' => 'application/json',
         ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", ["requests" => $requests]);
     
+        // 🔹 **Clear Formatting and Data Validation of the New Row**
+        $clearRequest = [
+            "requests" => [
+                [
+                    "updateCells" => [
+                        "range" => [
+                            "sheetId" => $this->getSheetId($sheetName),
+                            "startRowIndex" => $rowIndex - 1, // Zero-based index of the new row
+                            "endRowIndex" => $rowIndex,
+                            "startColumnIndex" => 0,
+                            // "endColumnIndex" => 40 // Adjust based on your column range (A to Y covers your data)
+                        ],
+                        "rows" => [
+                            [
+                                "values" => [] // Empty values to reset the row
+                            ]
+                        ],
+                        "fields" => "userEnteredFormat,dataValidation" // Clear formatting and data validation
+                    ]
+                ]
+            ]
+        ];
+    
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $clearRequest);
+    
         // 🔹 **Insert Job Data into the Row**
         $values = [
             [
                 $client->invoicename ?? "",
-                "#".$client->id ?? "",
+                "#" . $client->id ?? "",
                 $offer->id ?? "",
-                "","","","","",
+                $totalAmount ?? "", "", "", "", "",
                 $workerName ?? "",
                 $workerName ?? "",
                 $shift ?? "",
                 "", // Empty cell
                 $serviceName ?? "", // Default selected service
-                $diffInHours.":".$diffInMinutes, // Duration in HH:MM
-                "","",
+                $diffInHours . ":" . $diffInMinutes, // Duration in HH:MM
+                "", "",
                 $frequencyName ?? "", // Default selected frequency
                 $addressName ?? "",
                 "", // Empty cell
                 $addressName ?? "", // Default selected address
-                "","","",
+                "", "", "",
                 $job->id ?? ""
             ]
         ];
@@ -390,17 +512,149 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         ];
     
         $this->updateGoogleSheetFields($fields);
-        \Log::info("Dropdowns & Checkboxes applied to row {$rowIndex} in sheet {$sheetName}");
-    
+        \Log::info("\n");    
         return ["updateResponse" => $updateResponse->body(), "insertResponse" => $insertResponse->body()];
+    }
+
+
+    public function insertHeading($sheetName, $sheetId = null)
+    {
+        $spreadsheetId = $this->spreadsheetId;
+        $rowIndex = 1; // Always insert headings in the first row
+    
+        // 🔹 **Define Header Values**
+        $values = [
+            [
+                "",
+                "client",	
+                "po",
+                "תעריף (אלכס)",	
+                "יכל",	
+                "שיבוץ",	
+                "אלכס",	
+                "",	
+                "עובדים",
+                "",		
+                "שעות עבודה",	
+                "חבילת לקוח",
+                "",		
+                "שעות לביצוע",	
+                "שעות בפועל",	
+                "הערות",
+                "",
+                "כתובת",
+                "",
+                "כתובת",
+                "",
+                "",
+                "",
+                "מזהה משרה"
+            ]
+        ];
+    
+        // 🔹 **Determine Last Column (Dynamic)**
+        $lastColumnIndex = count($values[0]); // Get total number of columns
+        $lastColumnLetter = $this->getColumnLetter($lastColumnIndex); // Convert number to column letter
+    
+        // 🔹 **Prepare Request Body for Heading**
+        $body = [
+            "range" => "{$sheetName}!A{$rowIndex}",
+            "majorDimension" => "ROWS",
+            "values" => $values
+        ];
+    
+        // 🔹 **Insert Header Row into Google Sheets**
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->put("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$sheetName}!A{$rowIndex}?valueInputOption=USER_ENTERED", $body);
+    
+        // 🔹 **Apply Filter on Header Row**
+        $filterBody = [
+            "requests" => [
+                [
+                    "setBasicFilter" => [
+                        "filter" => [
+                            "range" => [
+                                "sheetId" => $sheetId, // Sheet ID (not sheet name)
+                                "startRowIndex" => 0,  // 0-based index (first row)
+                                "endRowIndex" => 1,    // Apply filter only on first row
+                                "startColumnIndex" => 0,
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    
+        // 🔹 **Apply Background Color (RGB: 217, 217, 217)**
+        $colorBody = [
+            "requests" => [
+                [
+                    "repeatCell" => [
+                        "range" => [
+                            "sheetId" => $sheetId,
+                            "startRowIndex" => 0,  // 0-based index (first row)
+                            "endRowIndex" => 1,    // Only apply to row 1
+                            "startColumnIndex" => 0,
+                        ],
+                        "cell" => [
+                            "userEnteredFormat" => [
+                                "backgroundColor" => [
+                                    "red" => 217 / 255,
+                                    "green" => 217 / 255,
+                                    "blue" => 217 / 255
+                                ],
+                                "textFormat" => [
+                                    "bold" => true // Make header text bold
+                                ]
+                            ]
+                        ],
+                        "fields" => "userEnteredFormat(backgroundColor,textFormat)",
+                        "inheritFromBefore" => false,
+                    ]
+                ]
+            ]
+        ];
+    
+        // 🔹 **Send Request to Apply Filter**
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $filterBody);
+    
+        // 🔹 **Send Request to Apply Color**
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}:batchUpdate", $colorBody);
+    
+        // Return row index where heading was inserted
+        return $rowIndex;
+    }
+    
+    /**
+     * Convert Column Index to Letter (e.g., 1 -> A, 26 -> Z, 27 -> AA)
+     */
+    private function getColumnLetter($columnIndex)
+    {
+        $columnLetter = "";
+        while ($columnIndex > 0) {
+            $columnIndex--;
+            $columnLetter = chr(65 + ($columnIndex % 26)) . $columnLetter;
+            $columnIndex = floor($columnIndex / 26);
+        }
+        return $columnLetter;
     }
     
     
+    
+    
 
-    public function findLastHighlightedRow($sheetName, $excludedColumns = [5,6])
+    public function findLastHighlightedRow($sheetName, $excludedColumns = [5, 6])
     {
         $spreadsheetId = $this->spreadsheetId;
-        $range = "{$sheetName}!A1:Z";  // Adjust if needed
+        $range = "{$sheetName}!A1:Z"; // Fetch a large range to cover all rows
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->googleAccessToken,
             'Content-Type' => 'application/json',
@@ -408,8 +662,12 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     
         $rows = json_decode($response->body(), true)['values'] ?? [];
         
-        $lastOccupiedRow = 0; // Default to 0 if no data is found
-    
+        $pattern1 = '/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u';
+        $pattern2 = '/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u';
+
+        $lastOccupiedRow = 0;
+        $foundDateCell = null;
+
         foreach ($rows as $index => $row) {
             $filteredRow = array_diff_key($row, array_flip($excludedColumns));
     
@@ -418,8 +676,24 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
             }
         }
     
-        return $lastOccupiedRow;
+        // Iterate from the last row upwards
+        for ($index = count($rows) - 1; $index >= 0; $index--) {
+            $row = $rows[$index];
+            // Check if column D (index 3, 0-based) contains a matching date format
+            if (isset($row[3]) &&  (preg_match($pattern1, $row[3]) || preg_match($pattern2, $row[3]))) {
+                $foundDateCell = $row[3];
+                break; // Stop once we find the first occurrence
+            }
+        }
+
+        $foundDateCell = $this->convertDate($foundDateCell);
+    
+        return [
+            'lastOccupiedRow' => $lastOccupiedRow,
+            'foundDateCell' => $foundDateCell
+        ];
     }
+    
     
 
     public function getSheetData($sheetName, $spreadsheetId){
@@ -607,7 +881,7 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
             }
         }
 
-        \Log::error("Sheet with name '{$sheetName}' not found.");
+        // \Log::error("Sheet with name '{$sheetName}' not found.");
         return null;
     }
 
@@ -661,23 +935,32 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         }
     }
 
-    public function setCellBackgroundColor($sheetId, $cell, $rgb, $highlightDate, $nRow)
+    public function setCellBackgroundColor($sheetId, $cell, $rgb, $highlightDate, $nRow, $sheetName = null)
     {
         $spreadsheetId = $this->spreadsheetId;
+        $rowIndex = $this->convertRowCol($cell)["row"]; // Extract the row index
+
+        // // ✅ **Step 1: Check if the Row Already Contains Data**
+        // if ($this->isRowOccupied($sheetName, $rowIndex)) {
+        //     \Log::info("Row {$rowIndex} contains data. Inserting an empty row below.");
+        //     $this->insertEmptyRow($sheetId, $rowIndex + 1);
+        //     $rowIndex++; // Move to the new empty row
+        // }
     
         // Prepare the range for the entire row
         $range = [
             "sheetId" => $sheetId,
-            "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
-            "endRowIndex" => $this->convertRowCol($cell)["row"],
+            "startRowIndex" => $rowIndex - 1,
+            "endRowIndex" => $rowIndex,
             "startColumnIndex" => 0, // Start from the first column
-            "endColumnIndex" => 40, // Adjust based on the number of columns you have
+            "endColumnIndex" => 40,  // Adjust based on the number of columns you have
         ];
-
+    
+        // Define the range for the date column (Column D, index 3)
         $dateCellRange = [
             "sheetId" => $sheetId,
-            "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
-            "endRowIndex" => $this->convertRowCol($cell)["row"],
+            "startRowIndex" => $rowIndex - 1,
+            "endRowIndex" => $rowIndex,
             "startColumnIndex" => 3,  // Column D is index 3 (0-based index)
             "endColumnIndex" => 4,    // End at column D
         ];
@@ -697,14 +980,16 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
                                 ],
                             ],
                         ],
-                        "fields" => "userEnteredFormat.backgroundColor",  // Include both formatting and value fields
+                        "fields" => "userEnteredFormat.backgroundColor",
                     ],
                 ],
                 [
                     "repeatCell" => [
                         "range" => $dateCellRange,
                         "cell" => [
-                            "userEnteredValue" => ["stringValue" => $highlightDate],  // Store the date in D column
+                            "userEnteredValue" => [
+                                "stringValue" => $highlightDate,
+                            ],  // Store the date in D column
                         ],
                         "fields" => "userEnteredValue",
                     ],
@@ -721,14 +1006,53 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         // Log response or handle any errors
         if ($response->failed()) {
             \Log::error("Failed to update background color and value: " . $response->body());
+            return [
+                "success" => false,
+                "rowIndex" => $rowIndex,  // Include row index in the return response
+                "error" => $response->body(),
+            ];
         } else {
             \Log::info("Successfully updated background color and value.");
+            return [
+                "success" => true,
+                "rowIndex" => $rowIndex,  // Include row index in the return response
+                "response" => $response->body(),
+            ];
         }
-
-        return $response->body();
     }
     
-
+    
+    public function isRowOccupied($sheetName, $rowIndex, $excludedColumns = [5, 6])
+    {
+        $spreadsheetId = $this->spreadsheetId;
+        $columnRange = "A{$sheetName}:AN{$rowIndex}"; // Adjust range as needed
+    
+        // ✅ **Step 1: Fetch Row Data**
+        $checkDataRequest = [
+            "ranges" => ["Sheet1!{$columnRange}"],
+            "majorDimension" => "ROWS"
+        ];
+    
+        $checkDataResponse = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}/values:batchGet", $checkDataRequest);
+    
+        if ($checkDataResponse->failed()) {
+            \Log::error("Failed to check row data: " . $checkDataResponse->body());
+            return false; // Assume row is empty if we fail to fetch data
+        }
+    
+        $rowData = $checkDataResponse->json()["valueRanges"][0]["values"][0] ?? [];
+    
+        // 🔹 **Filter out excluded columns**
+        $filteredData = array_filter($rowData, function ($value, $index) use ($excludedColumns) {
+            return !in_array($index + 1, $excludedColumns) && !empty($value);
+        }, ARRAY_FILTER_USE_BOTH);
+    
+        return !empty($filteredData); // ✅ **Return true if row contains data, false otherwise**
+    }
+    
 
     public function getGoogleSheetData($sName = null)
     {
@@ -780,7 +1104,7 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         $response = Http::withToken($this->googleAccessToken)->post($endpoint, $data);
 
         if ($response->successful()) {
-            \Log::info("New sheet '$sheetTitle' created successfully.");
+            // \Log::info("New sheet '$sheetTitle' created successfully.");
         } else {
             \Log::error("Failed to create a new sheet: " . $response->body());
         }
