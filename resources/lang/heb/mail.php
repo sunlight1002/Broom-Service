@@ -406,6 +406,10 @@ return [
         'confirmation' => "נא לאשר את ביצוע ההפסקה ולעדכן אותנו בהתאם.",
         'company' => 'ברום סרוויס צוות',
     ],
+    'all_forms' => [
+        'subject' => 'כל צורות העובד',
+        'body' => "כל הצורות של עובד זה: :worker_name"
+    ],
     'wa-message' => [
         'common' => [
             'salutation' => "שלום, *:name*",

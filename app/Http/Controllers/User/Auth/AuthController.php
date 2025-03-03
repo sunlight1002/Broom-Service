@@ -11,6 +11,7 @@ use App\Events\InsuranceFormSigned;
 use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\WorkerLeads;
 use App\Enums\Form101FieldEnum;
 use App\Models\WorkerInvitation;
@@ -868,6 +869,42 @@ class AuthController extends Controller
             if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 $user = $this->createUser($worker);
             }
+            
+            if($worker->company_type == 'my-company' && $worker->country == 'Israel') {
+                App::setLocale('heb');
+
+                // **Retrieve all forms of the worker**
+                $workerForms = $worker->forms()->get();
+                $attachments = [];
+                $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+                $admin = Admin::where('role', 'hr')->first();
+            
+                foreach ($workerForms as $workerForm) {
+                    $formType = $workerForm->type; // e.g., "form101"
+                    $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
+
+                    if (file_exists($filePath)) {
+                        $workerIdentifier = $worker->id_number ?: $worker->passport;
+                        $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
+                        $fileName = str_replace(' ', '-', $fileName);
+                                        
+                        $attachments[$filePath] = $fileName;
+                    }
+                    
+                }
+                // Send email with all form attachments
+                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
+                    $message->to("office@broomservice.co.il");
+                    $message->bcc($admin->email);
+                    $message->subject(__('mail.all_forms.subject'));
+            
+                    // Attach all available forms
+                    foreach ($attachments as $filePath => $fileName) {
+                        $message->attach($filePath, ['as' => $fileName]);
+                    }
+                });
+            }
+
         }
     
         return response()->json([
@@ -1162,6 +1199,42 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
             event(new SafetyAndGearFormSigned($worker, $form));
+
+            if($worker->company_type == 'manpower' ) {
+                App::setLocale('heb');
+
+                // **Retrieve all forms of the worker**
+                $workerForms = $worker->forms()->get();
+                $attachments = [];
+                $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+                $admin = Admin::where('role', 'hr')->first();
+            
+                foreach ($workerForms as $workerForm) {
+                    $formType = $workerForm->type; // e.g., "form101"
+                    $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
+
+                    if (file_exists($filePath)) {
+                        $workerIdentifier = $worker->id_number ?: $worker->passport;
+                        $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
+                        $fileName = str_replace(' ', '-', $fileName);
+                                        
+                        $attachments[$filePath] = $fileName;
+                    }
+                    
+                }
+                // Send email with all form attachments
+                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
+                    $message->to("office@broomservice.co.il");
+                    $message->bcc($admin->email);
+                    $message->subject(__('mail.all_forms.subject'));
+            
+                    // Attach all available forms
+                    foreach ($attachments as $filePath => $fileName) {
+                        $message->attach($filePath, ['as' => $fileName]);
+                    }
+                });
+            }
+
         }
     
         return response()->json([
@@ -1376,6 +1449,39 @@ class AuthController extends Controller
                         ->attach(storage_path("app/public/signed-docs/{$file_name}"));
                 });
             }
+
+            App::setLocale('heb');
+
+            // **Retrieve all forms of the worker**
+            $workerForms = $worker->forms()->get();
+            $attachments = [];
+            $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+            $admin = Admin::where('role', 'hr')->first();
+        
+            foreach ($workerForms as $workerForm) {
+                $formType = $workerForm->type; // e.g., "form101"
+                $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
+
+                if (file_exists($filePath)) {
+                    $workerIdentifier = $worker->id_number ?: $worker->passport;
+                    $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
+                    $fileName = str_replace(' ', '-', $fileName);
+                                    
+                    $attachments[$filePath] = $fileName;
+                }
+                
+            }
+            // Send email with all form attachments
+            Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
+                $message->to("office@broomservice.co.il");
+                $message->bcc($admin->email);
+                $message->subject(__('mail.all_forms.subject'));
+        
+                // Attach all available forms
+                foreach ($attachments as $filePath => $fileName) {
+                    $message->attach($filePath, ['as' => $fileName]);
+                }
+            });
         }
     
         return response()->json([
