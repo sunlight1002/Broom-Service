@@ -1442,23 +1442,45 @@ class AuthController extends Controller
             ->first();
         
             $dateOfBeginningWork = $form101 ? data_get($form101->data, 'DateOfBeginningWork') : null;
+            $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
 
-            if($insuranceCompany->email){
+
+            if ($insuranceCompany->email) {
                 App::setLocale('heb');
+            
+                // Determine the correct document file name
+                $workerPassport = $worker->passport_card ?? null;
+                $workerVisa = $worker->visa ?? null;
+
+                $workerPassportDocName = "Passport-{$workerName}";
+                $workerVisaDocName = "Visa-{$workerName}";
+
+                $workerPassportDocName = str_replace(' ', '-', $workerPassportDocName);
+                $workerVisaDocName = str_replace(' ', '-', $workerVisaDocName);
+            
                 // Send email
-                Mail::send('/insuaranceCompany', ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork], function ($message) use ($worker, $insuranceCompany, $file_name, $dateOfBeginningWork) {
-                    $message->to($insuranceCompany->email)
-                        ->subject(__('mail.insuarance_company.subject', ['worker_name' => ($worker['firstname'] ?? ''). ' ' . ($worker['lastname'] ?? '')]))
-                        ->attach(storage_path("app/public/signed-docs/{$file_name}"));
-                });
-            }
+                Mail::send('/insuaranceCompany', ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork], 
+                    function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName) {
+                        $message->to($insuranceCompany->email)
+                            ->subject(__('mail.insuarance_company.subject', [
+                                'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')
+                            ]))
+                            ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+            
+                        // Attach document if it exists
+                        if ($workerPassport && $workerVisa) {
+                            $message->attach(storage_path("app/public/uploads/documents/{$workerPassport}"), ['as' => $workerPassportDocName]);
+                            $message->attach(storage_path("app/public/uploads/documents/{$workerVisa}"), ['as' => $workerVisaDocName]);
+                        }
+                    }
+                );
+            }            
 
             App::setLocale('heb');
 
             // **Retrieve all forms of the worker**
             $workerForms = $worker->forms()->get();
             $attachments = [];
-            $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
             $admin = Admin::where('role', 'hr')->first();
         
             foreach ($workerForms as $workerForm) {
