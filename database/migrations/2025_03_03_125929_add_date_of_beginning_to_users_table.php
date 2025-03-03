@@ -14,7 +14,7 @@ class AddDateOfBeginningToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->date('date_of_beginning')->after('renewal_visa')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddDateOfBeginningToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('date_of_beginning');
         });
     }
 }
