@@ -949,12 +949,15 @@ class AuthController extends Controller
         $formId = $data['formId'] ?? null;
         $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
         $idNumber = $data['employeeIdNumber'] ?? null;
+        $dateOfBeginningWork = $data['DateOfBeginningWork'] ?? null;
+
         unset($data['savingType']);
         
         // Save the 'step' value to the worker's record
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
             $worker->id_number = $idNumber ?? $worker->id_number ?? null;
+            $worker->date_of_beginning_work = $dateOfBeginningWork ?? $worker->date_of_beginning_work ?? null;
             $worker->save();
         }
 
