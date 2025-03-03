@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Models\Form;
+use App\Models\InsuranceCompany;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -33,13 +35,29 @@ class TerminateTheWorker extends Command
         $today = Carbon::today()->toDateString();
 
         // Find users whose last_work_date is today and update their status
-        $workers = User::whereDate('last_work_date', $today)->get();
+        $workers = User::with('forms')->whereDate('last_work_date', $today)->get();
+        $insuranceCompany = InsuranceCompany::first();
+
 
         if ($workers->isEmpty()) {
             $this->info('No workers to terminate today.');
         } else {
             foreach ($workers as $worker) {
+                $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
+                $file_name = $insuranceForm->pdf_file;
+
                 $worker->update(['status' => 0]);
+
+                if($insuranceCompany->email){
+                    App::setLocale('heb');
+                    // Send email
+                    Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $file_name) {
+                        $message->to($insuranceCompany->email)
+                            ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? ''). ' ' . ($worker['lastname'] ?? '')]))
+                            ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+                    });
+                }
+
                 $this->info("Worker ID: {$worker->id}, Name: {$worker->firstname} {$worker->lastname} has been terminated.");
             }
         }

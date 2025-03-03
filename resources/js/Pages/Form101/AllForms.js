@@ -230,7 +230,6 @@ function AllForms() {
             employeeCity: yup.string()
                 .test('is-city-required', function (value) {
                     const { employeecountry } = this.parent; // Get the country value from the parent schema
-                    console.log(employeecountry);
 
                     if (!value) {
                         return this.createError({ message: t("form101.errorMsg.CityReq") });
@@ -246,7 +245,6 @@ function AllForms() {
             employeeStreet: yup.string()
                 .test('is-street-required', function (value) {
                     const { employeecountry } = this.parent; // Get the country value from the parent schema
-                    console.log(employeecountry);
 
                     if (!value) {
                         return this.createError({ message: t("form101.errorMsg.StreetReq") });
@@ -1435,8 +1433,6 @@ function AllForms() {
             if (res.data.worker) {
 
                 const _worker = res.data.worker;
-                console.log(_worker);
-
 
                 if (!page) {
                     setNextStep(res.data.worker.step)
