@@ -1402,7 +1402,6 @@ class JobController extends Controller
     public function cancelJob(Request $request, $id)
     {
         $job = Job::query()->with('client')->find($id);
-        \Log::info($job);
 
         if (!$job) {
             return response()->json([
@@ -1592,8 +1591,6 @@ class JobController extends Controller
     public function cancelJobByGoogleSheet(Request $request, $id)
     {
         $job = Job::query()->with('client')->find($id);
-        \Log::info($job);
-    
         if (!$job) {
             return response()->json([
                 'message' => 'Job not found'
@@ -1630,7 +1627,6 @@ class JobController extends Controller
     
         $repeatancy = $request->get('repeatancy');
         $until_date = $request->get('untilDate');
-        \Log::info($request->all());
     
         $jobs = Job::query()
             ->with(['worker', 'offer', 'client', 'jobservice', 'propertyAddress'])
@@ -1862,9 +1858,6 @@ class JobController extends Controller
         $startDate = $job->start_date;
         $startStime = $job->start_time;
         $endTime = $job->end_time;
-        \Log::info($startDate);
-        \Log::info($startStime);
-        \Log::info($endTime);
     
         $jobWorkerId = $job->worker_id;
         $serviceId = $jobService->service_id;
@@ -2382,6 +2375,40 @@ class JobController extends Controller
         ]);
     }
 
+    public function updateWorkerActualTimeInGoogleSheet(Request $request, $id)
+    {
+        $job = Job::with('order')->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        if ($job->status == JobStatusEnum::CANCEL) {
+            return response()->json([
+                'message' => 'Job already cancelled'
+            ], 403);
+        }
+
+        if (
+            $job->order &&
+            $job->order->status == 'Closed'
+        ) {
+            return response()->json([
+                'message' => 'Job order is already closed',
+            ], 403);
+        }
+
+        $job->update([
+            'actual_time_taken_minutes' => $request->actualTimeInMinutes
+        ]);
+
+        return response()->json([
+            'message' => 'Job actual time has been updated',
+        ]);
+    }
+
     public function saveDiscount(Request $request, $id)
     {
         $job = Job::find($id);
@@ -2540,7 +2567,6 @@ class JobController extends Controller
     {
         $data = $request->all();
         $job = Job::find($data['job_id']);
-        \Log::info($job);
 
         $time = JobHours::query()
             ->where('worker_id', $data['worker_id'])
@@ -2852,10 +2878,6 @@ class JobController extends Controller
                                     break;
                             }
                         }
-                        \Log::info($shift);
-                        \Log::info("Worker found start time: $startTime.");
-                        \Log::info("Offer ID: " . $offer->id);
-                        \Log::info("Client ID: " . $offer->client_id);
 
                         $value = str_replace(',', '.', $properHours);
                         $value = floatval($value); // Convert to float

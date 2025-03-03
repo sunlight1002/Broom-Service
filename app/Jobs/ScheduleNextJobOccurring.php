@@ -301,6 +301,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'previous_worker_after' => $previous_worker_after,
                 'previous_shifts'       => $previous_shifts,
                 'previous_shifts_after' => $previous_shifts_after,
+                'offer_service' => $job->offer_service,
             ]);
 
             $nextJobService = $job->jobservice->replicate()->fill([
@@ -320,139 +321,19 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             $this->copyDefaultCommentsToJob($nextJob);
 
-            $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+            // $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
 
-            if ($client->lead_status->lead_status != $newLeadStatus) {
-                $client->lead_status()->updateOrCreate(
-                    [],
-                    ['lead_status' => $newLeadStatus]
-                );
-            }
+            // if ($client->lead_status->lead_status != $newLeadStatus) {
+            //     $client->lead_status()->updateOrCreate(
+            //         [],
+            //         ['lead_status' => $newLeadStatus]
+            //     );
+            // }
 
             // SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
-            // $this->syncSheet($nextJob);
 
             return $next_job_date;
     }
 
-
-    public function syncSheet($job)
-    {
- 
-        try {
-            $months = [
-                "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-                "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
-            ];
-            // Convert date to Hebrew weekday format
-            $hebrewWeekdays = [
-                "Sunday" => "ראשון",
-                "Monday" => "שני",
-                "Tuesday" => "שלישי",
-                "Wednesday" => "רביעי",
-                "Thursday" => "חמישי",
-                "Friday" => "שישי",
-                "Saturday" => "שבת"
-            ];
-    
-            $this->initGoogleConfig();
-            $job_start_date = $job->start_date;
-    
-            if (!$job_start_date) {
-                \Log::error("Job start date is missing.");
-                return;
-            }
-
-            $jobStartDate = Carbon::parse($job_start_date);
-    
-            \Log::info("Job start date: $job_start_date");
-    
-            // Extract month from job start date
-            $monthNumber = date('n', strtotime($job_start_date)) - 1;
-            $sheet = $months[$monthNumber] ?? null;
-    
-            \Log::info("Target sheet: $sheet");
-    
-            // Check if the sheet exists; if not, create it
-            $sheetId = $this->getSheetId($sheet);
-            $isNewSheet = false;
-    
-            if (!$sheetId) {
-                \Log::info("Sheet $sheet not found. Creating new sheet...");
-                $this->createNewSheet($this->spreadsheetId, $sheet);
-                sleep(1);
-                $sheetId = $this->getSheetId($sheet);
-                $isNewSheet = true;
-    
-                // Light Green Background (RGB: 144, 195, 131)
-                $rgb = [0.5647, 0.7647, 0.5137];
-
-                $weekdayEnglish = $jobStartDate->format('l'); // Get weekday in English
-                $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
-                $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
-    
-                // **Highlight the first row with the job start date**
-                $highlightedRowIndex = 1;
-                $this->setCellBackgroundColor($sheetId, "D{$highlightedRowIndex}", $rgb, $formattedDate, $highlightedRowIndex);
-                \Log::info("Inserted highlighted date row for $formattedDate at row $highlightedRowIndex");
-            }
-    
-            // Retrieve sheet data
-            $data = $this->getGoogleSheetData($sheet);
-            if (empty($data)) {
-                \Log::warning("Sheet $sheet is empty.");
-            }
-    
-            $insertRowIndex = null;
-    
-            // If it's a new sheet, insert job record after the highlighted row
-            if ($isNewSheet) {
-                $insertRowIndex = 2;
-            } else {
-                foreach ($data as $index => $row) {
-                    if ($index == 0) continue;
-    
-                    // Check if column 4 (index 3) contains a date pattern
-                    if (!empty($row[3]) && (
-                        preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
-                        preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
-                    )) {
-                        $currentDate = $this->convertDate($row[3], $sheet);
-                        \Log::info("Extracted current date: $currentDate");
-    
-                        if ($currentDate == $job_start_date) {
-                            \Log::info("Matching date found at row $index");
-                            $insertRowIndex = $index + 1;
-                            break;
-                        }
-                    }
-                }
-            }
-    
-            if ($insertRowIndex !== null) {
-                $row_index = $this->findNextDateRowIndex($data, $insertRowIndex) ?? $insertRowIndex;
-            } else {
-                $lastOccupiedRow = $this->findLastHighlightedRow($sheet);
-                \Log::info("Last occupied row: $lastOccupiedRow");
-                $row_index = $lastOccupiedRow + 3;
-
-                $weekdayEnglish = $jobStartDate->format('l'); // Get weekday in English
-                $weekdayHebrew = $hebrewWeekdays[$weekdayEnglish] ?? ''; // Get Hebrew weekday
-                $formattedDate = $weekdayHebrew . " " . $jobStartDate->format('d.m');
-                $rgb = [0.5647, 0.7647, 0.5137];
-
-                $this->setCellBackgroundColor($sheetId, "D{$row_index}", $rgb, $formattedDate, $row_index);
-                $row_index +=2;
-
-            }
-    
-            \Log::info("Final row index: $row_index");
-            $data1 = $this->insertRowAbove($sheet, $row_index, $job, $sheetId);
-            \Log::info(['data' => $data1]);
-    
-        } catch (\Exception $e) {
-            \Log::error("An error occurred: " . $e->getMessage());
-        }
-    }
 
 }
