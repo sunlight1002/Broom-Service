@@ -940,12 +940,12 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
         $spreadsheetId = $this->spreadsheetId;
         $rowIndex = $this->convertRowCol($cell)["row"]; // Extract the row index
 
-        // // ✅ **Step 1: Check if the Row Already Contains Data**
-        // if ($this->isRowOccupied($sheetName, $rowIndex)) {
-        //     \Log::info("Row {$rowIndex} contains data. Inserting an empty row below.");
-        //     $this->insertEmptyRow($sheetId, $rowIndex + 1);
-        //     $rowIndex++; // Move to the new empty row
-        // }
+        // ✅ **Step 1: Check if the Row Already Contains Data**
+        if ($this->isRowOccupied($sheetName, $rowIndex)) {
+            \Log::info("Row {$rowIndex} contains data. Inserting an empty row below.");
+            $this->insertEmptyRow($sheetId, $rowIndex + 1);
+            $rowIndex++; // Move to the new empty row
+        }
     
         // Prepare the range for the entire row
         $range = [
@@ -1024,20 +1024,18 @@ class SyncGoogleSheetAddJobOccurring implements ShouldQueue
     
     public function isRowOccupied($sheetName, $rowIndex, $excludedColumns = [5, 6])
     {
+        \Log::info("Checking if row {$rowIndex} is occupied. $sheetName");
+
         $spreadsheetId = $this->spreadsheetId;
-        $columnRange = "A{$sheetName}:AN{$rowIndex}"; // Adjust range as needed
-    
-        // ✅ **Step 1: Fetch Row Data**
-        $checkDataRequest = [
-            "ranges" => ["Sheet1!{$columnRange}"],
-            "majorDimension" => "ROWS"
-        ];
-    
+
         $checkDataResponse = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->googleAccessToken,
             'Content-Type' => 'application/json',
-        ])->post("{$this->googleSheetEndpoint}{$spreadsheetId}/values:batchGet", $checkDataRequest);
-    
+        ])->get("https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetId}/values:batchGet", [
+            'ranges' => "{$sheetName}!A{$rowIndex}:AN{$rowIndex}", // Correct range format
+            'majorDimension' => 'ROWS'
+        ]);
+        
         if ($checkDataResponse->failed()) {
             \Log::error("Failed to check row data: " . $checkDataResponse->body());
             return false; // Assume row is empty if we fail to fetch data

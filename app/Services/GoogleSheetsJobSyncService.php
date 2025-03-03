@@ -381,7 +381,7 @@ class GoogleSheetsJobSyncService
         $clientId        = "#" . $job->client_id;
         $offerId         = $job->offer_id;
         $jobAmount       = $job->subtotal_amount; // amount without tax
-        $paymentStatus   = $job->is_paid ? "שולם" : "לא שולם";
+        $paymentStatus   = $job->order->paid_status ?? "";
         $notCancelled    = ($job->status != 'cancelled') ? true : false;
         $jobCompleted    = ($job->is_job_done || $job->completed_at) ? true : false;
         $blank           = "";

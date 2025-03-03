@@ -321,17 +321,16 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             $this->copyDefaultCommentsToJob($nextJob);
 
-            $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+            // $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
 
-            if ($client->lead_status->lead_status != $newLeadStatus) {
-                $client->lead_status()->updateOrCreate(
-                    [],
-                    ['lead_status' => $newLeadStatus]
-                );
-            }
+            // if ($client->lead_status->lead_status != $newLeadStatus) {
+            //     $client->lead_status()->updateOrCreate(
+            //         [],
+            //         ['lead_status' => $newLeadStatus]
+            //     );
+            // }
 
-            SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
-            // $this->syncSheet($nextJob);
+            // SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
 
             return $next_job_date;
     }
