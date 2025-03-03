@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>{{ __('mail.insuarance_company.subject', ['worker_name' => ($worker['firstname'] ?? ''). ' ' . ($worker['lastname'] ?? '')]) }}</title>
+    <title>{{ __('mail.all_forms.subject') }}</title>
 </head>
 <body style="font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc;">
     <div style="max-width: 650px;margin: 0 auto;margin-top: 30px;margin-bottom: 20px;background: #fff;border: 1px solid #e6e8eb;border-radius: 6px;padding: 20px;">
@@ -20,12 +20,9 @@
                 </td>
             </tr>
         </table>
-        <p style="text-align: center;line-height: 30px">{{ __('mail.insuarance_company.header') }}</p>
-        <p style="text-align: center;line-height: 30px">{{ __('mail.insuarance_company.body', [
-            'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? ''),
-            'work_start_date' => $dateOfBeginningWork ?? '',
+        <p style="text-align: center;line-height: 30px">{{ __('mail.all_forms.body', [
+            'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')
         ]) }}</p>
-        <p style="margin-top: 40px">{{ __('mail.insuarance_company.confirmation') }}</p>
         <p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{ __('mail.insuarance_company.company') }}</p>
     </div>
 </body>

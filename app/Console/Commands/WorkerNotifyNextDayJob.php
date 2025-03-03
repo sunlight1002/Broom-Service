@@ -69,12 +69,14 @@ class WorkerNotifyNextDayJob extends Command
             
         foreach ($jobs as $key => $job) {
             $worker = $job->worker;
+            $client = $job->client;
 
             if ($worker) {
                 App::setLocale($worker['lng'] ?? 'en');
                 $notificationData = array(
                     'job'  => $job->toArray(),
-                    'worker'  => $worker->toArray(),    
+                    'worker'  => $worker->toArray(),  
+                    'client'  => $client->toArray(),  
                 );
                 if (isset($notificationData['job']['worker']) && !empty($notificationData['job']['worker']['phone'])) {
                     event(new WhatsappNotificationEvent([

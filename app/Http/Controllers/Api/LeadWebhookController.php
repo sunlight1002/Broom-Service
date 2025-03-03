@@ -2908,8 +2908,10 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                     "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
                                 ]
                             );
-                            $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
-                            $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס \n:comment_link";
+                            $clientName = "*" . (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+
+                            $teammsg = "שלום צוות, הלקוח {$clientName} ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: *{$messageBody}* אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס \n :comment_link";
+                            
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
