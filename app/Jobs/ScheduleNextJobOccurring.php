@@ -301,6 +301,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'previous_worker_after' => $previous_worker_after,
                 'previous_shifts'       => $previous_shifts,
                 'previous_shifts_after' => $previous_shifts_after,
+                'offer_service' => $job->offer_service,
             ]);
 
             $nextJobService = $job->jobservice->replicate()->fill([

@@ -68,14 +68,19 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             '5' => '5 Star',
             '4' => '4 Star',
             'משרד' => 'Office Cleaning',
+            'ניקיון משרד' => 'Office Cleaning',
             'airbnb' => 'Airbnb',
+            'Airbnb' => 'Airbnb',
             'window cleaning' => 'window cleaning',
             'חלונות 8' => 'window cleaning',
             'שיפוץ' => 'Cleaning After Renovation',
+            'ניקיון לאחר שיפוץ' => 'Cleaning After Renovation',
+            'אחרים' => 'Others',
         ];
 
         $frequencyMap = [
             'B' => 'On demand',
+            'b' => 'On demand',
             '1' => 'Once Time week',
             '2' => 'Twice in week',
             '3' => '3 times a week',
@@ -88,6 +93,10 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             '0,25' => 'Once a month',
             '0.3' => 'Once in every three weeks',
             '0,3' => 'Once in every three weeks',
+            '0.33' => 'Once in every three weeks',
+            '0,33' => 'Once in every three weeks',
+            'o' => 'One Time',
+            'O' => 'One Time',
         ];
 
         $sheetsName = [
@@ -185,6 +194,9 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             $services = [];
             $client_ids = [];
             foreach ($sheets as $key => $sheet) {
+                if($sheet == "ינואר") {
+                    continue;
+                }
                 $data = $this->getGoogleSheetData($sheet);
                 if (empty($data)) {
                     Log::warning("Sheet $sheet is empty.");
@@ -249,7 +261,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 // Find offer
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
                                 if (!$offer) {
-                                    echo "Row {$rowCount}: Offer not found in CRM (Offer id in Sheet: {$offerId}, Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    echo "Row {$rowCount}: Sheet: {$sheet} Offer not found in CRM (Offer id in Sheet: {$offerId}, Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
                                     continue;
                                 }
 
@@ -263,17 +275,36 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                     $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
                                 }
 
+                                $selectedAddress = $row[19] ?? null;
+
                                 $services = [];
                                 $frequencies = [];
                                 $selectedOfferDataArr = [];
-
                                 $data = json_decode($offer->services, true);
-                                if (count($data) == 1) {
-                                    $selectedOfferDataArr[] = $data[0];
-                                    $services[] = $data[0]['name'];
-                                    $frequencies[] = $data[0]['freq_name'];
-                                } else {
-                                    foreach ($data as $d) {
+                                foreach ($data as $d) {
+                                    if($d['template'] == 'airbnb') {
+                                        if ($selectedService && (strtolower($d['name']) == strtolower($selectedService->name) || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
+                                            if(isset($d['sub_services']['sub_service_name'])) {
+                                                if($d['sub_services']['sub_service_name'] == 'Cleaning' || $d['sub_services']['sub_service_name'] == 'Cleaning - ' || $d['sub_services']['sub_service_name'] == 'ניקיון - ' || $d['sub_services']['sub_service_name'] == 'ניקיון') {
+                                                    $selectedOfferDataArr[] = $d;
+                                                }
+                                            } else {
+                                                $selectedOfferDataArr[] = $d;
+                                            }
+                                        }
+                                        $s =  $d['name'];
+                                        if (isset($d['sub_services']['sub_service_name'])) {
+                                            $s .= ' (' . $d['sub_services']['sub_service_name'] . ')';
+                                        }
+                                        if(empty($selectedService) && $selectedFrequency) {
+                                            $selectedServiceStr = trim($row[11] ?? null);
+                                            if($s == $selectedServiceStr && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
+                                                $selectedOfferDataArr[] = $d;
+                                            }
+                                        }
+                                        $services[] = $s;
+                                        $frequencies[] = $d['freq_name'];
+                                    } else {
                                         if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
                                             $selectedOfferDataArr[] = $d;
                                         }
@@ -281,12 +312,15 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         $frequencies[] = $d['freq_name'];
                                     }
                                 }
+                                if(empty($selectedService) && $selectedFrequency) {
+                                    $selectedService = Services::where('name', 'Airbnb')->first();
+                                }
                                 // \Log::info($offers);
 
                                 if (empty($selectedOfferDataArr)) {
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
-                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Frequency and service not match in PO (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Frequency and service not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
                                     continue;
                                 }
                                 $selectedOfferData = [];
@@ -304,12 +338,33 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                     $selectedOfferData[] = $selectedOfferDataArr[0] ?? null;
                                 }
 
+                                $newSelectedOfferData = [];
+                                if(count($selectedOfferData) > 1) {
+                                    foreach ($selectedOfferDataArr as $d) {
+                                        if($d['template'] == 'airbnb' && isset($d['sub_services']['address']) && !empty($d['sub_services']['address'])) {
+                                            if(ClientPropertyAddress::where('id', $d['sub_services']['address'])->where('address_name', $selectedAddress)->exists()) {
+                                                $newSelectedOfferData[] = $d;
+                                            }
+                                        } else {
+                                            if(ClientPropertyAddress::where('id', $d['address'])->where('address_name', $selectedAddress)->exists()) {
+                                                $newSelectedOfferData[] = $d;
+                                            }
+                                        }
+                                    }
+                                    $selectedOfferData = $newSelectedOfferData;
+                                }
 
+                                if(empty($selectedOfferData)) {
+                                    $sheetService = trim($row[11] ?? null);
+                                    $sheetFrequency = $selectedFrequency->name ?? null;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    continue;
+                                }
 
                                 if(count($selectedOfferData) > 1) {
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
-                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
                                     continue;
                                 }
 
@@ -329,7 +384,6 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         'value' => trim($invoiceName),
                                     ];
                                 }
-                                $selectedAddress = $row[17] ?? null;
                                 $selectedWorker = $row[8] ?? null;
                                 $bestMatch = null;
 
@@ -408,16 +462,16 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 // \Log::info('Fields', ['fields' => $fields]);
                                 // echo json_encode($fields) . PHP_EOL;
                                 $response = $this->updateGoogleSheetFields($fields);
-                                // echo $response . PHP_EOL;
+                                echo $response . PHP_EOL;
                                 sleep(1);
-                                // echo ($index + 1) . PHP_EOL;
+                                echo ($index + 1) . PHP_EOL;
                             }
                         }
                     }
                 }
-                dd(array_unique($services));
-                dd(implode(',', array_unique($client_ids)));
             }
+            dd(array_unique($services));
+            dd(implode(',', array_unique($client_ids)));
 
 
             $rows = [];
@@ -1173,7 +1227,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         } catch (\Throwable $th) {
             throw $th;
         }
-           
+
     }
 
 
