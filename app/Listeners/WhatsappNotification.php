@@ -153,6 +153,7 @@ class WhatsappNotification
                     'worker'
                 );
                 $teamSkipComment = generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
+                $googleAddress = generateShortUrl(url("https://maps.google.com?q=" . ($jobData['property_address']['geo_address'] ?? '')), 'worker');
             }
 
             $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
@@ -182,6 +183,7 @@ class WhatsappNotification
 
             $placeholders = [
                 ':job_full_address' => $jobData['property_address']['geo_address'] ?? '',
+                ':google_address' => $googleAddress ?? '',
                 ':job_start_date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
                 ':job_start_date' => Carbon::parse($jobData['start_date'] ?? "00-00-0000")->format('M d Y'),
                 ':job_start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
@@ -203,6 +205,7 @@ class WhatsappNotification
                 ':review' => $jobData['review'] ?? "",
                 ':job_accept_url' => $workerApproveJob ?? '',
                 ':job_contact_manager_link' => $contactManager ?? '',
+                ':job_hours' => $jobData['jobservice']['job_hour'] ?? '',
             ];
 
         }

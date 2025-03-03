@@ -23,7 +23,10 @@ class WhatsappTemplatesSeeder extends Seeder
 
 Please confirm that you have seen the address for tomorrow’s job:
 
+*Client Name:* :client_name
 *Address:* :job_full_address
+*Google Map Address:* :google_address
+*Job Hours:* :job_hours
 *Date/Time:* :job_start_date_time
 
 - *Accept Address* :job_accept_url
@@ -35,7 +38,10 @@ Broom Service Team',
 
 אנא אשר שראית את הכתובת לעבודה מחר:
 
+*שם הלקוח:* :client_name
 *כתובת:* :job_full_address
+*כתובת מפת גוגל:* :google_address
+*שעות עבודה:* :job_hours
 *תאריך/שעה:* :job_start_date_time
 
 - *[אשר כתובת]* :job_accept_url
@@ -47,7 +53,10 @@ Broom Service Team',
 
 Por favor confirma que has visto la dirección para el trabajo de mañana:
 
+*Nombre del cliente:* :client_name
 *Dirección:* :job_full_address
+*Dirección de Google Maps:* :google_address
+*Horas de trabajo:* :job_hours
 *Fecha/Hora:* :job_start_date_time
 
 - *Aceptar Dirección* :job_accept_url
@@ -59,7 +68,10 @@ Equipo de Broom Service',
 
 Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
 
+*Имя клиента:* :client_name
 *Адрес:* :job_full_address
+*Адрес на карте Google:* :google_address
+*Часы работы:* :job_hours
 *Дата/время:* :job_start_date_time
 
 - *Подтвердить адрес* :job_accept_url
@@ -84,7 +96,10 @@ Equipo de Broom Service',
 
 This is a reminder to confirm the address for tomorrow’s job as soon as possible:
 
+*Client Name:* :client_name
 *Address:* :job_full_address
+*Google Map Address:* :google_address
+*Job Hours:* :job_hours
 *Date/Time:* :job_start_date_time
 
 - *Accept Address* :job_accept_url
@@ -97,7 +112,10 @@ Broom Service Team
 
 תזכורת לאשר בהקדם האפשרי את הכתובת לעבודה מחר:
 
+*שם הלקוח:* :client_name
 *כתובת:* :job_full_address
+*כתובת מפת גוגל:* :google_address
+*שעות עבודה:* :job_hours
 *תאריך/שעה:* :job_start_date_time
 
 - *[אשר כתובת]* :job_accept_url
@@ -109,7 +127,10 @@ Broom Service Team
 
 Este es un recordatorio para confirmar la dirección para el trabajo de mañana lo antes posible:
 
+*Nombre del cliente:* :client_name
 *Dirección:* :job_full_address
+*Dirección de Google Maps:* :google_address
+*Horas de trabajo:* :job_hours
 *Fecha/Hora:* :job_start_date_time
 
 - *Aceptar Dirección* :job_accept_url
@@ -122,7 +143,10 @@ Equipo de Broom Service
 
 Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
 
+*Имя клиента:* :client_name
 *Адрес:* :job_full_address
+*Адрес на карте Google:* :google_address
+*Часы работы:* :job_hours
 *Дата/время:* :job_start_date_time
 
 - *Подтвердить адрес* :job_accept_url

@@ -121,8 +121,24 @@ Please reply with the appropriate number.",
                             $client = Client::where('email', $email)->first();
                         }
                         if ($client) {
-                            if($currentDate == '2025-01-28') {
-                                $clientIds[] = $client->id;
+                            if($client->review_notification == 1 || $client->disable_notification == 1){
+                                echo 'review notification client: ' . $client->id . PHP_EOL;
+                                continue;
+                            }
+                            $previousDate = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+                            // Check if the previous date is Sunday, then use last Thursday and Friday
+                            if (date('N', strtotime($previousDate)) == 6) { // 7 means Sunday
+                                $lastThursday = date('Y-m-d', strtotime('last Thursday', strtotime(date('Y-m-d'))));
+                                $lastFriday = date('Y-m-d', strtotime('last Friday', strtotime(date('Y-m-d'))));
+                                // Compare with last Thursday and Friday
+                                if ($currentDate == $lastThursday || $currentDate == $lastFriday) {
+                                    $clientIds[] = $client->id;
+                                }
+                            } else {
+                                // Normal condition
+                                if ($currentDate == $previousDate) {
+                                    $clientIds[] = $client->id;
+                                }
                             }
                         }
                     }
@@ -139,10 +155,12 @@ Please reply with the appropriate number.",
             if($client) {
 
                 WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                $clientName = "*".($client->firstname ?? '') . ' ' . ($client->lastname ?? '')."*";
+                $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
+                echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
                 sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
-                Cache::put('client_review' . $client->id, true, now()->addDay(1));
+                Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));
+                sleep(1);
             }
         }
 
