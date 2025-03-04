@@ -383,11 +383,11 @@ function AllForms() {
                         .shape({
                             firstName: yup
                                 .string()
-                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
+                                // .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.fNameReq")),
                             lastName: yup
                                 .string()
-                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
+                                // .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.lNameReq")),
                             Identity: yup
                                 .string()
