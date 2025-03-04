@@ -45,7 +45,7 @@ class SendWorkerFormsNotification implements ShouldQueue
                 ]));
             }
             try {
-                Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
+                Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
                     $messages->to($workerArr['email']);
                     $messages->bcc($admin->email);
                     ($workerArr['lng'] == 'heb') ?

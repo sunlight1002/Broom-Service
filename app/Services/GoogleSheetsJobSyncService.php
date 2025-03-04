@@ -378,6 +378,7 @@ class GoogleSheetsJobSyncService
         } else {
             $clientName = $job->client->firstname . ' ' . $job->client->lastname;
         }
+        $name = ($job->client->firstname ?? '' ). ' ' . ($job->client->lastname ?? '');
         $clientId        = "#" . $job->client_id;
         $offerId         = $job->offer_id;
         $jobAmount       = $job->subtotal_amount; // amount without tax
@@ -446,7 +447,7 @@ class GoogleSheetsJobSyncService
             $paymentStatus,
             $notCancelled,
             $jobCompleted,
-            $blank,
+            $name,
             $workerName,
             $jobWorker,
             $shift,
@@ -573,6 +574,7 @@ class GoogleSheetsJobSyncService
                 'E' => 4,
                 'F' => 5,
                 'G' => 6,
+                'H' => 7,
                 'I' => 8,
                 'J' => 9,
                 'L' => 11,

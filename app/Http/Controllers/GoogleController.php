@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\SettingKeyEnum;
 use App\Models\Schedule;
 use App\Models\Setting;
+use App\Models\Admin;
+use App\Models\UserSetting;
 use App\Traits\GoogleAPI;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class GoogleController extends Controller
 {
@@ -17,6 +20,15 @@ class GoogleController extends Controller
     public function callback(Request $request)
     {
         $code = $request->get('code');
+        $admin = null;
+
+        // Try retrieving the cached admin ID directly
+        $getAdmin = Cache::get('google_connected');
+
+        if ($getAdmin) {
+            $admin = Admin::find($getAdmin);
+        }
+
         // $state = $request->get('state');
 
         // if (Str::startsWith($state, 'SCH-')) {
@@ -28,7 +40,7 @@ class GoogleController extends Controller
         //     }
 
             // Initializes Google Client object
-            $googleClient = $this->getClient();
+            $googleClient = $this->getClient($admin ? $admin : null);
 
             /**
              * Exchange auth code for access token
@@ -43,17 +55,31 @@ class GoogleController extends Controller
 
             $refreshToken = $googleClient->getRefreshToken();
 
-            Setting::updateOrCreate(
-                ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                ['value' => $googleAccessToken]
-            );
-
-            if ($refreshToken) {
+           if(!$admin){
                 Setting::updateOrCreate(
-                    ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
-                    ['value' => $refreshToken]
+                    ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                    ['value' => $googleAccessToken]
                 );
-            }
+
+                if ($refreshToken) {
+                    Setting::updateOrCreate(
+                        ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                        ['value' => $refreshToken]
+                    );
+                }
+           }else{
+                UserSetting::updateOrCreate(
+                    ['admin_id' => $admin->id, 'key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                    ['value' => $googleAccessToken]
+                );
+
+                if ($refreshToken) {
+                    UserSetting::updateOrCreate(
+                        ['admin_id' => $admin->id, 'key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                        ['value' => $refreshToken]
+                    );
+                }
+           }
 
             return redirect('admin/settings/');
         // } else {
@@ -63,11 +89,20 @@ class GoogleController extends Controller
 
     public function auth(Request $request)
     {
-        $googleAccessToken = Setting::query()
+        $admin = auth()->user();
+
+        if($admin->role == 'hr'){
+            $googleAccessToken = UserSetting::where('admin_id', $admin->id)
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');
+            Cache::put('google_connected', $admin->id, now()->addMinute(10));
+        }else{
+            $googleAccessToken = Setting::query()
+            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+            ->value('value');
+        }
 
-        $googleClient = $this->getClient();
+        $googleClient = $this->getClient($admin);
 
         $scheduleId = $request->get('schedule_id'); 
         $schedule = Schedule::find($scheduleId);
@@ -84,6 +119,7 @@ class GoogleController extends Controller
             ]);
         }
 
+
         return response()->json([
             'action' => 'connected',
             'message' => 'Google Calendar is already connected.'
@@ -93,9 +129,15 @@ class GoogleController extends Controller
 
     public function disconnect()
     {
-        Setting::where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)->delete();
+        $admin = auth()->user();
 
-        Setting::where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)->delete();
+        if($admin->role == 'hr'){
+            UserSetting::where('admin_id', $admin->id)->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)->delete();
+            UserSetting::where('admin_id', $admin->id)->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)->delete();
+        }else{
+            Setting::where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)->delete();
+            Setting::where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)->delete();
+        }
 
         return response()->json([
             'status' => 'success',

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\Setting;
+use App\Models\UserSetting;
 use App\Enums\SettingKeyEnum;
 use App\Traits\GoogleAPI;
 use Exception;
@@ -16,14 +17,28 @@ class GoogleCalendarController extends Controller
     public function getGoogleCalendarList()
     {
         try {
-            // Fetch access token and refresh token from the database
-            $googleAccessToken = Setting::query()
+            $admin = auth()->user();
+            \Log::info($admin);
+            if($admin->role == 'hr'){
+
+                $googleAccessToken = UserSetting::where('admin_id', $admin->id)
                 ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
                 ->value('value');
 
-            $googleRefreshToken = Setting::query()
+                $googleRefreshToken = UserSetting::where('admin_id', $admin->id)
                 ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
                 ->value('value');
+
+            } else {
+                // Fetch access token and refresh token from the database
+                $googleAccessToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+                ->value('value');
+
+                $googleRefreshToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
+                ->value('value');
+            }
 
             $url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
 
@@ -38,16 +53,23 @@ class GoogleCalendarController extends Controller
             // If the token is expired (HTTP 401 or 403), refresh the token
             if ($http_code == 401 || $http_code == 403) {
                 // Refresh the access token
-                $googleClient = $this->getClient();
+                $googleClient = $this->getClient($admin->id);
                 $googleClient->refreshToken($googleRefreshToken);
                 $response = $googleClient->fetchAccessTokenWithRefreshToken($googleRefreshToken);
                 $googleAccessToken = $response['access_token'];
 
-                // Save the new access token
-                Setting::updateOrCreate(
-                    ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                    ['value' => $googleAccessToken]
-                );
+                if($admin->role == 'hr') {
+                    UserSetting::updateOrCreate(
+                        ['admin_id' => $admin->id, 'key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                        ['value' => $googleAccessToken]
+                    );
+                }else{
+                    // Save the new access token
+                    Setting::updateOrCreate(
+                        ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                        ['value' => $googleAccessToken]
+                    );
+                }
 
                 // Retry the request with the new access token
                 $response = Http::withHeaders([
@@ -67,9 +89,15 @@ class GoogleCalendarController extends Controller
                 throw new Exception('Error: Failed to retrieve calendar list');
             }
 
-            $googleCalendarId = Setting::query()
+            if($admin->role == 'hr'){
+                $googleCalendarId = UserSetting::where('admin_id', $admin->id)
                 ->where('key', SettingKeyEnum::GOOGLE_CALENDAR_ID)
                 ->value('value');
+            } else {
+                $googleCalendarId = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_CALENDAR_ID)
+                ->value('value');
+            }
 
             $calendarList = $response->json();
 
@@ -88,10 +116,17 @@ class GoogleCalendarController extends Controller
         ]);
 
         try {
-            Setting::updateOrCreate(
-                ['key' => SettingKeyEnum::GOOGLE_CALENDAR_ID],
-                ['value' => $request->calendarId]
-            );
+            if($request->role == 'superadmin') {
+                Setting::updateOrCreate(
+                    ['key' => SettingKeyEnum::GOOGLE_CALENDAR_ID],
+                    ['value' => $request->calendarId]
+                );
+            }else if($request->role == 'hr') {
+                UserSetting::updateOrCreate(
+                    ['admin_id' => auth()->user()->id, 'key' => SettingKeyEnum::GOOGLE_CALENDAR_ID],
+                    ['value' => $request->calendarId]
+                );
+            }
 
             return response()->json(['message' => 'Calendar saved successfully.'], 200);
         } catch (Exception $e) {

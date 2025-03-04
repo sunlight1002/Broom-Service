@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Enums\SettingKeyEnum;
 use App\Models\Setting;
+use App\Models\UserSetting;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 
@@ -15,9 +16,19 @@ trait GoogleAPI
      * @return \Google_Client
      * INCOMPLETE
      */
-    private function getClient(): \Google_Client
+    private function getClient($adminId = null): \Google_Client
     {
-        $settings = Setting::query()
+        if(!$adminId){
+            $settings = Setting::query()
+                ->whereIn('key', [
+                    SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+                    SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+                ])
+                ->get()
+                ->pluck('value', 'key')
+                ->toArray();
+        }else{
+            $settings = UserSetting::where('admin_id', $adminId)
             ->whereIn('key', [
                 SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
                 SettingKeyEnum::GOOGLE_REFRESH_TOKEN
@@ -25,6 +36,7 @@ trait GoogleAPI
             ->get()
             ->pluck('value', 'key')
             ->toArray();
+        }
 
         $accessToken = null;
         $refreshToken = null;
@@ -58,10 +70,17 @@ trait GoogleAPI
 
                     if (isset($response['error'])) {
                         // Delete the tokens from the DB if refresh token fails
-                        Setting::query()->whereIn('key', [
-                            SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
-                            SettingKeyEnum::GOOGLE_REFRESH_TOKEN
-                        ])->delete();
+                        if(!$adminId){
+                            Setting::query()->whereIn('key', [
+                                SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+                                SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+                            ])->delete();
+                        }else{
+                            UserSetting::where('admin_id', $adminId)->whereIn('key', [
+                                SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+                                SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+                            ])->delete();
+                        }
 
                         // Notify the user about the error
                         Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error (" . $response['error'] . ") with description - '" . $response['error_description'] . "'", function ($message) {
@@ -74,17 +93,31 @@ trait GoogleAPI
 
                     // Update access token and refresh token in the settings table
                     $accessToken = $response['access_token'];
-                    Setting::updateOrCreate(
-                        ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                        ['value' => $accessToken]
-                    );
+                    if(!$adminId){
+                        Setting::updateOrCreate(
+                            ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                            ['value' => $accessToken]
+                        );
+                    }else{
+                        UserSetting::updateOrCreate(
+                            ['admin_id' => $adminId, 'key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                            ['value' => $accessToken]
+                        );
+                    }
 
                     if (isset($response['refresh_token'])) {
                         $refreshToken = $response['refresh_token'];
-                        Setting::updateOrCreate(
-                            ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
-                            ['value' => $refreshToken]
-                        );
+                        if(!$adminId){
+                            Setting::updateOrCreate(
+                                ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                                ['value' => $refreshToken]
+                            );
+                        }else{
+                            UserSetting::updateOrCreate(
+                                ['admin_id' => $adminId, 'key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                                ['value' => $refreshToken]
+                            );
+                        }
                     }
                 }
             } catch (\Throwable $th) {

@@ -209,4 +209,10 @@ class User extends Authenticatable
     {
         return $this->morphMany(DeviceToken::class, 'tokenable');
     }
+
+    public function googleContacts()
+    {
+        return $this->hasMany(UserGoogleContact::class);
+    }
+    
 }
