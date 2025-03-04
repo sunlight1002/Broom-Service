@@ -43,23 +43,23 @@ class AuthController extends Controller
         $this->workerFormService = $workerFormService;
     }
 
-    /** 
-     * Login api 
-     * 
-     * @return \Illuminate\Http\Response 
+    /**
+     * Login api
+     *
+     * @return \Illuminate\Http\Response
      */
-    
+
      public function login(Request $request)
      {
          $validator = Validator::make($request->all(), [
              'email' => ['required'],
              'password'  => ['required', 'string', 'min:6'],
          ]);
-     
+
          if ($validator->fails()) {
              return response()->json(['errors' => $validator->messages()]);
          }
-     
+
          if (Auth::attempt([
              'email'     => $request->email,
              'password'  => $request->password
@@ -83,39 +83,39 @@ class AuthController extends Controller
                         // Device is remembered
                         $user->token = $user->createToken('User', ['user'])->accessToken;
                         return response()->json($user);
-                    } 
+                    }
                 }
-                
+
              if ($user->two_factor_enabled) {
                  $otp = strval(random_int(100000, 999999)); // Generate a random 6-digit number
                  $user->otp = $otp;
                  $user->otp_expiry = now()->addMinutes(10);
                  $user->save();
-     
+
                  $emailSent = false;
                  $smsSent = false;
                  $emailError = null;
                  $smsError = null;
-     
+
                  try {
                      Mail::to($user->email)->send(new LoginOtpMail($otp, $user));
                      $emailSent = true;
                  } catch (\Exception $e) {
                      $emailError = $e->getMessage();
                  }
-     
+
                  try {
                      App::setLocale($user->lng);
                      // Send OTP via SMS using Twilio
                      $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-     
+
                      $twilioAccountSid = config('services.twilio.twilio_id');
                      $twilioAuthToken = config('services.twilio.twilio_token');
-                     $twilioPhoneNumber = config('services.twilio.twilio_number');        
-     
+                     $twilioPhoneNumber = config('services.twilio.twilio_number');
+
                      $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
                      $phone_number = '+' . $user->phone;
-                     
+
                      $twilioClient->messages->create(
                          $phone_number,
                          ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
@@ -124,7 +124,7 @@ class AuthController extends Controller
                  } catch (\Exception $e) {
                      $smsError = $e->getMessage();
                  }
-     
+
                  if ($emailSent && $smsSent) {
                      return response()->json([
                          "two_factor_enabled" => $user->two_factor_enabled,
@@ -204,12 +204,12 @@ class AuthController extends Controller
         $response = [
             'user' => $user,
         ];
-    
+
         // Add remember_token to response only if it exists
         if ($rememberDeviceToken) {
             $response['remember_token'] = $rememberDeviceToken;
         }
-    
+
         return response()->json($response);
     }
 
@@ -295,7 +295,7 @@ class AuthController extends Controller
         $status = Password::broker('users')->sendResetLink(
             ['email' => $request->email]
         );
-    
+
         // Return the response based on the result
         return $status === Password::RESET_LINK_SENT
             ? response()->json(['message' => __($status)], 200)
@@ -336,10 +336,10 @@ class AuthController extends Controller
     }
 
 
-    /** 
-     * Register api 
-     * 
-     * @return \Illuminate\Http\Response 
+    /**
+     * Register api
+     *
+     * @return \Illuminate\Http\Response
      */
     public function register(Request $request)
     {
@@ -364,10 +364,10 @@ class AuthController extends Controller
 
         return response()->json($user);
     }
-    /** 
-     * User Detail api 
-     * 
-     * @return \Illuminate\Http\Response 
+    /**
+     * User Detail api
+     *
+     * @return \Illuminate\Http\Response
      */
     public function details()
     {
@@ -482,8 +482,8 @@ class AuthController extends Controller
             'passportNumber' => 'nullable|string|max:50',
             'IDNumber' => 'nullable|string|max:50',
         ]);
-        
-    
+
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
@@ -491,7 +491,7 @@ class AuthController extends Controller
         $type = $request->type;
         // Get Worker
         $user = $type == 'worker' ? User::find($request->worker_id) : WorkerLeads::find($request->worker_id);
-    
+
         // Update User Details
         $user->update([
             'firstname' => $request->firstname,
@@ -515,12 +515,12 @@ class AuthController extends Controller
         if ($request->has('passportNumber')) {
             $user->passport = $request->passportNumber;
         }
-    
+
         if ($request->has('IDNumber')) {
             $user->id_number = $request->IDNumber;
         }
         $user->save();
-    
+
         // Handle File Uploads
         if ($request->hasFile('passport')) {
             $path = $request->file('passport')->store('worker_documents/passports', 'public');
@@ -534,7 +534,7 @@ class AuthController extends Controller
             $path = $request->file('id_card')->store('worker_documents/id_cards', 'public');
             $user->id_card = $path;
         }
-    
+
         $user->save();
 
         if($type == 'lead') {
@@ -557,7 +557,7 @@ class AuthController extends Controller
             ]);
 
         }
-    
+
         return response()->json(['message' => 'Worker details updated successfully', 'worker' => $user], 200);
     }
 
@@ -794,7 +794,7 @@ class AuthController extends Controller
         $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
         unset($data['pdf_file']);
-    
+
         // Find worker based on type (lead or user)
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('id', $id)->where('status', 1)->first();
         if (!$worker) {
@@ -802,25 +802,25 @@ class AuthController extends Controller
                 'message' => 'Worker not found',
             ], 404);
         }
-    
+
         $step = $data['step'] ?? 1;  // Retrieve 'step' from the request
         if ($step) {
             $worker->step = $step;
             $worker->save();
         }
-    
+
         // Check if form already exists
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
             ->first();
-    
+
         // If the contract is already signed, prevent resubmission
         if ($form && $savingType === 'submit' && $form->submitted_at) {
             return response()->json([
                 'message' => 'Contract already signed.'
             ], 403);
         }
-    
+
         // Prepare form data
         $formData = [
             'type' => WorkerFormTypeEnum::CONTRACT,
@@ -828,7 +828,7 @@ class AuthController extends Controller
             'submitted_at' => $savingType === 'submit' ? now()->toDateTimeString() : null,
             'pdf_name' => null
         ];
-    
+
         // Handle PDF saving only when submitting
         if ($savingType === 'submit') {
             if (!$pdfFile) {
@@ -836,24 +836,24 @@ class AuthController extends Controller
                     'message' => "PDF file is required to submit the contract."
                 ], 400);
             }
-    
+
             if (!Storage::drive('public')->exists('signed-docs')) {
                 Storage::drive('public')->makeDirectory('signed-docs');
             }
-    
+
             $file_name = Str::uuid()->toString() . '.pdf';
             if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
                 return response()->json([
                     'message' => "Can't save PDF"
                 ], 500);
             }
-    
+
             // Update contract status and assign PDF
             $formData['pdf_name'] = $file_name;
             // $worker->contract = 1;
             $worker->save();
         }
-    
+
         // Create or update the form
         if ($form) {
             $form->update($formData);
@@ -862,16 +862,16 @@ class AuthController extends Controller
             $form = $worker->forms()->create($formData);
             $message = ($savingType === 'submit') ? 'Contract created and signed successfully.' : 'Draft saved successfully.';
         }
-    
+
         // Trigger event only when the contract is fully submitted
         $user = null;
         if ($savingType === 'submit') {
             event(new ContractFormSigned($worker, $form));
-    
+
             if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 $user = $this->createUser($worker);
             }
-            
+
             if($worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 App::setLocale('heb');
 
@@ -880,7 +880,7 @@ class AuthController extends Controller
                 $attachments = [];
                 $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
                 $admin = Admin::where('role', 'hr')->first();
-            
+
                 foreach ($workerForms as $workerForm) {
                     $formType = $workerForm->type; // e.g., "form101"
                     $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
@@ -889,17 +889,17 @@ class AuthController extends Controller
                         $workerIdentifier = $worker->id_number ?: $worker->passport;
                         $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
                         $fileName = str_replace(' ', '-', $fileName);
-                                        
+
                         $attachments[$filePath] = $fileName;
                     }
-                    
+
                 }
                 // Send email with all form attachments
                 Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
                     $message->to("office@broomservice.co.il");
                     $message->bcc($admin->email);
                     $message->subject(__('mail.all_forms.subject'));
-            
+
                     // Attach all available forms
                     foreach ($attachments as $filePath => $fileName) {
                         $message->attach($filePath, ['as' => $fileName]);
@@ -908,14 +908,14 @@ class AuthController extends Controller
             }
 
         }
-    
+
         return response()->json([
             'message' => $message,
             'id' => $worker->country == "Israel" && $request->type == 'lead' && $savingType === 'submit' ? $user->id : null
         ]);
     }
-    
-    
+
+
 
     public function transformFormDataForBoolean(&$array)
     {
@@ -954,7 +954,7 @@ class AuthController extends Controller
         $dateOfBeginningWork = $data['DateOfBeginningWork'] ?? null;
 
         unset($data['savingType']);
-        
+
         // Save the 'step' value to the worker's record
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
@@ -1111,59 +1111,59 @@ class AuthController extends Controller
     public function safegear(Request $request, $id)
     {
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
-    
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-    
+
         $data = $request->all();
-        $savingType = $data['savingType'] ?? 'submit'; 
-        $pdfFile = $data['pdf_file'] ?? null; 
-        $step = $data['step'] ?? 1;  
-        unset($data['pdf_file'], $data['savingType']); 
-    
+        $savingType = $data['savingType'] ?? 'submit';
+        $pdfFile = $data['pdf_file'] ?? null;
+        $step = $data['step'] ?? 1;
+        unset($data['pdf_file'], $data['savingType']);
+
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
             $worker->save();
         }
-    
+
         // Check if the form already exists
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
-    
+
         if ($form && $form->submitted_at) {
             return response()->json([
                 'message' => 'Safety and gear already signed.'
             ], 403);
         }
-    
+
         // If form exists, update it; otherwise, create a new form
         if ($form) {
             // Form exists, let's update it
             $form->data = $data;
             $form->submitted_at = $savingType === 'submit' ? now()->toDateTimeString() : null;
-            
+
             // If it's a submission, handle the PDF file saving
             if ($savingType === 'submit' && $pdfFile) {
                 // Ensure the directory exists and store the PDF only on submission
                 if (!Storage::disk('public')->exists('signed-docs')) {
                     Storage::disk('public')->makeDirectory('signed-docs');
                 }
-    
+
                 $file_name = Str::uuid()->toString() . '.pdf';
                 if (!Storage::disk('public')->putFileAs('signed-docs', $pdfFile, $file_name)) {
                     return response()->json([
                         'message' => "Can't save PDF"
                     ], 403);
                 }
-    
+
                 // Update the form with the PDF file name
                 $form->pdf_name = $file_name;
             }
-    
+
             $form->save();
             $message = 'Form updated successfully.';
         } else {
@@ -1173,7 +1173,7 @@ class AuthController extends Controller
                 if (!Storage::disk('public')->exists('signed-docs')) {
                     Storage::disk('public')->makeDirectory('signed-docs');
                 }
-    
+
                 $file_name = Str::uuid()->toString() . '.pdf';
                 if (!Storage::disk('public')->putFileAs('signed-docs', $pdfFile, $file_name)) {
                     return response()->json([
@@ -1185,7 +1185,7 @@ class AuthController extends Controller
             // $worker->saftey_and_gear = $savingType === 'submit' ? 1 : 0;
             // $worker->safety_and_gear_form = $savingType === 'submit' ? $file_name : null;
             $worker->save();
-    
+
             // Create the form
             $form = $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
@@ -1193,10 +1193,10 @@ class AuthController extends Controller
                 'submitted_at' => $savingType === 'submit' ? now()->toDateTimeString() : null,
                 'pdf_name' => $savingType === 'submit' ? $file_name : null,
             ]);
-    
+
             $message = 'Safety and gear form created successfully.';
         }
-    
+
         $user = null;
         // Trigger the event only when a submission is made
         if ($savingType === 'submit') {
@@ -1213,7 +1213,7 @@ class AuthController extends Controller
                 $attachments = [];
                 $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
                 $admin = Admin::where('role', 'hr')->first();
-            
+
                 foreach ($workerForms as $workerForm) {
                     $formType = $workerForm->type; // e.g., "form101"
                     $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
@@ -1222,17 +1222,17 @@ class AuthController extends Controller
                         $workerIdentifier = $worker->id_number ?: $worker->passport;
                         $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
                         $fileName = str_replace(' ', '-', $fileName);
-                                        
+
                         $attachments[$filePath] = $fileName;
                     }
-                    
+
                 }
                 // Send email with all form attachments
                 Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
                     $message->to("office@broomservice.co.il");
                     $message->bcc($admin->email);
                     $message->subject(__('mail.all_forms.subject'));
-            
+
                     // Attach all available forms
                     foreach ($attachments as $filePath => $fileName) {
                         $message->attach($filePath, ['as' => $fileName]);
@@ -1241,13 +1241,13 @@ class AuthController extends Controller
             }
 
         }
-    
+
         return response()->json([
             'message' => $message,
             'id' => $worker->company_type == "manpower" && $request->type == 'lead' ? $user->id : null
         ]);
     }
-    
+
     public function getSafegear($id, $type = null)
     {
         $worker = $type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
@@ -1303,7 +1303,7 @@ class AuthController extends Controller
             'worker' => $worker
         ]);
     }
-    public function getAllForms($id, $type = null) 
+    public function getAllForms($id, $type = null)
     {
         $worker = $type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
         if (!$worker) {
@@ -1365,42 +1365,42 @@ class AuthController extends Controller
     {
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
         $insuranceCompany = InsuranceCompany::first();
-    
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-    
+
         $data = $request->all();
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
-    
+
         $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
-    
+
         // Save the 'step' value to the worker's record
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
             $worker->save();
         }
-    
+
         // Check if a form of type INSURANCE already exists for the worker
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
             ->first();
-    
+
         // If the form exists and is already submitted, return a message
         if ($form && $form->submitted_at) {
             return response()->json([
                 'message' => 'Insurance form already signed.'
             ], 403);
         }
-    
+
         // Handle PDF saving
         if (!Storage::drive('public')->exists('signed-docs')) {
             Storage::drive('public')->makeDirectory('signed-docs');
         }
-    
+
         $file_name = Str::uuid()->toString() . '.pdf';
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
@@ -1411,7 +1411,7 @@ class AuthController extends Controller
         // $worker->form_insurance = $file_name;
         // $worker->insurance = 1;
         $worker->save();
-    
+
         // Prepare form data
         $formData = [
             'type' => WorkerFormTypeEnum::INSURANCE,
@@ -1419,7 +1419,7 @@ class AuthController extends Controller
             'submitted_at' => now()->toDateTimeString(),
             'pdf_name' => $file_name
         ];
-    
+
         // Create or update the form based on its existence
         if ($form) {
             // Update the existing form with new data
@@ -1430,7 +1430,7 @@ class AuthController extends Controller
             $form = $worker->forms()->create($formData);
             $message = 'Insurance form created successfully.';
         }
-    
+
         $user = null;
         // Trigger the event only if the form is submitted
         if ($form && $form->submitted_at) {
@@ -1442,14 +1442,14 @@ class AuthController extends Controller
             $form101 = $worker->forms()
             ->where('type', WorkerFormTypeEnum::FORM101)
             ->first();
-        
+
             $dateOfBeginningWork = $form101 ? data_get($form101->data, 'DateOfBeginningWork') : null;
             $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
 
 
-            if ($insuranceCompany->email) {
+            if ($insuranceCompany && $insuranceCompany->email) {
                 App::setLocale('heb');
-            
+
                 // Determine the correct document file name
                 $workerPassport = $worker->passport_card ?? null;
                 $workerVisa = $worker->visa ?? null;
@@ -1459,16 +1459,16 @@ class AuthController extends Controller
 
                 $workerPassportDocName = str_replace(' ', '-', $workerPassportDocName);
                 $workerVisaDocName = str_replace(' ', '-', $workerVisaDocName);
-            
+
                 // Send email
-                Mail::send('/insuaranceCompany', ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork], 
+                Mail::send('/insuaranceCompany', ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork],
                     function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName) {
                         $message->to($insuranceCompany->email)
                             ->subject(__('mail.insuarance_company.subject', [
                                 'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')
                             ]))
                             ->attach(storage_path("app/public/signed-docs/{$file_name}"));
-            
+
                         // Attach document if it exists
                         if ($workerPassport && $workerVisa) {
                             $message->attach(storage_path("app/public/uploads/documents/{$workerPassport}"), ['as' => $workerPassportDocName]);
@@ -1476,7 +1476,7 @@ class AuthController extends Controller
                         }
                     }
                 );
-            }            
+            }
 
             App::setLocale('heb');
 
@@ -1484,7 +1484,7 @@ class AuthController extends Controller
             $workerForms = $worker->forms()->get();
             $attachments = [];
             $admin = Admin::where('role', 'hr')->first();
-        
+
             foreach ($workerForms as $workerForm) {
                 $formType = $workerForm->type; // e.g., "form101"
                 $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
@@ -1493,75 +1493,75 @@ class AuthController extends Controller
                     $workerIdentifier = $worker->id_number ?: $worker->passport;
                     $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
                     $fileName = str_replace(' ', '-', $fileName);
-                                    
+
                     $attachments[$filePath] = $fileName;
                 }
-                
+
             }
             // Send email with all form attachments
             Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
                 $message->to("office@broomservice.co.il");
                 $message->bcc($admin->email);
                 $message->subject(__('mail.all_forms.subject'));
-        
+
                 // Attach all available forms
                 foreach ($attachments as $filePath => $fileName) {
                     $message->attach($filePath, ['as' => $fileName]);
                 }
             });
         }
-    
+
         return response()->json([
             'message' => $message,
             'id' => $request->type == 'lead' ? $user->id : null
         ]);
     }
-    
+
 
 
     public function manpowerForm(Request $request, $id)
     {
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
-    
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-    
+
         $data = $request->all();
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
-    
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::MANPOWER_SAFTEY)
             ->first();
-    
+
         if ($form && $form->pdf_name !== null && $form->submitted_at !== null) {
             return response()->json([
                 'message' => 'Manpower safety already signed.'
             ], 403);
         }
-    
+
         if (!Storage::drive('public')->exists('signed-docs')) {
             Storage::drive('public')->makeDirectory('signed-docs');
         }
-    
+
         $file_name = Str::uuid()->toString() . '.pdf';
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
                 'message' => "Can't save PDF"
             ], 403);
         }
-    
+
         $manpowerCompany = ManpowerCompany::find($worker->manpower_company_id);
-    
+
         if (!$manpowerCompany) {
             return response()->json([
                 'message' => 'Manpower company not found.'
             ], 404);
         }
-    
+
         // Prepare email data
         $emailData = [
             'worker' => $worker,
@@ -1578,7 +1578,7 @@ class AuthController extends Controller
                     ->attach(storage_path("app/public/signed-docs/{$file_name}"));
             });
         }
-    
+
         // Update or create the form
         if ($form) {
             $form->update([
@@ -1594,12 +1594,12 @@ class AuthController extends Controller
                 'pdf_name' => $file_name
             ]);
         }
-    
+
         return response()->json([
             'message' => 'Manpower form signed successfully.'
         ]);
     }
-    
+
 
 
     public function getManpowerSafty($id, $type = null)
@@ -1611,17 +1611,17 @@ class AuthController extends Controller
                 'message' => 'Worker not found',
             ], 404);
         }
-    
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::MANPOWER_SAFTEY)
             ->first();
-    
+
         // Fetch Manpower Company name if available
         $manpowerCompany = null;
         if ($worker->manpower_company_id) {
             $manpowerCompany = ManpowerCompany::find($worker->manpower_company_id);
         }
-    
+
         return response()->json([
             'lng' => $worker->lng,
             'worker' => $worker,
@@ -1714,5 +1714,5 @@ class AuthController extends Controller
 
         return $worker;
     }
-    
+
 }

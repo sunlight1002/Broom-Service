@@ -48,7 +48,7 @@ class TerminateTheWorker extends Command
 
                 $worker->update(['status' => 0]);
 
-                if($insuranceCompany->email){
+                if($insuranceCompany && $insuranceCompany->email){
                     App::setLocale('heb');
                     // Send email
                     Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $file_name) {
