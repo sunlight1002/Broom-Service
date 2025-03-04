@@ -10,6 +10,7 @@ export default function Integration() {
   const [selectedCalendar, setSelectedCalendar] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState("");
+  const [email, setEmail] = useState("");
   const alert = useAlert();
 
   useEffect(() => {
@@ -121,7 +122,8 @@ export default function Integration() {
   const getAdmin = async () => {
     try {
       const res = await axios.get('/api/admin/details', { headers });
-      setRole(res.data.success.role);
+      setEmail(res?.data?.success?.email);
+      setRole(res?.data?.success?.role);
     } catch (error) {
       console.error('Error fetching admin details:', error);
     }
@@ -134,7 +136,7 @@ export default function Integration() {
     }
 
     try {
-      const response = await axios.post('/api/admin/calendar/save', { calendarId: selectedCalendar }, { headers });
+      const response = await axios.post('/api/admin/calendar/save', { calendarId: selectedCalendar , role}, { headers });
       if (response.status === 200) {
         alert.success('Calendar saved successfully!');
       } else {
@@ -148,7 +150,7 @@ export default function Integration() {
 
   return (
     <div className="form-group mt-4">
-      {role && role === "superadmin" && (
+      {role && (role === "superadmin" || role === "hr") && (
         <>
           <input
             type="submit"

@@ -649,7 +649,7 @@ class WorkerController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
-        $worker = User::find($id);
+        $worker = User::with('googleContacts')->find($id);
 
         if (!$worker) {
             return response()->json([

@@ -63,7 +63,7 @@ export default function Setting() {
                                 {t("client.settings.change_pass")}
                             </a>
                         </li>
-                        {role && role === "superadmin" && (
+                        {role && (role === "superadmin" || role == "hr") && (
                             <li className="nav-item" role="presentation">
                                 <a
                                     id="integration-tab"
@@ -129,7 +129,7 @@ export default function Setting() {
                         >
                             <ChangePass />
                         </div>
-                        {role && role === "superadmin" && (
+                        {role && (role === "superadmin" || role == "hr") && (
                             <div
                                 id="tab-integration"
                                 className="tab-pane"
