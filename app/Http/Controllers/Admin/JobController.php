@@ -601,6 +601,7 @@ class JobController extends Controller
                 $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
                 $job = Job::create([
+                    'uuid'          => substr(md5(uniqid()), 0, 6),
                     'worker_id'     => $workerDate['worker_id'],
                     'client_id'     => $contract->client_id,
                     'contract_id'   => $contract->id,

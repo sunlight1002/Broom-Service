@@ -535,16 +535,18 @@ class JobController extends Controller
             'problem' => 'required|string|max:1000',
         ]);
 
+        $job = Job::with(['client', 'worker', 'propertyAddress'])->where('uuid', $request->uuid)->first();
+
+        if (!$job) {
+            return response()->json(['error' => 'Job not found'], 404);
+        }
+
         $problem = new Problems();
-        $problem->client_id = $request->input('client_id');
-        $problem->job_id = $request->input('job_id');
-        $problem->worker_id = $request->input('worker_id');
+        $problem->client_id = $job->client_id;
+        $problem->job_id = $job->id;
+        $problem->worker_id = $job->worker_id;
         $problem->problem = $validated['problem'];
         $problem->save();
-
-        $job = Job::find($problem->job_id);
-
-        $job->load(['worker', 'client', 'propertyAddress']);
 
         // Dispatch the WhatsApp notification event
         event(new WhatsappNotificationEvent([

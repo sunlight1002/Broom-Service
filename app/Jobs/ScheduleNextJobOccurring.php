@@ -273,6 +273,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
             $nextJob = Job::create([
+                'uuid'          => substr(md5(uniqid()), 0, 6),
                 'worker_id'     => $workerId,
                 'client_id'     => $job->client_id,
                 'contract_id'   => $job->contract_id,

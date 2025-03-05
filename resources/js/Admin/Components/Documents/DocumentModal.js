@@ -11,6 +11,7 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
     const docFile = useRef(null);
 
     const [selectedDocType, setSelectedDocType] = useState("");
+    const [selectedDocTypeName, setSelectedDocTypeName] = useState("");
     const [otherDocName, setOtherDocName] = useState("");
     const [date, setDate] = useState(moment().format("YYYY-MM-DD"));
 
@@ -53,8 +54,8 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
     const handleSelectedDocType = (e) => {
         const target = e.target;
 
-        // const selectedOption = target.options[target.selectedIndex];
-        // console.log(selectedOption.getAttribute("name"));
+        const selectedOption = target.options[target.selectedIndex];
+        setSelectedDocTypeName(selectedOption.getAttribute("name"));
 
 
         setSelectedDocType(target.value);
@@ -62,6 +63,8 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
             setOtherDocName("");
         }
     };
+
+    
 
     return (
         <Modal
@@ -100,7 +103,7 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                         </div>
                     </div>
 
-                    {selectedDocType == "3" && (
+                    {selectedDocTypeName == "payslip" && (
                         <div className="col-sm-12">
                             <div className="form-group">
                                 <label className="control-label">{t("global.date")}</label>
@@ -119,7 +122,7 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                     )}
 
                     {/* Other Document Name (Conditional) */}
-                    {selectedDocType == "9" && (
+                    {selectedDocTypeName == "others" && (
                         <div className="col-sm-12">
                             <div className="form-group">
                                 <label className="control-label">{t("global.document_name")}</label>
