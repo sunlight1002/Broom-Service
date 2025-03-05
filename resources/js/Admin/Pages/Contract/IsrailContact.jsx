@@ -155,10 +155,9 @@ export function IsrailContact({
         e.preventDefault();
 
         // Validate the current step
-        await validateForm(); // This will populate the errors object
-        scrollToError(errors);
+        const validationErrors = await validateForm(); // This will populate the `errors` object
         // Check if there are any errors
-        if (!Object.keys(errors).length) {
+        if (!Object.keys(validationErrors).length) {
             if (nextStep === 5) {
                 // Move to Step 6 if Step 5 has no validation errors
                 setSavingType("draft");
@@ -169,12 +168,13 @@ export function IsrailContact({
                 handleSubmit();
             }
         } else {
+            scrollToError(validationErrors);
             handleSubmit();
         }
     };
 
     return (
-        <div className="mt-5 contracttargetDiv rtlcon" ref={contentRef}>
+        <div className="mt-5 contracttargetDiv rtlcon pdf-wrapper" ref={contentRef}>
             <div className="">
                 <p className="navyblueColor font-30 mt-4 font-w-500">{t("israilContract.title1")}</p>
                 <p className="mt-2">{t("israilContract.title2")}</p>
@@ -184,7 +184,7 @@ export function IsrailContact({
                 {
                     (nextStep === 5 || !nextStep) && (
                         <div className="row">
-                            <section className="col-sm pl-0 pr-3">
+                            <section className={`${isGeneratingPDF ? "col-12" : "col-sm"} px-3`}>
                                 <ol
                                     className="mt-5 lh-lg text-justify"
                                     style={{
@@ -194,12 +194,8 @@ export function IsrailContact({
                                     <li>
                                         <strong>{t("israilContract.is1")}</strong>
                                         <div className="row gap-3">
-                                            <div
-                                                className={
-                                                    "col-md-6 " +
-                                                    (isGeneratingPDF ? "col-6" : "")
-                                                }
-                                            >
+                                            <div className="col-sm">
+
                                                 <TextField
                                                     name={"fullName"}
                                                     onBlur={handleBlur}
@@ -214,12 +210,8 @@ export function IsrailContact({
                                                     }
                                                 />
                                             </div>
-                                            <div
-                                                className={
-                                                    "col-md-6 " +
-                                                    (isGeneratingPDF ? "col-6" : "")
-                                                }
-                                            >
+                                            <div className="col-sm">
+
                                                 <TextField
                                                     name={"IdNumber"}
                                                     onBlur={handleBlur}
@@ -264,12 +256,8 @@ export function IsrailContact({
                                             required={true}
                                         />
                                         <div className="row">
-                                            <div
-                                                className={
-                                                    "col-md-6 " +
-                                                    (isGeneratingPDF ? "col-6" : "")
-                                                }
-                                            >
+                                            <div className="col-sm">
+
                                                 <TextField
                                                     name={"MobileNo"}
                                                     type="number"
@@ -288,12 +276,8 @@ export function IsrailContact({
 
                                                 />
                                             </div>
-                                            <div
-                                                className={
-                                                    "col-md-6 " +
-                                                    (isGeneratingPDF ? "col-6" : "")
-                                                }
-                                            >
+                                            <div className="col-sm">
+
                                                 <TextField
                                                     name={"PhoneNo"}
                                                     onBlur={handleBlur}
@@ -306,10 +290,10 @@ export function IsrailContact({
 
                                                     // required={true}
                                                     readonly={true}
-                                                    // error={
-                                                    //     touched.PhoneNo &&
-                                                    //     errors.PhoneNo && "Mobile is required"
-                                                    // }
+                                                // error={
+                                                //     touched.PhoneNo &&
+                                                //     errors.PhoneNo && "Mobile is required"
+                                                // }
                                                 />
                                             </div>
 
@@ -370,7 +354,7 @@ export function IsrailContact({
 
                                 </ol>
                             </section>
-                            <section className="col-sm pl-0 pr-3">
+                            <section className={`${isGeneratingPDF ? "col-12" : "col-sm"} px-3`}>
                                 <ol>
                                     <li>
                                         <p>{t("israilContract.is6")}</p>
@@ -551,7 +535,7 @@ export function IsrailContact({
                 }
                 {
                     (nextStep === 6 || !nextStep) && (
-                        <div className="row">
+                        <div className="row mt-4">
                             <section className="col pl-0 pr-0">
                                 <ol>
                                     <li>
@@ -831,7 +815,7 @@ export function IsrailContact({
                 }
 
                 {[5, 6].includes(nextStep) && (
-                    <div className="d-flex justify-content-end">
+                    <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`}>
                         {nextStep > 1 && (
                             <button
                                 type="button"

@@ -442,7 +442,7 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
-        $user = $request->type == 'lead' ? WorkerLeads::where('id', $request->worker_id)->first() : User::where('id', $request->worker_id)->first();
+        $user = $request->type == 'lead' ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first() : User::with('forms')->where('id', $request->worker_id)->first();
 
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
@@ -495,6 +495,7 @@ class AuthController extends Controller
         $user->update([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
+            'phone' => $request->phone,
             'email' => $request->email,
             'lng' => $request->lng,
             'country' => $request->country,
@@ -792,6 +793,7 @@ class AuthController extends Controller
         $data = $request->all();
         $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
+        \Log::info($data);
         unset($data['pdf_file']);
 
         // Find worker based on type (lead or user)
@@ -841,6 +843,7 @@ class AuthController extends Controller
             }
 
             $file_name = Str::uuid()->toString() . '.pdf';
+
             if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
                 return response()->json([
                     'message' => "Can't save PDF"
@@ -894,9 +897,11 @@ class AuthController extends Controller
 
                 }
                 // Send email with all form attachments
-                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
-                    $message->to("office@broomservice.co.il");
-                    $message->bcc($admin->email);
+                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
+                    $message->to(config("services.mail.default"));
+                    if($admin) {
+                        $message->bcc($admin->email);
+                    }
                     $message->subject(__('mail.all_forms.subject'));
 
                     // Attach all available forms
@@ -1036,7 +1041,9 @@ class AuthController extends Controller
 
         // // Generate PDF if the form has been submitted
         if ($form->submitted_at) {
+            \Log::info([$data]);
             $file_name = Str::uuid()->toString() . '.pdf';
+            \Log::info('file_name'. $file_name);
             $worker->form101 = 1;
             // $worker->form_101 = $file_name;
             $worker->save();
@@ -1227,9 +1234,11 @@ class AuthController extends Controller
 
                 }
                 // Send email with all form attachments
-                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments) {
-                    $message->to("office@broomservice.co.il");
-                    $message->bcc($admin->email);
+                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
+                    $message->to(config("services.mail.default"));
+                    if ($admin) {
+                        $message->bcc($admin->email);
+                    }
                     $message->subject(__('mail.all_forms.subject'));
 
                     // Attach all available forms

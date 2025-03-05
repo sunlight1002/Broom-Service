@@ -290,7 +290,7 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/jobs/view/" . $job->id . "'> Job </a> schedule has been changed";
             }
           } else if ($notice->type == NotificationTypeEnum::FORM101_SIGNED) {
-            $noticeAll[$k]->data = "Form 101 has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Form 101 has been signed by <a href='/admin/workers/view/" . ($notice->user->id ?? $notice->id) . "'>" . ($notice->user->firstname ?? $notice->firstname) . " " . ($notice->user->lastname ?? $notice->lastname) .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::WORKER_CONTRACT_SIGNED) {
             $noticeAll[$k]->data = "Contract form has been signed by <a href='/admin/workers/view/" . ($notice->user->id ?? $notice->id) . "'>" . ($notice->user->firstname ?? $notice->firstname) . " " . ($notice->user->lastname ?? $notice->lastname) .

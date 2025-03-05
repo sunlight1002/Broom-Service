@@ -9,6 +9,7 @@ export default function SelectElement({
     onBlur,
     error,
     required,
+    disabled = false
 }) {
     return (
         <div className="form-group">
@@ -22,6 +23,7 @@ export default function SelectElement({
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
+                disabled={disabled}
                 className="form-control pid"
             >
                 {options.map((option) => (

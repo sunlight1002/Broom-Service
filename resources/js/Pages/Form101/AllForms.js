@@ -1407,6 +1407,8 @@ function AllForms() {
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}/${type}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
+            console.log(res.data);
+            
 
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
@@ -1449,7 +1451,6 @@ function AllForms() {
                 }
                 if (_worker?.passport !== null) {
                     console.log(_worker.passport);
-
                     setFieldValue("employeePassportNumber", _worker.passport);
                 }
                 if (_worker?.phone !== null) {
@@ -1466,6 +1467,24 @@ function AllForms() {
                     console.log(_worker?.first_date);
 
                     setFieldValue("DateOfBeginningWork", _worker?.first_date);
+                }
+
+                if (_worker?.passport_card !== null) {
+                    setFieldValue("employeepassportCopy", _worker.passport_card);
+                }
+
+                if (_worker?.visa !== null) {
+                    setFieldValue("employeeResidencePermit", _worker.visa);
+                }
+
+                if (_worker?.id_card !== null) {
+                    setFieldValue("employeeIdCardCopy", _worker.id_card);
+                }
+
+                if(_worker?.country == "Israel"){
+                    setFieldValue("employeeIsraeliResident", "Yes")
+                }else{
+                    setFieldValue("employeeIsraeliResident", "No")
                 }
 
                 const workerGender = _worker.gender;
@@ -1549,10 +1568,6 @@ function AllForms() {
         }
         handleDocSubmit(data);
     };
-
-    console.log(errors?.DateOfBeginningWork);
-
-    console.log(touched);
 
 
     return (

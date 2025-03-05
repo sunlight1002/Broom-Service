@@ -13,6 +13,8 @@ import {
     Autocomplete,
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const ManpowerDetailForm = ({ setNextStep, values, type }) => {
     const { t } = useTranslation();
@@ -31,6 +33,7 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
         worker_id: workerId,
         firstname: "",
         lastname: "",
+        phone: "",
         email: "",
         lng: "",
         country: "",
@@ -70,6 +73,7 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                     worker_id: _worker.id,
                     firstname: _worker.firstname,
                     lastname: _worker.lastname,
+                    phone: _worker.phone,
                     email: _worker.email,
                     lng: _worker.lng,
                     country: _worker.country,
@@ -99,6 +103,7 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
             worker_id: response.data.worker.id,
             firstname: response.data.worker.firstname,
             lastname: response.data.worker.lastname,
+            phone: response.data.worker.phone,
             email: response.data.worker.email,
             lng: response.data.worker.lng,
             country: response.data.worker.country,
@@ -146,7 +151,7 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
     const handlePlaceChanged = () => {
         if (place) {
             // console.log(place.getPlace());
-            
+
             // setCity(place.getPlace().vicinity);
             setFormValues({
                 ...formValues,
@@ -155,6 +160,13 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
             setLatitude(place.getPlace().geometry.location.lat());
             setLongitude(place.getPlace().geometry.location.lng());
         }
+    };
+
+    const handleFormValuesChange = (name, value) => {
+        setFormValues(prev => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleDocSubmit = (data) => {
@@ -191,7 +203,7 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
 
 
     return (
-        <div>
+        <div className='px-4'>
             <div className="mb-4">
                 <p className="navyblueColor font-30 mt-4 font-w-500"> {t("client.jobs.view.worker_details")}</p>
             </div>
@@ -269,8 +281,8 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                                         )}
                                 </select>
                                 <span className="text-danger">
-                                        {errors.country && errors.country}
-                                    </span>
+                                    {errors.country && errors.country}
+                                </span>
                             </div>
                         </div>
                         {formValues.country != "Israel" && (
@@ -320,7 +332,7 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                                         className="form-control"
                                         placeholder={t("form101.passport_num")}
                                     />
-                                     <span className="text-danger">
+                                    <span className="text-danger">
                                         {errors.passport && errors.passport}
                                     </span>
                                 </div>
@@ -456,8 +468,8 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                         )}
                     </div>
 
-                    <div className="row justify-content-center mt-2">
-                        <div className="col-sm">
+                    <div className="row justify-content-start mt-2">
+                        <div className="col-sm-6">
                             <div className="form-group">
                                 <label className="control-label">
                                     {t("worker.settings.lng")}
@@ -488,12 +500,89 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                                 </select>
                             </div>
                         </div>
+                        <div className="col-sm-4">
+                            <div className="form-group">
+                                <label className="control-label">{t("worker.settings.phone")}</label>
+                                <PhoneInput
+                                    country={'il'}
+                                    value={formValues.phone}
+                                    onChange={(phone, country) => {
+                                        // Remove leading '0' after country code
+                                        const dialCode = country.dialCode;
+                                        let formattedPhone = phone;
+                                        if (phone.startsWith(dialCode + '0')) {
+                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                        }
+                                        handleFormValuesChange('phone', formattedPhone)
+                                    }}
+                                    inputClass="form-control"
+                                    inputProps={{
+                                        name: 'phone',
+                                        required: true,
+                                        placeholder: t("worker.settings.phone"),
+                                    }}
+                                />
+                                {errors.phone ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.phone}
+                                    </small>
+                                ) : (
+                                    ""
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row d-flex ">
                         <div className="col-sm">
-                            <div className="form-group mb-0">
-                                <label className="control-label">
-                                    {t("worker.settings.areYouAfraid")}
+                            <label className="control-label px-2">
+                                {t("worker.settings.gender")}
+                            </label>
+                            <div className="form-check-inline">
+                                <label className="form-check-label">
+                                    <input
+                                        type="radio"
+                                        className="form-check-input"
+                                        value="male"
+                                        onChange={(e) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                gender: e.target
+                                                    .value,
+                                            });
+                                        }}
+                                        checked={
+                                            formValues.gender ===
+                                            "male"
+                                        }
+                                    />
+                                    {t("worker.settings.male")}
+                                </label>
+                                <label className="form-check-label">
+                                    <input
+                                        type="radio"
+                                        className="form-check-input"
+                                        value="female"
+                                        onChange={(e) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                gender: e.target
+                                                    .value,
+                                            });
+                                        }}
+                                        checked={
+                                            formValues.gender ===
+                                            "female"
+                                        }
+                                    />
+                                    {t("worker.settings.female")}
                                 </label>
                             </div>
+                        </div>
+                        <div className="col-sm">
+                            <label className="control-label">
+                                {t("worker.settings.areYouAfraid")}
+                            </label>
                             <div className="form-check d-flex align-items-center">
                                 <label htmlFor='is_afraid_by_dog' className="form-check-label mx-2">
                                     Dog
@@ -530,56 +619,6 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                                     }}
                                 />
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="">
-                        <div className="form-group mb-0">
-                            <label className="control-label">
-                                {t("worker.settings.gender")}
-                            </label>
-                        </div>
-                        <div className="form-check-inline">
-                            <label className="form-check-label">
-                                <input
-                                    type="radio"
-                                    className="form-check-input"
-                                    value="male"
-                                    onChange={(e) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            gender: e.target
-                                                .value,
-                                        });
-                                    }}
-                                    checked={
-                                        formValues.gender ===
-                                        "male"
-                                    }
-                                />
-                                {t("worker.settings.male")}
-                            </label>
-                        </div>
-                        <div className="form-check-inline">
-                            <label className="form-check-label">
-                                <input
-                                    type="radio"
-                                    className="form-check-input"
-                                    value="female"
-                                    onChange={(e) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            gender: e.target
-                                                .value,
-                                        });
-                                    }}
-                                    checked={
-                                        formValues.gender ===
-                                        "female"
-                                    }
-                                />
-                                {t("worker.settings.female")}
-                            </label>
                         </div>
                     </div>
 
