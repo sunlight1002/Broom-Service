@@ -64,11 +64,10 @@ class AuthController extends Controller
              'email'     => $request->email,
              'password'  => $request->password
          ])) {
-             $user = User::find(auth()->user()->id);
+             $user = User::where('status', 1)->find(auth()->user()->id);
              DeviceToken::where('tokenable_id', $user->id)
              ->where('tokenable_type', User::class)
              ->where('expires_at', '<', now())
-             ->where('status', 1)
              ->delete();
 
              $rememberDeviceToken = $request->cookie('remember_device_token');
