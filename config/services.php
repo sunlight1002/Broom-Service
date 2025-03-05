@@ -107,4 +107,8 @@ return [
         'client' => env('CLIENT_SHORT_URL'),
     ],
 
+    'mail' => [
+        'default' => env('DEFAULT_MAIL'),
+    ]
+
 ];
