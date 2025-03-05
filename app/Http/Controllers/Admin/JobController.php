@@ -2273,32 +2273,32 @@ class JobController extends Controller
         if ($job->is_job_done) {
             $job->status = JobStatusEnum::COMPLETED;
             $this->updateJobAmount($job->id);
-            $todayNextJob = Job::where('worker_id', $job->worker_id)
-                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
-                ->whereDate('start_date', now())
-                ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
-                ->whereRaw("STR_TO_DATE(start_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
-                ->first();
+            // $todayNextJob = Job::where('worker_id', $job->worker_id)
+            //     ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+            //     ->whereDate('start_date', now())
+            //     ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+            //     ->whereRaw("STR_TO_DATE(start_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
+            //     ->first();
 
-            if($todayNextJob) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
-                    "notificationData" => [
-                        'job' => $todayNextJob->toArray(),
-                        'client' => $todayNextJob->client->toArray(),
-                        'worker' => $todayNextJob->worker->toArray(),
-                    ]
-                ]));
-            } else {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY,
-                    "notificationData" => [
-                        'job' => $job->toArray(),
-                        'client' => $job->client->toArray(),
-                        'worker' => $job->worker->toArray(),
-                    ]
-                ]));
-            }
+            // if($todayNextJob) {
+            //     event(new WhatsappNotificationEvent([
+            //         "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
+            //         "notificationData" => [
+            //             'job' => $todayNextJob->toArray(),
+            //             'client' => $todayNextJob->client->toArray(),
+            //             'worker' => $todayNextJob->worker->toArray(),
+            //         ]
+            //     ]));
+            // } else {
+            //     event(new WhatsappNotificationEvent([
+            //         "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY,
+            //         "notificationData" => [
+            //             'job' => $job->toArray(),
+            //             'client' => $job->client->toArray(),
+            //             'worker' => $job->worker->toArray(),
+            //         ]
+            //     ]));
+            // }
             $job->save();
             CreateJobOrder::dispatch($job->id)->onConnection('sync');
         } else {
@@ -3152,7 +3152,7 @@ class JobController extends Controller
                                 );
     
                             }
-                            $jobArray[] = $job;
+                            $jobArray[$job->id] = $job;
                         } else {
                             \Log::info("No worker found matching: " . $selectedWorker);
                         }
