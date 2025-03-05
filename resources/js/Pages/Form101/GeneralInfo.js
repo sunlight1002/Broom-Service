@@ -27,15 +27,16 @@ export default function GeneralInfo({
         if (values.employeecountry === "Israel") {
             setIndentityType("IDNumber");
             setFieldValue("employeeIdentityType", "IDNumber");
-            setFieldValue("employeeIsraeliResident", "Yes");
         }
         // Only update identity type if it's not yet set or country changes to Israel
         if (values.employeeIdentityType === "" || values.employeecountry !== "Israel") {
             setIndentityType("Passport");
             setFieldValue("employeeIdentityType", "Passport");
-            setFieldValue("employeeIsraeliResident", "No");
         }
     }, [values.employeecountry]);
+
+    console.log(values);
+
 
     const { t } = useTranslation();
 
@@ -190,6 +191,7 @@ export default function GeneralInfo({
                                                 ? errors.employeeIsraeliResident
                                                 : ""
                                         }
+                                        disabled={true}
                                         required
                                     />
                                     {activeBubble === 'employeeIsraeliResident' && (
@@ -215,6 +217,7 @@ export default function GeneralInfo({
                                                 ? errors.employeeSex
                                                 : ""
                                         }
+                                        disabled={true}
                                         required
                                     />
                                     {activeBubble === 'employeeSex' && (
@@ -244,6 +247,7 @@ export default function GeneralInfo({
                                                     handleChange(e);
                                                     setFieldValue("employeeIdentityType", e.target.value);
                                                 }}
+                                                disabled={true}
                                             />
                                             <span className="">{t("form101.id_num")}</span>
                                         </label>
@@ -260,6 +264,7 @@ export default function GeneralInfo({
                                                     setFieldValue("employeeIdentityType", e.target.value);
 
                                                 }}
+                                                disabled={true}
                                             />
                                             <span className="">{t("form101.passport_foreign")}</span>
                                         </label>
@@ -298,6 +303,7 @@ export default function GeneralInfo({
                                                 : ""
                                         }
                                         options={countryOption}
+                                        disabled={true}
                                     />
                                 </div>
                             </div>
@@ -319,6 +325,7 @@ export default function GeneralInfo({
                                                         ? errors.employeePassportNumber
                                                         : ""
                                                 }
+                                                disabled={values?.employeePassportNumber ? true : false}
                                                 required
                                             // readonly={values.employeePassportNumber === null ? false : true}
                                             />
@@ -714,14 +721,14 @@ export default function GeneralInfo({
                                                     toggleBubble={handleBubbleToggle} // Pass the toggle handler
                                                     onBlur={handleBlur}
                                                     error={
-                                                        touched.DateOfBeginningWork  && errors.DateOfBeginningWork
+                                                        touched.DateOfBeginningWork && errors.DateOfBeginningWork
                                                             ? errors.DateOfBeginningWork
                                                             : ""
                                                     }
                                                     required
                                                 />
                                                 {activeBubble === 'DateOfBeginningWork' && (
-                                                    
+
                                                     <div className="d-flex justify-content-end">
                                                         <div className="speech up">
                                                             {t("form101.step1.validation.Start_Date_Of_Job")}
@@ -729,7 +736,7 @@ export default function GeneralInfo({
                                                     </div>
                                                 )}
                                             </>
-                                         )
+                                        )
                                     }
                                 </div>
                             </div>

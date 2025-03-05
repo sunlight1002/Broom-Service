@@ -1405,79 +1405,57 @@ class WorkerFormService
             isset($formData['employeeIdentityType']) &&
             $formData['employeeIdentityType'] == 'Passport'
         ) {
+            // Check if passport copy exists
+            $passportPath = null;
             if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeepassportCopy'])) {
-                //create a page
-                $pdf->AddPage();
-
-                $text = 'B. Employee details | Photocopy of passport';
-                $w = 500;
-                $h = 100;
-                $x = 85;
-                $y = 20;
-                $fontsize = 20;
-
-                $pdf->SetTextColor(0, 0, 0);
-                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
-
-                $pdf->SetTextColor(0, 7, 224);
-                $w = 530;
-                $h = 300;
-                $x = $lng == "heb" ? 560 : 30;
-                $y = 60;
-
-                $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeepassportCopy']), $x, $y, $w, $h, '', '', '', true);
+                $passportPath = Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeepassportCopy']);
+            } elseif (Storage::disk('public')->exists('uploads/documents/' . $formData['employeepassportCopy'])) {
+                $passportPath = Storage::disk('public')->path('uploads/documents/' . $formData['employeepassportCopy']);
             }
-
-            if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeeResidencePermit'])) {
-                //create a page
+        
+            if ($passportPath) {
                 $pdf->AddPage();
-
+                $text = 'B. Employee details | Photocopy of passport';
+                $this->addTextContent($pdf, $text, 20, 500, 100, 85, 20);
+                $pdf->Image($passportPath, ($lng == "heb" ? 560 : 30), 60, 530, 300, '', '', '', true);
+            }
+        
+            // Check if residence permit exists
+            $residencePath = null;
+            if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeeResidencePermit'])) {
+                $residencePath = Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeResidencePermit']);
+            } elseif (Storage::disk('public')->exists('uploads/documents/' . $formData['employeeResidencePermit'])) {
+                $residencePath = Storage::disk('public')->path('uploads/documents/' . $formData['employeeResidencePermit']);
+            }
+        
+            if ($residencePath) {
+                $pdf->AddPage();
                 $text = 'B. Employee details | Photocopy of residence permit in Israel for a foreign employee';
-                $w = 540;
-                $h = 100;
-                $x = 30;
-                $y = 20;
-                $fontsize = 14;
-
-                $pdf->SetTextColor(0, 0, 0);
-                $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
-
-                $pdf->SetTextColor(0, 7, 224);
-                $w = 530;
-                $h = 300;
-                $x = $lng == "heb" ? 560 : 30;
-                $y = 50;
-
-                $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeResidencePermit']), $x, $y, $w, $h, '', '', '', true);
+                $this->addTextContent($pdf, $text, 14, 540, 100, 30, 20);
+                $pdf->Image($residencePath, ($lng == "heb" ? 560 : 30), 50, 530, 300, '', '', '', true);
             }
         }
-
+        
+        // Employee ID card copy
         if (
-            isset($formData['employeeIdentityType']) && isset($formData['employeeIdCardCopy']) &&
+            isset($formData['employeeIdentityType'], $formData['employeeIdCardCopy']) &&
             $formData['employeeIdentityType'] == 'IDNumber'
         ) {
-            //create a page
-            $pdf->AddPage();
-
-            $text = 'B. Employee details | Photocopy of ID Card';
-            $w = 500;
-            $h = 100;
-            $x = 85;
-            $y = 20;
-            $fontsize = 20;
-
-            $pdf->SetTextColor(0, 0, 0);
-            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
-
-            $pdf->SetTextColor(0, 7, 224);
-            $w = 530;
-            $h = 300;
-            $x = $lng == "heb" ? 560 : 30;
-            $y = 60;
-
-            $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeIdCardCopy']??""), $x, $y, $w, $h, '', '', '', true);
+            $idCardPath = null;
+            if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeeIdCardCopy'])) {
+                $idCardPath = Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeIdCardCopy']);
+            } elseif (Storage::disk('public')->exists('uploads/documents/' . $formData['employeeIdCardCopy'])) {
+                $idCardPath = Storage::disk('public')->path('uploads/documents/' . $formData['employeeIdCardCopy']);
+            }
+        
+            if ($idCardPath) {
+                $pdf->AddPage();
+                $text = 'B. Employee details | Photocopy of ID Card';
+                $this->addTextContent($pdf, $text, 20, 500, 100, 85, 20);
+                $pdf->Image($idCardPath, ($lng == "heb" ? 560 : 30), 60, 530, 300, '', '', '', true);
+            }
         }
-
+        
         if (
             isset($formData['TaxExemption']['disabled']) &&
             $formData['TaxExemption']['disabled'] === true

@@ -13,7 +13,8 @@ export default function TextField({
     required,
     readonly,
     toggleBubble = false, // Passed from parent to handle toggling
-    id = name
+    id = name,
+    disabled = false
 }) {
     return (
         <div className="text-start form-group">
@@ -35,6 +36,7 @@ export default function TextField({
                         border: !error && "2px solid #E9ECF2",
                         background: "inherit"
                     }}
+                    disabled={disabled}
                 />
                 {toggleBubble && (
                     <span

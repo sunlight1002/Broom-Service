@@ -247,7 +247,7 @@ export function NonIsraeliContract({
                 {
                     ((isGeneratingPDF ? nextStep === 6 : nextStep === 5) || !nextStep) && (
                         <div className="row">
-                            <section className={`${isGeneratingPDF ? "col-12" : "col"} pl-0`}>
+                            <section className={`${isGeneratingPDF ? "col-12" : "col"} px-3`}>
                                 <ol
                                     className="mt-5 lh-lg text-justify"
                                     style={{ fontSize: "16px" }}
@@ -347,7 +347,7 @@ export function NonIsraeliContract({
                                 </ol>
 
                             </section>
-                            <section className="col pl-0">
+                            <section className={`${isGeneratingPDF ? "col-12" : "col"} px-3`}>
                                 <ol start="5" className="lh-lg text-justify" style={{ fontSize: "16px" }}>
                                     <li>
                                         {workerDetail?.is_existing_worker ? (

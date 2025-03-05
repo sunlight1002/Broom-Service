@@ -9,6 +9,7 @@ use App\Models\Job;
 use App\Models\Admin;
 use App\Models\WorkerAvailability;
 use App\Models\JobHours;
+use App\Models\Problems;
 use App\Traits\PaymentAPI;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -486,7 +487,7 @@ class JobController extends Controller
         ]);
     }
 
-    public function ContactManager($id)
+    public function addProblems($id)
     {
 
         // Fetch the job with its related worker and client data using the $id parameter
@@ -525,6 +526,38 @@ class JobController extends Controller
         ]));
 
         return response()->json(['message' => 'Notification sent successfully to Manger for extra time...'], 200);
+    }
+
+    public function ContactManager(Request $request)
+    {
+        \Log::info($request->all());
+        $validated = $request->validate([
+            'problem' => 'required|string|max:1000',
+        ]);
+
+        $problem = new Problems();
+        $problem->client_id = $request->input('client_id');
+        $problem->job_id = $request->input('job_id');
+        $problem->worker_id = $request->input('worker_id');
+        $problem->problem = $validated['problem'];
+        $problem->save();
+
+        $job = Job::find($problem->job_id);
+
+        $job->load(['worker', 'client', 'propertyAddress']);
+
+        // Dispatch the WhatsApp notification event
+        event(new WhatsappNotificationEvent([
+            'type' => WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER,
+            'notificationData' => [
+                'job' => $job->toArray(),
+                'client' => $job->client->toArray(),
+                'worker' => $job->worker->toArray(),
+            ]
+        ]));
+
+        // Return success response
+        return response()->json(['message' => 'Problem saved successfully'], 201);
     }
 
 }

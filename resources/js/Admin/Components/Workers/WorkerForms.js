@@ -96,7 +96,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     } else if (type == "form_insurance") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
                     } else if (type == "2form101") {
-                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}?page=1`, "_blank");
                     } else if (type == "manpower") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1&type=manpower`, "_blank");
                     }

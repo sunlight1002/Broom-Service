@@ -59,13 +59,17 @@ export default function WorkerContract({
             const _pdf = await html2pdf()
                 .set(options)
                 .from(content)
-                .outputPdf("blob", "Contract.pdf");
+                .outputPdf("blob");
+
+            const pdfFile = new File([_pdf], "Contract.pdf", { type: "application/pdf" });
+                
 
             setIsGeneratingPDF(false);
             setLoading(true)
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
-            formData.append("pdf_file", _pdf);
+
+            formData.append("pdf_file", pdfFile);
             formData.append("step", nextStep);
             formData.append("savingType", savingType);
             formData.append("type", type == "lead" ? "lead" : "worker");

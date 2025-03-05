@@ -10,6 +10,7 @@ export default function RadioButtonGroup({
     isFlex = false,
     className = 'navyblueColor font-w-500',
     resClassName,
+    disabled = false
 }) {
     
     return (
@@ -33,6 +34,7 @@ export default function RadioButtonGroup({
                                 checked={value === option.value}
                                 onChange={onChange}
                                 onBlur={onBlur}
+                                disabled={disabled}
                             />
                             <span className={`${className}`}>{option.label}</span>
                         </label>
