@@ -1039,9 +1039,7 @@ class AuthController extends Controller
 
         // // Generate PDF if the form has been submitted
         if ($form->submitted_at) {
-            \Log::info([$data]);
             $file_name = Str::uuid()->toString() . '.pdf';
-            \Log::info('file_name'. $file_name);
             $worker->form101 = 1;
             // $worker->form_101 = $file_name;
             $worker->save();
