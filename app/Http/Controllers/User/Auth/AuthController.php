@@ -1501,7 +1501,9 @@ class AuthController extends Controller
             // Send email with all form attachments
             Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
                 $message->to(config('services.mail.default'));
-                $message->bcc($admin->email);
+                if($admin) {
+                    $message->bcc($admin->email);
+                }
                 $message->subject(__('mail.all_forms.subject'));
 
                 // Attach all available forms
