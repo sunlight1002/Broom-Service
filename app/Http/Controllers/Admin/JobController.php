@@ -3152,13 +3152,13 @@ class JobController extends Controller
                                 );
     
                             }
-                            
+                            $jobArray[] = $job;
                         } else {
                             \Log::info("No worker found matching: " . $selectedWorker);
                         }
                 }
             }
-            return $job;
+            return $jobArray;
         } catch (\Throwable $th) {
             throw $th;
         }
