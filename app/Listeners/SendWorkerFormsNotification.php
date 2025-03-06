@@ -32,7 +32,6 @@ class SendWorkerFormsNotification implements ShouldQueue
     public function handle(WorkerCreated $event)
     {
         $admin = Admin::where('role', 'hr')->first();
-
         if (!empty($event->worker->email)) {
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
@@ -47,7 +46,9 @@ class SendWorkerFormsNotification implements ShouldQueue
             try {
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
                     $messages->to($workerArr['email']);
-                    $messages->bcc($admin->email);
+                    if($admin){
+                        $messages->bcc($admin->email);  
+                    }
                     ($workerArr['lng'] == 'heb') ?
                         $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
                         $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];

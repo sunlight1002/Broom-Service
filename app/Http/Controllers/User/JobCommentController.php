@@ -338,6 +338,283 @@ class JobCommentController extends Controller
             'new_status' => $comment->status, // Return the new status for feedback
         ]);
     }
+
+    public function getJobCommentByUuid(request $request, $uuid)
+    {
+        $job = Job::where('uuid', $uuid)->first();
+
+        $comments = JobComments::query()
+            ->with(['attachments'])
+            ->where('job_id', $job->id)
+            ->where(function ($q) {
+                $q
+                    ->where('comment_for', 'worker')
+                    ->orWhereHasMorph(
+                        'commenter',
+                        [User::class],
+                        function (Builder $query) {
+                            $query->where('commenter_id', Auth::id());
+                        }
+                    );
+            })
+            ->latest()
+            ->get();
+
+        // Get the target language and comment ID
+        $targetLanguage = $request->input('target_language', 'en');
+        $commentId = $request->input('comment_id', null);
+
+        // Translate the specific comment if a target language is provided
+        if ($targetLanguage !== 'en' && $commentId) {
+            foreach ($comments as $comment) {
+                if ($comment->id == $commentId) {
+                    $textToTranslate = $comment->comment;
+                    if (!empty($textToTranslate)) {
+                        try {
+                            $translation = $this->translateClient->translate($textToTranslate, [
+                                'target' => $targetLanguage,
+                            ]);
+
+                            $comment->comment = $translation['text'];
+                            $comment->translated_text = $translation['text'];
+                        } catch (\Exception $e) {
+                            \Log::error('Translation API Error: ' . $e->getMessage());
+                            $comment->translated_text = $textToTranslate;
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'comments' => $comments
+        ]);
+    }
+
+
+    public function deleteComment($id)
+    {
+        $comment = JobComments::query()
+            ->find($id);
+
+        if (!$comment) {
+            return response()->json([
+                'message' => 'Comment not found'
+            ]);
+        }
+
+        foreach ($comment->attachments()->get() as $attachment) {
+            if (Storage::drive('public')->exists('uploads/attachments/' . $attachment->file_name)) {
+                Storage::drive('public')->delete('uploads/attachments/' . $attachment->file_name);
+            }
+            $attachment->delete();
+        }
+        $comment->delete();
+
+        return response()->json([
+            'message' => 'Comment has been deleted successfully'
+        ]);
+    }
+
+
+    public function markCompleteComment(Request $request)
+    {
+        // Ensure you're receiving the JSON data properly
+        $commentId = $request->input('comment_id');
+        // Check if the comment ID is received properly
+        if (!$commentId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment ID is required',
+            ], 400);
+        }
+
+        // Find the comment by ID
+        $comment = JobComments::find($commentId);
+
+        if (!$comment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment not found',
+            ], 404);
+        }
+        // Toggle the comment status
+        if ($comment->status === 'complete') {
+            $comment->status = null;  // Set to null if it was complete
+        } else {
+            $comment->status = 'complete';  // Set to complete if it was null
+        }
+
+        $comment->save();
+
+        $pending_comments = JobComments::where('job_id', $comment->job_id)
+            ->where(function ($query) {
+                $query->whereNotIn('status', ['complete'])
+                    ->orWhereNull('status');
+            })
+            ->whereDoesntHave('skipComment', function ($q) {
+                $q->where(function ($query) {
+                    $query->where('status', '!=', 'approved')
+                        ->orWhereNull('status');
+                });
+            })
+            ->count();
+        if ($pending_comments < 1) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED,
+                "notificationData" => [
+                    'job' => $comment->job->toArray(),
+                    'worker' => $comment->job->worker->toArray(),
+                    'client' => $comment->job->client->toArray(),
+                ]
+            ]));
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment status toggled successfully!',
+            'new_status' => $comment->status, // Return the new status for feedback
+        ]);
+    }
+
+
+    public function addJobComment(Request $request)
+    {
+        $job = Job::with(['client', 'worker', 'jobservice', 'propertyAddress'])
+            ->find($request->job_id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => ['required'],
+            'job_id' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()]);
+        }
+
+        $commentIds = $request->input('comment_ids', []);
+
+        if (!is_array($commentIds)) {
+            $commentIds = [$commentIds];
+        }
+
+        JobComments::whereIn('id', $commentIds)->update(['status' => 'complete']);
+
+        $comment = '';
+        $filesArr = $request->file('files');
+        $isFiles = ($request->hasFile('files') && count($filesArr) > 0);
+        if ($isFiles || $request->comment) {
+            $comment = JobComments::create([
+                'name' => $request->name,
+                'job_id' => $job->id,
+                'comment_for' => 'admin',
+                'comment' => $request->comment ? $request->comment : NULL,
+            ]);
+            if ($isFiles) {
+                if (!Storage::disk('public')->exists('uploads/attachments')) {
+                    Storage::disk('public')->makeDirectory('uploads/attachments');
+                }
+                $resultArr = [];
+                foreach ($filesArr as $key => $file) {
+                    $original_name = $file->getClientOriginalName();
+                    $file_name = $comment->job_id . "_" . date('s') . "_" . $original_name;
+                    if (Storage::disk('public')->putFileAs("uploads/attachments", $file, $file_name)) {
+                        array_push($resultArr, [
+                            'file_name' => $file_name,
+                            'original_name' => $original_name
+                        ]);
+                    }
+                }
+                $comment->attachments()->createMany($resultArr);
+            }
+        }
+
+        if (isset($request->status) && $request->status != '') {
+            $jobData = ['status' => $request->status];
+
+            if ($request->status == JobStatusEnum::COMPLETED) {
+                $end_time = $job->start_date . " " . $job->end_time;
+
+                $jobData['completed_at'] = now()->toDateTimeString();
+
+                // if (($end_time < now()->toDateTimeString()) && ($job->is_extended == 0)) {
+                //     event(new WhatsappNotificationEvent([
+                //         "type" => WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME,
+                //         "notificationData" => [
+                //             'job' => $job->toArray(),
+                //         ]
+                //     ]));
+                // }
+            }
+
+            $job->update($jobData);
+
+
+            if ($job->status == JobStatusEnum::COMPLETED) {
+                $this->updateJobWorkerMinutes($job->id);
+                $this->updateJobAmount($job->id);
+
+                // Get values from the updated job
+                $clientId = $job->client_id;
+                $addressId = $job->address_id;
+                $contractId = $job->contract_id;
+                $offerId = $job->offer_id;
+
+                // Find the last job based on the values obtained
+                $lastJob = Job::where('client_id', $clientId)
+                    ->where('address_id', $addressId)
+                    ->where('contract_id', $contractId)
+                    ->where('offer_id', $offerId)
+                    ->orderBy('start_date', 'desc')
+                    ->first();
+
+                // Check if a last job exists
+                if ($lastJob) {
+                    // If a last job exists, pass the required values to the queue
+                    ScheduleNextJobOccurring::dispatch($job->id, $lastJob->start_date); // Assuming you still want to dispatch this
+                }
+
+                $todayNextJob = Job::where('worker_id', $job->worker_id)
+                    ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                    ->whereDate('start_date', now())
+                    ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                    ->whereRaw("STR_TO_DATE(start_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
+                    ->first();
+
+                if($todayNextJob) {
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
+                        "notificationData" => [
+                            'job' => $todayNextJob->toArray(),
+                            'client' => $todayNextJob->client->toArray(),
+                            'worker' => $todayNextJob->worker->toArray(),
+                        ]
+                    ]));
+                } else {
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY,
+                        "notificationData" => [
+                            'job' => $job->toArray(),
+                            'client' => $job->client->toArray(),
+                            'worker' => $job->worker->toArray(),
+                        ]
+                    ]));
+                }
+
+                CreateJobOrder::dispatch($job->id);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Comment has been created successfully'
+        ]);
+    }
+
     // public function adjustJobCompleteTime(Request $request, $id)
     // {
     //     // Validate the input

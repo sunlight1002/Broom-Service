@@ -147,7 +147,10 @@ class WhatsappNotification
                 $clientJobViewLink = generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
                 $workerJobViewLink = generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
                 $teamBtns = generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
-                $contactManager = generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
+                $contactManager = generateShortUrl(url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
+                $leaveForWork = generateShortUrl(url("worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
+                $finishJobByWorker = generateShortUrl(url("worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
+                
                 $workerApproveJob = generateShortUrl(
                     isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
                     'worker'
@@ -195,6 +198,8 @@ class WhatsappNotification
                 ':team_job_link' => $adminJobViewLink ?? '',
                 ':team_action_btns_link' => $teamBtns ?? '',
                 ':worker_job_link' => $workerJobViewLink ?? '',
+                ':leave_for_work' => $leaveForWork ?? '',
+                ':finish_job_by_worker' => $finishJobByWorker ?? '',
                 ':comment_worker_job_link' => $commentsText ? "\n".$commentLinkText . " " . $workerJobViewLink : '',
                 ':client_view_job_link' => $clientJobViewLink ?? '',
                 ':team_job_action_link' => $teamJobActionLink ?? '',
@@ -719,7 +724,14 @@ class WhatsappNotification
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER
                     ){
                     $token = $this->whapiWorkerJobApiToken;
-                }else{
+                }else if(
+                    $eventType == WhatsappMessageTemplateEnum::FORM101 ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_FORMS ||
+                    $eventType == WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
+                ){
+                    $token = $this->whapiWorkerApiToken;
+                }else {
                     $token = $this->whapiApiToken;
                 }
 

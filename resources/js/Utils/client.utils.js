@@ -80,6 +80,14 @@ export const leadStatusColor = (_status) => {
             _color = "#626567";
             break;
 
+        case "will-think":
+            _color = "#72be6b";
+            break;
+
+        case "not-hired":
+            _color = "red";
+            break;
+
         default:
             break;
     }

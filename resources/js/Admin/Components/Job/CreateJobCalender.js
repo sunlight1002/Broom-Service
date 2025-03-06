@@ -26,8 +26,6 @@ export default function CreateJobCalender({
     distance,
     prevWorker,
 }) {
-    console.log(distance);
-    
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
@@ -182,6 +180,7 @@ export default function CreateJobCalender({
                     contract_id: selectedService.contract_id,
                     prevWorker: prevWorker,
                     updatedJobs: updatedJobs,
+                    selectedService: selectedService
                 };
                 viewbtn[0].setAttribute("disabled", true);
                 viewbtn[0].value = "please wait ...";

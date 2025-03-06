@@ -59,7 +59,6 @@ class CreateJobOrder implements ShouldQueue
             })
             ->find($this->jobID);
 
-        // \Log::info('job', $job?->toArray()??[]);
 
         if ($job) {
             $items = [];
@@ -113,7 +112,6 @@ class CreateJobOrder implements ShouldQueue
                     'unitprice' => $job->subtotal_amount,
                     'quantity' => 1
                 ];
-                \Log::info([$items]);
             }
 
             // $cancellationFees = JobCancellationFee::query()

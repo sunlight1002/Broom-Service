@@ -198,6 +198,9 @@ import AdminDocument from "./Admin/Components/Documents/AdminDocument";
 import ClientForgotPassword from "./Client/Auth/ClientForgotPassword";
 import AddScheduleRequest from "./Admin/Components/Dashboard/AddScheduleRequest";
 import InsuranceCompany from "./Admin/Pages/Setting/InsuranceCompany";
+import ContactManager from "./Pages/ContactManager";
+import OnMyWayJob from "./Pages/OnMyWayJob";
+import FinishJobByWorker from "./Pages/FinishJobByWorker";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -373,6 +376,21 @@ export default function MyRoutes() {
                         exact
                         path="thankyou/:id/:response"
                         element={<Thankyou />}
+                    />
+                    <Route
+                        exact
+                        path="worker/jobs/:uuid"
+                        element={<ContactManager />}
+                    />
+                    <Route
+                        exact
+                        path="worker/jobs/on-my-way/:uuid"
+                        element={<OnMyWayJob />}
+                    />
+                    <Route
+                        exact
+                        path="worker/jobs/finish/:uuid"
+                        element={<FinishJobByWorker />}
                     />
                     <Route
                         exact

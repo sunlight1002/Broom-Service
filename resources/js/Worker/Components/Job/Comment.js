@@ -17,7 +17,8 @@ export default function Comment({
     setTargetLanguage,
     setJobId,
     setCommentId,
-    job_status
+    job_status,
+    uuid = null
 }) {
     const [commentLanguageMap, setCommentLanguageMap] = useState({});
     const [isOpen, setIsOpen] = useState(false)
@@ -113,8 +114,11 @@ export default function Comment({
             confirmButtonText: t("global.yesDelete"),
         }).then((result) => {
             if (result.isConfirmed) {
+                let url = uuid ? `/api/delete-job-comments/${id}` : `/api/job-comments/${id}`;
+                const config = uuid ? {} : { headers };
+
                 axios
-                    .delete(`/api/job-comments/${id}`, { headers })
+                    .delete(url, config)
                     .then((response) => {
                         Swal.fire(
                             t("global.deleted"),
@@ -178,13 +182,22 @@ export default function Comment({
             const formData = new FormData();
             formData.append('comment_id', c.id);
 
-            const response = await axios.post(`/api/job-comments/mark-complete`, formData, { headers });
+            // Determine the URL based on uuid
+            const url = uuid ? "/api/job-comments/mark-complete-comment" : "/api/job-comments/mark-complete";
+    
+            // Conditionally include headers only when uuid does NOT exist
+            const config = uuid ? {} : { headers };
+    
+            const response = await axios.post(url, formData, config);
 
             if (response.data.success) {
                 alert.success("Comment marked as complete!");
                 const updatedComments = allComment.map(comment =>
                     comment.id === c.id ? { ...comment, status: 'complete' } : comment
                 );
+
+                console.log(updatedComments);
+                
                 setAllComment(updatedComments);
                 location.reload();
             }
@@ -193,7 +206,6 @@ export default function Comment({
             alert.error("Failed to mark comment as complete");
         }
     };
-
 
 
 
@@ -362,6 +374,7 @@ export default function Comment({
                 setIsOpen={setIsOpen}
                 comment={comment}
                 handleGetSkippedComments={handleGetSkippedComments}
+                uuid={uuid}
             />
 
 

@@ -562,4 +562,175 @@ class JobController extends Controller
         return response()->json(['message' => 'Problem saved successfully'], 201);
     }
 
+    public function leaveForWork(Request $request)
+    {
+        $rData = $request->all();
+        try {
+            $job = Job::query()
+                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+                ->where('uuid', $rData['uuid'])
+                ->first();
+
+            if (!$job) {
+                return response()->json([
+                    'message' => 'Something went wrong!'
+                ], 404);
+            }
+
+            if ($job->job_opening_timestamp) {
+                return response()->json([
+                    'message' => 'Worker already leave for work'
+                ], 403);
+            }
+
+            $job->update([
+                'job_opening_timestamp' => Carbon::now()->toDateTimeString()
+            ]);
+
+            Notification::create([
+                'user_id' => $job->client->id,
+                'user_type' => get_class($job->client),
+                'type' => NotificationTypeEnum::OPENING_JOB,
+                'job_id' => $job->id,
+                'status' => 'going to start'
+            ]);
+
+            App::setLocale('en');
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
+            //send notification to worker
+            $worker = $job['worker'];
+            App::setLocale($worker['lng']);
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_CONFIRMING_ON_MY_WAY,
+                "notificationData" => array(
+                    'worker'     => $job->worker->toArray(),
+                    'client'     => $job->client->toArray(),
+                    'job'        => $job->toArray(),
+                )
+            ]));
+            return response()->json([
+                'message' => 'Job opening time has been updated!'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ]);
+        }
+    }
+
+    public function getJobByUuid($uuid)
+    {
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'service',
+                'offer',
+                'jobservice',
+                'propertyAddress'
+            ])
+            ->where('uuid', $uuid)
+            ->first();
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'job' => $job,
+        ]);
+    }
+
+
+
+    public function JobStartTimeUuid($uuid)
+    {
+        $job = Job::where('uuid', $uuid)->first();
+
+        $time = JobHours::query()
+            ->where('worker_id', $job->worker_id)
+            ->where('job_id', $job->id)
+            ->whereNull('end_time')
+            ->first();
+
+        if ($time) {
+            return response()->json([
+                'message' => 'End timer',
+            ], 404);
+        }
+
+        $currentDateTime = now()->toDateTimeString();
+
+        if ($job->status != JobStatusEnum::PROGRESS) {
+            $job->status = JobStatusEnum::PROGRESS;
+            $job->save();
+        }
+
+        JobHours::create([
+            'job_id' => $job->id,
+            'worker_id' => $job->worker_id,
+            'start_time' => $currentDateTime,
+        ]);
+
+        return response()->json([
+            'message' => 'Updated Successfully',
+        ]);
+    }
+
+    public function JobEndTimeUuid($uuid)
+    {
+        $job = Job::where('uuid', $uuid)->first();
+
+        $time = JobHours::query()
+            ->where('job_id', $job->id)
+            ->whereNull('end_time')
+            ->first();
+
+        if (!$time) {
+            return response()->json([
+                'message' => 'Resume timer',
+            ], 404);
+        }
+
+        $currentDateTime = now()->toDateTimeString();
+
+        $time->update([
+            'end_time' => $currentDateTime,
+            'time_diff' => Carbon::parse($time->start_time)->diffInSeconds(),
+        ]);
+
+        $this->updateJobWorkerMinutes($time->job_id);
+
+        return response()->json([
+            'message' => 'Updated Successfully',
+        ]);
+    }
+
+    public function getJobTimeUuid(Request $request)
+    {
+        $job = Job::where('uuid', $request->uuid)->first();
+        $total = 0;
+
+        $time = JobHours::where('job_id', $job->id)->where('worker_id', $job->worker_id);
+        if ($request->filter_end_time) {
+            $time = $time->where('end_time', NULL)->first();
+        } else {
+            $time = $time->get();
+            foreach ($time as $t) {
+                if ($t->time_diff) {
+                    $total = $total + (int)$t->time_diff;
+                }
+            }
+        }
+
+        return response()->json([
+            'time' => $time,
+            'total' => $total
+        ]);
+    }
+
 }

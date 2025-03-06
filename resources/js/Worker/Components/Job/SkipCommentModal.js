@@ -9,7 +9,8 @@ const SkipCommentModal = ({
     isOpen,
     setIsOpen,
     comment,
-    handleGetSkippedComments
+    handleGetSkippedComments,
+    uuid = null
 }) => {
     const [requestText, setRequestText] = useState('')
     const { t } = useTranslation();
@@ -25,13 +26,18 @@ const SkipCommentModal = ({
 
 
     const handleSubmit = async () => {
+        console.log(uuid);
+        
         try {
             const formData = new FormData();
             formData.append('comment_id', comment.id);
             formData.append('request_text', requestText);
-            formData.append('job_id', params.id);
 
-            const response = await axios.post('/api/job-comments/skip-comment', formData, { headers });
+            let url = uuid ? `/api/job-comments/add-skip-comment` : `/api/job-comments/skip-comment`;
+
+            const config = uuid ? {} : { headers };
+
+            const response = await axios.post(url, formData, config);
 
             if (response.data.success) {
                 alert.success('Skip request submitted successfully!');

@@ -23,7 +23,7 @@ class JobHours extends Model
             $worker = $job['worker'];
             $client = $job['client'];
             $job['start_time'] = $model->start_time;
-            if (auth()->user()->email == $worker['email']) {
+            if ($worker['email']) {
                 if ($model->isDirty('start_time')) {
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::WORKER_START_THE_JOB,

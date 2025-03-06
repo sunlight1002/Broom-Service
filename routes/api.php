@@ -87,7 +87,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('not-available-dates', [DashboardController::class, 'notAvailableDates']);
     Route::post('not-available-date', [DashboardController::class, 'addNotAvailableDates']);
     Route::post('delete-not-available-date', [DashboardController::class, 'deleteNotAvailableDates']);
-    Route::post('worker/contact-manager/{id}', [JobController::class, 'ContactManager']);
+    Route::post('worker/contact-manager/{id}', [JobController::class, 'addProblem']);
 
     Route::get('jobs/today', [JobController::class, 'todayJobs']);
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
@@ -156,6 +156,22 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
 });
 
+Route::post('jobs/contact-to-manager', [JobController::class, 'ContactManager']);
+Route::post('jobs/leave-for-Work', [JobController::class, 'leaveForWork']);
+Route::get('get-job-by-uuid/{uuid}', [JobController::class, 'getJobByUuid']);
+Route::post('jobs/start-time-uuid/{uuid}', [JobController::class, 'JobStartTimeUuid']);
+Route::post('jobs/end-time-uuid/{uuid}', [JobController::class, 'JobEndTimeUuid']);
+Route::post('get-job-time-uuid', [JobController::class, 'getJobTimeUuid']);
+Route::get('jobs/{uuid}/job-comments-uuid', [JobCommentController::class, 'getJobCommentByUuid']);
+Route::get('job-comments/skipped-job-comments/{cid}', [SkippedCommentController::class, 'getSkippedCommentByUuid']);
+Route::delete('delete-job-comments', [JobCommentController::class, 'deleteComment']);
+Route::post('add-job-comments', [JobCommentController::class, 'addJobComment']);
+
+Route::post('job-comments/mark-complete-comment', [JobCommentController::class, 'markCompleteComment']);
+
+Route::post('job-comments/add-skip-comment', [SkippedCommentController::class, 'skipCommentStore']);
+Route::get('job-comments/get-skipped-comments', [SkippedCommentController::class, 'index']);
+Route::post('job-comments/updateStatus', [SkippedCommentController::class, 'updateStatus']);
 
 Route::group(['middleware' => ['auth:api', 'api_token']], function () {
     Route::put('jobs/{id}/cancel', [AdminJobController::class, 'cancelJobByGoogleSheet']);
