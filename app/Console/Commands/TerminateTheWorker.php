@@ -7,6 +7,9 @@ use App\Models\Form;
 use App\Models\InsuranceCompany;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\App;
+
 
 class TerminateTheWorker extends Command
 {

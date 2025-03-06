@@ -21,6 +21,8 @@ use App\Models\WorkerLeads;
 use App\Models\ScheduleChange;
 use App\Models\ManpowerCompany;
 use App\Models\WhatsAppBotActiveWorkerState;
+use App\Models\WorkerInvitation;
+use App\Models\WorkerAvailability;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -224,7 +226,8 @@ class WorkerLeadWebhookController extends Controller
                         match ($workerLead->status) {
                             "hiring" => [
                                 $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM),
-                                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING)
+                                $worker = $this->createUser($workerLead),
+                                $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS)
                             ],
                             "not-hired" => $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM),
                             "unanswered" => $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED),
@@ -274,7 +277,8 @@ class WorkerLeadWebhookController extends Controller
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $message]);
                             Cache::put('manpower', $workerLead->id, now()->addDays(1));
                         }else if($workerLead->company_type == 'my-company'){
-                            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
+                            $worker = $this->createUser($workerLead);
+                            $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
                         }
 
                         return response()->json([
@@ -294,8 +298,11 @@ class WorkerLeadWebhookController extends Controller
                         $workerLead->manpower_company_id = $selectedCompanyId;
                         $workerLead->save();
 
-                        // Send confirmation message to the user
-                        $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
+                        $worker = $this->createUser($workerLead);
+                        $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
+
+                        // // Send confirmation message to the user
+                        // $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
                         Cache::forget('manpower', $last_input);
                     }
                 }
@@ -994,5 +1001,98 @@ Broom Service Team 🌹 ';
             ]
         ]));
     }
+
+
+    public function isWeekend($date)
+    {
+        $weekDay = date('w', strtotime($date));
+        return ($weekDay == 5 || $weekDay == 6);
+    }
+
+    public function createUser($workerLead){
+        $role = $workerLead->role ?? 'cleaner';
+        $lng = $workerLead->lng;
+
+        if ($role == 'cleaner') {
+            $role = match ($lng) {
+                'heb' => "מנקה",
+                'en' => "Cleaner",
+                'ru' => "уборщик",
+                default => "limpiador"
+            };
+        } elseif ($role == 'general_worker') {
+            $role = match ($lng) {
+                'heb' => "עובד כללי",
+                'en' => "General worker",
+                'ru' => "Общий рабочий",
+                default => "Trabajador general"
+            };
+        }
+
+        // Create new user
+        $worker = User::create([
+            'firstname' => $workerLead->firstname ?? '',
+            'lastname' => $workerLead->lastname ?? '',
+            'phone' => $workerLead->phone ?? null,
+            'email' => $workerLead->email ?? null,
+            'gender' => $workerLead->gender ?? null,
+            'first_date' => $workerLead->first_date ?? null,
+            'role' => $role ?? null,
+            'lng' => $lng ?? "en",
+            'passcode' => $workerLead->phone ?? null,
+            'password' => Hash::make($workerLead->phone),
+            'company_type' => $workerLead->company_type ?? "my-company",
+            'visa' => $workerLead->visa ?? NULL,
+            'passport' => $workerLead->passport ?? NULL,
+            'passport_card' => $workerLead->passport_card ?? NULL,
+            'id_number' => $workerLead->id_number ?? NULL,
+            'status' => 1,
+            'is_afraid_by_cat' => $workerLead->is_afraid_by_cat == 1 ? 1 : 0,
+            'is_afraid_by_dog' => $workerLead->is_afraid_by_dog == 1 ? 1 : 0,
+            'renewal_visa' => $workerLead->renewal_visa ?? NULL,
+            'address' => $workerLead->address ?? NULL,
+            'latitude' => $workerLead->latitude ?? NULL,
+            'longitude' => $workerLead->longitude ?? NULL,
+            'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
+            'step' => $workerLead->step ?? 0
+        ]);
+
+        $i = 1;
+        $j = 0;
+        $check_friday = 1;
+        while ($i == 1) {
+            $current = Carbon::now();
+            $day = $current->addDays($j);
+            if ($this->isWeekend($day->toDateString())) {
+                $check_friday++;
+            } else {
+                $w_a = new WorkerAvailability;
+                $w_a->user_id = $worker->id;
+                $w_a->date = $day->toDateString();
+                $w_a->start_time = '08:00:00';
+                $w_a->end_time = '17:00:00';
+                $w_a->status = 1;
+                $w_a->save();
+            }
+            $j++;
+            if ($check_friday == 6) {
+                $i = 2;
+            }
+        }
+
+
+        $forms = $workerLead->forms()->get();
+            foreach ($forms as $form) {
+                $form->update([
+                    'user_type' => User::class,
+                    'user_id' => $worker->id
+                ]);
+            }
+
+        $workerLead->delete();
+
+        return $worker;
+    }
+
 
 }
