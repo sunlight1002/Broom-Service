@@ -91,6 +91,8 @@ export default function Comment({ jobId }) {
         Authorization: `Bearer ${localStorage.getItem("client-token")}`,
     };
 
+    
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (comment === "") {

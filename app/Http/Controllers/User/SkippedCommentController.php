@@ -154,6 +154,65 @@ class SkippedCommentController extends Controller
         ]);
     }
 
+
+    public function getSkippedCommentByUuid($cid)
+    {
+        // Retrieve all skipped comments, optionally you can paginate or filter
+        $skippedComments = SkippedComment::with('comment')->get(); // Eager load the related comments
+
+        // Return the data as JSON if this is an API
+        return response()->json($skippedComments);
+
+        // Or return a view if this is a web route
+        // return view('skipped_comments.index', compact('skippedComments'));
+    }
+
+    public function skipCommentStore(Request $request)
+    {
+        \Log::info($request->all());
+        // Validate the request
+        $validatedData = $request->validate([
+            'comment_id' => 'required|exists:job_comments,id',
+            'request_text' => 'required|string',
+        ]);
+
+        // Find the comment and load related job, client, and worker
+        $comment = JobComments::with(['job.client', 'job.worker', 'job.propertyAddress'])->find($validatedData['comment_id']);
+
+        // Prepare the data for the event, correcting the client and worker mapping
+
+
+        // Set the comment's status to 'pending'
+        $comment->status = 'pending';
+        $comment->save();
+
+        // Create a record in the skipped_comments table
+        SkippedComment::create([
+            'comment_id' => $comment->id,
+            'request_text' => $validatedData['request_text'],
+            'status' => 'pending',
+        ]);
+
+        $job = $comment->job;
+        $job->load(['jobservice', 'propertyAddress']);
+
+        // Fire the event with the correct data
+        event(new WhatsappNotificationEvent([
+            'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS,
+            'notificationData' => [
+                'job' => $job->toArray(), // Send the comment, worker, and client
+                'worker' => $comment->job->worker->toArray(),
+                'client' => $comment->job->client->toArray(),
+                'comment' => $comment->toArray(),
+            ],
+        ]));
+        // Return a successful response
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment skip request submitted successfully',
+        ]);
+    }
+
 }
 
 // $comment = Job::with('comments')

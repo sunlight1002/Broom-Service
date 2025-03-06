@@ -208,7 +208,7 @@ You have a job scheduled at *:job_start_time* at the following location:
 *Address:* :job_full_address
 *Client:* :client_name
 
-- *I’m On My Way* :worker_job_link
+- *I’m On My Way* :leave_for_work
 - *Contact Manager* :job_contact_manager_link if you need assistance.
 
 Best Regards,
@@ -220,7 +220,7 @@ Broom Service Team',
 *כתובת:* :job_full_address
 *לקוח:* :client_name
 
-- *אני בדרכי* :worker_job_link
+- *אני בדרכי* :leave_for_work
 - *צור קשר עם המנה* :job_contact_manager_link במידה ואתה זקוק לעזרה.
 
 בברכה,
@@ -232,7 +232,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 *Dirección:* :job_full_address
 *Cliente:* :client_name
 
-- *Estoy en camino* :worker_job_link
+- *Estoy en camino* :leave_for_work
 - *Contactar al gerente* :job_contact_manager_link si necesitas ayuda.
 
 Saludos cordiales,
@@ -244,7 +244,7 @@ Equipo de Broom Service',
 *Адрес:* :job_full_address
 *Клиент:* :client_name
 
-- *Я в пути* :worker_job_link
+- *Я в пути* :leave_for_work
 - *Связаться с менеджером* :job_contact_manager_link если вам нужна помощь.
 
 С уважением,
@@ -585,7 +585,7 @@ Equipo Broom Service',
 
 The job at :job_full_address was scheduled to be completed by :job_end_time. Please finish the job if you have completed all tasks, or contact your manager if you need assistance.
 *Options:*
-- Finish Job :worker_job_link
+- Finish Job :finish_job_by_worker
 - Contact Manager :job_contact_manager_link
 
 Best regards,
@@ -594,7 +594,7 @@ Broom Service Team',
 
 העבודה בכתובת :job_full_address הייתה אמורה להסתיים בשעה :job_end_time. אנא סיים את העבודה אם כל המשימות הושלמו, או צור קשר עם המנהל במידת הצורך.
 *אפשרויות:*
-- סיים עבודה  :worker_job_link
+- סיים עבודה  :finish_job_by_worker
 - צור קשר עם המנהל :job_contact_manager_link
 
 בברכה,
@@ -603,7 +603,7 @@ Broom Service Team',
 
 El trabajo en :job_full_address estaba programado para completarse a las :job_end_time. Por favor, finaliza el trabajo si has completado todas las tareas, o contacta a tu gerente si necesitas ayuda.
 *Opciones:*
-- Finalizar trabajo :worker_job_link
+- Finalizar trabajo :finish_job_by_worker
 - Contactar al gerente :job_contact_manager_link
 
 Saludos cordiales,
@@ -612,7 +612,7 @@ Equipo Broom Service',
 
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
 *Варианты:*
-- Завершить работу :worker_job_link
+- Завершить работу :finish_job_by_worker
 - Связаться с менеджером :job_contact_manager_link
 
 С уважением,

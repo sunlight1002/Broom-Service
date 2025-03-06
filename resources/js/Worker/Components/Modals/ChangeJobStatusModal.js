@@ -16,7 +16,8 @@ export default function ChangeJobStatusModal({
     setTargetLanguage,
     setJobId,
     setCommentId,
-    skippedComments
+    skippedComments,
+    uuid = null,
 }) {
     const alert = useAlert();
     const [isLoading, setIsLoading] = useState(false);
@@ -50,9 +51,12 @@ export default function ChangeJobStatusModal({
                 data.append("files[]", element);
             }
         }
-    
+
+        let url = uuid ? `/api/add-job-comments` : `/api/job-comments`;
+        const config = uuid ? {} : { headers };
+
         axios
-            .post(`/api/job-comments`, data, { headers })
+            .post(url, data, config)
             .then((res) => {
                 if (res.data.error) {
                     res.data.error.forEach((err) => window.alert(err));
