@@ -460,12 +460,12 @@ trait JobSchedule
         $job = Job::with(['offer', 'jobservice'])->find($jobID);
     
         if ($job) {
-            $offerServices = $this->formatServices($job->offer, false);
-            $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
-                return $value['service'] == $job->schedule_id;
-            });
+            // $offerServices = $this->formatServices($job->offer, false);
+            // $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
+            //     return $value['service'] == $job->schedule_id;
+            // });
     
-            $selectedService = head($filtered);
+            $selectedService = $job->offer_service;
     
             if ($selectedService['type'] == 'hourly') {
                 if ($job->actual_time_taken_minutes > 0) {

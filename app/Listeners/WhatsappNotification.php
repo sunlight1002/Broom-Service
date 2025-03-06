@@ -724,7 +724,14 @@ class WhatsappNotification
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER
                     ){
                     $token = $this->whapiWorkerJobApiToken;
-                }else{
+                }else if(
+                    $eventType == WhatsappMessageTemplateEnum::FORM101 ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_FORMS ||
+                    $eventType == WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
+                ){
+                    $token = $this->whapiWorkerApiToken;
+                }else {
                     $token = $this->whapiApiToken;
                 }
 

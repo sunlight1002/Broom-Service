@@ -381,6 +381,7 @@ class JobController extends Controller
     public function createJob(Request $request)
     {
         $data = $request->all();
+        $selectedService = $data['selectedService'];
 
         $contract = Contract::with('offer')->find($data['contract_id']);
         if (!$contract) {
@@ -407,16 +408,16 @@ class JobController extends Controller
         // Decode services (if stored as JSON)
         $services = is_string($offer->services) ? json_decode($offer->services, true) : $offer->services;
 
-        // Locate the service and add is_one_time field
-        foreach ($services as &$service) {
-            if (($service['service'] == 1) || isset($service['freq_name']) && (in_array($service['freq_name'], ['One Time', 'חד פעמי']))) {
-                $service['is_one_time'] = true; // Add the field
-            }
-        }
+        // // Locate the service and add is_one_time field
+        // foreach ($services as &$service) {
+        //     if (($service['service'] == 1) || isset($service['freq_name']) && (in_array($service['freq_name'], ['One Time', 'חד פעמי']))) {
+        //         $service['is_one_time'] = true; // Add the field
+        //     }
+        // }
 
-        // Save updated services back to the offer
-        $offer->services = json_encode($services);
-        $offer->save();
+        // // Save updated services back to the offer
+        // $offer->services = json_encode($services);
+        // $offer->save();
 
 
         $manageTime = ManageTime::first();
@@ -512,8 +513,6 @@ class JobController extends Controller
         $filtered = Arr::where($offerServices, function ($value, $key) use ($data) {
             return $value['service'] == $data['service_id'];
         });
-
-        $selectedService = head($filtered);
 
         $service = Services::find($data['service_id']);
         $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
@@ -622,6 +621,7 @@ class JobController extends Controller
                     'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
                     'original_worker_id'     => $workerDate['worker_id'],
                     'original_shifts'        => $slotsInString,
+                    'offer_service'    => $selectedService
                 ]);
 
                 // Create entry in ParentJobs
