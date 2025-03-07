@@ -56,6 +56,7 @@ class GoogleCalendarController extends Controller
                 $googleClient = $this->getClient($admin->id);
                 $googleClient->refreshToken($googleRefreshToken);
                 $response = $googleClient->fetchAccessTokenWithRefreshToken($googleRefreshToken);
+                \Log::info($response);
                 $googleAccessToken = $response['access_token'];
 
                 if($admin->role == 'hr') {

@@ -140,7 +140,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 \Log::warning("Job not found for ID: {$this->jobID}");
             }
         }  catch (Exception $e) {
-            \Log::error("Error occurred in ScheduleNextJobOccurring: " . $e->getMessage());
+            \Log::error("Error occurred in ScheduleNextJobOccurring: " . $e);
         }
     }
 

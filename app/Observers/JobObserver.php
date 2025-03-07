@@ -3,26 +3,34 @@
 namespace App\Observers;
 
 use App\Models\Job;
-use App\Services\GoogleSheetsService;
-use App\Services\GoogleSheetsJobSyncService;
+use App\Jobs\JobObserverQueue;
 
 class JobObserver
 {
-    protected $syncService;
-
     public function __construct()
     {
-        $googleSheetsService = new GoogleSheetsService();
-        $this->syncService = new GoogleSheetsJobSyncService($googleSheetsService);
+
     }
 
     public function created(Job $job)
     {
-        $this->syncService->syncJob($job);
+        if (Job::$skipObserver) {
+            \Log::info('Observer skipped');
+            return;
+        }
+        \Log::info('Observer fired');
+        dispatch(new JobObserverQueue($job));
     }
 
     public function updated(Job $job)
     {
-        $this->syncService->syncJob($job);
+        if (Job::$skipObserver) {
+            \Log::info('Observer skipped');
+            return;
+        }
+        \Log::info('Observer fired');
+        dispatch(new JobObserverQueue($job));
     }
 }
+
+

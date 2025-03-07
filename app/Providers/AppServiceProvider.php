@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Job::observe(JobObserver::class);
+        Job::observe(JobObserver::class);
 
         // Add FreeSerif font
         TCPDF_FONTS::addTTFfont(public_path('fonts/FreeSerif.ttf'), 'TrueTypeUnicode', '', 32);

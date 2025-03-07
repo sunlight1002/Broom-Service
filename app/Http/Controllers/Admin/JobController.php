@@ -2750,8 +2750,6 @@ class JobController extends Controller
             $weekDays[$day] = $date;
         }
 
-        \Log::info($weekDays);
-
         try {
             foreach($weekDays as $day => $currentDate){
                 $clientId = null;
@@ -2765,6 +2763,7 @@ class JobController extends Controller
                 $ServiceName = $row[13] ?? null;
                 $properHours = $row[14] ?? null;
                 $frequencyName = $row[17] ?? null;
+                $type = $row[24] ? (trim($row[24]) == "f" ? "fixed" : "hourly") : "";
     
                 $startTime = null;
                 $endTime = null;
@@ -2774,20 +2773,31 @@ class JobController extends Controller
     
                 $offer = Offer::with('service')->where('id', $offerId)->first();
                 $client = Client::where('id', $clientId)->first();
+
                 $contract = Contract::where('client_id', $clientId)
                     ->where('offer_id', $offerId)
                     ->where('status', ContractStatusEnum::VERIFIED)
                     ->first();
+
                 $worker = User::where('status', 1)
                 ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . trim($selectedWorker) . '%'])
                 ->first();
-                $selectedService = Services::where('heb_name', $ServiceName)
+
+                $service = Services::where('heb_name', $ServiceName)
                 ->orWhere('name', $ServiceName)                
                 ->first();
-                $serviceId = $selectedService->id;
+
+                $serviceId = $service->id;
+
                 $selectedFrequency = ServiceSchedule::where('name_heb', $frequencyName)
                 ->orWhere('name', $frequencyName)
                 ->first();
+
+                $services = json_decode($offer->services, true); // Convert JSON to PHP array
+
+                $selectedService = collect($services)->first(function ($service) use ($serviceId, $selectedFrequency, $type) {
+                    return $service['service'] == $serviceId && $service['frequency'] == $selectedFrequency->id && $service['type'] == $type;
+                });
     
                 if ($offer) {
     
@@ -2816,7 +2826,8 @@ class JobController extends Controller
                 
                         if ($jobData) {
                             return response()->json([
-                                'message' => 'Job already exists.'
+                                $jobData->id => $jobData,
+                                'message' => 'Job already exists.',
                             ]);
                         }
     
@@ -2991,12 +3002,12 @@ class JobController extends Controller
                             $workingWeekDays = json_decode($manageTime->days);
     
     
-                            $offerServices = $this->formatServices($offer, false);
-                            $filtered = Arr::where($offerServices, function ($value, $key) use ($selectedService) {
-                                return $value['service'] == $selectedService->id;
-                            });
+                            // $offerServices = $this->formatServices($offer, false);
+                            // $filtered = Arr::where($offerServices, function ($value, $key) use ($serviceId) {
+                            //     return $value['service'] == $serviceId;
+                            // });
     
-                            $selectedService = head($filtered);
+                            // $selectedService = head($filtered);
                             // \Log::info($selectedService);
     
                             $service = Services::find($serviceId);
@@ -3070,8 +3081,11 @@ class JobController extends Controller
     
                             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
                             $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
-    
+
+                            Job::$skipObserver = true;
+
                             $job = Job::create([
+                                'uuid'          => Str::uuid(),
                                 'worker_id'     => $worker->id,
                                 'client_id'     => $contract->client_id,
                                 'contract_id'   => $contract->id,
@@ -3086,10 +3100,11 @@ class JobController extends Controller
                                 'subtotal_amount'  => $total_amount,
                                 'total_amount'  => $total_amount,
                                 'next_start_date'   => $next_job_date,
-                                'address_id'        => $selectedService['address']['id'],
+                                'address_id'        => $selectedService['address'],
                                 'original_worker_id'     => $worker->id,
                                 'original_shifts'        => $slotsInString,
-                                'keep_prev_worker'      => true
+                                'keep_prev_worker'      => true,
+                                'offer_service'     => $selectedService
                             ]);
     
                             // Create entry in ParentJobs
@@ -3143,8 +3158,10 @@ class JobController extends Controller
                             // // Send notification to client
                             // $jobData = $job->toArray();
     
+                            Job::$skipObserver = false;
+
                             ScheduleNextJobOccurring::dispatch($job->id, null);
-    
+
     
                             $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
     

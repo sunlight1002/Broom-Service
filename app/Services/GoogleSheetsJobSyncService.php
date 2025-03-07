@@ -68,7 +68,7 @@ class GoogleSheetsJobSyncService
                     'title' => $sheetTitle,
                     'gridProperties' => [
                         'rowCount' => 1000,
-                        'columnCount' => 23, // Maximum columns A-W
+                        'columnCount' => 25, // Maximum columns A-X
                     ],
                     'rightToLeft' => true, // Set the sheet layout to RTL.
                 ],
@@ -107,12 +107,13 @@ class GoogleSheetsJobSyncService
             "כתובות לקוח",
             "מזהה משימה ב-CRM",
             "קישור למשימה ב-CRM",
-            "מספר הזמנה"
+            "מספר הזמנה",
+            "סוּג"
         ];
-        $headerColumnCount = count($headers); // e.g. 23 columns
+        $headerColumnCount = count($headers); // e.g. 24 columns
 
-        // Define header range as A1:W1.
-        $headerRange = "{$sheetTitle}!A1:W1";
+        // Define header range as A1:X1.
+        $headerRange = "{$sheetTitle}!A1:X1";
         $body = new \Google\Service\Sheets\ValueRange([
             'values' => [$headers],
         ]);
@@ -245,9 +246,10 @@ class GoogleSheetsJobSyncService
      * Searches for a date row (in column D) that matches the target date string.
      * Returns the row number (1-indexed) if found or null.
      */
-    public function findDateRowIndex($sheetTitle, $targetDateString)
+    public function findDateRowIndex($sheetTitle, $targetDateString, $job)
     {
-        $data = $this->sheetsService->getSheetData($sheetTitle, 'A:W');
+        $worker = $job->worker;
+        $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
         // Skip header row (row 1)
         foreach ($data as $index => $row) {
             // Column D is index 3.
@@ -258,13 +260,49 @@ class GoogleSheetsJobSyncService
         return null;
     }
 
+    // public function findDateRowIndex($sheetTitle, $targetDateString, $job)
+    // {
+    //     $worker = $job->worker;
+    //     \Log::info('Worker name: ' . $worker->firstname . ' ' . $worker->lastname);
+    //     $workerFullName = trim($worker->firstname . ' ' . $worker->lastname);
+        
+    //     $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
+
+    //     $firstDateIndex = null;
+    //     foreach ($data as $index => $row) {
+    //         $nine = isset($row[9]) && $row[9] !== null ? trim($row[9]) : null;
+    //     \Log::info($nine);
+
+    //         // Check if this row contains the target date
+    //         if (isset($row[3]) && trim($row[3]) == $targetDateString) {
+    //             if ($firstDateIndex === null) {
+    //                 $firstDateIndex = $index + 1; // Store the first date's row index
+    //             }
+
+    //             // Check if worker's name exists in column J (index 9)
+    //             if (isset($row[9]) && trim($row[9]) == ($workerFullName || $worker->firstname || $worker->lastname)) {
+    //                 \Log::info('Worker name found at row ' . ($index + 1));
+    //                 return $index + 1; // Return the index where worker name is found
+    //             }
+    //         }
+            
+    //         // If we encounter a new date, stop searching
+    //         if ($firstDateIndex !== null && isset($row[3]) && trim($row[3]) !== $targetDateString) {
+    //             break;
+    //         }
+    //     }
+
+    //     return $firstDateIndex; // If worker is not found, return first occurrence of date
+    // }
+
+
     /**
      * Searches for a job row by CRM job id (assumed to be in column U, index 20).
      * Returns the row number (1-indexed) if found or null.
      */
     public function findJobRowIndex($sheetTitle, $crmJobId)
     {
-        $data = $this->sheetsService->getSheetData($sheetTitle, 'A:W');
+        $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
         // Start from row 2 (skip header) – note: date blocks and blank rows may be present.
         foreach ($data as $index => $row) {
             // Check column U (index 20)
@@ -274,6 +312,7 @@ class GoogleSheetsJobSyncService
         }
         return null;
     }
+
 
     /**
      * Delete a row at the given 1-indexed row number from the sheet.
@@ -361,7 +400,7 @@ class GoogleSheetsJobSyncService
         $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
             'requests' => [$repeatCellRequest],
         ]);
-        $this->batchUpdateWithBackoff($this->spreadsheetId, $batchUpdateRequest);
+        $res = $this->batchUpdateWithBackoff($this->spreadsheetId, $batchUpdateRequest);
 
         return $dateRowIndex + 1;
     }
@@ -389,7 +428,10 @@ class GoogleSheetsJobSyncService
         $workerName      = $job->worker->fullname ?? "";
         $jobWorker       = $workerName;
         $shift           = $this->determineShift($job->start_time);
-        $serviceName     = $job->offer_service->name ?? "";
+        $serviceName     = $job->offer_service['name'] ?? "";
+        $type            = $job->offer_service['type'] ?? "";
+        \Log::info('Job type: ' . $type);
+
         if ($job->offer_service) {
             if ($job->offer_service['template'] == 'airbnb') {
                 $serviceName = $job->offer_service['name'];
@@ -434,6 +476,7 @@ class GoogleSheetsJobSyncService
                 }
             }
         }
+        
         $clientAddresses = $jobAddress;
         $crmJobId        = $job->id;
         $crmJobLink      = "https://crm.broomservice.co.il/admin/jobs/view/" . $job->id;
@@ -463,6 +506,7 @@ class GoogleSheetsJobSyncService
             $crmJobId,
             $crmJobLink,
             $orderId,
+            $type ? ($type == "fixed" ? "f" : "h") : "",
         ];
     }
 
@@ -582,10 +626,13 @@ class GoogleSheetsJobSyncService
                 'N' => 13,
                 'T' => 19,
                 'W' => 22,
+                'X' => 23,
             ];
             $updates = [];
             $fullRow = $this->generateJobRow($job);
             $fullRow = array_values($fullRow);
+            \Log::info("fullRow: " . json_encode($fullRow));
+
             foreach ($updateRanges as $colLetter => $colIndex) {
                 $range = "{$sheetTitle}!{$colLetter}{$existingJobRow}:{$colLetter}{$existingJobRow}";
                 $updates[] = new \Google\Service\Sheets\ValueRange([
@@ -605,10 +652,11 @@ class GoogleSheetsJobSyncService
         // --------------------------------------------------------
         // Determine the correct insertion index for the date block (ascending order).
         // --------------------------------------------------------
-        // Fetch all sheet data (range A:W).
-        $sheetData = $this->sheetsService->getSheetData($sheetTitle, 'A:W');
+        // Fetch all sheet data (range A:X).
+        $sheetData = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
         // Use count($sheetData) to determine default insertion (append at end).
         $defaultInsertRowIndex = count($sheetData) + 1; // 1-indexed
+        \Log::info("defaultInsertRowIndex: " . $defaultInsertRowIndex);
 
         // Collect existing date rows from column D (index 3).
         // We expect date rows to start with "יום " and follow the format "יום <hebrewWeekday> dd.mm"
@@ -671,7 +719,8 @@ class GoogleSheetsJobSyncService
         }
 
         // Find or insert the date block for the target date.
-        $dateRowIndex = $this->findDateRowIndex($sheetTitle, $targetDateString);
+        $dateRowIndex = $this->findDateRowIndex($sheetTitle, $targetDateString, $job);
+        \Log::info("dateRowIndex: " . $dateRowIndex);
         if ($dateRowIndex === null) {
             $dateRowIndex = $this->insertDateBlock($sheetTitle, $insertRowIndex, $targetDateString, $sheetId);
         }
@@ -731,7 +780,7 @@ class GoogleSheetsJobSyncService
             return is_scalar($item) ? $item : (string)$item;
         }, $jobRow);
         $targetRow = $dateRowIndex + 1;
-        $range = "{$sheetTitle}!A{$targetRow}:W{$targetRow}";
+        $range = "{$sheetTitle}!A{$targetRow}:X{$targetRow}";
         $body = new \Google\Service\Sheets\ValueRange([
             'values' => [$jobRow],
         ]);
@@ -761,7 +810,8 @@ class GoogleSheetsJobSyncService
         $clearValidationBatchRequest = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
             'requests' => [$clearValidationRequest],
         ]);
-        $this->batchUpdateWithBackoff($this->spreadsheetId, $clearValidationBatchRequest);
+        $res = $this->batchUpdateWithBackoff($this->spreadsheetId, $clearValidationBatchRequest);
+        \Log::info("res: " . json_encode($res));
 
         // Apply your own data validation rules.
         $jobRowIndex0 = $targetRow - 1;

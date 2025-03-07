@@ -10,6 +10,8 @@ class Job extends Model
 {
     use HasFactory;
 
+    public static $skipObserver = false;
+
     protected $fillable = [
         'uuid',
         'client_id',
