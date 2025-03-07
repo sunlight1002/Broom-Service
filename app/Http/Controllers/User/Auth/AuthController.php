@@ -442,18 +442,27 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
-        $user = $request->type == 'lead' ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first() : User::with('forms')->where('id', $request->worker_id)->first();
-
+        $user = $request->type == 'lead' 
+            ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first() 
+            : User::with('forms')->where('id', $request->worker_id)->first();
+    
+        if (!$user) {
+            return response()->json([
+                'error' => 'Worker not found',
+                'worker_id' => $request->worker_id
+            ], 404);
+        }
+    
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
-            // ->whereYear('created_at', now()->year)
             ->first();
-
+    
         return response()->json([
             'worker' => $user,
             'form' => $form
         ]);
     }
+    
 
     public function saveWorkerDetail(Request $request)
     {
