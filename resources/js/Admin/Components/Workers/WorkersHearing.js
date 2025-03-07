@@ -34,9 +34,10 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
 
     const handleScheduleHearing = () => {
         navigate(`/admin/workers/view/${id}/hearing-invitation`, {
-            state: { worker, getWorkerDetails },
+            state: { worker },
         });
     };
+    
 
     // const handleCreateClaim = () => {
     //     navigate(`/admin/workers/view/${id}/create-claim`, {
@@ -45,8 +46,6 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
     // };
 
     const toggleClaimModal = (id) => {
-        console.log(id);
-
         setIsOpen(!isOpen);
         setHearingId(id)
     };
