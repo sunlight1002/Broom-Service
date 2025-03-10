@@ -246,54 +246,116 @@ class GoogleSheetsJobSyncService
      * Searches for a date row (in column D) that matches the target date string.
      * Returns the row number (1-indexed) if found or null.
      */
-    public function findDateRowIndex($sheetTitle, $targetDateString, $job)
-    {
-        $worker = $job->worker;
-        $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
-        // Skip header row (row 1)
-        foreach ($data as $index => $row) {
-            // Column D is index 3.
-            if (isset($row[3]) && trim($row[3]) == $targetDateString) {
-                return $index + 1;
-            }
-        }
-        return null;
-    }
-
     // public function findDateRowIndex($sheetTitle, $targetDateString, $job)
     // {
     //     $worker = $job->worker;
-    //     \Log::info('Worker name: ' . $worker->firstname . ' ' . $worker->lastname);
-    //     $workerFullName = trim($worker->firstname . ' ' . $worker->lastname);
-        
     //     $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
-
+    //     // Skip header row (row 1)
+    //     foreach ($data as $index => $row) {
+    //         // Column D is index 3.
+    //         if (isset($row[3]) && trim($row[3]) == $targetDateString) {
+    //             return $index + 1;
+    //         }
+    //     }
+    //     return null;
+    // }
+    
+    // public function findDateRowIndex($sheetTitle, $targetDateString, $job)
+    // {
+    //     $worker = $job->worker;
+    
+    //     $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
+    
     //     $firstDateIndex = null;
     //     foreach ($data as $index => $row) {
-    //         $nine = isset($row[9]) && $row[9] !== null ? trim($row[9]) : null;
-    //     \Log::info($nine);
-
+    //         $workerCell = isset($row[10]) ? trim($row[10]) : null;
     //         // Check if this row contains the target date
     //         if (isset($row[3]) && trim($row[3]) == $targetDateString) {
     //             if ($firstDateIndex === null) {
     //                 $firstDateIndex = $index + 1; // Store the first date's row index
+    //                 \Log::info('First date found at row ' . $row[3]);
     //             }
-
+    
     //             // Check if worker's name exists in column J (index 9)
-    //             if (isset($row[9]) && trim($row[9]) == ($workerFullName || $worker->firstname || $worker->lastname)) {
+    //             if ($workerCell == "צהריים") {
     //                 \Log::info('Worker name found at row ' . ($index + 1));
     //                 return $index + 1; // Return the index where worker name is found
     //             }
     //         }
-            
+    
     //         // If we encounter a new date, stop searching
     //         if ($firstDateIndex !== null && isset($row[3]) && trim($row[3]) !== $targetDateString) {
     //             break;
     //         }
     //     }
-
+    
     //     return $firstDateIndex; // If worker is not found, return first occurrence of date
     // }
+    
+
+
+    public function findDateRowIndex($sheetTitle, $targetDateString, $job)
+    {
+        $worker = $job->worker;
+        $workerFullName = trim($worker->firstname . ' ' . $worker->lastname);
+        $workerNames = [
+            trim($worker->firstname),
+            trim($worker->lastname),
+            $workerFullName
+        ];
+    
+        // Normalize for encoding & case sensitivity
+        // $workerNames = array_map(fn($name) => strtolower(mb_convert_encoding(trim($name), 'UTF-8', 'UTF-8')), $workerNames);
+    
+        $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
+    
+        $firstDateIndex = null;
+        $workerFoundIndex = null;
+        $currentDate = null;
+        $searching = false;
+    
+        foreach ($data as $index => $row) {
+            if (isset($row[3]) && strpos($row[3], "יום ") === 0) {
+                $currentDate = trim($row[3]);
+            }
+            $workerCell = isset($row[9]) ? trim($row[9]) : null;
+    
+            // Start searching when the target date appears
+            if ($currentDate === $targetDateString) {
+                if ($firstDateIndex === null) {
+                    $firstDateIndex = $index + 1;
+                    $searching = true; // Start checking rows after finding the date
+                    \Log::info("First date found at row " . ($index + 1));
+                }
+            }
+    
+            // If already searching, check worker name until next date appears
+            if ($searching) {
+                // Check if worker's name matches
+                if ($workerCell && in_array($workerCell, $workerNames, true)) {
+                    $workerFoundIndex = $index + 1;
+                    \Log::info('Worker name found at row ' . (json_encode($row)));
+                }
+                \Log::info("Current date: " . $currentDate);
+                \Log::info("Target date: " . $targetDateString);
+    
+                // Stop searching when a new date appears in row[3]
+                if ($currentDate && $currentDate !== $targetDateString) {
+                    break;
+                }
+            }
+        }
+    
+        // If worker was found, return the next row index
+        if ($workerFoundIndex !== null) {
+            return $workerFoundIndex;
+        }
+    
+        // If worker wasn't found, return the next row after the first date found
+        return $firstDateIndex ? $firstDateIndex + 1 : null;
+    }
+    
+    
 
 
     /**
@@ -430,7 +492,6 @@ class GoogleSheetsJobSyncService
         $shift           = $this->determineShift($job->start_time);
         $serviceName     = $job->offer_service['name'] ?? "";
         $type            = $job->offer_service['type'] ?? "";
-        \Log::info('Job type: ' . $type);
 
         if ($job->offer_service) {
             if ($job->offer_service['template'] == 'airbnb') {
@@ -631,7 +692,6 @@ class GoogleSheetsJobSyncService
             $updates = [];
             $fullRow = $this->generateJobRow($job);
             $fullRow = array_values($fullRow);
-            \Log::info("fullRow: " . json_encode($fullRow));
 
             foreach ($updateRanges as $colLetter => $colIndex) {
                 $range = "{$sheetTitle}!{$colLetter}{$existingJobRow}:{$colLetter}{$existingJobRow}";
@@ -656,7 +716,6 @@ class GoogleSheetsJobSyncService
         $sheetData = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
         // Use count($sheetData) to determine default insertion (append at end).
         $defaultInsertRowIndex = count($sheetData) + 1; // 1-indexed
-        \Log::info("defaultInsertRowIndex: " . $defaultInsertRowIndex);
 
         // Collect existing date rows from column D (index 3).
         // We expect date rows to start with "יום " and follow the format "יום <hebrewWeekday> dd.mm"
@@ -811,7 +870,6 @@ class GoogleSheetsJobSyncService
             'requests' => [$clearValidationRequest],
         ]);
         $res = $this->batchUpdateWithBackoff($this->spreadsheetId, $clearValidationBatchRequest);
-        \Log::info("res: " . json_encode($res));
 
         // Apply your own data validation rules.
         $jobRowIndex0 = $targetRow - 1;
