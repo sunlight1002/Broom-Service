@@ -800,7 +800,7 @@ export default function ContractEng() {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="agg-list">
+                                {/* <div className="agg-list">
                                     <div className="icons">
                                         <img src={star} alt="Star" />
                                     </div>
@@ -819,7 +819,7 @@ export default function ContractEng() {
                                             {t("work-contract.company_txt_7")}
                                         </p>
                                     </div>
-                                </div>
+                                </div> */}
                                 <h6 className="text-underline text-left">
                                     {t("work-contract.general_subtitle")}
                                 </h6>

@@ -766,7 +766,7 @@ export default function ContractHeb() {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="agg-list pushRTL">
+                                {/* <div className="agg-list pushRTL">
                                     <div className="icons">
                                         <img src={star} alt="Star" />
                                     </div>
@@ -785,7 +785,7 @@ export default function ContractHeb() {
                                             {t("work-contract.company_txt_7")}
                                         </p>
                                     </div>
-                                </div>
+                                </div> */}
                                 <h6 className="text-underline text-right">
                                     {t("work-contract.general_subtitle")}
                                 </h6>
