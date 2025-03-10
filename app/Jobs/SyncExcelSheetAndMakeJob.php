@@ -248,8 +248,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
                                 }
 
-                                $selectedType = $row[24] ?? null;
-                                \Log::info($selectedType);
+                                $selectedType = isset($row[24]) && ($row[24] == "f" ? "fixed" : "hourly");
+                                \Log::info("selectedType: " . $selectedType);
 
                                 $selectedAddress = $row[19] ?? null;
 
