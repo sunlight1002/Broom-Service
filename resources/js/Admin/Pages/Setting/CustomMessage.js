@@ -14,9 +14,12 @@ const CustomMessage = () => {
     const [status, setStatus] = useState("All");
     const [show, setShow] = useState(false)
     const [allWorkers, setAllWorkers] = useState([]);
+    const [allWorkerLeads, setAllWorkerLeads] = useState([]);
     const [allClients, setAllClients] = useState([])
     const [workersInclude, setWorkersInclude] = useState([]);
+    const [workerLeadInclude, setWorkerLeadInclude] = useState([]);
     const [workersExclude, setWorkersExclude] = useState([]);
+    const [workerLeadExclude, setWorkerLeadExclude] = useState([]);
     const [clientsInclude, setClientsInclude] = useState([])
     const [clientsExclude, setClientsExclude] = useState([])
     const [dateRange, setDateRange] = useState({
@@ -62,6 +65,14 @@ const CustomMessage = () => {
         t("admin.global.active"),
         t("admin.global.inactive"),
     ];
+
+    const workerLeadStatuses = {
+        irrelevant: t("admin.leads.Irrelevant"),
+        "will-think": t("admin.leads.Will_think"),
+        unanswered: t("admin.leads.Unanswered"),
+        hiring: t("admin.leads.Hiring"),
+        "not-hired": t("admin.leads.Not_hired"),
+    };
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -124,6 +135,21 @@ const CustomMessage = () => {
         });
     };
 
+    const getWorkerLeads = () => {
+        axios.get("/api/admin/worker-leads/get-all", { headers }).then((res) => {
+            const { workerLeads } = res.data;
+            const mapWorkersArr = workerLeads.map((w) => {
+                let obj = {
+                    value: w.id,
+                    label: `${w.firstname} ${w.lastname}`,
+                };
+                return obj;
+            });
+            setAllWorkerLeads(mapWorkersArr);
+        });
+    };
+
+
     const getClients = () => {
         axios.get("/api/admin/all-clients", { headers }).then((res) => {
             const { clients } = res.data;
@@ -140,6 +166,7 @@ const CustomMessage = () => {
 
     useEffect(() => {
         getWorkers();
+        getWorkerLeads();
         getClients();
     }, []);
 
@@ -226,6 +253,15 @@ const CustomMessage = () => {
                                 {t("global.Type")}
                             </div>
                             <div className="d-flex align-items-center flex-wrap">
+                                <Filter_Buttons
+                                    text={t("admin.sidebar.worker_lead")}
+                                    className="px-3 mr-1"
+                                    value="worker_leads"
+                                    onClick={() => {
+                                        setType("worker_leads");
+                                    }}
+                                    selectedFilter={type}
+                                />
                                 <Filter_Buttons
                                     text={t("admin.global.leads")}
                                     className="px-3 mr-1"
@@ -368,6 +404,53 @@ const CustomMessage = () => {
                                                 }
 
                                                 {
+                                                    type == "worker_leads" && (
+                                                        <>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("irrelevant");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Irrelevant")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("will-think");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Will_think")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("unanswered");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Unanswered")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("hiring");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Hiring")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("not-hired");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Not_hired")}
+                                                            </button>
+                                                        </>
+                                                    )
+                                                }
+
+                                                {
                                                     type == "clients" && (
                                                         <>
                                                             <button
@@ -440,9 +523,42 @@ const CustomMessage = () => {
                                             return (
                                                 <FilterButtons
                                                     text={value}
-                                                    name={key} 
+                                                    name={key}
                                                     className="px-3 mr-1"
-                                                    key={key} 
+                                                    key={key}
+                                                    selectedFilter={status}
+                                                    setselectedFilter={setStatus}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )
+                        }
+
+                        {
+                            type === "worker_leads" && (
+                                <div className=" mb-2  mt-2 d-none d-lg-flex align-items-center">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("admin.global.status")}
+                                    </div>
+                                    <div className="d-flex align-items-center flex-wrap">
+                                        <FilterButtons
+                                            text={t("admin.leads.All")}
+                                            className="px-3 mr-1"
+                                            selectedFilter={status}
+                                            setselectedFilter={setStatus}
+                                        />
+                                        {Object.entries(workerLeadStatuses).map(([key, value]) => {
+                                            return (
+                                                <FilterButtons
+                                                    text={value}
+                                                    name={key}
+                                                    className="px-3 mr-1"
+                                                    key={key}
                                                     selectedFilter={status}
                                                     setselectedFilter={setStatus}
                                                 />
@@ -631,6 +747,62 @@ const CustomMessage = () => {
                         }
 
 
+                        {/* {
+                            type === "worker_leads" && (
+                                <div className='row my-2'>
+                                    <div className="col-sm-4 d-flex align-items-center">
+                                        <div
+                                            className=" mr-3"
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            {t("admin.global.worker_includes")}
+                                        </div>
+                                        <div className="d-flex align-items-center flex-wrap">
+                                            <Select
+                                                value={workerLeadInclude}
+                                                name="workers"
+                                                isMulti
+                                                options={allWorkerLeads}
+                                                className="basic-multi-single skyBorder"
+                                                isClearable={true}
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                                )}
+                                                classNamePrefix="select"
+                                                onChange={(newValue) =>
+                                                    setWorkerLeadInclude(newValue)
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='col-sm-4 d-flex align-items-center'>
+                                        <div
+                                            className=" mr-3"
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            {t("admin.global.worker_excludes")}
+                                        </div>
+                                        <div className="d-flex align-items-center flex-wrap">
+                                            <Select
+                                                value={workerLeadExclude}
+                                                name="workers"
+                                                isMulti
+                                                options={allWorkerLeads}
+                                                className="basic-multi-single skyBorder"
+                                                isClearable={true}
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                                )}
+                                                classNamePrefix="select"
+                                                onChange={(newValue) =>
+                                                    setWorkerLeadExclude(newValue)
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        } */}
 
 
                     </div>

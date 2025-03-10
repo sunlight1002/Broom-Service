@@ -304,15 +304,13 @@ class GoogleSheetsJobSyncService
             $workerFullName
         ];
     
-        // Normalize for encoding & case sensitivity
-        // $workerNames = array_map(fn($name) => strtolower(mb_convert_encoding(trim($name), 'UTF-8', 'UTF-8')), $workerNames);
-    
         $data = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
     
         $firstDateIndex = null;
         $workerFoundIndex = null;
         $currentDate = null;
         $searching = false;
+        $shift = null;
     
         foreach ($data as $index => $row) {
             if (isset($row[3]) && strpos($row[3], "יום ") === 0) {
@@ -325,7 +323,6 @@ class GoogleSheetsJobSyncService
                 if ($firstDateIndex === null) {
                     $firstDateIndex = $index + 1;
                     $searching = true; // Start checking rows after finding the date
-                    \Log::info("First date found at row " . ($index + 1));
                 }
             }
     
@@ -333,11 +330,24 @@ class GoogleSheetsJobSyncService
             if ($searching) {
                 // Check if worker's name matches
                 if ($workerCell && in_array($workerCell, $workerNames, true)) {
-                    $workerFoundIndex = $index + 1;
-                    \Log::info('Worker name found at row ' . (json_encode($row)));
+
+                   $shift = $this->determineShift($job->start_time);
+
+                   if($shift == "צהריים" && $row[10] == "בוקר"){
+                       $workerFoundIndex = $index + 1;
+                   }else if($shift == "אחר הצהריים" && $row[10] == "צהריים"){
+                       $workerFoundIndex = $index + 1;
+                   }else if($shift == "ערב" && $row[10] == "אחר הצהריים"){
+                        $workerFoundIndex = $index + 1;
+                   }else if($shift == "לילה" && $row[10] == "ערב"){
+                        $workerFoundIndex = $index + 1;
+                   }
+
                 }
-                \Log::info("Current date: " . $currentDate);
-                \Log::info("Target date: " . $targetDateString);
+
+                if($workerFoundIndex !== null){
+                    break;
+                }
     
                 // Stop searching when a new date appears in row[3]
                 if ($currentDate && $currentDate !== $targetDateString) {

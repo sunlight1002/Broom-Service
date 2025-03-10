@@ -163,6 +163,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //worker-leads api
     Route::get('worker-leads', [WorkerLeadsController::class, 'index'])->name('worker-leads.index');
+    Route::get('worker-leads/get-all', [WorkerLeadsController::class, 'getAllWorkerLeads']);
     Route::post('worker-leads/add', [WorkerLeadsController::class, 'store'])->name('worker-leads.store');
     Route::get('worker-leads/{id}/edit', [WorkerLeadsController::class, 'edit'])->name('worker-leads.edit');
     Route::put('worker-leads/{id}', [WorkerLeadsController::class, 'update'])->name('worker-leads.update');
