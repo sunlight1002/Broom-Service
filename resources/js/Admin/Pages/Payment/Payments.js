@@ -39,6 +39,13 @@ export default function Payments() {
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
 
+    const paymentStatuses = {
+        "unpaid": t("global.unPaid"),
+        "paid": t("global.paid"),
+        "problem": t("global.problem"),
+        "undone": t("admin.global.undone")
+    }
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -100,7 +107,7 @@ export default function Payments() {
                     },
                 },
                 {
-                    title:  t("admin.global.done"),
+                    title: t("admin.global.done"),
                     data: "completed_jobs",
                 },
                 {
@@ -433,7 +440,7 @@ export default function Payments() {
                 </div>
                 <div className="payment-filter mb-3">
                     <div className="row mb-2">
-                        <div className="col-sm-12 d-md-flex flex-wrap align-items-center">
+                        <div className="col-sm-12 d-md-flex flex-wrap align-items-center d-none d-lg-block">
                             <div
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
@@ -446,34 +453,61 @@ export default function Payments() {
                                 selectedFilter={paidStatusFilter}
                                 setselectedFilter={setPaidStatusFilter}
                             />
+                            {Object.entries(paymentStatuses).map(([key, value]) => (
+                                <FilterButtons
+                                    text={value}
+                                    name={key}
+                                    className="px-3 mr-1"
+                                    key={key}
+                                    selectedFilter={paidStatusFilter}
+                                    setselectedFilter={(status) => setPaidStatusFilter(status)}
+                                />
+                            ))}
+                        </div>
+                        <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                            <div className="search-data mt-2">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.status")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{paidStatusFilter || t("admin.leads.All")}</span>
 
-                            <FilterButtons
-                                text={t("global.unPaid")}
-                                className="px-3 mr-1"
-                                selectedFilter={paidStatusFilter}
-                                setselectedFilter={setPaidStatusFilter}
-                            />
-
-                            <FilterButtons
-                                text={t("global.paid")}
-                                className="px-3 mr-1"
-                                selectedFilter={paidStatusFilter}
-                                setselectedFilter={setPaidStatusFilter}
-                            />
-
-                            <FilterButtons
-                                text={t("global.problem")}
-                                className="px-3 mr-1"
-                                selectedFilter={paidStatusFilter}
-                                setselectedFilter={setPaidStatusFilter}
-                            />
-
-                            <FilterButtons
-                                text={t("admin.global.undone")}
-                                className="px-3 mr-1"
-                                selectedFilter={paidStatusFilter}
-                                setselectedFilter={setPaidStatusFilter}
-                            />
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setPaidStatusFilter("all");
+                                            }}
+                                        >
+                                            {t("admin.leads.All")}
+                                        </button>
+                                        {Object.entries(paymentStatuses).map(([key, value]) => (
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setPaidStatusFilter(key);
+                                                }}
+                                            >
+                                                {value}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="row">
@@ -545,45 +579,148 @@ export default function Payments() {
                                 )}
                             </div>
                         </div>
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
-                            <div className="d-flex align-items-center">
+                        <div className="col-sm-12 mt-0 pl-2 d-flex d-lg-none">
+                            <div className="search-data m-0">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{selectedDateRange || t("admin.leads.All")}</span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.day"));
+                                            }}
+                                        >
+                                            {t("global.day")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.week"));
+                                            }}
+                                        >
+                                            {t("global.week")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.month"));
+                                            }}
+                                        >
+                                            {t("global.month")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                            <div className="search-data mt-2">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}{t("global.type")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{selectedDateStep || t("admin.leads.All")}</span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("client.previous"));
+                                            }}
+                                        >
+                                            {t("client.previous")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("global.current"));
+                                            }}
+                                        >
+                                            {t("global.current")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("global.next"));
+                                            }}
+                                        >
+                                            {t("global.next")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-12 d-sm-flex justify-content-between my-1">
+                            <div className="d-flex align-items-center flex-wrap mt-2">
                                 <div
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
                                     {t("global.custom_date")}
                                 </div>
-
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="From date"
-                                    name="from filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.start_date}
-                                    onChange={(e) => {
-                                        setDateRange({
-                                            start_date: e.target.value,
-                                            end_date: dateRange.end_date,
-                                        });
-                                    }}
-                                />
-                                <div className="mx-2">{t("global.to")}</div>
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="To date"
-                                    name="to filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.end_date}
-                                    onChange={(e) => {
-                                        setDateRange({
-                                            start_date: dateRange.start_date,
-                                            end_date: e.target.value,
-                                        });
-                                    }}
-                                />
-
+                                <div className="d-flex align-items-center flex-wrap">
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            setDateRange({
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            });
+                                        }}
+                                    />
+                                    <div className="mx-2">{t("global.to")}</div>
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            setDateRange({
+                                                start_date: dateRange.start_date,
+                                                end_date: e.target.value,
+                                            });
+                                        }}
+                                    />
+                                </div>
                                 <input
                                     type="hidden"
                                     value={paidStatusFilter}
@@ -605,7 +742,7 @@ export default function Payments() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel-th-border-none">
                             <table

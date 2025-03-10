@@ -27,7 +27,12 @@ export default function OfferPrice() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    const offerStatuses = [t("global.sent"), t("modal.accepted"), t("admin.schedule.options.meetingStatus.Declined")];
+    
+    const offerStatuses = {
+        "Sent": t("global.sent"),
+        "Accepted": t("modal.accepted"),
+        "Declined": t("admin.schedule.options.meetingStatus.Declined")
+    };
 
     const handleModal = (id) => {
         setSelectedOfferId(id);
@@ -44,7 +49,7 @@ export default function OfferPrice() {
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: t("swal.button.reopen_offer"),
-        }).then(async(result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
                     const res = await axios.post(`/api/admin/offer-reopen/${id}`, {}, { headers });
@@ -346,7 +351,65 @@ export default function OfferPrice() {
                                 </Link>
                             </div>
                         </div>
+                        <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                            <div className="search-data mt-2">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.filter")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{filter || t("admin.leads.All")}</span>
 
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("All");
+                                            }}
+                                        >
+                                            {t("admin.leads.All")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("Sent");
+                                            }}
+                                        >
+                                            {t("global.sent")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("Accepted");
+                                            }}
+                                        >
+                                            {t("modal.accepted")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("Declined");
+                                            }}
+                                        >
+                                            {t("admin.schedule.options.meetingStatus.Declined")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
@@ -377,17 +440,16 @@ export default function OfferPrice() {
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />
-                            {offerStatuses.map((_status, _index) => {
-                                return (
+                            {Object.entries(offerStatuses).map(([key, value]) => (
                                     <FilterButtons
-                                        text={_status}
-                                        className="mr-1 px-3 ml-2"
-                                        key={_index}
+                                        text={value}
+                                        name={key}
+                                        className="px-3 mr-1"
+                                        key={key}
                                         selectedFilter={filter}
-                                        setselectedFilter={setFilter}
+                                        setselectedFilter={(status) => setFilter(status)}
                                     />
-                                );
-                            })}
+                                ))}
                         </div>
                     </div>
                 </div>
