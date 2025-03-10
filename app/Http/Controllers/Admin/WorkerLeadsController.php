@@ -4,12 +4,24 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\WorkerLeads;
+use App\Models\WorkerAvailability;
+use App\Models\Job;
+use App\Models\User;
+use App\Models\Client;
+use App\Models\WorkerMetas;
+use App\Models\Offer;
 use App\Models\WhatsAppBotWorkerState;
 use App\Models\WorkerWebhookResponse;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+
+
+
 
 class WorkerLeadsController extends Controller
 {
@@ -244,18 +256,126 @@ class WorkerLeadsController extends Controller
 
         // Change the status
         $workerLead->status = $request->status;
+        \Log::info($request->status);
         $workerLead->save();
 
         if ($workerLead->status === 'irrelevant') {
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,
-                "notificationData" => [
-                    'client' => $workerLead->toArray(),
-                ]
-            ]));
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT);
+        }else if ($workerLead->status === 'will-think') {
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD);
+        }else if($workerLead->status === 'unanswered'){
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED);
+        }else if($workerLead->status === 'not-hired'){
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM);
+        }else if($workerLead->status === 'hiring'){
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM);
+            $worker = $this->createUser($workerLead);
+            $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
         }
 
         return response()->json(['message' => 'Worker Lead status changed successfully']);
     }
+
+    public function sendWhatsAppMessage($workerLead, $enum)
+    {
+       event(new WhatsappNotificationEvent([
+            "type" => $enum,
+            "notificationData" => [
+                'worker' => $workerLead->toArray(),
+            ]
+        ]));
+    }
+
+
+    public function isWeekend($date)
+    {
+        $weekDay = date('w', strtotime($date));
+        return ($weekDay == 5 || $weekDay == 6);
+    }
+
+    public function createUser($workerLead){
+        $role = $workerLead->role ?? 'cleaner';
+        $lng = $workerLead->lng;
+
+        if ($role == 'cleaner') {
+            $role = match ($lng) {
+                'heb' => "מנקה",
+                'en' => "Cleaner",
+                'ru' => "уборщик",
+                default => "limpiador"
+            };
+        } elseif ($role == 'general_worker') {
+            $role = match ($lng) {
+                'heb' => "עובד כללי",
+                'en' => "General worker",
+                'ru' => "Общий рабочий",
+                default => "Trabajador general"
+            };
+        }
+
+        // Create new user
+        $worker = User::create([
+            'firstname' => $workerLead->firstname ?? '',
+            'lastname' => $workerLead->lastname ?? '',
+            'phone' => $workerLead->phone ?? null,
+            'email' => $workerLead->email ?? null,
+            'gender' => $workerLead->gender ?? null,
+            'first_date' => $workerLead->first_date ?? null,
+            'role' => $role ?? null,
+            'lng' => $lng ?? "en",
+            'passcode' => $workerLead->phone ?? null,
+            'password' => Hash::make($workerLead->phone),
+            'company_type' => $workerLead->company_type ?? "my-company",
+            'visa' => $workerLead->visa ?? NULL,
+            'passport' => $workerLead->passport ?? NULL,
+            'passport_card' => $workerLead->passport_card ?? NULL,
+            'id_number' => $workerLead->id_number ?? NULL,
+            'status' => 1,
+            'is_afraid_by_cat' => $workerLead->is_afraid_by_cat == 1 ? 1 : 0,
+            'is_afraid_by_dog' => $workerLead->is_afraid_by_dog == 1 ? 1 : 0,
+            'renewal_visa' => $workerLead->renewal_visa ?? NULL,
+            'address' => $workerLead->address ?? NULL,
+            'latitude' => $workerLead->latitude ?? NULL,
+            'longitude' => $workerLead->longitude ?? NULL,
+            'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
+            'step' => $workerLead->step ?? 0
+        ]);
+
+        $i = 1;
+        $j = 0;
+        $check_friday = 1;
+        while ($i == 1) {
+            $current = Carbon::now();
+            $day = $current->addDays($j);
+            if ($this->isWeekend($day->toDateString())) {
+                $check_friday++;
+            } else {
+                $w_a = new WorkerAvailability;
+                $w_a->user_id = $worker->id;
+                $w_a->date = $day->toDateString();
+                $w_a->start_time = '08:00:00';
+                $w_a->end_time = '17:00:00';
+                $w_a->status = 1;
+                $w_a->save();
+            }
+            $j++;
+            if ($check_friday == 6) {
+                $i = 2;
+            }
+        }
+
+
+        $forms = $workerLead->forms()->get();
+            foreach ($forms as $form) {
+                $form->update([
+                    'user_type' => User::class,
+                    'user_id' => $worker->id
+                ]);
+            }
+
+        $workerLead->delete();
+
+        return $worker;
+    }
+
 }
