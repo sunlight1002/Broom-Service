@@ -7,6 +7,7 @@ use App\Models\WhatsappTemplate;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\User;
+use App\Models\WorkerLeads;
 use App\Models\CustomMessages;
 use App\Jobs\SendCustomMessage;
 class WhatsappTemplateController extends Controller
@@ -130,6 +131,8 @@ class WhatsappTemplateController extends Controller
                 }
             });
             $data = $query->get();
+        }else if($type === 'worker_leads'){
+            $data = WorkerLeads::all();
         }
     
         if (!empty($templates)) {

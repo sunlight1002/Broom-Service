@@ -198,6 +198,12 @@ class WorkerLeadsController extends Controller
         }
     }
 
+    public function getAllWorkerLeads(){
+        $workerLeads = WorkerLeads::all();
+        return response()->json([
+            'workerLeads' => $workerLeads
+        ]);
+    }
 
     public function edit($id)
     {
