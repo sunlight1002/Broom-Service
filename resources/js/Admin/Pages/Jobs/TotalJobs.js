@@ -64,6 +64,15 @@ export default function TotalJobs() {
         return `${hours} hours`;
     };
 
+    const timeIntervals = {
+        "Day": t("global.day"),
+        "Week": t("global.week"),
+        "Month": t("global.month"),
+        "Previous": t("client.previous"),
+        "Current": t("global.current"),
+        "Next" : t("global.next")
+    }
+
     const initializeDataTable1 = (data) => {
         if ($.fn.DataTable.isDataTable(tableRef2.current)) {
             $(tableRef2.current).DataTable().destroy(true);
@@ -858,6 +867,16 @@ export default function TotalJobs() {
                                 >
                                     {t("global.date_period")}
                                 </div>
+                                {/* {Object.entries(timeIntervals).map(([key, value]) => (
+                                    <FilterButtons
+                                        text={value}
+                                        name={key}
+                                        className="px-3 mr-1"
+                                        key={key}
+                                        selectedFilter={selectedDateRange}
+                                        setselectedFilter={(status) => setSelectedDateRange(status)}
+                                    />
+                                ))} */}
                                 <FilterButtons
                                     text={t("global.day")}
                                     className="px-4 mr-1"

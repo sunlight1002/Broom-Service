@@ -673,20 +673,6 @@ export default function Clients() {
                                         setselectedFilter={(status) => setFilter(status)}
                                     />
                                 ))}
-
-                                {/* {leadStatuses.map((_status, _index) => {
-                                    return (
-                                        <FilterButtons
-                                            text={_status}
-                                            className="px-3 mr-1"
-                                            key={_index}
-                                            selectedFilter={filter}
-                                            setselectedFilter={(status) => {
-                                                setFilter(status);
-                                            }}
-                                        />
-                                    );
-                                })} */}
                             </div>
                             <div className="col-sm-6 mt-2 pl-0 d-flex">
                                 <div className="search-data">

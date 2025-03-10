@@ -2060,6 +2060,11 @@ If you would like to speak to a human representative, please send a message with
                                     $shifts[] = trim($row[10] ?? '');
                                     if ($id == $client->id || (!empty($email) && $email == $client->email)) {
                                         $currentDateObj = Carbon::parse($currentDate); // Current date
+                                        \Log::info($currentDateObj);
+
+                                        // $today = Carbon::today()->toDateString();
+                                        // $weekEndDate = Carbon::today()->endOfWeek(Carbon::SATURDAY)->toDateString();
+
                                         $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
                                         $nextWeekEnd = $nextWeekStart->copy()->addDays(6); // Next week's Saturday
                                         $shift = "";
@@ -2165,10 +2170,11 @@ If you would like to speak to a human representative, please send a message with
                     }
 
                     if ($currentWeeks && count($currentWeeks) > 0) {
+                        $dateTime = "";
                         foreach ($currentWeeks as $job) {
                             $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
-
+                    
                         $nextMessage = $this->activeClientBotMessages['service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
@@ -2180,14 +2186,16 @@ If you would like to speak to a human representative, please send a message with
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-
+                    
                         $clientMessageStatus->delete();
-                    } else if ($nextWeeks && count($nextWeeks) > 0) {
-
+                    }
+                    
+                    if ($nextWeeks && count($nextWeeks) > 0) {
+                        $dateTime = "";
                         foreach ($nextWeeks as $job) {
                             $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
-
+                    
                         $nextMessage = $this->activeClientBotMessages['next_week_service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
@@ -2199,9 +2207,12 @@ If you would like to speak to a human representative, please send a message with
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-
+                    
                         $clientMessageStatus->delete();
-                    } else {
+                    }
+                    
+                    // If no jobs are found for both weeks
+                    if (empty($currentWeeks) && empty($nextWeeks)) {
                         $nextMessage = $this->activeClientBotMessages['no_service_avail'][$lng];
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                         $clientMessageStatus->update([
@@ -2216,6 +2227,7 @@ If you would like to speak to a human representative, please send a message with
                             'flex' => 'A',
                         ]);
                     }
+                    
                     break;
                 case 'request_new_qoute':
                     $nextMessage = $this->activeClientBotMessages['request_new_qoute'][$lng];
@@ -2594,6 +2606,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     break;
 
                 case 'stop':
+                    \Log::info("edfedf");
                     $nextMessage = $this->activeClientBotMessages['stop'][$lng];
                     $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
@@ -3026,7 +3039,7 @@ office@broomservice.co.il';
                             $client->save();
                             // Clear the cache after the action is complete
                             Cache::forget('client_monday_msg_status_' . $client->id);
-                        } else {
+                        } else if(!in_array(strtolower(trim($messageBody)), ["stop", "הפסק"])){
                             $follow_up_msg = $client->lng == 'heb'
                                 ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
                                 : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
@@ -3259,7 +3272,7 @@ office@broomservice.co.il';
                             $client->save();
                             // Clear the cache after the action is complete
                             Cache::forget('client_job_confirm_msg' . $client->id);
-                        } else {
+                        } else if(!in_array(strtolower(trim($messageBody)), ["stop", "הפסק"])){
                             $follow_up_msg = $client->lng == 'heb'
                                 ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
                                 : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";

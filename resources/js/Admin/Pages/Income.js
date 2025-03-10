@@ -187,14 +187,14 @@ export default function income() {
             <div id="content">
                 <div className="titleBox">
                     <div className="row">
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                        <div className="col-md-12 d-none d-lg-block justify-content-between mt-3">
                             <div className="d-flex align-items-center">
                                 <div
                                     style={{ fontWeight: "bold" }}
                                     className="mr-2"
                                 >
                                     {t("global.date_period")}
-                                    </div>
+                                </div>
                                 <FilterButtons
                                     text={t("global.day")}
                                     className="px-4 mr-1"
@@ -255,48 +255,167 @@ export default function income() {
                                 )}
                             </div>
                         </div>
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
-                            <div className="d-flex align-items-center">
+                        <div className="col-sm-12 mt-2 pl-2 d-flex d-lg-none">
+                            <div className="search-data m-0">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{selectedDateRange || t("admin.leads.All")}</span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.day"));
+                                            }}
+                                        >
+                                            {t("global.day")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.week"));
+                                            }}
+                                        >
+                                            {t("global.week")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.month"));
+                                            }}
+                                        >
+                                            {t("global.month")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.year"));
+                                            }}
+                                        >
+                                            {t("global.month")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.alltime"));
+                                            }}
+                                        >
+                                            {t("global.alltime")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                            <div className="search-data mt-2">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}{t("global.type")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{selectedDateStep || t("admin.leads.All")}</span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("client.previous"));
+                                            }}
+                                        >
+                                            {t("client.previous")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("global.current"));
+                                            }}
+                                        >
+                                            {t("global.current")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("global.next"));
+                                            }}
+                                        >
+                                            {t("global.next")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-12 d-sm-flex justify-content-between mt-1 mb-3">
+                            <div className="d-flex align-items-center flex-wrap mt-2">
                                 <div
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
                                     {t("global.custom_date")}
-                                    </div>
-
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="From date"
-                                    name="from filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.start_date}
-                                    onChange={(e) => {
-                                        setselectedFilter("Custom Range");
-                                        setDateRange({
-                                            start_date: e.target.value,
-                                            end_date: dateRange.end_date,
-                                        });
-                                    }}
-                                />
-                                <div className="mx-2">{t("global.to")}</div>
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="To date"
-                                    name="to filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.end_date}
-                                    onChange={(e) => {
-                                        setselectedFilter("Custom Range");
-                                        setDateRange({
-                                            start_date: dateRange.start_date,
-                                            end_date: e.target.value,
-                                        });
-                                    }}
-                                />
+                                </div>
+                                <div className="d-flex align-items-center flex-wrap">
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            setDateRange({
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            });
+                                        }}
+                                    />
+                                    <div className="mx-2">{t("global.to")}</div>
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            setDateRange({
+                                                start_date: dateRange.start_date,
+                                                end_date: e.target.value,
+                                            });
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
                     <div className="row adminDash">
