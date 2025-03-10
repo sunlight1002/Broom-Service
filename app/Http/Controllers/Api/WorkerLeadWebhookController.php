@@ -829,6 +829,7 @@ Broom Service Team 🌹 ';
                         $scheduleChange = new ScheduleChange();
                         $scheduleChange->user_type = get_class($user);
                         $scheduleChange->user_id = $user->id;
+                        $scheduleChange->reason = $user->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                         $scheduleChange->comments = $messageBody;
                         $scheduleChange->save();
 
