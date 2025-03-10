@@ -180,6 +180,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $grouped = [];
             $services = [];
             $client_ids = [];
+            $selectedType = null;
             foreach ($sheets as $key => $sheet) {
                 if ($sheet == "ינואר") {
                     continue;
@@ -248,8 +249,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
                                 }
 
-                                $selectedType = isset($row[24]) && ($row[24] == "f" ? "fixed" : "hourly");
-                                \Log::info("selectedType: " . $selectedType);
+                                $selectedType = (isset($row[23]) && trim($row[23]) == "h") ? "hourly" : "fixed";
 
                                 $selectedAddress = $row[19] ?? null;
 
