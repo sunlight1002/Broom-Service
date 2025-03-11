@@ -549,7 +549,7 @@ export default function WorkContract() {
                                 <p>{t('work-contract.company_txt_5')} </p>
                             </div>
                         </div>
-                        <div className='agg-list'>
+                        {/* <div className='agg-list'>
                             <div className='icons'><img src={star} /></div>
                             <div className='agg-text'>
                                 <p>{t('work-contract.company_txt_6')} </p>
@@ -560,7 +560,7 @@ export default function WorkContract() {
                             <div className='agg-text'>
                                 <p>{t('work-contract.company_txt_7')}</p>
                             </div>
-                        </div>
+                        </div> */}
                         <h6 className='text-underline'>{t('work-contract.general_subtitle')}</h6>
                         <div className='agg-list'>
                             <div className='icons'><img src={star} /></div>
