@@ -6,6 +6,7 @@
            conic-gradient(#0000 30%,#f47d39);
     -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 4px),#000 0);
     animation: spinner-ub 0.8s infinite linear;
+    z-index: 9999;
  }
  
  @keyframes spinner-ub {

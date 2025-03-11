@@ -17,11 +17,11 @@ import './ChatFooter.css'; // Import the CSS
 export default function chat() {
 
     const { t } = useTranslation();
-    const [data, setData] = useState(null);
+    const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
     const [groupedMessages, setGroupedMessages] = useState({});
     const [selectNumber, setSelectNumber] = useState(null);
-    const [clients, setClients] = useState(null);
+    const [clients, setClients] = useState([]);
     const [expired, setExpired] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [chatName, setChatName] = useState("")
@@ -46,6 +46,9 @@ export default function chat() {
     const [image, setImage] = useState('')
     const [webhookResponses, setWebhookResponses] = useState([]);
     const [waSvg, setWaSvg] = useState(false);
+    const [loadingChats, setLoadingChats] = useState(false);
+    const [page, setPage] = useState(1); // Page number to fetch
+    const [hasMore, setHasMore] = useState(true); // To track if more records exist
 
     const windowWidth = useWindowWidth();
 
@@ -152,6 +155,35 @@ export default function chat() {
         });
     };
 
+        // const getData = () => {
+    //     if (loadingChats || !hasMore) return; // Prevent multiple requests
+
+    //     setLoadingChats(true);
+    //     axios.get(`/api/admin/chats?page=${page}`, { headers })
+    //         .then((res) => {
+    //             const newData = res.data.data;
+    //             const newClients = res.data.clients;
+
+    //             // Update data and clients
+    //             setClients(prevClients => [...prevClients, ...newClients]);
+    //             setData(prevData => [...prevData, ...newData]);
+
+    //             // Update page number
+    //             setPage(prevPage => prevPage + 1);
+
+    //             // If no more data to load, set hasMore to false
+    //             if (newData.length === 0) {
+    //                 setHasMore(false);
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error loading data:", error);
+    //         })
+    //         .finally(() => {
+    //             setLoadingChats(false);
+    //         });
+    // };
+    
     const getLeads = async () => {
         try {
             const res = await axios.get(`/api/admin/leads`, { headers })
@@ -379,6 +411,28 @@ export default function chat() {
             setData(r);
         });
     };
+
+
+    // const handleScroll = (e) => {
+    //     const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
+    //     if (bottom) {
+    //         getData(); // Load more data when reaching the bottom
+    //     }
+    // };
+
+
+    // // Add the scroll event listener to the container
+    // useEffect(() => {
+    //     const scrollContainer = document.getElementById('scrollContainer');
+    //     if (scrollContainer) {
+    //         scrollContainer.addEventListener('scroll', handleScroll);
+    //     }
+    //     return () => {
+    //         if (scrollContainer) {
+    //             scrollContainer.removeEventListener('scroll', handleScroll);
+    //         }
+    //     };
+    // }, [data, loadingChats, hasMore]);
 
 
     useEffect(() => {
@@ -853,7 +907,9 @@ export default function chat() {
                                                     role="tabpanel"
                                                     aria-labelledby="chat-details"
                                                 >
-                                                    {clientsCard}
+                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+                                                        {clientsCard}
+                                                    </div>
                                                 </div>
                                                 <div
                                                     id="tab-client-details"
@@ -918,6 +974,7 @@ export default function chat() {
                                                     ))}
                                                 </div>
                                             </div>
+                                            {/* {loadingChats && <div className="d-flex justify-content-center"><MiniLoader /></div>} */}
                                         </div>
 
                                         <div id="waChat" className="col-xl-8 col-12 p-0" style={{
@@ -1042,7 +1099,7 @@ export default function chat() {
                                                                                         </div>
 
                                                                                         {groupedMessages[date].map((m, i) => {
-                                                                                               const chatId = parsedData(m.data);
+                                                                                            const chatId = parsedData(m.data);
 
                                                                                             if (m.message !== "restart") {
                                                                                                 return (
@@ -1152,7 +1209,7 @@ export default function chat() {
                                                                                                                         setImage(m?.image);
                                                                                                                     }
                                                                                                                     setReplyMessage(m.message);
-                                                                                                                    setReplyId(chatId??m.id);
+                                                                                                                    setReplyId(chatId ?? m.id);
                                                                                                                 }}
                                                                                                             ></i>
                                                                                                         </div>

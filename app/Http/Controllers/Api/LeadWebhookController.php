@@ -1702,7 +1702,6 @@ If you would like to speak to a human representative, please send a message with
         $data_returned = json_decode($get_data, true);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
 
-        \Log::info($data_returned);
 
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
@@ -2596,7 +2595,8 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                 case 'stop':
                     $nextMessage = $this->activeClientBotMessages['stop'][$lng];
-                    $personalizedMessage = str_replace(':client_name', $client->firstname . ' ' . $client->lastname, $nextMessage);
+                    $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
@@ -2852,7 +2852,6 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     die("Group message");
                 }
                 $from = $message_data[0]['from'];
-                Log::info($from);
 
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
@@ -3088,8 +3087,6 @@ office@broomservice.co.il';
                     die("Group message");
                 }
                 $from = $message_data[0]['from'];
-                Log::info($from);
-                \Log::info('$msgStatus', [$from]);
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();

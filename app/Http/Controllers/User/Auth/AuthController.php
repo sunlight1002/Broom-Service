@@ -800,6 +800,7 @@ class AuthController extends Controller
         $data = $request->all();
         $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
+
         \Log::info($data);
         unset($data['pdf_file']);
     
@@ -850,6 +851,7 @@ class AuthController extends Controller
             }
     
             $file_name = Str::uuid()->toString() . '.pdf';
+            \Log::info($file_name);
 
             if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
                 return response()->json([
