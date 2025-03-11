@@ -150,7 +150,7 @@ export default function WorkContract() {
 
                 setServices(JSON.parse(res.data.offer?.services))
                 console.log(JSON.parse(res.data.offer?.services));
-                
+
                 setContract(res?.data?.contract)
             })
     }
@@ -239,9 +239,11 @@ export default function WorkContract() {
                     <div className='signed'>
                         <p>{t('work-contract.signed')}
                             {
-                                services && services?.map((service, i) => (
-                                    <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
-                                ))
+                                [...new Set(services?.map(service => service?.address?.city)
+                                    .filter(address => address && address !== "undefined"))]
+                                    .map((uniqueAddress, i) => (
+                                        <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                    ))
                             }
                             on
                             <span className='ml-1'>{Moment(contract && contract?.created_at).format('DD MMMM,Y')}</span>
@@ -261,9 +263,11 @@ export default function WorkContract() {
                                     <li className='ml-2 list-inline-item'>{t('work-contract.full_name')} <span>{offer.client.firstname + " " + offer.client.lastname}</span></li>
                                     <li className='list-inline-item'>{t('work-contract.city')}
                                         {
-                                            services && services?.map((service, i) => (
-                                                <span key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
-                                            ))
+                                            [...new Set(services?.map(service => service?.address?.city)
+                                                .filter(address => address && address !== "undefined"))]
+                                                .map((uniqueAddress, i) => (
+                                                    <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                                ))
                                         }
                                         <span>{offer.client.city}</span>
                                     </li>
@@ -271,9 +275,11 @@ export default function WorkContract() {
                                 <ul className='list-inline'>
                                     <li className='ml-2 list-inline-item'>{t('work-contract.street_and_number')}
                                         {
-                                            services && services?.map((service, i) => (
-                                                <span key={i}> {service?.address?.address_name},{service?.address?.zipcode}</span>
-                                            ))
+                                            [...new Set(services?.map(service => service?.address?.address_name)
+                                                .filter(address => address && address !== "undefined"))]
+                                                .map((uniqueAddress, i) => (
+                                                    <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                                ))
                                         }
                                     </li>
                                     {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
@@ -382,7 +388,7 @@ export default function WorkContract() {
                                     <td>
                                         {services && services.map((s, i) => {
                                             return (
-                                                <p key={i}> { client?.lng == 'heb' ? s.frequency_name_heb : s.frequency_name_en}</p>
+                                                <p key={i}> {client?.lng == 'heb' ? s.frequency_name_heb : s.frequency_name_en}</p>
                                             )
                                         })}
 

@@ -26,6 +26,9 @@ export default function ContractEng() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    console.log(services);
+
+
     const getContract = () => {
         axios
             .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
@@ -158,10 +161,12 @@ export default function ContractEng() {
                                 <p>
                                     {t("work-contract.signed")}
                                     {
-                                        services && services?.map((service, i) => (
-                                            <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
-                                        ))
-                                    }
+                                            [...new Set(services?.map(service => service?.address?.city)
+                                                .filter(address => address && address !== "undefined"))]
+                                                .map((uniqueAddress, i) => (
+                                                    <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                                ))
+                                        }
                                     on{" "}
                                     <span>
                                         {Moment(contract.created_at).format(
@@ -189,21 +194,32 @@ export default function ContractEng() {
                                     </li>
                                     <li className="list-inline-item">
                                         {t("work-contract.city")}{" "}
-                                        {
+                                        {/* {
                                             services && services?.map((service, i) => (
                                                 <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
                                             ))
+                                        } */}
+                                        {
+                                            [...new Set(services?.map(service => service?.address?.city)
+                                                .filter(address => address && address !== "undefined"))]
+                                                .map((uniqueAddress, i) => (
+                                                    <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                                ))
                                         }
+
                                     </li>
                                 </ul>
                                 <ul className="list-inline">
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.street_and_number")}{" "}
                                         {
-                                            services && services?.map((service, i) => (
-                                                <span className='mr-1' key={i}> {service?.address?.address_name != "undefined" ? service?.address?.address_name : "NA"}</span>
-                                            ))
+                                            [...new Set(services?.map(service => service?.address?.address_name)
+                                                .filter(address => address && address !== "undefined"))]
+                                                .map((uniqueAddress, i) => (
+                                                    <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                                ))
                                         }
+
                                     </li>
                                     {/* <li className="list-inline-item">{t('work-contract.floor')} <span>{client.floor ? client.floor : 'NA'}</span>
                                     </li>*/}
@@ -334,7 +350,7 @@ export default function ContractEng() {
                                                         return (
                                                             <p>
                                                                 {s.template !=
-                                                                "others"
+                                                                    "others"
                                                                     ? s.name
                                                                     : s.other_title}
                                                             </p>
@@ -497,7 +513,7 @@ export default function ContractEng() {
                                                                     ) +
                                                                     " " +
                                                                     (s.template !=
-                                                                    "others"
+                                                                        "others"
                                                                         ? s.name
                                                                         : s.other_title) +
                                                                     ", " +
