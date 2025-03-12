@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import axios from "axios";
-import logo from "../../Assets/image/sample.svg";
-import FullPageLoader from "../../Components/common/FullPageLoader";
+import logo from "../../../Assets/image/sample.svg";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 import { useAlert } from "react-alert";
 
-export default function ClientForgotPassword() {
+const WorkerForgetPassword = () => {
     const [searchParams] = useSearchParams();
     const token = decodeURIComponent(searchParams.get("token"));
     const email = decodeURIComponent(searchParams.get("email"));
@@ -28,22 +28,19 @@ export default function ClientForgotPassword() {
         }
 
         try {
-            const response = await axios.post("/api/client/reset-password", {
+            const response = await axios.post("/api/reset-password", {
                 token,
                 email,
                 password,
                 password_confirmation: confirmPassword
             });
-            console.log(response.data);
-            
             alert.success(response?.data?.message);
-            navigate("/client/login");
+            navigate("/worker/login");
             setMessage(response.data.message);
         } catch (error) {
             setMessage(error.response.data.message || "Something went wrong.");
         }
     };
-
 
     return (
         <div id="loginPage">
@@ -78,7 +75,7 @@ export default function ClientForgotPassword() {
                         </svg>
                     </div>
                     <h1 className="page-title">
-                        Client Reset Password
+                        Worker Reset Password
                     </h1>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
@@ -151,4 +148,6 @@ export default function ClientForgotPassword() {
             {loading && <FullPageLoader visible={loading} />}
         </div>
     );
-}
+};
+
+export default WorkerForgetPassword;

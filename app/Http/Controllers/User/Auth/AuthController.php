@@ -301,14 +301,9 @@ class AuthController extends Controller
             : response()->json(['message' => __($status)], 400);
     }
 
-    public function showResetForm(Request $request, $token = null)
-    {
-        // Custom logic, if needed
-        return view('auth.worker-reset-password', ['token' => $token]);
-    }
-
     public function resetPassword(Request $request)
     {
+        \Log::info($request->all());
         // Validate incoming request
         $request->validate([
             'email' => 'required|email|exists:users,email',
@@ -330,7 +325,7 @@ class AuthController extends Controller
 
         // Return the response based on the result
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __('Your password has been reset!'))
+            ? response()->json(['message' => "Your password has been reset!"]) 
             : back()->withErrors(['email' => [__($status)]]);
     }
 

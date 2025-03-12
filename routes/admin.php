@@ -74,6 +74,9 @@ Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 Route::get('clients-sample-file', [ClientController::class, 'sampleFileExport']);
 Route::get('workers/import/sample', [WorkerController::class, 'sampleFileExport']);
 
+Route::post('password/email', [AuthController::class, 'sendResetLinkEmail']);
+Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset.password.update');
+
 // Authenticated Routes
 Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 

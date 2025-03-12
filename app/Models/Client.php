@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\LeadStatusEnum;
 use App\Events\NewLeadArrived;
 use Laravel\Passport\HasApiTokens;
+use App\Notifications\CustomResetPassword;
+
 
 class Client extends Authenticatable
 {
@@ -213,5 +215,9 @@ class Client extends Authenticatable
         return $this->hasMany(LeadActivity::class);
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token, "client"));
+    }
 }
 

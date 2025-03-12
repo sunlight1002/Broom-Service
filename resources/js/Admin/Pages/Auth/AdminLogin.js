@@ -12,9 +12,9 @@ export default function AdminLogin() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const adminLogin =  localStorage.getItem("admin-token")
+        const adminLogin = localStorage.getItem("admin-token")
         // console.log(adminLogin);
-        if(adminLogin) {
+        if (adminLogin) {
             navigate("/admin/dashboard");
         }
     }, [navigate])
@@ -54,40 +54,40 @@ export default function AdminLogin() {
                 setLoading(false)
                 setErrors(result.data.errors);
             } else {
-                if(isRemembered){
+                if (isRemembered) {
                     localStorage.setItem("admin-token", result.data.token);
                     localStorage.setItem("admin-name", result.data.name);
                     localStorage.setItem("admin-id", result.data.id);
                     localStorage.setItem("admin-lng", result.data.lng);
                     const adminLng = localStorage.getItem("admin-lng")
                     i18next.changeLanguage(adminLng);
-                    if(adminLng == "en") {
+                    if (adminLng == "en") {
                         document.querySelector("html").removeAttribute("dir");
-                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
-                            if (rtlLink) {
-                                rtlLink.remove();
-                            }
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
                     }
                     window.location = "/admin/dashboard";
-                }else{
+                } else {
                     if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
                         localStorage.setItem("admin-email", result.data.email);
                         localStorage.setItem("admin-lng", result.data.lng);
                         setLoading(false)
                         window.location = "/admin/login-otp";
-                    }else{
+                    } else {
                         localStorage.setItem("admin-token", result.data.token);
                         localStorage.setItem("admin-name", result.data.name);
                         localStorage.setItem("admin-id", result.data.id);
                         localStorage.setItem("admin-lng", result.data.lng);
                         const adminLng = localStorage.getItem("admin-lng")
                         i18next.changeLanguage(adminLng);
-                        if(adminLng == "en") {
+                        if (adminLng == "en") {
                             document.querySelector("html").removeAttribute("dir");
-                                const rtlLink = document.querySelector('link[href*="rtl.css"]');
-                                if (rtlLink) {
-                                    rtlLink.remove();
-                                }
+                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                            if (rtlLink) {
+                                rtlLink.remove();
+                            }
                         }
                         window.location = "/admin/dashboard";
                     }
@@ -96,7 +96,21 @@ export default function AdminLogin() {
         });
     };
 
+    const forgotPassword = async () => {
+        if (!email) {
+            alert.error('Please enter your email');
+            return;
+        }
 
+        try {
+            const response = await axios.post('/api/admin/password/email', { email });
+
+            alert.success(response?.data?.message || 'Reset link sent! Check your email.');
+        } catch (err) {
+            alert.error(err.response?.data?.message || 'Failed to send reset link.');
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         let d = document.querySelector("html").getAttribute("dir");
@@ -190,6 +204,9 @@ export default function AdminLogin() {
                                     {errors.password}
                                 </small>
                             )}
+                        </div>
+                        <div className='d-flex justify-content-start align-items-center'>
+                            <button type="button" className="btn btn-link p-0" onClick={() => forgotPassword()}>forgot password</button>
                         </div>
                         <div className="form-group mt-4">
                             <button

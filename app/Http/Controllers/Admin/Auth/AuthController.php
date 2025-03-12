@@ -14,6 +14,9 @@ use App\Mail\Admin\LoginOtpMail;
 use Illuminate\Support\Str;
 use Twilio\Rest\Client as TwilioClient;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Password;
+use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -285,7 +288,49 @@ class AuthController extends Controller
         }
     }
 
+    public function sendResetLinkEmail(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'email' => 'required|email|exists:admins,email',
+        ]);
 
+        // Attempt to send the reset link for clients
+        $status = Password::broker('admins')->sendResetLink(
+            ['email' => $request->email]
+        );
+    
+        // Return the response based on the result
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => __($status)], 200)
+            : response()->json(['message' => __($status)], 400);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'email' => 'required|email|exists:admins,email',
+            'password' => 'required|confirmed|min:6',
+            'token' => 'required',
+        ]);
+
+        // Attempt to reset the password
+        $status = Password::broker('admins')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($client) use ($request) {
+                // Update the client's password
+                $client->forceFill([
+                    'password' => Hash::make($request->password),
+                ])->save();
+            }
+        );
+
+        // Return the response based on the result
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => "Your password has been reset!"]) 
+            : back()->withErrors(['email' => [__($status)]]);
+    }
     
     /** 
      * Register api 

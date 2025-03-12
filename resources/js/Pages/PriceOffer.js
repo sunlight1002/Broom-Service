@@ -941,18 +941,22 @@ export default function PriceOffer() {
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="row">
-                                <div className="col-12">
-                                    <ul>
-                                        <li>
-                                            {t("global.comment")}: {services[0]?.comments}
-                                        </li>
-                                    </ul>
-                                    {/* <p className="mt-4">
+                            {
+                                services && services[0]?.comments && (
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <ul>
+                                                <li>
+                                                    {t("global.comment")}: {services[0]?.comments}
+                                                </li>
+                                            </ul>
+                                            {/* <p className="mt-4">
                                         {t("global.comment")}: {services[0]?.comments}
                                     </p> */}
-                                </div>
-                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </div>
 
                         <h4 className="mt-4">
