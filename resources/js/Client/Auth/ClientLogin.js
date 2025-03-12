@@ -203,10 +203,10 @@ export default function ClientLogin() {
                                 </small>
                             )}
                         </div>
-{/* 
+
                         <div className='d-flex justify-content-start align-items-center'>
                            <button type="button" className="btn btn-link p-0" onClick={() => forgotPassword()}>forgot password</button>
-                        </div> */}
+                        </div>
 
                         <div className="form-group mt-1">
                             <button

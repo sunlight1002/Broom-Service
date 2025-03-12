@@ -301,14 +301,9 @@ class AuthController extends Controller
             : response()->json(['message' => __($status)], 400);
     }
 
-    public function showResetForm(Request $request, $token = null)
-    {
-        // Custom logic, if needed
-        return view('auth.worker-reset-password', ['token' => $token]);
-    }
-
     public function resetPassword(Request $request)
     {
+        \Log::info($request->all());
         // Validate incoming request
         $request->validate([
             'email' => 'required|email|exists:users,email',
@@ -330,7 +325,7 @@ class AuthController extends Controller
 
         // Return the response based on the result
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __('Your password has been reset!'))
+            ? response()->json(['message' => "Your password has been reset!"]) 
             : back()->withErrors(['email' => [__($status)]]);
     }
 
@@ -802,6 +797,7 @@ class AuthController extends Controller
         $data = $request->all();
         $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
+
         \Log::info($data);
         unset($data['pdf_file']);
 
@@ -852,6 +848,7 @@ class AuthController extends Controller
             }
 
             $file_name = Str::uuid()->toString() . '.pdf';
+            \Log::info($file_name);
 
             if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
                 return response()->json([

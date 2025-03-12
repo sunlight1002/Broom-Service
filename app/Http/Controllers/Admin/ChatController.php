@@ -60,6 +60,51 @@ class ChatController extends Controller
         ]);
     }
 
+    // public function chats(Request $request)
+    // {
+    //     $page = $request->input('page', 1);  // Get the page number from the request, default to 1 if not provided
+    //     $perPage = 20;  // Number of records per page
+
+    //     // Fetch paginated data
+    //     $data = WebhookResponse::distinct()
+    //         ->where('number', '!=', null)
+    //         ->skip(($page - 1) * $perPage)  // Skip the records based on the current page
+    //         ->take($perPage)  // Limit the results to the number of records per page
+    //         ->get(['number']);
+
+    //     $clients = [];
+
+    //     if ($data->count() > 0) {
+    //         foreach ($data as $k => $_no) {
+    //             $no = $_no->number;
+    //             $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
+
+    //             $data[$k]['unread'] = count($_unreads);
+
+    //             if (strlen($no) > 10) {
+    //                 $cl = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
+    //             } else {
+    //                 $cl = Client::where('phone', 'like', '%' . $no . '%')->first();
+    //             }
+
+    //             if (!is_null($cl)) {
+    //                 $clients[] = [
+    //                     'name' => $cl->firstname . " " . $cl->lastname,
+    //                     'id'   => $cl->id,
+    //                     'num'  => $no,
+    //                     'client' => ($cl->status == 0) ? 0 : 1
+    //                 ];
+    //             }
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'data' => $data,
+    //         'clients' => $clients,
+    //     ]);
+    // }
+
+
 
     public function storeWebhookResponse(Request $request)
     {

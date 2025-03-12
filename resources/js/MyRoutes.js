@@ -201,6 +201,8 @@ import InsuranceCompany from "./Admin/Pages/Setting/InsuranceCompany";
 import ContactManager from "./Pages/ContactManager";
 import OnMyWayJob from "./Pages/OnMyWayJob";
 import FinishJobByWorker from "./Pages/FinishJobByWorker";
+import WorkerForgetPassword from "./Admin/Pages/Workers/WorkerForgetPassword";
+import AdminForgetPassword from "../js/Admin/Pages/Auth/AdminForgetPassword"
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -226,7 +228,7 @@ export default function MyRoutes() {
                     />
                     <Route
                         exact
-                        path="client/reset-password/:token"
+                        path="client/reset-password"
                         element={<ClientForgotPassword />}
                     />
                     <Route
@@ -243,6 +245,11 @@ export default function MyRoutes() {
                         exact
                         path="worker/login"
                         element={<WorkerLogin />}
+                    />
+                    <Route
+                        exact
+                        path="worker/reset-password"
+                        element={<WorkerForgetPassword />}
                     />
                     <Route
                         exact
@@ -628,6 +635,11 @@ export default function MyRoutes() {
 
                     {/* Admin Routes Start  */}
                     <Route exact path="/admin/login" element={<AdminLogin />} />
+                    <Route
+                        exact
+                        path="/admin/reset-password"
+                        element={<AdminForgetPassword />}
+                    />
                     <Route exact path="/admin/login-otp" element={<AdminLoginOtp />} />
                     <Route element={<AdminProtectedRoutes />}>
                         <Route path="admin" element={<Admin />}>

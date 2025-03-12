@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use App\Notifications\CustomResetPassword;
 
 class Admin extends Authenticatable
 {
@@ -94,6 +95,11 @@ class Admin extends Authenticatable
     public function googleContacts()
     {
         return $this->hasMany(UserGoogleContact::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token, "admin"));
     }
     
 }

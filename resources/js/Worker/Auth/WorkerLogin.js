@@ -35,20 +35,20 @@ export default function WorkerLogin() {
 
     const forgotPassword = async () => {
         if (!email) {
-            alert.error('Please enter email');
+            alert.error('Please enter your email');
             return;
         }
+    
         try {
-            const response = await axios.post('/api/password/email', {
-                email,
-            });
-            alert.success(response?.data?.message);
-
+            const response = await axios.post('/api/password/email', { email });
+    
+            alert.success(response?.data?.message || 'Reset link sent! Check your email.');
         } catch (err) {
-            console.log(err);
-
+            alert.error(err.response?.data?.message || 'Failed to send reset link.');
+            console.error(err);
         }
     };
+    
 
 
     const HandleLogin = (e) => {
@@ -198,9 +198,9 @@ export default function WorkerLogin() {
                                     </small>
                                 )}
                             </div>
-                            {/* <div className='d-flex justify-content-start align-items-center'>
+                            <div className='d-flex justify-content-start align-items-center'>
                                 <button type="button" className="btn btn-link p-0" onClick={() => forgotPassword()}>forgot password</button>
-                            </div> */}
+                            </div>
                             <div className="form-group mt-1">
                                 <button
                                     as="input"

@@ -160,91 +160,80 @@ class AuthController extends Controller
         }
     }
 
-    // public function sendResetLinkEmail(Request $request)
-    // {
-    //     \Log::info($request->email);
+    public function sendResetLinkEmail(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'email' => 'required|email|exists:clients,email',
+        ]);
 
-    //     // Validate the incoming request
-    //     $request->validate([
-    //         'email' => 'required|email|exists:clients,email',
-    //     ]);
-
-    //     // Attempt to send the reset link for clients
-    //     $status = Password::broker('clients')->sendResetLink(
-    //         ['email' => $request->email]
-    //     );
+        // Attempt to send the reset link for clients
+        $status = Password::broker('clients')->sendResetLink(
+            ['email' => $request->email]
+        );
     
-    //     \Log::info($status);
+        // Return the response based on the result
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => __($status)], 200)
+            : response()->json(['message' => __($status)], 400);
+    }
 
-    //     // Return the response based on the result
-    //     return $status === Password::RESET_LINK_SENT
-    //         ? response()->json(['message' => __($status)], 200)
-    //         : response()->json(['message' => __($status)], 400);
-    // }
+    public function resetPassword(Request $request)
+    {
+        \Log::info($request->all());
+        // Validate incoming request
+        $request->validate([
+            'email' => 'required|email|exists:clients,email',
+            'password' => 'required|confirmed|min:6',
+            'token' => 'required',
+        ]);
 
-    // public function showResetForm(Request $request, $token = null)
-    // {
-    //     return response()->json([
-    //         'token' => $token,
-    //         'email' => $request->email, 
-    //     ]);
-    // }
-    
-    // public function resetPassword(Request $request)
-    // {
-    //     // Validate incoming request
-    //     $request->validate([
-    //         'email' => 'required|email|exists:clients,email',
-    //         'password' => 'required|confirmed|min:8',
-    //         'token' => 'required',
-    //     ]);
+        // Attempt to reset the password
+        $status = Password::broker('clients')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($client) use ($request) {
+                // Update the client's password
+                $client->forceFill([
+                    'password' => Hash::make($request->password),
+                    'passcode' => $request->password
+                ])->save();
+            }
+        );
 
-    //     // Attempt to reset the password
-    //     $status = Password::broker('clients')->reset(
-    //         $request->only('email', 'password', 'password_confirmation', 'token'),
-    //         function ($client) use ($request) {
-    //             // Update the client's password
-    //             $client->forceFill([
-    //                 'password' => Hash::make($request->password),
-    //                 'passcode' => $request->password
-    //             ])->save();
-    //         }
-    //     );
+        // Return the response based on the result
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => "Your password has been reset!"]) 
+            : back()->withErrors(['email' => [__($status)]]);
+    }
 
-    //     // Return the response based on the result
-    //     return $status === Password::PASSWORD_RESET
-    //         ? redirect()->route('login')->with('status', __('Your password has been reset!'))
-    //         : back()->withErrors(['email' => [__($status)]]);
-    // }
+    public function updatePassword(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'email' => 'required|email|exists:clients,email',
+            'password' => 'required|string|min:6|confirmed',
+            'token' => 'required'
+        ]);
 
-    // public function updatePassword(Request $request)
-    // {
-    //     // Validate the incoming request
-    //     $request->validate([
-    //         'email' => 'required|email|exists:clients,email',
-    //         'password' => 'required|string|min:6|confirmed',
-    //         'token' => 'required'
-    //     ]);
+        // Check the reset token
+        $status = Password::broker('clients')->reset(
+            $request->only('email', 'password', 'token'),
+            function ($client, $password) {
+                // Update the password
+                $client->forceFill([
+                    'password' => Hash::make($password),
+                    'passcode' => $password
+                ])->save();
+            }
+        );
 
-    //     // Check the reset token
-    //     $status = Password::broker('clients')->reset(
-    //         $request->only('email', 'password', 'token'),
-    //         function ($client, $password) {
-    //             // Update the password
-    //             $client->forceFill([
-    //                 'password' => Hash::make($password),
-    //                 'passcode' => $password
-    //             ])->save();
-    //         }
-    //     );
-
-    //     // Return a response based on the result
-    //     if ($status === Password::PASSWORD_RESET) {
-    //         return redirect()->route('client/login')->with('status', 'Your password has been reset successfully.');
-    //     } else {
-    //         return back()->withErrors(['email' => [trans($status)]]);
-    //     }
-    // }
+        // Return a response based on the result
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('client/login')->with('status', 'Your password has been reset successfully.');
+        } else {
+            return back()->withErrors(['email' => [trans($status)]]);
+        }
+    }
 
     public function verifyOtp(Request $request)
     {

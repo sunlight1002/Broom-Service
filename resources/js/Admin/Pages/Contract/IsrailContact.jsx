@@ -126,7 +126,7 @@ export function IsrailContact({
             );
             setFieldValue("IdNumber", workerDetail.id_number);
             setFieldValue("Address", workerDetail.address);
-            setFieldValue("MobileNo", workerDetail.phone);
+            setFieldValue("MobileNo", workerDetail.phone ?? "");
             setFieldValue("role", workerDetail.role);
             setFieldValue("startDate", workerDetail.first_date);
 
@@ -181,10 +181,10 @@ export function IsrailContact({
             </div>
 
             <form onSubmit={handleNextPrev}>
-                {
-                    (nextStep === 5 || !nextStep) && (
+                {/* {
+                    (nextStep === 5 || !nextStep) && ( */}
                         <div className="row">
-                            <section className={`${isGeneratingPDF ? "col-12" : "col-sm"} px-3`}>
+                            <section className={`${isGeneratingPDF ? "col-12" : "col-12"} px-3`}>
                                 <ol
                                     className="mt-5 lh-lg text-justify"
                                     style={{
@@ -267,7 +267,7 @@ export function IsrailContact({
                                                         "israilContract.mobileNumber"
                                                     )}
                                                     value={values.MobileNo}
-
+                                                    readonly={true}
                                                     required={true}
                                                     error={
                                                         touched.MobileNo &&
@@ -289,7 +289,6 @@ export function IsrailContact({
                                                     value={values.PhoneNo}
 
                                                     // required={true}
-                                                    readonly={true}
                                                 // error={
                                                 //     touched.PhoneNo &&
                                                 //     errors.PhoneNo && "Mobile is required"
@@ -354,7 +353,7 @@ export function IsrailContact({
 
                                 </ol>
                             </section>
-                            <section className={`${isGeneratingPDF ? "col-12" : "col-sm"} px-3`}>
+                            <section className={`${isGeneratingPDF ? "col-12" : "col-12"} px-3`}>
                                 <ol>
                                     <li>
                                         <p>{t("israilContract.is6")}</p>
@@ -531,12 +530,12 @@ export function IsrailContact({
                                 </ol>
                             </section>
                         </div>
-                    )
-                }
-                {
-                    (nextStep === 6 || !nextStep) && (
+                    {/* )
+                } */}
+                {/* {
+                    (nextStep === 6 || !nextStep) && ( */}
                         <div className="row mt-4">
-                            <section className="col pl-0 pr-0">
+                            <section className="col-12">
                                 <ol>
                                     <li>
                                         <p className="mb-2">
@@ -739,7 +738,7 @@ export function IsrailContact({
                                     <li>{t("israilContract.is14")}</li>
                                 </ol>
                             </section>
-                            <section className="col pl-0 pr-0">
+                            <section className="col-12">
                                 <ol>
                                     <li>{t("israilContract.is14")}</li>
                                 </ol>
@@ -811,8 +810,8 @@ export function IsrailContact({
                                 </div>
                             </section>
                         </div>
-                    )
-                }
+                    {/* )
+                } */}
 
                 {[5, 6].includes(nextStep) && (
                     <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`}>

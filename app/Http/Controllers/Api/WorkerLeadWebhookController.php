@@ -171,6 +171,12 @@ class WorkerLeadWebhookController extends Controller
             $user = User::where('phone', $from)
                     ->where('status', 1)
                     ->first();
+            $client = Client::where('phone', $from)->first();
+
+            if($client){
+                \Log::info('client already exist ...');
+                die("client already exist");
+            }
 
             if($user){
                 \Log::info('user already exist ...');

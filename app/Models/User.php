@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\CustomResetPassword;
 
 class User extends Authenticatable
 {
@@ -215,4 +216,8 @@ class User extends Authenticatable
         return $this->hasMany(UserGoogleContact::class);
     }
     
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token, "user"));
+    }
 }

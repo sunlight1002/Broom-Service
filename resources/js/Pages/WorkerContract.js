@@ -39,9 +39,17 @@ export default function WorkerContract({
     const handleSubmit = async (values) => {
         if (!isSubmitted) {
             setIsGeneratingPDF(true);
+            
+            // Ensure contentRef is set
+            if (!contentRef.current) {
+                console.error("contentRef is not set properly.");
+                setIsGeneratingPDF(false);
+                return;
+            }
+    
             const options = {
                 filename: "my-document.pdf",
-                margin: [5, 5, 0, 5],
+                margin: [2, 5, 0, 5],  // [TOP, LEFT, BOTTOM, RIGHT]
                 image: { type: "jpeg", quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: {
@@ -51,71 +59,71 @@ export default function WorkerContract({
                 },
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
-
-            const content = contentRef.current;
-            console.log(content);
-            
-
-            const _pdf = await html2pdf()
-                .set(options)
-                .from(content)
-                .outputPdf("blob");
-
-            const pdfFile = new File([_pdf], "Contract.pdf", { type: "application/pdf" });
+    
+            try {
+                const content = contentRef.current;
+    
+                // Debugging: Check if contentRef exists
+                console.log("Generating PDF from:", content);
+    
+                const _pdf = await html2pdf().set(options).from(content).outputPdf("blob");
+    
+                const pdfFile = new File([_pdf], "Contract.pdf", { type: "application/pdf" });
+    
+                // Convert JSON object to FormData
+                let formData = objectToFormData(values);
+                formData.append("pdf_file", pdfFile);
+                formData.append("step", nextStep);
+                formData.append("savingType", savingType);
+                formData.append("type", type === "lead" ? "lead" : "worker");
+    
+                setIsGeneratingPDF(false);
+                setLoading(true);
                 
-
-            setIsGeneratingPDF(false);
-            setLoading(true)
-            // Convert JSON object to FormData
-            let formData = objectToFormData(values);
-
-            formData.append("pdf_file", pdfFile);
-            formData.append("step", nextStep);
-            formData.append("savingType", savingType);
-            formData.append("type", type == "lead" ? "lead" : "worker");
-
-            axios
-                .post(`/api/${Base64.decode(param.id)}/work-contract`, formData, {
-                    headers: {
-                        Accept: "application/json, text/plain, */*",
-                        "Content-Type": "multipart/form-data",
-                    },
-                })
-                .then((res) => {
-                    if (worker.country === "Israel" && savingType === "submit") {
-                        setIsSubmitted(true);
-                        swal(t('swal.forms_submitted'), "", "success");
-                        if (type === "lead" && res?.data?.id) {
-                            navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
+                axios
+                    .post(`/api/${Base64.decode(param.id)}/work-contract`, formData, {
+                        headers: {
+                            Accept: "application/json, text/plain, */*",
+                            "Content-Type": "multipart/form-data",
+                        },
+                    })
+                    .then((res) => {
+                        if (worker.country === "Israel" && savingType === "submit") {
+                            setIsSubmitted(true);
+                            swal(t('swal.forms_submitted'), "", "success");
+                            if (type === "lead" && res?.data?.id) {
+                                navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
+                            }
+                            setTimeout(() => {
+                                window.location.reload(true);
+                            }, 2000);
+                        } else if (worker.country !== "Israel" && savingType === "submit") {
+                            setIsSubmitted(true);
+                            setNextStep(prev => prev + 1);
+                        } else if (savingType === "draft") {
+                            setNextStep(prev => prev + 1);
                         }
-                        setTimeout(() => {
-                            window.location.reload(true);
-                        }, 2000);
-                    } else if (worker.country !== "Israel" && savingType === "submit") {
-                        setIsSubmitted(true);
-                        setNextStep(prev => prev + 1)
-                    }else if(savingType === "draft"){
-                        setNextStep(prev => prev + 1)
-                    }
-                    setLoading(false)
-                    // setTimeout(() => {
-                    //     window.location.href = "/worker/login";
-                    // }, 1000);
-                })
-                .catch((e) => {
-                    if (worker.country === "Israel") {
-                        swal(t('swal.forms_submitted'), "", "success");
-                    }
-                    if (e.response.data.message === "Contract already signed") {
-                        setNextStep(prev => prev + 1)
-                    }
-                    setLoading(false)
-                    // swal("Error!", e.response.data.message, "error");
-                });
+                        setLoading(false);
+                    })
+                    .catch((e) => {
+                        console.error("Error submitting form:", e);
+                        if (worker.country === "Israel") {
+                            swal(t('swal.forms_submitted'), "", "success");
+                        }
+                        if (e.response?.data?.message === "Contract already signed") {
+                            setNextStep(prev => prev + 1);
+                        }
+                        setLoading(false);
+                    });
+            } catch (error) {
+                console.error("PDF Generation Error:", error);
+                setIsGeneratingPDF(false);
+            }
         } else {
-            setNextStep(prev => prev + 1)
+            setNextStep(prev => prev + 1);
         }
     };
+    
 
     const getWorker = () => {
         axios

@@ -29,6 +29,8 @@ Route::post('/zcredit/callback', [PaymentController::class, 'callback']);
 Route::post('/icount/webhook', [iCountController::class, 'webhook']);
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
+Route::post('/wallybox/callback', [GoogleController::class, 'wallyboxCallback']);
+
 
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
 Route::any('/webhook_active_clients', [LeadWebhookController::class, 'fbActiveClientsWebhookCurrentLive'])->name('webhook_active_clients');
