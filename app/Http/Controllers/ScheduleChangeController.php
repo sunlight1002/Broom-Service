@@ -35,30 +35,35 @@ class ScheduleChangeController extends Controller
              'updated_at'
          ];
      
-         $length = $request->get('length', 10); // Number of records per page
-         $start = $request->get('start', 0); // Starting index
-         $order = $request->get('order', []); // Ordering data
-         $columnIndex = $order[0]['column'] ?? 0; // Column index for sorting
-         $dir = $order[0]['dir'] ?? 'desc'; // Sort direction (asc/desc)
+         $length = $request->get('length', 10);
+         $start = $request->get('start', 0);
+         $order = $request->get('order', []);
+         $columnIndex = $order[0]['column'] ?? 0;
+         $dir = $order[0]['dir'] ?? 'desc';
          $start_date = $request->get('start_date');
          $end_date = $request->get('end_date');
          $reason = $request->get('reason');
      
-         // Base query for ScheduleChange
          $query = ScheduleChange::with('user');
      
-         // Search functionality
+         // Modified search functionality to include firstname and lastname
          if ($search = $request->get('search')['value'] ?? null) {
              $query->where(function ($query) use ($search, $columns) {
+                 // Search in ScheduleChange columns
                  foreach ($columns as $column) {
                      $query->orWhere($column, 'like', "%{$search}%");
                  }
+                 // Search in related user's firstname and lastname
+                 $query->orWhereHas('user', function ($q) use ($search) {
+                     $q->where('firstname', 'like', "%{$search}%")
+                       ->orWhere('lastname', 'like', "%{$search}%");
+                 });
              });
          }
      
          // Filter by user type and status
-         $userType = $request->get('type', null); // Default to null (no filter)
-         $status = $request->get('status', null); // Get status filter (null by default)
+         $userType = $request->get('type', null);
+         $status = $request->get('status', null);
      
          $query->where(function ($query) use ($userType, $status) {
              if ($userType) {
@@ -70,8 +75,6 @@ class ScheduleChangeController extends Controller
                      $query->whereHas('user', function ($q) {
                          $q->where('user_type', 'App\Models\User');
                      });
-                 }else{
-                    return $q;
                  }
              }
              if ($status && $status !== 'All') {
@@ -79,38 +82,34 @@ class ScheduleChangeController extends Controller
              }
          })
          ->when($start_date, function ($q) use ($start_date) {
-            return $q->whereDate('created_at', '>=', $start_date);
-        })
-        ->when($end_date, function ($q) use ($end_date) {
-            return $q->whereDate('created_at', '<=', $end_date);
-        })
-        ->when($reason, function ($q) use ($reason) {
-            if ($reason == "Contact me urgently") {
-                return $q->whereIn('reason', ["Contact me urgently", "צרו איתי קשר דחוף"]);
-            }else if($reason == "Change or update schedule"){
-                $q->whereIn('reason', ["Change or update schedule", "שינוי או עדכון שיבוץ", "Change Schedule", "שנה לוח זמנים", "Cambiar horario", "Изменить расписание"]);
-            }else if($reason == "Invoice and accounting inquiry"){
-                $q->whereIn('reason', ["Invoice and accounting inquiry", 'הנה"ח - פנייה למחלקת הנהלת חשבונות']);
-            }else if($reason == "additional information"){
-                $q->whereIn('reason', ["additional information", "מידע נוסף"]);
-            }else if($reason == "Client Feedback"){
-                $q->whereIn('reason', ["Client Feedback", "משוב לקוח"]);
-            }else if($reason == "All"){
-                return $q;
-            }
-        });
+             return $q->whereDate('created_at', '>=', $start_date);
+         })
+         ->when($end_date, function ($q) use ($end_date) {
+             return $q->whereDate('created_at', '<=', $end_date);
+         })
+         ->when($reason, function ($q) use ($reason) {
+             if ($reason == "Contact me urgently") {
+                 return $q->whereIn('reason', ["Contact me urgently", "צרו איתי קשר דחוף"]);
+             } else if($reason == "Change or update schedule") {
+                 $q->whereIn('reason', ["Change or update schedule", "שינוי או עדכון שיבוץ", "Change Schedule", "שנה לוח זמנים", "Cambiar horario", "Изменить расписание"]);
+             } else if($reason == "Invoice and accounting inquiry") {
+                 $q->whereIn('reason', ["Invoice and accounting inquiry", 'הנה"ח - פנייה למחלקת הנהלת חשבונות']);
+             } else if($reason == "additional information") {
+                 $q->whereIn('reason', ["additional information", "מידע נוסף"]);
+             } else if($reason == "Client Feedback") {
+                 $q->whereIn('reason', ["Client Feedback", "משוב לקוח"]);
+             } else if($reason == "All") {
+                 return $q;
+             }
+         });
      
-         // Select specified columns
          $query->select($columns);
      
-         // Ordering
          $query->orderBy($columns[$columnIndex] ?? 'id', $dir);
      
-         // Pagination
          $totalRecords = $query->count();
          $scheduleChanges = $query->skip($start)->take($length)->get();
      
-         // Transform the data (if needed)
          $scheduleChanges = $scheduleChanges->map(function ($change) {
              $user = $change->user;
              $userType = '';
@@ -132,7 +131,6 @@ class ScheduleChangeController extends Controller
              ];
          });
      
-         // Response
          return response()->json([
              'filter' => $request->filter,
              'draw' => intval($request->get('draw')),
