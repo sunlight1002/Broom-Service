@@ -5,7 +5,7 @@ import { useAlert } from "react-alert";
 import { CSVLink } from "react-csv";
 import { renderToString } from "react-dom/server";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { Rating } from "react-simple-star-rating";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
@@ -70,7 +70,7 @@ export default function TotalJobs() {
         "Month": t("global.month"),
         "Previous": t("client.previous"),
         "Current": t("global.current"),
-        "Next" : t("global.next")
+        "Next": t("global.next")
     }
 
     const initializeDataTable1 = (data) => {
@@ -746,6 +746,53 @@ export default function TotalJobs() {
         });
     }, [selectedDateRange, selectedDateStep]);
 
+    useEffect(() => {
+        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Week") {
+            localStorage.setItem("selectedDateRange", "Week");
+        }
+        if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
+            localStorage.setItem("selectedDateStep", "Current");
+        }
+        if (!localStorage.getItem("doneFilter") && doneFilter == "All") {
+            localStorage.setItem("doneFilter", "All");
+        }
+        if (!localStorage.getItem("startTimeFilter") && startTimeFilter == "All") {
+            localStorage.setItem("startTimeFilter", "All");
+        }
+        const storedDateRange = localStorage.getItem("dateRange");
+        if (storedDateRange) {
+            setDateRange(JSON.parse(storedDateRange)); // Parse JSON string back into an object
+        }
+
+        const storedFilter = localStorage.getItem("selectedDateRange") || "Day"; // Default to "Day" if no value is set
+        setSelectedDateRange(storedFilter);
+
+        const storedFilter2 = localStorage.getItem("selectedDateStep") || "Current"; // Default to "Day" if no value is set
+        setSelectedDateStep(storedFilter2);
+
+        const storedFilter3 = localStorage.getItem("doneFilter") || "All"; // Default to "Day" if no value is set
+        setDoneFilter(storedFilter3);
+
+        const storedFilter4 = localStorage.getItem("startTimeFilter") || "All"; // Default to "Day" if no value is set
+        setStartTimeFilter(storedFilter4);
+
+
+    }, [selectedDateRange, selectedDateStep, doneFilter, startTimeFilter]);
+
+    const resetLocalStorage = () => {
+        localStorage.removeItem("selectedDateRange");
+        localStorage.removeItem("selectedDateStep");
+        localStorage.removeItem("doneFilter");
+        localStorage.removeItem("startTimeFilter");
+        localStorage.removeItem("dateRange");
+        setSelectedDateRange("Week");
+        setSelectedDateStep("Current");
+        setDoneFilter("All");
+        setStartTimeFilter("All");
+        setDateRange({ start_date: "", end_date: "" });
+        alert.success("Filters reset successfully");
+    }
+
     return (
         <div id="container">
             <Sidebar />
@@ -781,6 +828,7 @@ export default function TotalJobs() {
                                         value={doneFilter}
                                         onChange={(e) => {
                                             setDoneFilter(e.target.value);
+                                            localStorage.setItem("doneFilter", e.target.value);
                                         }}
                                     >
                                         <option value="">{t("admin.global.All")}</option>
@@ -793,6 +841,7 @@ export default function TotalJobs() {
                                         value={startTimeFilter}
                                         onChange={(e) => {
                                             setStartTimeFilter(e.target.value);
+                                            localStorage.setItem("startTimeFilter", e.target.value);
                                         }}
                                     >
                                         <option value="">{t("modal.alltime")}</option>
@@ -832,6 +881,19 @@ export default function TotalJobs() {
                                 >
                                     Problems
                                 </button>
+                                <button
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    style={!probbtn ? {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    } : {
+                                        background: "white",
+                                        color: "black",
+                                    }}
+                                    onClick={() => resetLocalStorage()}
+                                >
+                                    Reset Filters
+                                </button>
                             </div>
                         </div>
                         {/* Mobile */}
@@ -856,6 +918,19 @@ export default function TotalJobs() {
                                     onClick={() => setProbbtn(prev => !prev)}
                                 >
                                     Problems
+                                </button>
+                                <button
+                                    className="ml-2 btn border rounded"
+                                    style={!probbtn ? {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    } : {
+                                        background: "white",
+                                        color: "black",
+                                    }}
+                                    onClick={() => resetLocalStorage()}
+                                >
+                                    Reset Filters
                                 </button>
                             </div>
                         </div>
@@ -944,7 +1019,7 @@ export default function TotalJobs() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setSelectedDateRange(t("global.day"));
+                                                setSelectedDateRange("Day");
                                             }}
                                         >
                                             {t("global.day")}
@@ -952,7 +1027,7 @@ export default function TotalJobs() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setSelectedDateRange(t("global.week"));
+                                                setSelectedDateRange("Week");
                                             }}
                                         >
                                             {t("global.week")}
@@ -960,7 +1035,7 @@ export default function TotalJobs() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setSelectedDateRange(t("global.month"));
+                                                setSelectedDateRange("Month");
                                             }}
                                         >
                                             {t("global.month")}
@@ -1037,10 +1112,15 @@ export default function TotalJobs() {
                                         style={{ width: "fit-content" }}
                                         value={dateRange.start_date}
                                         onChange={(e) => {
-                                            setDateRange({
+                                            const updatedDateRange = {
                                                 start_date: e.target.value,
                                                 end_date: dateRange.end_date,
-                                            });
+                                            };
+
+                                            setDateRange(updatedDateRange);
+
+                                            // Corrected: JSON.stringify instead of json.stringify
+                                            localStorage.setItem("dateRange", JSON.stringify(updatedDateRange));
                                         }}
                                     />
                                     <div className="mx-2">{t("global.to")}</div>
@@ -1048,16 +1128,22 @@ export default function TotalJobs() {
                                         className="form-control"
                                         type="date"
                                         placeholder="To date"
-                                        name="to filter"
+                                        name="to_filter"
                                         style={{ width: "fit-content" }}
                                         value={dateRange.end_date}
                                         onChange={(e) => {
-                                            setDateRange({
+                                            const updatedDateRange = {
                                                 start_date: dateRange.start_date,
                                                 end_date: e.target.value,
-                                            });
+                                            };
+
+                                            setDateRange(updatedDateRange);
+
+                                            // Corrected: JSON.stringify instead of json.stringify
+                                            localStorage.setItem("dateRange", JSON.stringify(updatedDateRange));
                                         }}
                                     />
+
                                 </div>
                                 <input
                                     type="hidden"
