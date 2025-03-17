@@ -595,12 +595,8 @@ class GoogleSheetsJobSyncService
             return "בוקר";
         } elseif ($hour >= 12 && $hour < 15) {
             return "צהריים";
-        } elseif ($hour >= 15 && $hour < 19) {
+        } elseif ($hour >= 15 && $hour < 24) {
             return "אחר הצהריים";
-        } elseif ($hour >= 19 && $hour < 23) {
-            return "ערב";
-        } else {
-            return "לילה";
         }
     }
 
@@ -714,9 +710,14 @@ class GoogleSheetsJobSyncService
                 'data' => $updates,
                 'valueInputOption' => 'RAW',
             ]);
+            \Log::info("batchUpdateValuesRequest:WDDDDDDDDDDDDD ");
             $this->sheetsService->service->spreadsheets_values
                 ->batchUpdate($this->spreadsheetId, $batchUpdateValuesRequest);
-            return;
+
+            $dateRowIndex = $this->findDateRowIndex($sheetTitle, $targetDateString, $job);
+            \Log::info("dateRowIndex: fsd " . $dateRowIndex);
+
+            return $dateRowIndex + 1;
         }
 
         // --------------------------------------------------------
@@ -893,5 +894,222 @@ class GoogleSheetsJobSyncService
         $this->sheetsService->setDropdownValidation($sheetId, $jobRowIndex0, $jobRowIndex0 + 1, 16, 17, $frequencyOptions);
         $clientAddressOptions = $this->getClientAddressDropdownOptions($job->client);
         $this->sheetsService->setDropdownValidation($sheetId, $jobRowIndex0, $jobRowIndex0 + 1, 19, 20, $clientAddressOptions);
+
+        return $targetRow;
+
+    }
+
+    public function main($job)
+    {
+        $dateRowIndex = $this->syncJob($job);
+        \Log::info('Job synced to Google Sheets. ' . $dateRowIndex);
+    
+        $date = $job->start_date ? new Carbon($job->start_date) : new Carbon($job->created_at);
+        $worker = $job->worker ?? null;
+        $workerAvailabilities = $worker->availabilities()
+            ->where('date', $date->format('Y-m-d'))
+            ->orderBy('start_time')
+            ->get();
+    
+        $jobStartTime = $job->start_time ?? null;
+        $jobEndTime = $job->end_time ?? null;
+        $JobstartHour = date('H', strtotime($jobStartTime));
+        $JobendHour = date('H', strtotime($jobEndTime));
+    
+        $sheetProps = $this->getOrCreateMonthlySheet(Carbon::parse($date));
+        $sheetTitle = $sheetProps->getTitle();
+        $sheetId = $sheetProps->getSheetId();
+    
+        $targetDateString = $this->formatDateRow(Carbon::parse($date));
+        $sheetData = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
+    
+        $targetRow = $dateRowIndex + 1;
+    
+        $existingShifts = [];
+        $currentDate = null;
+        $searching = false;
+    
+        foreach ($sheetData as $index => $row) {
+            if (isset($row[3]) && strpos($row[3], "יום ") === 0) { 
+                $currentDate = trim($row[3]); 
+            }
+    
+            if ($currentDate == $targetDateString) {
+                $searching = true;
+            }
+    
+            if ($searching) {
+                if (isset($row[9]) && isset($row[10])) { 
+                    $workerName = $row[9]; 
+                    $shiftName = $row[10];
+    
+                    $existingShifts[$workerName][] = [
+                        'shift' => $shiftName,
+                        'index' => $index + 1,
+                    ];
+                }
+            }
+        }
+    
+        // Shift Priorities
+        $shiftPriority = [
+            "בוקר" => 1, 
+            "צהריים" => 2, 
+            "אחר הצהריים" => 3, 
+        ];
+    
+        $data = [];
+        $shiftsAdded = [];
+    
+        foreach ($workerAvailabilities as $availability) {
+            $shifts = $this->identifyShift(
+                $availability->start_time, 
+                $availability->end_time,
+                $jobStartTime, 
+                $jobEndTime,
+                $JobstartHour,
+                $JobendHour
+            );
+    
+            foreach ($shifts as $shift) {
+                $workerName = $worker->firstname . ' ' . $worker->lastname;
+                \Log::info("Worker: $workerName, Shift: $shift");
+    
+                $insertRow = null;
+                if (!isset($existingShifts[$workerName])) {
+                    $insertRow = $targetRow; 
+                } else {
+                    foreach ($existingShifts[$workerName] as $existingShift) {
+                        $existingShiftName = $existingShift['shift'];
+                        $existingShiftIndex = $existingShift['index'];
+    
+                        if ($shiftPriority[$shift] < $shiftPriority[$existingShiftName]) {
+                            $insertRow = $existingShiftIndex;
+                        } elseif ($shiftPriority[$shift] > $shiftPriority[$existingShiftName]) {
+                            $insertRow = $existingShiftIndex + 1;
+                        }
+                    }
+                }
+    
+                // ✅ Fix: Properly check if the shift already exists
+                $shiftAlreadyExists = false;
+                if (isset($existingShifts[$workerName])) {
+                    foreach ($existingShifts[$workerName] as $existingShift) {
+                        if ($existingShift['shift'] === $shift) {
+                            $shiftAlreadyExists = true;
+                            break;
+                        }
+                    }
+                }
+    
+                if (!$shiftAlreadyExists && $insertRow !== null) {
+                    $data[] = ['row' => $insertRow, 'values' => [$workerName, $shift]];
+                    $shiftsAdded[] = $shift;
+                }
+            }
+        }
+    
+        // ✅ Fix: Sort data before inserting to ensure correct order
+        usort($data, fn($a, $b) => $a['row'] <=> $b['row']);
+    
+        // Insert into Google Sheets
+        if (!empty($data)) {
+            foreach ($data as $rowData) {
+                $rowIndex = $rowData['row'];
+                $values = $rowData['values'];
+    
+                // ✅ Fix: Shift existing rows down before inserting
+                $this->sheetsService->insertRow($sheetId, $rowIndex);
+    
+                $range = "{$sheetTitle}!J{$rowIndex}:K{$rowIndex}";
+                $body = new \Google\Service\Sheets\ValueRange([
+                    'range' => $range,
+                    'values' => [$values]
+                ]);
+    
+                $this->sheetsService->service->spreadsheets_values->update(
+                    $this->spreadsheetId,
+                    $range,
+                    $body,
+                    ['valueInputOption' => 'RAW']
+                );
+    
+                // ✅ Fix: Refresh the sheet data after each insert
+                $sheetData = $this->sheetsService->getSheetData($sheetTitle, 'A:X');
+                $existingShifts = [];
+    
+                foreach ($sheetData as $index => $row) {
+                    if (isset($row[9]) && isset($row[10])) { 
+                        $workerName = $row[9]; 
+                        $shiftName = $row[10];
+    
+                        $existingShifts[$workerName][] = [
+                            'shift' => $shiftName,
+                            'index' => $index + 1,
+                        ];
+                    }
+                }
+    
+                // Add dropdown validation after inserting each row
+                $jobRowIndex0 = $targetRow - 1;
+                $workerOptions = $this->getWorkerDropdownOptions();
+    
+                $this->sheetsService->setDropdownValidation($sheetId, $jobRowIndex0, $jobRowIndex0 + 1, 9, 10, $workerOptions);
+                $jobRowIndex0++;
+    
+                sleep(2);
+            }
+    
+            \Log::info("Shifts added in correct order.");
+        } else {
+            \Log::info("No new shifts to add.");
+        }
+    
+        return $data;
+    }
+    
+
+    public function identifyShift($startTime, $endTime, $jobStartTime = null, $jobEndTime = null, $JobstartHour = null, $JobendHour = null)
+    {
+        if (!$startTime || !$endTime) {
+            return [];
+        }
+    
+        $startHour = date('H', strtotime($startTime));
+        $endHour = date('H', strtotime($endTime));
+    
+        // Treat midnight (00:00) as 24 for proper comparisons
+        if ($endHour == 0) {
+            $endHour = 24;
+        }
+    
+        \Log::info("Start Hour: $startHour, End Hour: $endHour, Job Start Hour: $JobstartHour, Job End Hour: $JobendHour");
+
+        $assignedShifts = [];
+    
+        // Define three fixed shifts
+        $shiftPeriods = [
+            "בוקר" => [8, 12],    // Morning: 08:00 - 11:59
+            "צהריים" => [12, 15],  // Noon: 12:00 - 14:59
+            "אחר הצהריים" => [15, 24], // Afternoon: 15:00 - 23:59
+        ];
+    
+        // If a job exists, convert job start/end times to integers
+        $jobStartHour = $jobStartTime ? date('H', strtotime($jobStartTime)) : null;
+        $jobEndHour = $jobEndTime ? date('H', strtotime($jobEndTime)) : null;
+
+        foreach ($shiftPeriods as $shiftName => [$shiftStart, $shiftEnd]) {
+            // Check if worker availability overlaps with this shift
+            $workerCoversShift = ($startHour < $shiftEnd && $endHour > $shiftStart);
+    
+            // Check if this shift conflicts with the job hours
+            $conflictsWithJob = $JobstartHour && $JobendHour && ($JobstartHour < $shiftEnd && $JobendHour > $shiftStart);
+    
+            if ($workerCoversShift && !$conflictsWithJob) {
+                $assignedShifts[] = $shiftName;
+            }
+        }
+    
+        return array_unique($assignedShifts);
     }
 }

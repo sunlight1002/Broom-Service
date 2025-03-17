@@ -27,7 +27,7 @@ class JobObserverQueue implements ShouldQueue
     {
         $googleSheetsService = new GoogleSheetsService(); // ✅ Instantiate here
         $syncService = new GoogleSheetsJobSyncService($googleSheetsService);
-        $syncService->syncJob($this->jobData);
+        $syncService->main($this->jobData);
     }
 }
 

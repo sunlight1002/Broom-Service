@@ -103,7 +103,6 @@ office@broomservice.co.il',
                 ->whereHas('lead_status', function ($query) {
                     $query->where('lead_status', 'active client');
                 })
-                ->whereIn('id', [194])
                 ->get();
             // dd($clients);
         foreach ($clients as $client) {

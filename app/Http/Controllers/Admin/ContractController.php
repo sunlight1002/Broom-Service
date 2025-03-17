@@ -110,8 +110,6 @@ class ContractController extends Controller
             ->with(['offer', 'client.property_addresses', 'job.propertyAddress'])
             ->find($id);
 
-        \Log::info($contract);
-
         $contract['offer']['services'] = $this->formatServices($contract['offer']);
 
         return response()->json([

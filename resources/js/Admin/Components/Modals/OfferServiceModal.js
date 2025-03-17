@@ -108,6 +108,8 @@ export default function OfferServiceModal({
         const selectedValues = selectedOptions.target.value;
 
         const selectedOptionName = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subname");
+        console.log("selectedOptionName",selectedOptionName);
+        
         const selectedSubPrice = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subprice");
         const selectedSubHours = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("hours");
 
@@ -203,6 +205,8 @@ export default function OfferServiceModal({
             return;
         }
         const selectedOption = target.selectedIndex >= 0 ? target.options[target.selectedIndex] : null;
+        console.log("selectedOption",selectedOption);
+        
         if (!selectedOption) {
             console.warn("No option selected for service.");
             return;
@@ -213,6 +217,8 @@ export default function OfferServiceModal({
                 if (i === index) {
                     return {
                         ...service,
+                        frequency: selectedOption.getAttribute("template") == "airbnb" ? frequencies.find(f => f.name == "On demand" || f.name == "עַל לִדרוֹשׁ")?.id : "",
+                        freq_name: selectedOption.getAttribute("template") == "airbnb" ? frequencies.find(f => f.name == "On demand" || f.name == "עַל לִדרוֹשׁ")?.name : "",
                         service: target.value,
                         name: selectedOption.getAttribute("name") || "",
                         template: selectedOption.getAttribute("template") || "",

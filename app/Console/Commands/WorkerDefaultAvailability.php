@@ -95,8 +95,6 @@ class WorkerDefaultAvailability extends Command
             }
         }
 
-        \Log::info($workers);
-
         return 0;
     }
 }

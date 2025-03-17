@@ -2702,7 +2702,6 @@ class JobController extends Controller
 
     public function makeJobInGoogleSheet(Request $request)
     {
-        \Log::info($request->all());
         $data = null;
         $date = null;
         $currentDateObj = null;

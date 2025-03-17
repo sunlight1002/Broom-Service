@@ -210,4 +210,57 @@ class GoogleSheetsService
         }
         return null;
     }
+
+    public function insertRowBefore($sheetId, $targetRow) {
+        $requestBody = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                [
+                    'insertDimension' => [
+                        'range' => [
+                            'sheetId' => $sheetId,
+                            'dimension' => 'ROWS',
+                            'startIndex' => $targetRow - 1, // Adjust for zero-based index
+                            'endIndex' => $targetRow
+                        ],
+                        'inheritFromBefore' => false // Don't copy formatting
+                    ]
+                ]
+            ]
+        ]);
+    
+        $this->service->spreadsheets->batchUpdate(
+            $this->spreadsheetId,
+            $requestBody
+        );
+    }
+    
+
+    public function insertRow($sheetId, $rowIndex)
+    {
+        $requests = [
+            new \Google\Service\Sheets\Request([
+                'insertDimension' => [
+                    'range' => [
+                        'sheetId' => $sheetId,
+                        'dimension' => 'ROWS',
+                        'startIndex' => $rowIndex - 1, // Google Sheets API is zero-based
+                        'endIndex' => $rowIndex
+                    ],
+                    'inheritFromBefore' => false
+                ]
+            ])
+        ];
+
+        $batchUpdateRequest = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
+            'requests' => $requests
+        ]);
+
+        $this->service->spreadsheets->batchUpdate(
+            $this->spreadsheetId,
+            $batchUpdateRequest
+        );
+
+        \Log::info("Inserted a new row at index $rowIndex in sheet ID $sheetId.");
+    }
+
 }
