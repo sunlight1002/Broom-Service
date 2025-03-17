@@ -125,6 +125,8 @@ export default function AddOffer() {
             }
             
             if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
+                console.log(formValues[t]);
+                
                 alert.error("One of the frequency is not selected");
                 return false;
             }

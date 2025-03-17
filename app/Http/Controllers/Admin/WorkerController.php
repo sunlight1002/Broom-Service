@@ -47,12 +47,10 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status');
-        \Log::info($status);
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
         $isFreelancer = $request->get('is_freelancer');
         $isManpower = $request->get('is_manpower');
-        \Log::info($isManpower);
 
         $query = User::query()
             ->when($status == "active", function ($q) {
@@ -575,7 +573,6 @@ class WorkerController extends Controller
     public function edit($id)
     {
         $worker = User::find($id);
-        \Log::info($worker->role);
         $role = "";
 
         $cleanerRoles = ['Cleaner', 'уборщик', 'מנקה', 'limpiador'];
@@ -1341,7 +1338,6 @@ class WorkerController extends Controller
     public function changeStatus(Request $request){
 
         $data = $request->all();
-        \Log::info($data);
         $worker = User::find($data['workerID']);
         if (!$worker) {
             return response()->json([

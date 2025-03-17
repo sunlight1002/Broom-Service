@@ -25,7 +25,7 @@ class JobObserver
     public function updated(Job $job)
     {
         if (Job::$skipObserver) {
-            \Log::info('Observer skipped');
+            \Log::info('Observer updated');
             return;
         }
         \Log::info('Observer fired');

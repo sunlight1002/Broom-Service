@@ -35,8 +35,8 @@ export default function ViewOffer() {
             <div id="content">
                 <div className="AddOffer">
                     <h1 className="page-title addEmployer">View Offer</h1>
-                    <div className="card">
-                        <div className="card-body">
+                    <div className="card" style={{ boxShadow: "none" }}>
+                        <div className="card-body p-0 rounded-5">
                             {offer &&
                                 offer.map((ofr, i) => {
                                     let cl = ofr.client;
@@ -207,39 +207,37 @@ export default function ViewOffer() {
                                                                 {services &&
                                                                     services.map(
                                                                         (s, i) => {
-                                                                            console.log(s);
-                                                                            
+                                                                            const address =
+                                                                                s.template === "airbnb"
+                                                                                    ?
+                                                                                    s?.sub_services?.address_name
+                                                                                    : s?.address_name;
+
+                                                                            const serviceName =
+                                                                                s?.template === "airbnb"
+                                                                                    ? `${s?.name} (${s?.sub_services
+                                                                                        ?.sub_service_name || ""
+                                                                                    })`
+                                                                                    : s?.name;
+
                                                                             return (
-                                                                                <tr key={ i}>
+                                                                                <tr key={i}>
                                                                                     <td>
                                                                                         {s.address ? (
                                                                                             <Link
-                                                                                                to={`https://maps.google.com?q=${s.address.geo_address}`}
+                                                                                                to={`https://maps.google.com?q=${address}`}
                                                                                             >
                                                                                                 {
-                                                                                                    s
-                                                                                                        .address
-                                                                                                        .address_name
+                                                                                                    address
                                                                                                 }
                                                                                             </Link>
                                                                                         ) : (
                                                                                             "NA"
                                                                                         )}
                                                                                     </td>
-                                                                                    {s.service == 10 ? (
-                                                                                        <td>
-                                                                                            {" "}
-                                                                                            {
-                                                                                                s.other_title
-                                                                                            }
-                                                                                        </td>
-                                                                                    ) : (
-                                                                                        <td>
-                                                                                            {
-                                                                                                s.name
-                                                                                            }
-                                                                                        </td>
-                                                                                    )}
+                                                                                    <td>
+                                                                                        {serviceName}
+                                                                                    </td>
 
                                                                                     <td>
                                                                                         {
@@ -252,7 +250,7 @@ export default function ViewOffer() {
                                                                                         }
                                                                                     </td>
                                                                                     <td className="text-right">
-                                                                                        {workerHours(s,"hour(s)")}
+                                                                                        {workerHours(s, "hour(s)")}
                                                                                     </td>
                                                                                     {s.type != "fixed" || perhour == 1 ? (
                                                                                         <>

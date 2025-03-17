@@ -46,8 +46,6 @@ class WeeklyNotifyClientWorker extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->addWeek()->startOfWeek();
         $endOfNextWeek = Carbon::now()->addWeek()->endOfWeek();
-        \Log::info($startOfNextWeek." start");
-        \Log::info($endOfNextWeek." end");
 
         // Fetch scheduled jobs for the next week
         $scheduledJobs = Job::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
@@ -71,7 +69,6 @@ class WeeklyNotifyClientWorker extends Command
         $template = WhatsappTemplate::where('key','NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE')->first();
 
         foreach ($scheduledJobs as $job) {
-            \Log::info($job);
             if ($job->client) {
                 $clientData = [
                     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
