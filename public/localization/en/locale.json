@@ -1814,6 +1814,7 @@
             "card": "Cards",
             "notSent": "Not Sent",
             "commenst": "Comments",
+            "pending Request":"Pending Request",
             "noRecord": "No record found",
             "meetingStatus": " Meeting Status",
             "meetingAttender": "Meeting Attender",
@@ -2374,6 +2375,7 @@
             "hourly": "Hourly",
             "salary": "Salary",
             "termination": "Termination",
+            "pending Request":"Pending Request",
             "invitation_for_hearing": "Schedule Hearing",
             "verification": "Two step Verification"
         }
