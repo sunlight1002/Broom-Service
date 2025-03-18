@@ -218,7 +218,26 @@ export const getAvailableSlots = async (
     // Get the available slots based on 15-minute intervals
     let availableSlots = [];
     let status = null;
-    let remainingSlots = parseInt(workHours) * 4; // Convert work hours to 15-minute slots (4 slots per hour)
+    // let remainingSlots = parseInt(workHours) * 4; // Convert work hours to 15-minute slots (4 slots per hour).
+
+    let fullHours = Math.floor(workHours); // Get the integer part (full hours)
+    let fractionalPart = workHours - fullHours; // Get the fractional part
+    
+    // Convert the full hours to 15-minute slots (4 slots per hour)
+    let remainingSlots = fullHours * 4;
+    
+    // Handle fractional part:
+    if (fractionalPart <= 0.15) {
+        // If the fractional part is 0.15 or less, consider it 15 minutes (1 slot)
+        remainingSlots += 1; // Add 1 slot (15 minutes)
+    } else if (fractionalPart > 0.15 && fractionalPart <= 0.50) {
+        // If the fractional part is between 0.15 and 0.50, consider it 30 minutes (2 slots)
+        remainingSlots += 2; // Add 2 slots (30 minutes)
+    } else if (fractionalPart > 0.50 && fractionalPart <= 0.99) {
+        // If the fractional part is between 0.50 and 0.75, consider it 45 minutes (3 slots)
+        remainingSlots += 3; // Add 3 slots (45 minutes)
+    }
+    
 
     for (let i = startIndex; i < chosenDateSlots.allSlots.length && remainingSlots > 0; i++) {
         const currentSlot = chosenDateSlots.allSlots[i];
@@ -283,7 +302,7 @@ export const getAvailableSlots = async (
             if (confirmAlert.isConfirmed) {
                 try {
                     availableSlots = [];
-                    remainingSlots = parseInt(workHours) * 4;
+                    // remainingSlots = parseInt(workHours) * 4;
                     let overlapSlots = [];
 
                     for (let i = startIndex; i < chosenDateSlots.allSlots.length && remainingSlots > 0; i++) {

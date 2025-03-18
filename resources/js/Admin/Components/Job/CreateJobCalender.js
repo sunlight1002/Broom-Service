@@ -87,6 +87,8 @@ export default function CreateJobCalender({
         setSelectedServiceIndex(index);
 
         const _service = services[index];
+        console.log("_service", _service);
+        
 
         setSelectedService(_service);
 
@@ -106,6 +108,9 @@ export default function CreateJobCalender({
                 });
             }
         }
+
+        console.log("hours", hours);
+        
 
         setSelectedHours(hours);
         let _calendarStartDate = calendarStartDate;
@@ -258,7 +263,8 @@ export default function CreateJobCalender({
                     setWorkerAvailabilities,
                     setUpdatedJobs
                 );
-
+                console.log("slots", slots);
+                
                 // Filter out slots that have already been selected
                 const filteredSlots = slots.filter(
                     (slot) => !selectedSlotTimes.has(slot.time.time)

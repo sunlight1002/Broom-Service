@@ -198,18 +198,73 @@ export default function TotalJobs() {
                     {
                         title: t("global.date"),
                         data: "start_date",
+                        className: "px-1",
+                        responsivePriority: 1,
+                        width: "3%",
+                        render: function (data, type, row, meta) {
+                            console.log(row);
+
+                            if (!data) return ""; // Handle empty data
+                            let formattedDate = "";
+
+                            let dateParts = data.split("/"); // Assuming format is DD/MM/YY
+                            if (dateParts.length === 3) {
+                                formattedDate = `${dateParts[0]}/${dateParts[1]}`;
+                            }
+
+                            // If the date is in YYYY-MM-DD format, adjust accordingly
+                            dateParts = data.split("-");
+                            if (dateParts.length === 3) {
+                                formattedDate = `${dateParts[2]}/${dateParts[1]}`;
+                            }
+
+                            let serviceHtml = `<div class="rounded mb-1 shifts-badge">${row?.shifts}</div>`;
+                            return `<div>${formattedDate} </br> ${serviceHtml}</div>`;
+                        },
                     },
                     {
                         title: t("client.dashboard.client"),
                         data: "client_name",
+                        responsivePriority: 1,
+                        className: "text-center px-1",
+                        // width: "12%",
                         render: function (data, type, row, meta) {
-                            let _html = `<span class="client-name-badge dt-client-badge" style=" color: black; background-color: ${row.client_color ?? "#FFFFFF"
-                                };" data-client-id="${row.client_id}">`;
+                            if (!data) return ""; // Handle empty data
 
-                            _html += `<i class="fa-solid fa-user"></i>`;
+                            let nameParts = data.split(" ");
+                            let displayName = nameParts[0]; // Default to first name
 
-                            _html += data;
+                            if (nameParts.length > 1) {
+                                displayName += " " + nameParts[1].substring(0, 2); // Append first two letters of last name
+                            }
 
+                            let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
+                            _html += `<i class="fa-solid fa-user"></i> `;
+                            _html += displayName; // Show formatted name
+                            _html += `</span>`;
+
+                            return _html;
+                        },
+                    },
+                    {
+                        title: t("global.worker"),
+                        data: "worker_name",
+                        responsivePriority: 1,
+                        className: "text-center px-1",
+                        // width: "12%",
+                        render: function (data, type, row, meta) {
+                            if (!data) return ""; // Handle empty data
+
+                            let nameParts = data.split(" ");
+                            let displayName = nameParts[0]; // Default to first name
+
+                            if (nameParts.length > 1) {
+                                displayName += " " + nameParts[1].substring(0, 2); // Append first two letters of last name
+                            }
+
+                            let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
+                            _html += `<i class="fa-solid fa-user"></i> `;
+                            _html += displayName; // Show formatted name
                             _html += `</span>`;
 
                             return _html;
@@ -229,31 +284,18 @@ export default function TotalJobs() {
                             return _html;
                         },
                     },
-                    {
-                        title: t("global.worker"),
-                        data: "worker_name",
-                        render: function (data, type, row, meta) {
-                            let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
-
-                            _html += `<i class="fa-solid fa-user"></i>`;
-
-                            _html += data;
-
-                            _html += `</span>`;
-
-                            return _html;
-                        },
-                    },
-                    {
-                        title: t("client.jobs.shift"),
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            return `<div class="rounded mb-1 shifts-badge">${data?.shifts}</div>`;
-                        },
-                    },
+                    // {
+                    //     title: t("client.jobs.shift"),
+                    //     data: null,
+                    //     render: function (data, type, row, meta) {
+                    //         return `<div class="rounded mb-1 shifts-badge">${data?.shifts}</div>`;
+                    //     },
+                    // },
                     {
                         title: t("admin.global.if_job_was_done"),
                         data: "is_job_done",
+                        responsivePriority: 1,
+                        width: "5%",
                         orderable: false,
                         render: function (data, type, row, meta) {
                             return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input type="checkbox" data-id="${row.id
@@ -275,6 +317,7 @@ export default function TotalJobs() {
                     {
                         title: t("admin.global.time_worker_actually"),
                         data: "actual_time_taken_minutes",
+                        width: "10%",
                         orderable: false,
                         render: function (data, type, row, meta) {
                             const _hours = row.actual_time_taken_minutes
@@ -349,7 +392,8 @@ export default function TotalJobs() {
                         title: t("global.action"),
                         data: "action",
                         orderable: false,
-                        responsivePriority: 1,
+                        width: "3%",
+                        className: "text-center",
                         render: function (data, type, row, meta) {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
@@ -797,7 +841,7 @@ export default function TotalJobs() {
         <div id="container">
             <Sidebar />
             <div id="content" className="job-listing-page">
-                <div className="titleBox customer-title mb-3">
+                <div className="titleBox customer-title mb-3 ">
                     <div className="row">
                         {/* <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
@@ -1020,6 +1064,7 @@ export default function TotalJobs() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setSelectedDateRange("Day");
+                                                localStorage.setItem("selectedDateRange", "Day");
                                             }}
                                         >
                                             {t("global.day")}
@@ -1028,6 +1073,7 @@ export default function TotalJobs() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setSelectedDateRange("Week");
+                                                localStorage.setItem("selectedDateRange", "Week");
                                             }}
                                         >
                                             {t("global.week")}
@@ -1036,6 +1082,7 @@ export default function TotalJobs() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setSelectedDateRange("Month");
+                                                localStorage.setItem("selectedDateRange", "Month");
                                             }}
                                         >
                                             {t("global.month")}
@@ -1070,7 +1117,8 @@ export default function TotalJobs() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setSelectedDateStep(t("client.previous"));
+                                                setSelectedDateStep("Previous");
+                                                localStorage.setItem("selectedDateStep", "Previous");
                                             }}
                                         >
                                             {t("client.previous")}
@@ -1078,7 +1126,8 @@ export default function TotalJobs() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setSelectedDateStep(t("global.current"));
+                                                setSelectedDateStep("Current");
+                                                localStorage.setItem("selectedDateStep", "Current");
                                             }}
                                         >
                                             {t("global.current")}
@@ -1086,7 +1135,8 @@ export default function TotalJobs() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setSelectedDateStep(t("global.next"));
+                                                setSelectedDateStep("Next");
+                                                localStorage.setItem("selectedDateStep", "Next");
                                             }}
                                         >
                                             {t("global.next")}
@@ -1227,7 +1277,7 @@ export default function TotalJobs() {
                     </div>
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body getjobslist">
+                    <div className="card-body getjobslist p-0">
                         {
                             !probbtn && (
                                 <div className="boxPanel-Th-border-none">

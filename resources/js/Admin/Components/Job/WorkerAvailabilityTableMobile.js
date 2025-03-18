@@ -19,8 +19,6 @@ export default function WorkerAvailabilityTableMobile({
     distance
 }) {
 
-    console.log(isClient);
-
     const [filterSlots, setFilterSlots] = useState([]);
     const [selectedWorker, setSelectedWorker] = useState(null);
     const [selectedDate, setSelectedDate] = useState(week[0]);
@@ -123,7 +121,7 @@ export default function WorkerAvailabilityTableMobile({
     }
 
     return (
-        <div className="table-container" style={{ maxHeight: "100%" }}>
+        <div className="table-container mx-2" style={{ maxHeight: "100%" }}>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <button
                     type="button"
