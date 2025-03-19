@@ -11,6 +11,7 @@ use App\Models\Fblead;
 use App\Models\Setting;
 use App\Models\Schedule;
 use App\Models\Contract;
+use App\Traits\GoogleAPI;
 use App\Models\WorkerLeads;
 use Illuminate\Support\Str;
 use App\Models\Notification;
@@ -22,7 +23,6 @@ use App\Models\ScheduleChange;
 use App\Events\SendClientLogin;
 use App\Models\WebhookResponse;
 use App\Traits\ScheduleMeeting;
-use App\Traits\GoogleAPI;
 use App\Jobs\SendMeetingMailJob;
 use App\Mail\Client\LoginOtpMail;
 use App\Models\WhatsappLastReply;
@@ -1897,7 +1897,7 @@ If you would like to speak to a human representative, please send a message with
                     ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
                     ->first();
                 // $lng = $client->lng ?? "heb";
-                if ($client->otp == $input) {
+                if ($client->otp == $input && $client->otp_expiry >= now()) {
                     $send_menu = 'verified';
                 } else {
                     $client->attempts = $client->attempts + 1;
@@ -1914,6 +1914,12 @@ If you would like to speak to a human representative, please send a message with
                     ->first();
                 $send_menu = 'failed_attempts';
             } else {
+                $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
+                $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
+
+                if(!empty($msgStatus) || !empty($MondaymsgStatus)) {
+                    die("already client in (monday / wednesday) message");
+                }
                 $send_menu = 'sorry';
             }
 
@@ -2435,6 +2441,8 @@ If you would like to speak to a human representative, please send a message with
                     }
                     // Encode the updated `extra` array back to JSON
                     $client->extra = json_encode($extra);
+                    $client->otp = null;
+                    $client->otp_expiry = null;
                     $client->save();
 
                     // Send verified message
