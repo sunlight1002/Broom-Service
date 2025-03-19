@@ -408,6 +408,9 @@ export default function WorkerAvailabilityTable({
                                                 }
                                             }
 
+                                            console.log(shift , "shift");
+                                            
+
                                             return (
                                                 <div key={_sIdx} className={`mb-2`}>
                                                     <div

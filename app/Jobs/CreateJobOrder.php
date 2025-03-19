@@ -107,9 +107,27 @@ class CreateJobOrder implements ShouldQueue
 
             App::setLocale($client->lng);
 
+            $serviceName = null;
+            $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address["geo_address"]));
+
+            if(($offerService['template'] == "airbnb")) {
+                if($client->lng == "heb") {
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $cleaned_address . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")";
+                } else {
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $cleaned_address . " - " . $service->name . "(". $offerService['sub_services']['subServices']['name_en'] .")";
+                }
+            } else {
+                // Handle the case where subServices is missing or empty
+                if($client->lng == "heb") {
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->heb_name;
+                } else {
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name;
+                }
+            }
+            
             if ($job->is_job_done) {
                 $items[] = [
-                    'description' => $client->lng == 'heb' ? $service->heb_name . " - " . Carbon::parse($job->start_date)->format('d.m') : $service->name . " - " . Carbon::parse($job->start_date)->format('d.m'),
+                    'description' => $serviceName,
                     'unitprice' => $job->subtotal_amount,
                     'quantity' => 1
                 ];
@@ -135,7 +153,7 @@ class CreateJobOrder implements ShouldQueue
 
             if($cancellationFees) {
                 $items[] = [
-                        "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::parse($job->start_date)->format('d.m') . " - " . __('mail.job_status.cancellation_fee'),
+                        "description" => $serviceName . " - " . __('mail.job_status.cancellation_fee'),
                         "unitprice"   => $cancellationFees->cancellation_fee_amount,
                         "quantity"    => 1,
                     ];
@@ -143,7 +161,7 @@ class CreateJobOrder implements ShouldQueue
 
             if ($job->extra_amount) {
                 $items[] = [
-                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::parse($job->start_date)->format('d.m') . " - " . __('mail.job_common.extra_amount'),
+                    "description" => $serviceName . " - " . __('mail.job_common.extra_amount'),
                     "unitprice"   => $job->extra_amount,
                     "quantity"    => 1,
                 ];

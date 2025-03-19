@@ -129,7 +129,7 @@ export default function Clients() {
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
                             if (row.has_contract == 1) {
-                                _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.latest_verified_contract_id}">Create Job</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
                             }
 
                             _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
@@ -236,7 +236,7 @@ export default function Clients() {
 
         $(tableRef.current).on("click", ".dt-create-job-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/create-job/${_id}`);
+            navigate(`/admin/create-client-job/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
