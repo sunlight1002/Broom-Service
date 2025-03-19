@@ -8,6 +8,10 @@ use App\Models\Setting;
 use App\Enums\SettingKeyEnum;
 use App\Models\ClientPropertyAddress;
 use Illuminate\Support\Facades\Http;
+use SplTempFileObject;
+use League\Csv\Writer;
+use Illuminate\Support\Facades\Storage;
+
 
 class addFristAddressOfClientInIcount extends Command
 {
@@ -43,20 +47,49 @@ class addFristAddressOfClientInIcount extends Command
     public function handle()
     {
         $clients = Client::all();
+        $headers = [
+            'Client ID', 'Full Name', 'Invoice Name', 'Phone', 'Address Name', 'Geo Address', 'City', 'Zip Code',
+        ];
+        // Create CSV writer instance
+        $csv = Writer::createFromFileObject(new SplTempFileObject());
+
+        // Insert the headers
+        $csv->insertOne($headers);
 
         foreach ($clients as $client) {
             $clientPropertyAddress = ClientPropertyAddress::where('client_id', $client->id)->first();
-            if ($clientPropertyAddress && $client->icount_client_id) {
-                $data = [
-                    'client_id' => $client->icount_client_id,
-                    'bus_street' => $clientPropertyAddress->geo_address,
-                    'bus_city' => $clientPropertyAddress->city ?? null,
-                    'bus_zip' => $clientPropertyAddress->zipcode ?? null,
-                ];
 
-                $this->updateClientIcount($data);
-            }
+            $data = [
+                $client->id,
+                ($client->firstname ?? null) . ' ' . ($client->lastname ?? null),
+                $client->invoicename ?? null,
+                $client->phone ?? null,
+                $clientPropertyAddress->address_name ?? null,
+                $clientPropertyAddress->geo_address ?? null,
+                $clientPropertyAddress->city ?? null,
+                $clientPropertyAddress->zipcode ?? null
+            ];
+
+            $csv->insertOne($data);
+
+            // if ($clientPropertyAddress && $client->icount_client_id) {
+            //     $data = [
+            //         'client_id' => $client->icount_client_id,
+            //         'bus_street' => $clientPropertyAddress->geo_address,
+            //         'bus_city' => $clientPropertyAddress->city ?? null,
+            //         'bus_zip' => $clientPropertyAddress->zipcode ?? null,
+            //     ];
+
+            //     $this->updateClientIcount($data);
+            // }
         }
+        
+        // Output the CSV file to storage
+        $fileName = 'clients_first_address.csv';
+        Storage::put($fileName, $csv->toString());
+
+        $this->info("Report has been exported to storage/{$fileName}");
+
         return 0;
     }
 
