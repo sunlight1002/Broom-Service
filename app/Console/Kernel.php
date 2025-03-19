@@ -80,6 +80,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('client:close-active-client-bot')->everyMinute();
         $schedule->command('client:close-active-worker-bot')->everyMinute();
 
+        $schedule->command('client:job-review-message')->weeklyOn(Schedule::MONDAY, '11:00');
+        $schedule->command('client:job-review-message')->weeklyOn(Schedule::TUESDAY, '11:00');
+        $schedule->command('client:job-review-message')->weeklyOn(Schedule::WEDNESDAY, '11:00');
+        $schedule->command('client:job-review-message')->weeklyOn(Schedule::THURSDAY, '11:00');
+        $schedule->command('client:job-review-message')->weeklyOn(Schedule::SUNDAY, '11:00');
+
         $schedule->command('send:to-active-clients')->weeklyOn(Schedule::MONDAY, '8:30');
         $schedule->command('send:to-active-workers')
             ->mondays()

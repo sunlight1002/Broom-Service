@@ -225,7 +225,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     role="tab-panel"
                     aria-labelledby="worker-pending"
                 >
-                    <WorkerPendingRequest workerId={worker.id}></WorkerPendingRequest>
+                    <WorkerPendingRequest workerId={worker.id}/>
                 </div>
             </div>
         </div>
