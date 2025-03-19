@@ -25,6 +25,9 @@ export default function CreateJobCalender({
     searchVal,
     distance,
     prevWorker,
+    selectedContractIndex = 0,
+    contracts = [],
+    setSelectedContractIndex = () => { },
 }) {
     const navigate = useNavigate();
     const alert = useAlert();
@@ -81,14 +84,17 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
+
+    const handleContract = (index) => {
+        setSelectedContractIndex(index);
+    };
+
     const handleServices = (index) => {
         setServiceIndex(index);
         setLoading(true);
         setSelectedServiceIndex(index);
 
         const _service = services[index];
-        console.log("_service", _service);
-        
 
         setSelectedService(_service);
 
@@ -110,7 +116,7 @@ export default function CreateJobCalender({
         }
 
         console.log("hours", hours);
-        
+
 
         setSelectedHours(hours);
         let _calendarStartDate = calendarStartDate;
@@ -129,7 +135,7 @@ export default function CreateJobCalender({
     const getWorkers = useCallback(
         async (_service, _calendarStartDate, _calendarEndDate) => {
             // if (hasFetched) return;
-            
+
             // setHasFetched(true);
             try {
                 setLoading(true);
@@ -139,7 +145,7 @@ export default function CreateJobCalender({
                         filter: true,
                         start_date: calendarStartDate ?? _calendarStartDate,
                         end_date: calendarEndDate ?? _calendarEndDate,
-                        distance : distance,
+                        distance: distance,
                         service_id: _service.service,
                         has_cat: _service.address.is_cat_avail,
                         has_dog: _service.address.is_dog_avail,
@@ -263,8 +269,6 @@ export default function CreateJobCalender({
                     setWorkerAvailabilities,
                     setUpdatedJobs
                 );
-                console.log("slots", slots);
-                
                 // Filter out slots that have already been selected
                 const filteredSlots = slots.filter(
                     (slot) => !selectedSlotTimes.has(slot.time.time)
@@ -686,7 +690,7 @@ export default function CreateJobCalender({
                                                                     } else if (isDogAvail) {
                                                                         return "Dog";
                                                                     }
-                                                                    return "NA"; 
+                                                                    return "NA";
                                                                 })()
                                                             }
                                                         </p>
@@ -779,6 +783,36 @@ export default function CreateJobCalender({
                         </div>
                         <div className="modal-body">
                             <div className="row">
+                                {
+                                    contracts && contracts.length > 0 ? (
+                                        <div className="col-sm-12 mb-2">
+                                            <label className="control-label">
+                                                Contracts
+                                            </label>
+                                            <select
+                                                onChange={(e) =>
+                                                    handleContract(e.target.value)
+                                                }
+                                                className="form-control"
+                                            >
+                                                <option value="">
+                                                    --- Please Select Offer ID ---
+                                                </option>
+                                                {contracts &&
+                                                    contracts.map((item, index) => {
+                                                        return (
+                                                            <option
+                                                                value={item.id}
+                                                                key={index}
+                                                            >
+                                                                Offer ID: {item.offer_id}
+                                                            </option>
+                                                        );
+                                                    })}
+                                            </select>
+                                        </div>
+                                    ) : null
+                                }
                                 <div className="col-sm-12">
                                     <label className="control-label">
                                         Services
@@ -794,16 +828,29 @@ export default function CreateJobCalender({
                                         </option>
                                         {services &&
                                             services.map((item, index) => {
-                                                return (
-                                                    <option
-                                                        value={index}
-                                                        key={index}
-                                                    >
-                                                        {item.template != "others"
-                                                            ? item.name
-                                                            : item.other_title}
-                                                    </option>
-                                                );
+                                                if (contracts && contracts.length > 0 && (item.contract_id == selectedContractIndex)) {
+                                                    return (
+                                                        <option
+                                                            value={index}
+                                                            key={index}
+                                                        >
+                                                            {item.template != "others"
+                                                                ? item.name
+                                                                : item.other_title}
+                                                        </option>
+                                                    );
+                                                }else if(!contracts || contracts.length == 0){
+                                                    return (
+                                                        <option
+                                                            value={index}
+                                                            key={index}
+                                                        >
+                                                            {item.template != "others"
+                                                                ? item.name
+                                                                : item.other_title}
+                                                        </option>
+                                                    );
+                                                }
                                             })}
                                     </select>
                                 </div>

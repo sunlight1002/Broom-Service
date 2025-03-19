@@ -234,10 +234,24 @@ class ContractController extends Controller
             ->get();
 
         $contracts = $contracts->map(function ($item) {
-            $item->offer->services = $this->formatServices($item->offer);
+            if ($item->offer) {
+                $item->offer->setAttribute('services', $this->formatServices($item->offer));
+            }
             return $item;
         });
 
+        // $contracts = Contract::query()
+        //     ->with('offer')
+        //     ->where('client_id', $id)
+        //     ->where('status', ContractStatusEnum::VERIFIED)
+        //     ->orderBy('created_at', 'desc')
+        //     ->first();
+
+        // if ($contracts && $contracts->offer) {
+        //     $contracts->offer->setAttribute('services', $this->formatServices($contracts->offer));
+        // }
+
+            
         $client = Client::find($id);
         return response()->json([
             'contract' => $contracts,
