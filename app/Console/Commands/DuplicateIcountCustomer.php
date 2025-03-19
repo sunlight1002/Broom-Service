@@ -7,7 +7,7 @@ use App\Models\Setting;
 use App\Enums\SettingKeyEnum;
 use Illuminate\Support\Facades\Http;
 
-class CloseActiveClientBot extends Command
+class DuplicateIcountCustomer extends Command
 {
     /**
      * The name and signature of the console command.

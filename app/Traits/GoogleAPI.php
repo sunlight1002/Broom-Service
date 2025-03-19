@@ -204,7 +204,7 @@ trait GoogleAPI
 
         $client->setAccessType('offline'); // necessary for getting the refresh token
         $client->setApprovalPrompt('force'); // necessary for getting the refresh token
-
+        $client->setPrompt('consent'); 
         // scopes determine what google endpoints we can access. keep it simple for now.
         $client->setScopes(
             [
@@ -219,6 +219,7 @@ trait GoogleAPI
                 \Google\Service\PeopleService::CONTACTS_OTHER_READONLY, // Read-only access to "Other Contacts"
                 \Google\Service\Sheets::SPREADSHEETS,
                 \Google\Service\Drive::DRIVE,
+                \Google\Service\Gmail::GMAIL_READONLY,
             ]
         );
         // $client->setIncludeGrantedScopes(true);
