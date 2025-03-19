@@ -158,18 +158,6 @@ export default function WorkerPendingRequest({ workerId }) {
                 order: [[0, "desc"]],
                 columns: [
                     {
-                        title: t("global.Type"),
-                        data: "user_type",
-                        className: "text-center",
-                        render: function (data) {
-                            if (data === "Client") {
-                                return `<span class="">C</span>`;
-                            } else if (data === "Worker") {
-                                return `<span class="">W</span>`;
-                            }
-                        },
-                    },
-                    {
                         title: t("global.name"),
                         data: "user_fullname",
                         className: "cursor-pointer text-center",

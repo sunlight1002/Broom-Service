@@ -45,7 +45,6 @@ class ScheduleChangeController extends Controller
         $reason = $request->get('reason');
         $client_id = $request->get('client_id');
 
-        \Log::info('clientId', [$client_id]);
         $query = ScheduleChange::with('user');
 
         // Modified search functionality to include firstname and lastname
@@ -82,7 +81,7 @@ class ScheduleChangeController extends Controller
             if ($status && $status !== 'All') {
                 $query->where('status', $status);
             }
-        })
+            })
             ->when($client_id, function ($q) use ($client_id) {
                 return $q->where('user_id', $client_id);
             })
