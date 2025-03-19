@@ -50,7 +50,7 @@ export default function CreateJob() {
                         n["contract_id"] = parseInt(params.id);
                         return n;
                     });
-    
+
                 setServices(_services);
                 setLoading(false);
             })

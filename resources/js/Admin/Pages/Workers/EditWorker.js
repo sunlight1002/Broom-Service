@@ -358,7 +358,6 @@ export default function EditWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                readOnly
                                                 placeholder={t("worker.settings.email")}
                                             />
                                             {errors.email ? (

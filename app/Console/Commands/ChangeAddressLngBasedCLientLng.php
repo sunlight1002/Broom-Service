@@ -54,7 +54,7 @@ class ChangeAddressLngBasedCLientLng extends Command
         $clients = Client::all();
         
         foreach ($clients as $client) {
-            $clientPropertyAddresses = ClientPropertyAddress::where('client_id', $client->id)->whereIn('client_id', [194])->get();
+            $clientPropertyAddresses = ClientPropertyAddress::where('client_id', $client->id)->get();
     
             foreach ($clientPropertyAddresses as $clientPropertyAddress) {
                 // Check if the current address is already in the correct language

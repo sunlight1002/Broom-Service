@@ -684,6 +684,7 @@ class WorkerController extends Controller
             'firstname'     => $request->firstname,
             'lastname'      => ($request->lastname) ? $request->lastname : '',
             'phone'         => $request->phone,
+            'email'         => $request->email ? $request->email : $worker->email ?? "",
             'address'       => $request->address,
             'latitude'      => $request->latitude,
             'longitude'     => $request->longitude,

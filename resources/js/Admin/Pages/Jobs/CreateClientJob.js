@@ -2,14 +2,32 @@ import React, { useState, useEffect } from "react";
 import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { FaPeopleGroup } from "react-icons/fa6";
+import { BsBuildings } from "react-icons/bs";
+import { PiSuitcaseBold } from "react-icons/pi";
+import { RiTimerFlashLine } from "react-icons/ri";
+import { GiSandsOfTime } from "react-icons/gi";
+import { LiaPawSolid } from "react-icons/lia";
+import { FaPeopleArrows } from "react-icons/fa";
 
 import Sidebar from "../../Layouts/Sidebar";
 import CreateJobCalender from "../../Components/Job/CreateJobCalender";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function CreateClientJob() {
     const params = useParams();
     const [services, setServices] = useState([]);
+    const [contracts, setContracts] = useState([]);
     const [client, setClient] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [selectedService, setSelectedService] = useState(0);
+    const [selectedServiceIndex, setSelectedServiceIndex] = useState(0);
+    const [selectedContractIndex, setSelectedContractIndex] = useState(0);
+    const [currentFilter, setcurrentFilter] = useState("Current Week");
+    const [distance, setDistance] = useState('default')
+    const [searchVal, setSearchVal] = useState("");
+    const [prevWorker, setPrevWorker] = useState(true)
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -21,24 +39,48 @@ export default function CreateClientJob() {
         axios
             .get(`/api/admin/get-contract-by-client/${params.id}`, { headers })
             .then((res) => {
-                const r = res.data.contract;
+                const contracts = res.data.contract;
+                setContracts(contracts);
+                if (!contracts || contracts.length === 0) {
+                    return;
+                }
+
                 setClient(res.data.client);
                 let data = [];
-                let new_data = [];
-                r.map((c) => {
-                    new_data = JSON.parse(c.offer.services);
-                    new_data = new_data.map((n) => {
-                        n["contract_id"] = c.id;
-                        return n;
-                    });
-                    Array.prototype.push.apply(data, new_data);
+
+                contracts.forEach((c) => {
+                    if (!c.offer || !c.offer.services) {
+                        return;
+                    }
+
+                    let new_data;
+                    try {
+                        new_data = JSON.parse(c.offer.services);
+                    } catch (error) {
+                        return;
+                    }
+
+                    new_data = new_data.map((n) => ({
+                        ...n,
+                        contract_id: c.id,
+                    }));
+
+                    data.push(...new_data);
                 });
-                setServices(data);
-            });
+
+                // If data is not empty, update the state
+                if (data.length > 0) {
+                    setServices(data);
+                }
+            })
+            .catch((error) => console.error("Error fetching contracts:", error));
     };
+    
+
     useEffect(() => {
         getJob();
     }, []);
+
 
     useEffect(() => {
         if (services.length) {
@@ -49,165 +91,218 @@ export default function CreateClientJob() {
         }
     }, [services]);
 
+    console.log(selectedContractIndex, "selectedContractIndex");
+    
+
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
                 <div className="view-applicant">
-                    <h1 className="page-title editJob">Add Job</h1>
+                    <h1 className="page-title editJob border-0">Add Job</h1>
                     <div id="calendar"></div>
-                    <div className="card">
+                    <div className="card" style={{ boxShadow: "none" }}>
                         {client && (
-                            <div className="card-body">
-                                <form>
-                                    <div className="row">
-                                        <div className="col-sm-4 col-lg-2">
-                                            <div className="form-group">
+                            <>
+                                <div className="sticky-container">
+                                    <div className="row d-flex flex-wrap">
+                                        <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                            <div className="dashIcon d-flex align-items-center">
+                                                <i className=""><FaPeopleGroup className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                            </div>
+                                            <div className="dashText ml-2">
+                                                <p className="font-15 navyblueColor" style={{ fontWeight: "500" }}>{client.firstname + " " + client.lastname}</p>
                                                 <label>Client</label>
-                                                <p>
-                                                    {client.firstname +
-                                                        " " +
-                                                        client.lastname}
-                                                </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-4 col-lg-2">
-                                            <div className="form-group">
-                                                <label>Services</label>
-                                                {services.map((item, index) => {
-                                                    return (
-                                                        <p
-                                                            className={`services-${item.service}-${item.contract_id}`}
-                                                            key={index}
-                                                        >
-                                                            {item.template ==
-                                                            "others"
-                                                                ? item.other_title
-                                                                : item.name}
-                                                        </p>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4 col-lg-2">
-                                            <div className="form-group">
-                                                <label>Frequency</label>
-                                                {services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${item.service}-${item.contract_id}`}
-                                                        key={index}
-                                                    >
-                                                        {item.freq_name}
-                                                    </p>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4 col-lg-2">
-                                            <div className="form-group">
-                                                <label>Time to Complete</label>
-                                                {services.map((item, index) => (
-                                                    <div key={index}>
-                                                        {item?.workers?.map(
-                                                            (worker, i) => (
-                                                                <p
-                                                                    className={`services-${item.service}-${item.contract_id}`}
-                                                                    key={i}
-                                                                >
-                                                                    {
-                                                                        worker.jobHours
-                                                                    }{" "}
-                                                                    hours
-                                                                    (Worker{" "}
-                                                                    {i + 1})
-                                                                </p>
-                                                            )
-                                                        )}
+                                        {services.length > 0 && selectedServiceIndex !== null && (
+                                            <>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><BsBuildings className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4">
-                                            <div className="form-group">
-                                                <label>Property</label>
-                                                {services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${item.service}-${item.contract_id}`}
-                                                        key={index}
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex]?.address?.address_name}
+                                                        </p>
+                                                        <label>Property</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><PiSuitcaseBold className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex].template === "others"
+                                                                ? services[selectedServiceIndex].other_title
+                                                                : services[selectedServiceIndex].name}
+                                                        </p>
+                                                        <label>Services</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><RiTimerFlashLine className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex].freq_name}
+                                                        </p>
+                                                        <label>Frequency</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><GiSandsOfTime className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        {services[selectedServiceIndex]?.workers?.map((worker, i) => (
+                                                            <p key={i} className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                                {worker.jobHours} hours (Worker {i + 1})
+                                                            </p>
+                                                        ))}
+                                                        <label>Time to Complete</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><LiaPawSolid className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex]?.address?.is_cat_avail
+                                                                ? "Cat"
+                                                                : services[selectedServiceIndex]?.address?.is_dog_avail
+                                                                    ? "Dog"
+                                                                    : "NA"}
+                                                        </p>
+                                                        <label>Pet animals</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><FaPeopleArrows className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ textTransform: "capitalize", fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex]?.address?.prefer_type}
+                                                        </p>
+                                                        <label>Gender preference</label>
+                                                    </div>
+                                                </div>
+                                            </>// end here
+                                        )}
+                                    </div>
+                                    <div className="row mb-2 mt-2">
+                                        <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
+                                            <div className="d-flex align-items-center flex-wrap justify-content-between">
+                                                <div className="d-flex align-items-center flex-wrap mt-2 ">
+                                                    <div className="mr-3" style={{ fontWeight: "bold" }}>
+                                                        Worker Availability
+                                                    </div>
+                                                    <FilterButtons
+                                                        text="Current Week"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Next Week"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Next Next Week"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Custom"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+                                                </div>
+
+                                                <div className="d-flex" style={{ gap: "10px" }}>
+                                                    <select
+                                                        className="form-control"
+                                                        value={distance}
+                                                        onChange={(e) => setDistance(e.target.value)}
                                                     >
-                                                        {item?.address
-                                                            ?.address_name
-                                                            ? item?.address
-                                                                  ?.address_name
-                                                            : "NA"}
-                                                    </p>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4">
-                                            <div className="form-group">
-                                                <label>Pet animals</label>
-                                                {services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${item.service}-${item.contract_id}`}
-                                                        key={index}
-                                                    >
-                                                        {item?.address
-                                                            ?.is_cat_avail
-                                                            ? "Cat ,"
-                                                            : item?.address
-                                                                  ?.is_dog_avail
-                                                            ? "Dog"
-                                                            : !item?.address
-                                                                  ?.is_cat_avail &&
-                                                              !item?.address
-                                                                  ?.is_dog_avail
-                                                            ? "NA"
-                                                            : ""}
-                                                    </p>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4">
-                                            <div className="form-group">
-                                                <label>Gender preference</label>
-                                                {services.map((item, index) => (
-                                                    <p
-                                                        className={`services-${item.service}-${item.contract_id}`}
-                                                        key={index}
-                                                        style={{
-                                                            textTransform:
-                                                                "capitalize",
+                                                        <option value="">---select distance---</option>
+                                                        <option value="nearest">Nearest</option>
+                                                        <option value="farthest">farthest</option>
+                                                    </select>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control form-control-sm"
+                                                        placeholder="Search"
+                                                        onChange={(e) => {
+                                                            setSearchVal(e.target.value);
                                                         }}
-                                                    >
-                                                        {
-                                                            item?.address
-                                                                ?.prefer_type
-                                                        }
-                                                    </p>
-                                                ))}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="col-sm-12">
-                                            <div className="mt-3 mb-3">
-                                                <h3 className="text-center">
-                                                    Worker Availability
-                                                </h3>
+                                        <div className="col-sm-12 mt-2">
+                                            <div className="form-check">
+                                                <label className="form-check-label">
+                                                    <input
+                                                        // ref={isPrevWorker}
+                                                        type="checkbox"
+                                                        defaultChecked={prevWorker}
+                                                        onChange={(prev) => setPrevWorker(!prev)}
+                                                        className="form-check-input"
+                                                        name={"is_keep_prev_worker"}
+                                                    />
+                                                    Keep previous worker
+                                                </label>
                                             </div>
-                                        </div>
-                                        <div className="col-sm-12">
-                                            <CreateJobCalender
-                                                services={services}
-                                                client={client}
-                                            />
-                                            <div className="mb-3">&nbsp;</div>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                                <div className="card-body">
+                                    <form>
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <CreateJobCalender
+                                                    services={services}
+                                                    client={client}
+                                                    loading={loading}
+                                                    setLoading={loading}
+                                                    selectedService={selectedService}
+                                                    setSelectedService={setSelectedService}
+                                                    setSelectedServiceIndex={setSelectedServiceIndex}
+                                                    currentFilter={currentFilter}
+                                                    setcurrentFilter={setcurrentFilter}
+                                                    prevWorker={prevWorker}
+                                                    setPrevWorker={setPrevWorker}
+                                                    distance={distance}
+                                                    setDistance={setDistance}
+                                                    searchVal={searchVal}
+                                                    setSearchVal={setSearchVal}
+                                                    contracts={contracts}
+                                                    selectedContractIndex={selectedContractIndex}
+                                                    setSelectedContractIndex={setSelectedContractIndex}
+                                                />
+                                                <div className="mb-3">&nbsp;</div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

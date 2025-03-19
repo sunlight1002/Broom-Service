@@ -8,6 +8,8 @@ use App\Models\WorkerAvailability;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\Admin;
+use Illuminate\Support\Facades\Mail;
 use App\Models\WorkerMetas;
 use App\Models\Offer;
 use App\Models\WhatsAppBotWorkerState;
@@ -256,6 +258,7 @@ class WorkerLeadsController extends Controller
     public function changeStatus(Request $request, $id)
     {
         $workerLead = WorkerLeads::find($id);
+        $admin = Admin::where('role', 'hr')->first();
         if (!$workerLead) {
             return response()->json(['message' => 'Worker Lead not found'], 404);
         }
@@ -277,6 +280,16 @@ class WorkerLeadsController extends Controller
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM);
             $worker = $this->createUser($workerLead);
             $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
+            $workerArr = $worker->toArray();
+            if($admin){
+                Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
+                    $messages->to($admin->email);
+                    ($workerArr['lng'] == 'heb') ?
+                        $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
+                        $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
+                    $messages->subject($sub);
+                });
+            }
         }
 
         return response()->json(['message' => 'Worker Lead status changed successfully']);

@@ -46,7 +46,13 @@ class addFristAddressOfClientInIcount extends Command
      */
     public function handle()
     {
-        $clients = Client::all();
+        $clients = Client::with('lead_status')
+                ->whereHas('lead_status', function ($q) {
+                    $q->where('lead_status', 'active client');
+                })
+                ->where('status', 2)
+                ->get();
+
         $headers = [
             'Client ID', 'Full Name', 'Invoice Name', 'Phone', 'Address Name', 'Geo Address', 'City', 'Zip Code',
         ];
@@ -62,7 +68,7 @@ class addFristAddressOfClientInIcount extends Command
             $data = [
                 $client->id,
                 ($client->firstname ?? null) . ' ' . ($client->lastname ?? null),
-                $client->invoicename ?? null,
+                $client->invoicename ?? ($client->firstname ?? null) . ' ' . ($client->lastname ?? null),
                 $client->phone ?? null,
                 $clientPropertyAddress->address_name ?? null,
                 $clientPropertyAddress->geo_address ?? null,

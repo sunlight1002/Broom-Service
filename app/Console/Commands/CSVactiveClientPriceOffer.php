@@ -77,7 +77,7 @@ class CSVactiveClientPriceOffer extends Command
                             $client->id,
                             $offer->id,
                             ($client->firstname ?? null) . ' ' . ($client->lastname ?? null),
-                            $client->invoicename ?? null,
+                            $client->invoicename ?? ($client->firstname ?? null) . ' ' . ($client->lastname ?? null),
                             $client->phone ?? null,
                             $service['name'] ?? null,
                             $service['freq_name'] ?? null,

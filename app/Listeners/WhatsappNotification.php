@@ -715,14 +715,13 @@ class WhatsappNotification
                 if($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')){
                     $token = $this->whapiWorkerApiToken;
                 }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE || $eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE){
-                    \Log::info('NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE');
                     $token = $this->whapiClientApiToken;
                 }else if(
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM ||
                     $eventType == WhatsappMessageTemplateEnum::REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER
-                    ){
+                ){
                     $token = $this->whapiWorkerJobApiToken;
                 }else if(
                     $eventType == WhatsappMessageTemplateEnum::FORM101 ||

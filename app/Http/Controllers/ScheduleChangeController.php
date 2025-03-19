@@ -365,7 +365,7 @@ class ScheduleChangeController extends Controller
 
         $message = [
             "en" => "Hello :client_name,
-Following your request regarding :team_reason, the team has reviewed it and provided the following response:
+Following your request regarding *:team_reason*, the team has reviewed it and provided the following response:
 ':team_message'
 
 Do you want to add anything else to this request?
@@ -377,7 +377,7 @@ Best regards,
 The Broom Service Team 🌹",
 
             "heb" => "שלום :client_name,
-בהמשך לבקשתך בנוגע ל**:team_reason**, הצוות שלנו בדק את הפנייה והשיב:
+בהמש ך לבקשתך בנוגע ל *:team_reason*, הצוות שלנו בדק את הפנייה והשיב:
 ':team_message'
 
 האם תרצה להוסיף משהו נוסף לבקשה זו?
