@@ -8,12 +8,12 @@ import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
 import WorkerTermination from "./WorkerTermination";
 import { useTranslation } from "react-i18next";
+import WorkerPendingRequest from "./WorkerPendingRequest";
 
 export default function WorkerHistory({ worker, getWorkerDetails }) {
-
-    const {t} = useTranslation()
+    const { t } = useTranslation();
     const [days, setDays] = useState([]);
-
+    console.log(worker);
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         aria-selected="true"
                         role="tab"
                     >
-                       {t("worker.jobs.current_jobs")}
+                        {t("worker.jobs.current_jobs")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -132,6 +132,18 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         {t("worker.settings.termination")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="worker-pending"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-worker-pending"
+                        aria-selected="false"
+                        role="tab"
+                    >
+                        {t("worker.settings.pending Request")}
+                    </a>
+                </li>
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -183,7 +195,10 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     role="tab-panel"
                     aria-labelledby="forms"
                 >
-                    <Document worker={worker}  getWorkerDetails={getWorkerDetails}/>
+                    <Document
+                        worker={worker}
+                        getWorkerDetails={getWorkerDetails}
+                    />
                 </div>
                 <div
                     id="tab-worker-loans"
@@ -199,7 +214,18 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     role="tab-panel"
                     aria-labelledby="worker-termination"
                 >
-                    <WorkerTermination worker={worker} getWorkerDetails={getWorkerDetails}/>
+                    <WorkerTermination
+                        worker={worker}
+                        getWorkerDetails={getWorkerDetails}
+                    />
+                </div>
+                <div
+                    id="tab-worker-pending"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="worker-pending"
+                >
+                    <WorkerPendingRequest workerId={worker.id}></WorkerPendingRequest>
                 </div>
             </div>
         </div>

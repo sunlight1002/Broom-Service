@@ -11,7 +11,7 @@ export default function ClientDetails({ client, address }) {
                 {t("admin.schedule.jobs.clientDetails")}
             </h2>
             <div className="dashBox p-0 p-md-4 mb-3">
-                <form>
+                <form className="px-2 pt-2">
                     <div className="row">
                         <div className="col-sm-6">
                             <div className="form-group">

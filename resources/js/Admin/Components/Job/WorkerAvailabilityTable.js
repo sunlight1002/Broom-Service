@@ -21,7 +21,8 @@ export default function WorkerAvailabilityTable({
     searchKeyword = "",
     isClient = false,
     selectedHours,
-    distance
+    distance,
+    job = null
 }) {
     let hasStartActive;    
 

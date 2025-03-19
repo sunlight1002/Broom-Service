@@ -40,7 +40,7 @@ export default function Services({ job, updateJob }) {
 
             <div className="dashBox p-0 p-md-4 mb-3">
                 {service && (
-                    <form>
+                    <form className="px-2 pt-2">
                         <div className="row">
                             <div className="col-lg-3 col-6">
                                 <div className="form-group">

@@ -17,8 +17,9 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
-function ScheduleChange() {
+export default function PendingRequest({ clientId }) {
     const { t, i18n } = useTranslation();
+
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -50,9 +51,10 @@ function ScheduleChange() {
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
     const reasonRef = useRef(null);
-
+    const clientIdRef = useRef(clientId);
     const [searchParams] = useSearchParams();
     const queryId = searchParams.get("id");
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -60,13 +62,15 @@ function ScheduleChange() {
     };
 
     const leaveStatuses = ["pending", "completed"];
-    const userType = ["Client", "Worker"];
 
     const statusArr = {
         pending: "pending",
         completed: "completed",
     };
-
+    useEffect(() => {
+        clientIdRef.current = clientId;
+     
+    }, [clientId]);
     const toggleChangeStatusModal = (_id) => {
         setIsOpen(!isOpen);
         setUserId(_id);
@@ -87,6 +91,7 @@ function ScheduleChange() {
                 { status: e ? "completed" : "pending" },
                 { headers }
             );
+
             setLoading(false);
             setIsOpen(false);
             $(tableRef.current).DataTable().ajax.reload();
@@ -144,11 +149,12 @@ function ScheduleChange() {
                                 ? null
                                 : filterRef.current; // Use ref here
                         d.type =
-                            typeRef.current === "Both" ? null : typeRef.current; // Use ref for type here
+                            typeRef.current === "Both" ? null : typeRef.current;
                         d.start_time_filter = startTimeFilterRef.current.value;
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                         d.reason = reasonRef.current.value;
+                        d.client_id = clientIdRef.current;
                     },
                 },
                 order: [[0, "desc"]],
@@ -171,8 +177,10 @@ function ScheduleChange() {
                         className: "cursor-pointer text-center",
                         width: "20%",
                         render: function (data, type, row, meta) {
-                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p
-                                        data-tooltip-id="comment"
+                            const firstname = data.split(" ")[0];
+                            const lastname = data.split(" ")[1];
+                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p 
+                                        data-tooltip-id="comment" 
                                         data-tooltip-html="${data}">
                                         ${data}
                                     </p></div>`;
@@ -261,10 +269,10 @@ function ScheduleChange() {
                         width: "5%",
                         render: function (data, type, row, meta) {
                             return `
-                                <div class="action-dropdown dropdown">
-                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa fa-ellipsis-vertical"></i>
-                                    </button>
+                                <div class="action-dropdown dropdown"> 
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+                                        <i class="fa fa-ellipsis-vertical"></i> 
+                                    </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${
                                             row.id
@@ -276,7 +284,7 @@ function ScheduleChange() {
                     },
                 ],
                 searching: true,
-                scrollX: true, // Ensures horizontal scrolling
+
                 autoWidth: false, // Prevents automatic width issues
                 width: "100% !important",
                 drawCallback: function () {
@@ -306,7 +314,7 @@ function ScheduleChange() {
         const searchParams = new URLSearchParams(location.search);
         const pageFromUrl = parseInt(searchParams.get("page")) || 1;
         const initialPage = pageFromUrl - 1;
-
+       
         initializeDataTable(initialPage);
 
         // Customize the search input
@@ -316,7 +324,7 @@ function ScheduleChange() {
 
         $(tableRef.current).on("click", ".dt-user-name-btn", function (e) {
             const _id = $(this).data("id");
-
+          
             if (_id) {
                 navigate(`/admin/clients/view/${_id}`);
             }
@@ -349,6 +357,7 @@ function ScheduleChange() {
             ".dt-if-completed-checkbox",
             function () {
                 const _id = $(this).data("id");
+
                 handleChangeStatus(_id, this.checked);
             }
         );
@@ -436,24 +445,12 @@ function ScheduleChange() {
 
     return (
         <div id="container">
-            <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
-                    <div className="d-flex justify-content-between">
-                        <div className="">
-                            <h1 className="page-title">
-                                {t("admin.sidebar.pending_request")}
-                            </h1>
-                        </div>
-                        <div>
-                            <Link
-                                to="/admin/add-schedule-requests"
-                                className="btn navyblue align-content-center addButton no-hover"
-                            >
-                                <i className="btn-icon fas fa-plus-circle"></i>
-                                {t("admin.client.AddNew")}
-                            </Link>
-                        </div>
+                    <div className="">
+                        <h1 className="page-title">
+                            {t("admin.sidebar.pending_request")}
+                        </h1>
                     </div>
                 </div>
                 <div
@@ -461,30 +458,6 @@ function ScheduleChange() {
                     style={{ backgroundColor: "inherit", border: "none" }}
                 >
                     <div className="row mt-2">
-                        <div className="col-sm d-none d-lg-flex">
-                            <div className="d-flex">
-                                <div style={{ fontWeight: "bold" }}>
-                                    {t("global.type")}
-                                </div>
-                                <div className="d-flex">
-                                    <FilterButtons
-                                        text={"Both"}
-                                        className="px-3 mr-1 ml-4"
-                                        selectedFilter={type}
-                                        setselectedFilter={setType}
-                                    />
-                                    {userType.map((user, index) => (
-                                        <FilterButtons
-                                            text={user}
-                                            className="mr-1 px-3 ml-2"
-                                            key={index}
-                                            selectedFilter={type}
-                                            setselectedFilter={setType}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
                         <div className="col-sm-6 mt-2 pl-0 d-flex">
                             <div className="search-data">
                                 <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
@@ -1012,5 +985,3 @@ function ScheduleChange() {
         </div>
     );
 }
-
-export default ScheduleChange;

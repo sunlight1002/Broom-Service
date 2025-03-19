@@ -11,6 +11,7 @@ import Invoice from "./Invoice";
 import Payment from "./Payment";
 import Comments from "../common/Comments";
 import { useTranslation } from "react-i18next";
+import PendingRequest from "./PendingRequest";
 
 export default function ClientHistory({
     contracts,
@@ -19,7 +20,7 @@ export default function ClientHistory({
     client,
     fetchContract,
     scheduleStatus,
-    offerStatus
+    offerStatus,
 }) {
     const { hash } = useLocation();
     const { t } = useTranslation();
@@ -27,7 +28,6 @@ export default function ClientHistory({
     const type = query.get("q");
 
     return (
-
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
                 <li className="nav-item" role="presentation">
@@ -45,21 +45,36 @@ export default function ClientHistory({
                         role="tab"
                     >
                         {t("admin.schedule.scheduleMetting")}
-                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
-
-                        <span
-                            id="ms"
-                            className="d-flex ml-2 align-items-center"
+                        <div
+                            className="form-group ml-3 mb-0 d-flex"
                             style={{
-                                color: "#C83939",
-                                fontWeight: "500",
-                                cursor: "pointer",
-                                fontSize: "16px"
+                                padding: "3px",
+                                borderRadius: "7px",
+                                border: "1px solid #E5EBF1",
+                                backgroundColor: "#FAFBFC",
                             }}
                         >
-                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
-                            {scheduleStatus}
-                        </span>
+                            <span
+                                id="ms"
+                                className="d-flex ml-2 align-items-center"
+                                style={{
+                                    color: "#C83939",
+                                    fontWeight: "500",
+                                    cursor: "pointer",
+                                    fontSize: "16px",
+                                }}
+                            >
+                                <p
+                                    className="mr-2"
+                                    style={{
+                                        width: "7px",
+                                        height: "7px",
+                                        backgroundColor: "#C83939",
+                                        borderRadius: "100px",
+                                    }}
+                                ></p>
+                                {scheduleStatus}
+                            </span>
                         </div>
                     </a>
                 </li>
@@ -78,21 +93,36 @@ export default function ClientHistory({
                         role="tab"
                     >
                         {t("admin.schedule.offeredPrice")}
-                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
-
-                        <span
-                            id="os"
-                            className="d-flex ml-2 align-items-center"
+                        <div
+                            className="form-group ml-3 mb-0 d-flex"
                             style={{
-                                color: "#C83939",
-                                fontWeight: "500",
-                                cursor: "pointer",
-                                fontSize: "16px"
+                                padding: "3px",
+                                borderRadius: "7px",
+                                border: "1px solid #E5EBF1",
+                                backgroundColor: "#FAFBFC",
                             }}
                         >
-                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
-                            {offerStatus}
-                        </span>
+                            <span
+                                id="os"
+                                className="d-flex ml-2 align-items-center"
+                                style={{
+                                    color: "#C83939",
+                                    fontWeight: "500",
+                                    cursor: "pointer",
+                                    fontSize: "16px",
+                                }}
+                            >
+                                <p
+                                    className="mr-2"
+                                    style={{
+                                        width: "7px",
+                                        height: "7px",
+                                        backgroundColor: "#C83939",
+                                        borderRadius: "100px",
+                                    }}
+                                ></p>
+                                {offerStatus}
+                            </span>
                         </div>
                     </a>
                 </li>
@@ -111,23 +141,38 @@ export default function ClientHistory({
                         role="tab"
                     >
                         {t("admin.schedule.contract")}
-                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
-
-                        <span
-                            id="os"
-                            className="d-flex ml-2 align-items-center"
+                        <div
+                            className="form-group ml-3 mb-0 d-flex"
                             style={{
-                                color: "#C83939",
-                                fontWeight: "500",
-                                cursor: "pointer",
-                                fontSize: "16px"
+                                padding: "3px",
+                                borderRadius: "7px",
+                                border: "1px solid #E5EBF1",
+                                backgroundColor: "#FAFBFC",
                             }}
                         >
-                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
-                            {latestContract
-                                ? latestContract.status
-                                : "Not Sent"}
-                        </span>
+                            <span
+                                id="os"
+                                className="d-flex ml-2 align-items-center"
+                                style={{
+                                    color: "#C83939",
+                                    fontWeight: "500",
+                                    cursor: "pointer",
+                                    fontSize: "16px",
+                                }}
+                            >
+                                <p
+                                    className="mr-2"
+                                    style={{
+                                        width: "7px",
+                                        height: "7px",
+                                        backgroundColor: "#C83939",
+                                        borderRadius: "100px",
+                                    }}
+                                ></p>
+                                {latestContract
+                                    ? latestContract.status
+                                    : "Not Sent"}
+                            </span>
                         </div>
                     </a>
                 </li>
@@ -135,7 +180,8 @@ export default function ClientHistory({
                     <a
                         id="jobs-tab"
                         className={
-                            `nav-link d-flex` + (hash === "#tab-jobs" ? "active" : "")
+                            `nav-link d-flex` +
+                            (hash === "#tab-jobs" ? "active" : "")
                         }
                         data-toggle="tab"
                         href="#tab-jobs"
@@ -233,6 +279,23 @@ export default function ClientHistory({
                         {t("admin.schedule.commenst")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="pending-tab"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-pending" ? "active" : "")
+                        }
+                        data-toggle="tab"
+                        href="#tab-pending"
+                        aria-selected={
+                            hash === "#tab-pending" ? "true" : "false"
+                        }
+                        role="tab"
+                    >
+                        {t("admin.schedule.pending Request")}
+                    </a>
+                </li>
             </ul>
             <div className="tab-content border-0">
                 <div
@@ -320,7 +383,9 @@ export default function ClientHistory({
                     id="tab-creditCard"
                     className={
                         `tab-pane ` +
-                        ((hash === "#tab-creditCard" || type === "card") ? "active show" : "")
+                        (hash === "#tab-creditCard" || type === "card"
+                            ? "active show"
+                            : "")
                     }
                     role="tab-panel"
                     aria-labelledby="creditCard-tab"
@@ -340,6 +405,17 @@ export default function ClientHistory({
                     aria-labelledby="comments-tab"
                 >
                     <Comments relationID={client.id} routeType="clients" />
+                </div>
+                <div
+                    id="tab-pending"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-pending" ? "active show" : "")
+                    }
+                    role="tab-panel"
+                    aria-labelledby="pending-tab"
+                >
+                    <PendingRequest clientId={client.id} />
                 </div>
             </div>
         </div>

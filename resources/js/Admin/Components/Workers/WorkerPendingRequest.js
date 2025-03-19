@@ -17,7 +17,7 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
-function ScheduleChange() {
+export default function WorkerPendingRequest({ workerId }) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -50,7 +50,7 @@ function ScheduleChange() {
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
     const reasonRef = useRef(null);
-
+    const workerIdRef = useRef(workerId);
     const [searchParams] = useSearchParams();
     const queryId = searchParams.get("id");
     const headers = {
@@ -78,7 +78,10 @@ function ScheduleChange() {
             toggleChangeStatusModal(queryId);
         }
     }, [queryId]);
-
+    useEffect(() => {
+        workerIdRef.current = workerId;
+   
+    }, [workerId]);
     const handleChangeStatus = async (userId, e) => {
         setLoading(true);
         try {
@@ -149,6 +152,7 @@ function ScheduleChange() {
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                         d.reason = reasonRef.current.value;
+                        d.client_id = workerIdRef.current;
                     },
                 },
                 order: [[0, "desc"]],
@@ -171,8 +175,10 @@ function ScheduleChange() {
                         className: "cursor-pointer text-center",
                         width: "20%",
                         render: function (data, type, row, meta) {
-                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p
-                                        data-tooltip-id="comment"
+                            const firstname = data.split(" ")[0];
+                            const lastname = data.split(" ")[1];
+                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p 
+                                        data-tooltip-id="comment" 
                                         data-tooltip-html="${data}">
                                         ${data}
                                     </p></div>`;
@@ -261,10 +267,10 @@ function ScheduleChange() {
                         width: "5%",
                         render: function (data, type, row, meta) {
                             return `
-                                <div class="action-dropdown dropdown">
-                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa fa-ellipsis-vertical"></i>
-                                    </button>
+                                <div class="action-dropdown dropdown"> 
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+                                        <i class="fa fa-ellipsis-vertical"></i> 
+                                    </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${
                                             row.id
@@ -276,7 +282,7 @@ function ScheduleChange() {
                     },
                 ],
                 searching: true,
-                scrollX: true, // Ensures horizontal scrolling
+
                 autoWidth: false, // Prevents automatic width issues
                 width: "100% !important",
                 drawCallback: function () {
@@ -436,7 +442,6 @@ function ScheduleChange() {
 
     return (
         <div id="container">
-            <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
                     <div className="d-flex justify-content-between">
@@ -445,103 +450,12 @@ function ScheduleChange() {
                                 {t("admin.sidebar.pending_request")}
                             </h1>
                         </div>
-                        <div>
-                            <Link
-                                to="/admin/add-schedule-requests"
-                                className="btn navyblue align-content-center addButton no-hover"
-                            >
-                                <i className="btn-icon fas fa-plus-circle"></i>
-                                {t("admin.client.AddNew")}
-                            </Link>
-                        </div>
                     </div>
                 </div>
                 <div
                     className="dashBox pb-4"
                     style={{ backgroundColor: "inherit", border: "none" }}
                 >
-                    <div className="row mt-2">
-                        <div className="col-sm d-none d-lg-flex">
-                            <div className="d-flex">
-                                <div style={{ fontWeight: "bold" }}>
-                                    {t("global.type")}
-                                </div>
-                                <div className="d-flex">
-                                    <FilterButtons
-                                        text={"Both"}
-                                        className="px-3 mr-1 ml-4"
-                                        selectedFilter={type}
-                                        setselectedFilter={setType}
-                                    />
-                                    {userType.map((user, index) => (
-                                        <FilterButtons
-                                            text={user}
-                                            className="mr-1 px-3 ml-2"
-                                            key={index}
-                                            selectedFilter={type}
-                                            setselectedFilter={setType}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-sm-6 mt-2 pl-0 d-flex">
-                            <div className="search-data">
-                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
-                                    <div
-                                        className=" mr-3"
-                                        style={{ fontWeight: "bold" }}
-                                    >
-                                        {t("global.type")}
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="btn btn-default navyblue dropdown-toggle"
-                                        data-toggle="dropdown"
-                                    >
-                                        <i className="fa fa-filter"></i>
-                                    </button>
-                                    <span
-                                        className="ml-2"
-                                        style={{
-                                            padding: "6px",
-                                            border: "1px solid #ccc",
-                                            borderRadius: "5px",
-                                        }}
-                                    >
-                                        {type || t("admin.leads.All")}
-                                    </span>
-
-                                    <div className="dropdown-menu dropdown-menu-right">
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setType("Both");
-                                            }}
-                                        >
-                                            {t("admin.leads.AddLead.both")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setType("Client");
-                                            }}
-                                        >
-                                            {t("client.jobs.client")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setType("Worker");
-                                            }}
-                                        >
-                                            {t("client.jobs.worker")}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div className="row">
                         <div className="col-sm d-none d-lg-flex mt-2">
                             <div className="d-flex">
@@ -623,21 +537,7 @@ function ScheduleChange() {
                                 </div>
                             </div>
                         </div>
-                        {/* <div className="col-sm-12 d-none d-lg-flex mt-2">
-                            <div className="col-sm-6 hidden-xl mt-4">
-                                <select
-                                    className="form-control"
-                                    // onChange={(e) => sortTable(e.target.value)}
-                                >
-                                    <option value="">{t("admin.leads.Options.sortBy")}</option>
-                                    <option value="0">{t("admin.leads.Options.ID")}</option>
-                                    <option value="1">{t("admin.leads.Options.Name")}</option>
-                                    <option value="2">{t("admin.leads.Options.Email")}</option>
-                                    <option value="3">{t("admin.leads.Options.Phone")}</option>
-                                    <option value="4">{t("admin.leads.AddLead.addAddress.Address")}</option>
-                                </select>
-                            </div>
-                        </div> */}
+
                         <div className="col-sm-12 d-none d-lg-flex mt-2">
                             <div className="d-flex align-items-center">
                                 <div
@@ -1012,5 +912,3 @@ function ScheduleChange() {
         </div>
     );
 }
-
-export default ScheduleChange;

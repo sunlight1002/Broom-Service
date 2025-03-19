@@ -157,7 +157,7 @@ export default function Dashboard() {
                                         </Link>
                                     </div>
                                     <div className="col-lg-4 col-sm-6  col-xs-6">
-                                        <Link to="/admin/clients">
+                                        <Link to="/admin/clients?type=active%20client">
                                             <div className="dashBox">
                                                 <div className="dashIcon">
                                                     <i className="fa-regular fa-user font-50"></i>
