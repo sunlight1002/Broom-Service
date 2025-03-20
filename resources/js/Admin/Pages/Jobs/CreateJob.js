@@ -26,6 +26,7 @@ export default function CreateJob() {
     const [distance, setDistance] = useState('default')
     const [searchVal, setSearchVal] = useState("");
     const [prevWorker, setPrevWorker] = useState(true)
+    const [workerFilter, setWorkerFilter] = useState("Both");
 
 
 
@@ -79,26 +80,26 @@ export default function CreateJob() {
             <Sidebar />
             <div id="content">
                 <div className="view-applicant">
-                    <h1 className="page-title editJob border-0">Add Job</h1>
+                    <h1 className="border-0 editJob page-title">Add Job</h1>
                     <div id="calendar"></div>
                     <div className="card" style={{ boxShadow: "none" }}>
                         {client && (
                             <>
                                 <div className="sticky-container">
-                                    <div className="row d-flex flex-wrap">
-                                        <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                            <div className="dashIcon d-flex align-items-center">
+                                    <div className="d-flex flex-wrap row">
+                                        <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                            <div className="d-flex align-items-center dashIcon">
                                                 <i className=""><FaPeopleGroup className="font-30" style={{ color: "#1F78BD" }} /></i>
                                             </div>
                                             <div className="dashText ml-2">
-                                                <p className="font-15 navyblueColor" style={{ fontWeight: "500" }}>{client.firstname + " " + client.lastname}</p>
+                                                <p className="navyblueColor font-15" style={{ fontWeight: "500" }}>{client.firstname + " " + client.lastname}</p>
                                                 <label>Client</label>
                                             </div>
                                         </div>
                                         {services.length > 0 && selectedServiceIndex !== null && (
                                             <>
-                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                    <div className="dashIcon d-flex align-items-center">
+                                                <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="d-flex align-items-center dashIcon">
                                                         <i className=""><BsBuildings className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
                                                     <div className="dashText ml-2">
@@ -108,8 +109,8 @@ export default function CreateJob() {
                                                         <label>Property</label>
                                                     </div>
                                                 </div>
-                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                    <div className="dashIcon d-flex align-items-center">
+                                                <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="d-flex align-items-center dashIcon">
                                                         <i className=""><PiSuitcaseBold className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
                                                     <div className="dashText ml-2">
@@ -121,8 +122,8 @@ export default function CreateJob() {
                                                         <label>Services</label>
                                                     </div>
                                                 </div>
-                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                    <div className="dashIcon d-flex align-items-center">
+                                                <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="d-flex align-items-center dashIcon">
                                                         <i className=""><RiTimerFlashLine className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
                                                     <div className="dashText ml-2">
@@ -132,8 +133,8 @@ export default function CreateJob() {
                                                         <label>Frequency</label>
                                                     </div>
                                                 </div>
-                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                    <div className="dashIcon d-flex align-items-center">
+                                                <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="d-flex align-items-center dashIcon">
                                                         <i className=""><GiSandsOfTime className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
                                                     <div className="dashText ml-2">
@@ -145,8 +146,8 @@ export default function CreateJob() {
                                                         <label>Time to Complete</label>
                                                     </div>
                                                 </div>
-                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                    <div className="dashIcon d-flex align-items-center">
+                                                <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="d-flex align-items-center dashIcon">
                                                         <i className=""><LiaPawSolid className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
                                                     <div className="dashText ml-2">
@@ -160,8 +161,8 @@ export default function CreateJob() {
                                                         <label>Pet animals</label>
                                                     </div>
                                                 </div>
-                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                    <div className="dashIcon d-flex align-items-center">
+                                                <div className="col-sm d-flex h-100 dashBox jobcard mr-2 mt-2" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="d-flex align-items-center dashIcon">
                                                         <i className=""><FaPeopleArrows className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                     </div>
                                                     <div className="dashText ml-2">
@@ -176,35 +177,35 @@ export default function CreateJob() {
                                     </div>
                                     <div className="row mb-2 mt-2">
                                         <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
-                                            <div className="d-flex align-items-center flex-wrap justify-content-between">
-                                                <div className="d-flex align-items-center flex-wrap mt-2 ">
+                                            <div className="d-flex flex-wrap align-items-center justify-content-between">
+                                                <div className="d-flex flex-wrap align-items-center mt-2">
                                                     <div className="mr-3" style={{ fontWeight: "bold" }}>
                                                         Worker Availability
                                                     </div>
                                                     <FilterButtons
                                                         text="Current Week"
-                                                        className="px-3 mr-2 mb-2"
+                                                        className="mb-2 mr-2 px-3"
                                                         selectedFilter={currentFilter}
                                                         setselectedFilter={setcurrentFilter}
                                                     />
 
                                                     <FilterButtons
                                                         text="Next Week"
-                                                        className="px-3 mr-2 mb-2"
+                                                        className="mb-2 mr-2 px-3"
                                                         selectedFilter={currentFilter}
                                                         setselectedFilter={setcurrentFilter}
                                                     />
 
                                                     <FilterButtons
                                                         text="Next Next Week"
-                                                        className="px-3 mr-2 mb-2"
+                                                        className="mb-2 mr-2 px-3"
                                                         selectedFilter={currentFilter}
                                                         setselectedFilter={setcurrentFilter}
                                                     />
 
                                                     <FilterButtons
                                                         text="Custom"
-                                                        className="px-3 mr-2 mb-2"
+                                                        className="mb-2 mr-2 px-3"
                                                         selectedFilter={currentFilter}
                                                         setselectedFilter={setcurrentFilter}
                                                     />
@@ -227,6 +228,35 @@ export default function CreateJob() {
                                                         onChange={(e) => {
                                                             setSearchVal(e.target.value);
                                                         }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
+                                            <div className="d-flex flex-wrap align-items-center justify-content-between">
+                                                <div className="d-flex flex-wrap align-items-center mt-2">
+                                                    <div className="mr-3" style={{ fontWeight: "bold" }}>
+                                                        Worker
+                                                    </div>
+                                                    <FilterButtons
+                                                        text="Both"
+                                                        className="mb-2 mr-2 px-3"
+                                                        selectedFilter={workerFilter}
+                                                        setselectedFilter={setWorkerFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Booked"
+                                                        className="mb-2 mr-2 px-3"
+                                                        selectedFilter={workerFilter}
+                                                        setselectedFilter={setWorkerFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Available"
+                                                        className="mb-2 mr-2 px-3"
+                                                        selectedFilter={workerFilter}
+                                                        setselectedFilter={setWorkerFilter}
                                                     />
                                                 </div>
                                             </div>
@@ -268,6 +298,8 @@ export default function CreateJob() {
                                                     setDistance={setDistance}
                                                     searchVal={searchVal}
                                                     setSearchVal={setSearchVal}
+                                                    workerFilter={workerFilter}
+                                                    
                                                 />
                                                 <div className="mb-3">&nbsp;</div>
                                             </div>
