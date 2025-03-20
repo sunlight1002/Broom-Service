@@ -67,9 +67,6 @@ class CreateJobOrder implements ShouldQueue
             $client = $job->client;
             $service = $job->jobservice;
             $offerService = $job->offer_service;
-            $address = $offerService['address'];
-
-            $address = ClientPropertyAddress::find($address['id']);
 
             // mark job(s) as last of month
             $monthEndDate = Carbon::parse($job->start_date)->endOfMonth()->toDateString();
@@ -115,6 +112,9 @@ class CreateJobOrder implements ShouldQueue
             
             if(($offerService['template'] == "airbnb")) {
                 $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address["geo_address"]));
+                $address = $offerService['address'];
+                $address = ClientPropertyAddress::find($address['id'] ?? $address);
+                
                 if($client->lng == "heb") {
                     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $cleaned_address . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")";
                 } else {
