@@ -3149,6 +3149,7 @@
         "andWidth": "and Weight",
         "heightReq": "Height is required",
         "weightReq": "Weight is required",
+        "yes_no_req": "field is required",
         "Yes": "Yes",
         "No": "No",
         "isthereChangeInWeight": "Has there been any change in your weight (5 kg and more) in the course of the last twelve months (not as a result of a diet)?",

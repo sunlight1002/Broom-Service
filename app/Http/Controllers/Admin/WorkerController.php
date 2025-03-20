@@ -163,6 +163,7 @@ class WorkerController extends Controller
                 'jobs' => function ($query) {
                     $query->where('id', '!=', request()->job_id)
                         ->whereBetween('start_date', [request()->start_date, request()->end_date])
+                        ->where('status', '!=', 'cancel')  // Add this line to exclude canceled jobs
                         ->select('worker_id', 'start_date', 'shifts', 'client_id', 'start_date', 'end_date');
                 },
                 'jobs.client:id,firstname,lastname',
@@ -324,13 +325,13 @@ class WorkerController extends Controller
 
                 $dates = array();
                 foreach ($worker->jobs as $job) {
-                    $slotInfo = [
-                        'job_id' => $job->id,
-                        'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
-                        'slot' => $job->shifts
-                    ];
-
-                    $dates[$job->start_date][] = $slotInfo;
+                        $slotInfo = [
+                            'job_id' => $job->id,
+                            'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
+                            'slot' => $job->shifts
+                        ];
+    
+                        $dates[$job->start_date][] = $slotInfo;
                 }
 
                 $freezeDates = $worker->freezeDates()->where(function ($q) use ($start_date, $end_date) {

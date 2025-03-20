@@ -62,16 +62,17 @@ export const createHourlyTimeArray = (startTime, endTime) => {
     return timeArray;
 };
 
-export const generateHourlyTimeSlots = (startTime, endTime) => {
+export const generate15MinutesTimeSlots = (startTime, endTime, workerId = null) => {
     let slots = [];
+    
     let start = moment(startTime, "HH:mm:ss");
     let end = moment(endTime, "HH:mm:ss");
 
     while (start < end) {
         slots.push(start.format("HH:mm:ss"));
-        start.add(1, "hours");
+        start.add(15, "minutes");
     }
-
+    
     return slots;
 };
 
@@ -565,24 +566,27 @@ export const getWorkerAvailabilities = (
     const _today = moment().format("YYYY-MM-DD");
     const _currentTime = moment().format("HH:mm:ss");
 
-    const splitInto15MinuteSlots = (slot) => {
-        const slotStart = moment(slot.time, "HH:mm:ss");
-        const slotEnd = slotStart.clone().add(1, "hour");
+    // const splitInto15MinuteSlots = (slot) => {
+        
+    //     const slotStart = moment(slot.time, "HH:mm:ss");
+        
+    //     const slotEnd = slotStart.clone().add(1, "hour");
 
-        const slots = [];
-        for (let time = slotStart.clone(); time.isBefore(slotEnd); time.add(15, "minutes")) {
-            slots.push({
-                time: time.format("HH:mm:ss"),
-                endTime: time.clone().add(15, "minutes").format("HH:mm:ss"),
-                isBooked: slot.isBooked,
-                isFreezed: slot.isFreezed,
-                notAvailable: slot.notAvailable,
-                clientName: slot.clientName,
-                jobId: slot.jobId,
-            });
-        }
-        return slots;
-    };
+    //     const slots = [];
+    //     for (let time = slotStart.clone(); time.isBefore(slotEnd); time.add(15, "minutes")) {
+    //         slots.push({
+    //             time: time.format("HH:mm:ss"),
+    //             endTime: time.clone().add(15, "minutes").format("HH:mm:ss"),
+    //             isBooked: slot.isBooked,
+    //             isFreezed: slot.isFreezed,
+    //             notAvailable: slot.notAvailable,
+    //             clientName: slot.clientName,
+    //             jobId: slot.jobId,
+    //         });
+    //     }
+    //     return slots;
+    // };
+
 
     return workers?.map((worker) => {
         const freeze_dates = worker.freeze_dates ?? [];
@@ -601,9 +605,11 @@ export const getWorkerAvailabilities = (
 
                 if (date === _today) {
                     slots = slots.filter(slot => slot.time > _currentTime);
+                    
                 }
-
-                const allSlots = slots.flatMap(splitInto15MinuteSlots);
+                
+                // const allSlots = slots.flatMap(splitInto15MinuteSlots);
+                const allSlots = slots;
 
                 // Remove duplicates and ensure booked slots appear only once
                 const uniqueSlots = allSlots.reduce((acc, curr) => {
@@ -697,10 +703,9 @@ export const filterShiftOptions = (
     date = null
 ) => {
     const _availSlots = new Set();
-
     // Generate available slots
     availableTimeRanges.forEach((range) => {
-        generateHourlyTimeSlots(range.start_time, range.end_time).forEach(slot => _availSlots.add(slot));
+        generate15MinutesTimeSlots(range.start_time, range.end_time, workerId).forEach(slot => _availSlots.add(slot));
     });
 
     // Add selected hours to available slots
@@ -715,14 +720,14 @@ export const filterShiftOptions = (
             }
         });
     }
-
+    
     // Generate booked slots and update available slots
     const _bookedSlots = bookedTimeRanges.map((range) => {
         const [start, end] = range.slot.split("-");
-        const slots = generateHourlyTimeSlots(`${start}:00`, `${end}:00`);
-
+        const slots = generate15MinutesTimeSlots(`${start}:00`, `${end}:00`, "booked");
+        
+        
         slots.forEach((s) => _availSlots.add(s));
-
         return {
             client_name: range.client_name,
             job_id: range.job_id,
@@ -730,28 +735,32 @@ export const filterShiftOptions = (
         };
     });
 
+    
+
     // Generate frozen slots
     const _freezeSlots = new Set();
     shiftFreezeDates.forEach((date) => {
-        generateHourlyTimeSlots(date.start_time, date.end_time).forEach(slot => _freezeSlots.add(slot));
+        generate15MinutesTimeSlots(date.start_time, date.end_time).forEach(slot => _freezeSlots.add(slot));
     });
 
     // Generate not available slots
     let _notAvailableSlots = new Set();
     if (notAvailableDates.date) {
         if (notAvailableDates.start_time && notAvailableDates.end_time) {
-            _notAvailableSlots = new Set(generateHourlyTimeSlots(notAvailableDates.start_time, notAvailableDates.end_time));
+            _notAvailableSlots = new Set(generate15MinutesTimeSlots(notAvailableDates.start_time, notAvailableDates.end_time));
         } else {
             _notAvailableSlots = new Set(_availSlots);
         }
     }
 
     // Map the available slots to include additional info
-    return Array.from(_availSlots).map((slot) => {
+    return Array.from(_availSlots).map((slot, index, array) => {
         const bookedSlots = _bookedSlots?.find((bookedSlot) => bookedSlot?.slots?.includes(slot));
-
+        const nextSlot = array[index + 1] || moment(slot, "HH:mm:ss").add(15, "minutes").format("HH:mm:ss");
+    
         return {
             time: slot,
+            endTime: nextSlot, // Set end time 15 minutes after start time
             isBooked: !!bookedSlots,
             clientName: bookedSlots?.client_name ?? null,
             jobId: bookedSlots?.job_id ?? null,
@@ -759,6 +768,7 @@ export const filterShiftOptions = (
             notAvailable: _notAvailableSlots.has(slot),
         };
     });
+    
 };
 
 

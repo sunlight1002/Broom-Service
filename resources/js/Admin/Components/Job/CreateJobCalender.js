@@ -28,6 +28,7 @@ export default function CreateJobCalender({
     selectedContractIndex = 0,
     contracts = [],
     setSelectedContractIndex = () => { },
+    workerFilter
 }) {
     const navigate = useNavigate();
     const alert = useAlert();
@@ -115,8 +116,6 @@ export default function CreateJobCalender({
             }
         }
 
-        console.log("hours", hours);
-
 
         setSelectedHours(hours);
         let _calendarStartDate = calendarStartDate;
@@ -157,6 +156,8 @@ export default function CreateJobCalender({
                     },
                 });
                 const workers = res.data.workers;
+                console.log(workers);
+
 
                 setAllWorkers(workers);
                 let WorkerAvailability = getWorkerAvailabilities(workers);
@@ -424,7 +425,7 @@ export default function CreateJobCalender({
                     {currentFilter === "Current Week" && (
                         <div
                             id="tab-worker-availability"
-                            className="tab-pane active show  table-responsive"
+                            className="table-responsive active show tab-pane"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -439,6 +440,7 @@ export default function CreateJobCalender({
                                     selectedHours={selectedHours}
                                     searchKeyword={searchVal}
                                     distance={distance}
+                                    workerFilter={workerFilter}
                                 />
                             </div>
                         </div>
@@ -446,7 +448,7 @@ export default function CreateJobCalender({
                     {currentFilter === "Next Week" && (
                         <div
                             id="tab-current-job"
-                            className="tab-pane active show  table-responsive"
+                            className="table-responsive active show tab-pane"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -461,6 +463,7 @@ export default function CreateJobCalender({
                                     selectedHours={selectedHours}
                                     searchKeyword={searchVal}
                                     distance={distance}
+                                    workerFilter={workerFilter}
                                 />
                             </div>
                         </div>
@@ -468,7 +471,7 @@ export default function CreateJobCalender({
                     {currentFilter === "Next Next Week" && (
                         <div
                             id="tab-current-next-job"
-                            className="tab-pane active show  table-responsive"
+                            className="table-responsive active show tab-pane"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -483,6 +486,7 @@ export default function CreateJobCalender({
                                     selectedHours={selectedHours}
                                     searchKeyword={searchVal}
                                     distance={distance}
+                                    workerFilter={workerFilter}
                                 />
                             </div>
                         </div>
@@ -490,7 +494,7 @@ export default function CreateJobCalender({
                     {currentFilter === "Custom" && (
                         <div
                             id="tab-current-next-job"
-                            className="tab-pane active show  table-responsive"
+                            className="table-responsive active show tab-pane"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -548,6 +552,7 @@ export default function CreateJobCalender({
                                         selectedHours={selectedHours}
                                         searchKeyword={searchVal}
                                         distance={distance}
+                                        workerFilter={workerFilter}
                                     />
                                 </div>
                             )}
@@ -839,7 +844,7 @@ export default function CreateJobCalender({
                                                                 : item.other_title}
                                                         </option>
                                                     );
-                                                }else if(!contracts || contracts.length == 0){
+                                                } else if (!contracts || contracts.length == 0) {
                                                     return (
                                                         <option
                                                             value={index}
