@@ -115,18 +115,18 @@ class CreateJobOrder implements ShouldQueue
                 $address = $offerService['address'];
                 $address = ClientPropertyAddress::find($address['id'] ?? $address);
                 
-                if($client->lng == "heb") {
+                // if($client->lng == "heb") {
                     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")" . " - " . $cleaned_address;
-                } else {
-                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name . "(". $offerService['sub_services']['subServices']['name_en'] .")" . " - " . $cleaned_address;
-                }
+                // } else {
+                //     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name . "(". $offerService['sub_services']['subServices']['name_en'] .")" . " - " . $cleaned_address;
+                // }
             } else {
                 // Handle the case where subServices is missing or empty
-                if($client->lng == "heb") {
+                // if($client->lng == "heb") {
                     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->heb_name;
-                } else {
-                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name;
-                }
+                // } else {
+                //     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name;
+                // }
             }
             
             if ($job->is_job_done) {
