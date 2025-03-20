@@ -209,6 +209,33 @@ class FetchFacebookLeads extends Command
                                         ->increment('client_count', 1);
                                 }
 
+                                $client->lead_status()->updateOrCreate(
+                                    [],
+                                    ['lead_status' => LeadStatusEnum::PENDING]
+                                );
+
+                                $client->status = 0;
+                                $client->save();
+
+
+                                // Create a notification
+                                Notification::create([
+                                'user_id' => $client->id,
+                                'user_type' => get_class($client),
+                                'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
+                                'status' => 'created'
+                                ]);
+
+                                $client->load('property_addresses');
+                                // Trigger WhatsApp notification
+                                event(new WhatsappNotificationEvent([
+                                    "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                                    "notificationData" => [
+                                        'client' => $client->toArray(),
+                                        'type' => "meta"
+                                    ]
+                                ]));
+
                                 // Update the existing client
                                 // $client->update([
                                 //     'payment_method' => 'cc',

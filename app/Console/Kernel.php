@@ -23,22 +23,22 @@ class Kernel extends ConsoleKernel
         $schedule->command('backup:run')->onOneServer()->daily()->at('01:30');
 
         // Invoices
-        $schedule->command('regular-invoice:generate')->onOneServer()->dailyAt('12:00');
-        $schedule->command('invoice:check-once-in-month')->onOneServer()->dailyAt('17:30');
+        // $schedule->command('regular-invoice:generate')->onOneServer()->dailyAt('12:00');
+        // $schedule->command('invoice:check-once-in-month')->onOneServer()->dailyAt('17:30');
 
         // Worker reminder
         // $schedule->command('worker:send_invitation')->onOneServer()->dailyAt('09:00');
-        $schedule->command('worker:notify-next-day-job-at-5-pm')->onOneServer()->dailyAt('17:00');
-        $schedule->command('worker:notify-next-day-job-at-6-pm')->onOneServer()->dailyAt('18:00');
-        $schedule->command('worker:notify-worker-confirm-on-your-way-before-1-hour')->onOneServer()->everyMinute();
-        $schedule->command('worker:job-not-finished-on-time')->onOneServer()->everyMinute();
+        // $schedule->command('worker:notify-next-day-job-at-5-pm')->onOneServer()->dailyAt('17:00');
+        // $schedule->command('worker:notify-next-day-job-at-6-pm')->onOneServer()->dailyAt('18:00');
+        // $schedule->command('worker:notify-worker-confirm-on-your-way-before-1-hour')->onOneServer()->everyMinute();
+        // $schedule->command('worker:job-not-finished-on-time')->onOneServer()->everyMinute();
 
         // Team reminder
-        $schedule->command('team:notify-team-if-worker-not-confirm-before-30-mins')->onOneServer()->everyMinute();
-        $schedule->command('team:notify-team-if-worker-not-confirm-after-30-mins')->onOneServer()->everyMinute();
+        // $schedule->command('team:notify-team-if-worker-not-confirm-before-30-mins')->onOneServer()->everyMinute();
+        // $schedule->command('team:notify-team-if-worker-not-confirm-after-30-mins')->onOneServer()->everyMinute();
         $schedule->command('team:lead-status-pending-from-24-hours')->onOneServer()->dailyAt('08:00');
         $schedule->command('team:price-offer-reminder-to-team')->onOneServer()->dailyAt('08:00');
-        $schedule->command('team-and-client:contract-reminder')->onOneServer()->hourly();
+        // $schedule->command('team-and-client:contract-reminder')->onOneServer()->hourly();
         $schedule->command('client:offsite-meeting-reminder')->onOneServer()->dailyAt('08:00');
 
         // Admin reminder
@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('worker:notify-yearly-insurance-form')->onOneServer()->yearlyOn(1, 1, '09:00');
         // $schedule->command('meeting:reminder')->onOneServer()->hourly();
-        $schedule->command('client:update-lead-status')->onOneServer()->hourly();
+        // $schedule->command('client:update-lead-status')->onOneServer()->hourly();
 
         // $schedule->command('notifyclientforcontract')->onOneServer()->hourly();
         // $schedule->command('mondayNotify')->onOneServer()->weeklyOn(1, '08:00'); // 1 = Monday
@@ -103,7 +103,7 @@ class Kernel extends ConsoleKernel
         // Tuesday at 8:30 AM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
             ->weeklyOn(Schedule::TUESDAY, '08:30');
-        $schedule->command('gmail:fetch')->everyMinute();
+        // $schedule->command('gmail:fetch')->everyMinute();
     }
 
     /**
