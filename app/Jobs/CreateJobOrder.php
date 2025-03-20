@@ -116,9 +116,9 @@ class CreateJobOrder implements ShouldQueue
                 $address = ClientPropertyAddress::find($address['id'] ?? $address);
                 
                 if($client->lng == "heb") {
-                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $cleaned_address . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")";
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")" . " - " . $cleaned_address;
                 } else {
-                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $cleaned_address . " - " . $service->name . "(". $offerService['sub_services']['subServices']['name_en'] .")";
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name . "(". $offerService['sub_services']['subServices']['name_en'] .")" . " - " . $cleaned_address;
                 }
             } else {
                 // Handle the case where subServices is missing or empty
