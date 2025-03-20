@@ -1,5 +1,3 @@
-// InsuranceForm.js
-
 import React, { useState, useEffect, useRef } from "react";
 import { PDFDocument } from 'pdf-lib'
 import fontkit from "@pdf-lib/fontkit";
@@ -115,12 +113,16 @@ const InsuranceForm = ({
         if (errorFields.length > 0) {
             const firstErrorField = errorFields[0];
             const errorElement = document.getElementById(firstErrorField);
+            console.log(firstErrorField, errorElement);
+
             if (errorElement) {
                 errorElement.scrollIntoView({ behavior: "smooth" });
                 errorElement.focus();
             }
         }
     };
+
+
 
     const commonFields = yup.object({
         canFirstName: yup
@@ -151,6 +153,30 @@ const InsuranceForm = ({
         gender: yup.string().trim().required(t("insurance.genderReq")),
         g1Height: yup.string().trim().required(t("insurance.heightReq")),
         g1Weight: yup.string().trim().required(t("insurance.weightReq")),
+        g2: yup.string().trim().required(t("insurance.yes_no_req")),
+        g3: yup.string().trim().required(t("insurance.yes_no_req")),
+        g4: yup.string().trim().required(t("insurance.yes_no_req")),
+        g5: yup.string().trim().required(t("insurance.yes_no_req")),
+        g6: yup.string().trim().required(t("insurance.yes_no_req")),
+        g7: yup.string().trim().required(t("insurance.yes_no_req")),
+        g8: yup.string().trim().required(t("insurance.yes_no_req")),
+        g9: yup.string().trim().required(t("insurance.yes_no_req")),
+        g10: yup.string().trim().required(t("insurance.yes_no_req")),
+        g11: yup.string().trim().required(t("insurance.yes_no_req")),
+        g12: yup.string().trim().required(t("insurance.yes_no_req")),
+        g13: yup.string().trim().required(t("insurance.yes_no_req")),
+        g14: yup.string().trim().required(t("insurance.yes_no_req")),
+        g15: yup.string().trim().required(t("insurance.yes_no_req")),
+        g16: yup.string().trim().required(t("insurance.yes_no_req")),
+        g17: yup.string().trim().required(t("insurance.yes_no_req")),
+        g18: yup.string().trim().required(t("insurance.yes_no_req")),
+        g19: yup.string().trim().required(t("insurance.yes_no_req")),
+        g20: yup.string().trim().required(t("insurance.yes_no_req")),
+        g21: yup.string().trim().required(t("insurance.yes_no_req")),
+        g22: yup.string().trim().required(t("insurance.yes_no_req")),
+        g23: yup.string().trim().required(t("insurance.yes_no_req")),
+        g24: yup.string().trim().required(t("insurance.yes_no_req")),
+
         details: yup
             .string()
             .test(
@@ -162,34 +188,34 @@ const InsuranceForm = ({
                         g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
                         g23, g24
                     } = this.parent;
-    
+
                     const requiresDetails = [
                         g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
                         g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
                         g23, g24
                     ].includes("yes");
-    
+
                     if (!requiresDetails) {
                         return true; // Allow null or undefined if not required
                     }
-    
+
                     if (!value) {
                         return this.createError({ message: t("insurance.positive_finding_error") });
                     }
-    
+
                     return true;
                 }
             )
             .nullable(),
         signature: yup.mixed().required(t("form101.errorMsg.sign")),
     });
-    
+
     // Define the formSchema using commonFields
     const formSchema = yup.object({
         step7: commonFields,
         step2: commonFields
     });
-    
+
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -217,7 +243,7 @@ const InsuranceForm = ({
             await saveFormData(true);
         },
         validateOnChange: true,  // Validate on every field change
-        validateOnBlur: true, 
+        validateOnBlur: true,
     });
 
 
@@ -434,7 +460,7 @@ const InsuranceForm = ({
                 })
                 .catch((e) => {
                     console.log(e);
-                    
+
                     setLoading(false);
                     Swal.fire({
                         title: "Error!",
@@ -533,12 +559,13 @@ const InsuranceForm = ({
         setFieldValue("signature", "");
     };
 
+    console.log(errors);
 
 
     return (
         <div>
             <div className="mb-4">
-                <p className="navyblueColor font-30 mt-4 font-w-500"> {t("insurance.insuraceDetailCandidate")}</p>
+                <p className="navyblueColor font-30 font-w-500 mt-4"> {t("insurance.insuraceDetailCandidate")}</p>
             </div>
             <form className="row" onSubmit={handleNextPrev}>
                 <section className="col-xl">
@@ -818,7 +845,7 @@ const InsuranceForm = ({
                             <div className="d-flex">
                                 <Form.Check
                                     label={t("insurance.Male")}
-                                    className="mr-2 "
+                                    className="mr-2"
                                     name="gender"
                                     value="Male"
                                     checked={values.gender === "Male"}
@@ -882,7 +909,7 @@ const InsuranceForm = ({
                         <div className="row justify-content-center">
                             <div className="col">
                                 <div className="form-group">
-                                    <label className="control-label d-flex align-items-center">
+                                    <label className="d-flex align-items-center control-label">
                                         <div className="mr-2">
                                             {t("insurance.Height")}
                                         </div>
@@ -939,7 +966,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.isthereChangeInWeight")}
                                     </label>
-                                    <div>
+                                    <div id="g2">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -979,6 +1006,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g2} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -990,14 +1020,14 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.alcohol")}
                                     </label>
-                                    <div>
+                                    <div id="g3">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
                                                 type="radio"
                                                 checked={values.g3 === "yes"}
                                                 name="g3yn"
-                                                id="g3yes"
+                                                id="g3es"
                                                 onChange={(e) =>
                                                     setFieldValue("g3", e.target.value)
                                                 }
@@ -1030,6 +1060,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g3} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1041,7 +1074,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.smoke")}
                                     </label>
-                                    <div>
+                                    <div id="g4">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1144,6 +1177,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g4} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1155,7 +1191,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.drugs")}
                                     </label>
-                                    <div>
+                                    <div id="g5">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1195,6 +1231,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g5} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1206,7 +1245,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.surgery")}
                                     </label>
-                                    <div>
+                                    <div id="g6">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1246,6 +1285,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g6} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1272,7 +1314,7 @@ const InsuranceForm = ({
                                             }
                                         />
                                     </div>
-                                    <div>
+                                    <div id="g7">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1312,6 +1354,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g7} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1323,7 +1368,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.chronicCondition")}
                                     </label>
-                                    <div>
+                                    <div id="g8">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1363,6 +1408,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g8} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1374,7 +1422,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.DidAnyTest")}
                                     </label>
-                                    <div>
+                                    <div id="g9">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1414,6 +1462,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g9} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1422,13 +1473,13 @@ const InsuranceForm = ({
                 </section>
                 <section className="col-xl">
                     <div
-                        className="col pl-0 mb-4"
+                        className="col mb-4 pl-0"
                         style={{ fontSize: "18px", fontWeight: "bold" }}
                     >
                         {t("insurance.Qestiondiseases")}
                     </div>
 
-                    <div>
+                    <div id="g10">
                         <div className="row justify-content-center">
                             <div className="col">
                                 <div className="form-group">
@@ -1475,6 +1526,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g10} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1486,7 +1540,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.nervousSys")}
                                     </label>
-                                    <div>
+                                    <div id="g11">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1526,6 +1580,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g11} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1537,7 +1594,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Respiratory")}
                                     </label>
-                                    <div>
+                                    <div id="g12">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1577,6 +1634,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g12} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1588,7 +1648,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Respiratory")}
                                     </label>
-                                    <div>
+                                    <div id="g13">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1628,6 +1688,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g13} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1639,7 +1702,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Gastrointestinal")}
                                     </label>
-                                    <div>
+                                    <div id="g14">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1679,6 +1742,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g14} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1690,7 +1756,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Kidneys")}
                                     </label>
-                                    <div>
+                                    <div id="g15">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1730,6 +1796,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g15} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1741,7 +1810,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Metabolic")}
                                     </label>
-                                    <div>
+                                    <div id="g16">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1781,6 +1850,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g16} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1792,7 +1864,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Dermatology")}
                                     </label>
-                                    <div>
+                                    <div id="g17">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1832,6 +1904,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g17} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1858,7 +1933,7 @@ const InsuranceForm = ({
                                         />
                                     </div>
                                     <div className="">{t("insurance.pathology")}</div>
-                                    <div>
+                                    <div id="g18">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1898,6 +1973,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g18} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1909,7 +1987,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Infectious")}
                                     </label>
-                                    <div>
+                                    <div id="g19">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -1949,6 +2027,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g19} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -1960,7 +2041,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.JointsAndfBone")}
                                     </label>
-                                    <div>
+                                    <div id="g20">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -2006,6 +2087,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g20} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -2017,7 +2101,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.eyesCataract")}
                                     </label>
-                                    <div>
+                                    <div id="g21">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -2057,6 +2141,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g21} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -2068,7 +2155,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Otolaryngology")}
                                     </label>
-                                    <div>
+                                    <div id="g22">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -2108,6 +2195,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g22} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -2119,7 +2209,7 @@ const InsuranceForm = ({
                                     <label className="control-label">
                                         {t("insurance.Hernia")}
                                     </label>
-                                    <div>
+                                    <div id="g23">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -2159,6 +2249,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g23} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                             </div>
@@ -2184,7 +2277,7 @@ const InsuranceForm = ({
                                         />
                                     </div>
                                     <div>{t("insurance.Caesarean")}</div>
-                                    <div>
+                                    <div id="g24">
                                         <div className="form-check form-check-inline">
                                             <input
                                                 className="form-check-input"
@@ -2224,6 +2317,9 @@ const InsuranceForm = ({
                                             </label>
                                         </div>
                                     </div>
+                                    <span className="text-danger">
+                                        {touched && errors.g24} {/* Display error if touched and there's an error */}
+                                    </span>
                                 </div>
                                 <hr />
                                 <div className="col-sm-12">
@@ -2235,17 +2331,18 @@ const InsuranceForm = ({
                                             <textarea
                                                 type="text"
                                                 name="details"
+                                                id="details"
                                                 value={values.details}
-                                                onChange={(e) =>
-                                                    setFieldValue("details", e.target.value)
-                                                }
+                                                onChange={handleChange}
                                                 className="form-control"
+                                                onBlur={handleBlur}
                                                 placeholder={t("insurance.enter_required")}
-                                            ></textarea>
+                                            />
                                             <span className="text-danger">
-                                                {touched.details && errors.details}
+                                                {touched && errors.details} {/* Display error if touched and there's an error */}
                                             </span>
                                         </div>
+
                                     </div>
                                 </div>
                                 <hr />
@@ -2302,9 +2399,9 @@ const InsuranceForm = ({
                                                 {touched.signature && errors.signature}
                                             </span>
                                         </div>
-                                        <p className="mx-2 mt-5">
+                                        <p className="mt-5 mx-2">
                                             <button
-                                                className="btn px-3 py-1 navyblue mb-2"
+                                                className="btn navyblue mb-2 px-3 py-1"
                                                 onClick={clearSignature}
                                             >
                                                 {t("form101.button_clear")}
@@ -2322,7 +2419,7 @@ const InsuranceForm = ({
                             <div className="col d-flex justify-content-end">
                                 <button
                                     type="button"
-                                    className="btn align-content-center navyblue mx-2"
+                                    className="btn navyblue align-content-center mx-2"
                                     onClick={() => setNextStep(prev => prev - 1)}
                                 >
                                     <GrFormPreviousLink /> {t("common.prev")}
@@ -2395,7 +2492,7 @@ function PdfViewer({ url }) {
             <Document file={url} onLoadSuccess={onDocumentLoadSuccess}>
                 <Page pageNumber={pageNumber} />
             </Document>
-            <div className="d-flex justify-content-center my-2 align-items-center">
+            <div className="d-flex align-items-center justify-content-center my-2">
                 <button
                     className="btn btn-primary"
                     type="button"

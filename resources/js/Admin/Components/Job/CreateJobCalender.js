@@ -156,6 +156,8 @@ export default function CreateJobCalender({
                     },
                 });
                 const workers = res.data.workers;
+                console.log(workers);
+
 
                 setAllWorkers(workers);
                 let WorkerAvailability = getWorkerAvailabilities(workers);

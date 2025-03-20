@@ -2684,6 +2684,7 @@
         "weightReq": "El peso es obligatorio",
         "Yes": "Sí",
         "No": "No",
+        "yes_no_req": "el campo es obligatorio",
         "isthereChangeInWeight": "¿Ha habido algún cambio en su peso (5 kg o más) en los últimos doce meses (no como resultado de una dieta)?",
         "alcohol": "¿Consume o ha consumido en el pasado alcohol, más de un vaso al día de cerveza/vino u otra bebida alcohólica?",
         "smoke": "¿Fuma o ha fumado en el pasado?",
