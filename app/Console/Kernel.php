@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('team:notify-team-if-worker-not-confirm-after-30-mins')->onOneServer()->everyMinute();
         $schedule->command('team:lead-status-pending-from-24-hours')->onOneServer()->dailyAt('08:00');
         $schedule->command('team:price-offer-reminder-to-team')->onOneServer()->dailyAt('08:00');
-        $schedule->command('team-and-client:contract-reminder')->onOneServer()->hourly();
+        // $schedule->command('team-and-client:contract-reminder')->onOneServer()->hourly();
         $schedule->command('client:offsite-meeting-reminder')->onOneServer()->dailyAt('08:00');
 
         // Admin reminder

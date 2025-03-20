@@ -8,6 +8,7 @@ use App\Events\ClientOrderWithDiscount;
 use App\Events\ClientOrderWithExtra;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
+use App\Models\ClientPropertyAddress;
 use App\Traits\PaymentAPI;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -62,10 +63,13 @@ class CreateJobOrder implements ShouldQueue
 
         if ($job) {
             $items = [];
+            $address = null;
             $client = $job->client;
             $service = $job->jobservice;
             $offerService = $job->offer_service;
             $address = $offerService['address'];
+
+            $address = ClientPropertyAddress::find($address['id']);
 
             // mark job(s) as last of month
             $monthEndDate = Carbon::parse($job->start_date)->endOfMonth()->toDateString();
@@ -108,9 +112,9 @@ class CreateJobOrder implements ShouldQueue
             App::setLocale($client->lng);
 
             $serviceName = null;
-            $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address["geo_address"]));
-
+            
             if(($offerService['template'] == "airbnb")) {
+                $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address["geo_address"]));
                 if($client->lng == "heb") {
                     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $cleaned_address . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")";
                 } else {
