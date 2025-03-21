@@ -1376,7 +1376,10 @@
             "jobPosted": "Job Posted",
             "clients": "Clients",
             "newClients": "New Clients",
+            "newWorker":"New Workers",
+            "clientLeads":"Client Leads",
             "activeClients": "Active Clients",
+            
             "pendingLeads": "Pending Leads",
             "workers": "Workers",
             "activeWorkers": "Active Workers",
@@ -2061,6 +2064,7 @@
             "dashboard": "Dashboard",
             "leads": "Leads",
             "clients": "Clients",
+            "client_lead":"Client Leads",
             "workers": "Workers",
             "meetings": "Meetings",
             "offers": "Offers",
@@ -2075,6 +2079,7 @@
             "workerHearing": "Workers Hearing",
             "task_management": "Task Management",
             "worker_lead": "Worker Leads",
+           
             "pending_request": "Pending Request",
             "fb_insights": "Facebook Insights",
             "fb_campaigns": "Facebook Campaigns",
@@ -2085,6 +2090,13 @@
                 "active_client": "Active client",
                 "past_client": "Past client",
                 "freeze_client": "Freeze client"
+            },
+            "day":{
+              "today":"Today",
+              "this week":"This Week",
+              "this month":"This Month",
+              "custom":"Custom",
+              "all time":"All Time"
             },
             "settings": {
                 "title": "Settings",
@@ -3149,7 +3161,6 @@
         "andWidth": "and Weight",
         "heightReq": "Height is required",
         "weightReq": "Weight is required",
-        "yes_no_req": "field is required",
         "Yes": "Yes",
         "No": "No",
         "isthereChangeInWeight": "Has there been any change in your weight (5 kg and more) in the course of the last twelve months (not as a result of a diet)?",

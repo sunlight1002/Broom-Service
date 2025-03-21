@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Client;
+
 use App\Models\WorkerLeads;
 use App\Models\Offer;
 use App\Models\Schedule;
@@ -23,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\PriceOffered;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -30,41 +32,137 @@ class DashboardController extends Controller
 {
   use PriceOffered;
 
-  public function dashboard()
+  // public function dashboard()
+  // {
+  //   $today = Carbon::now()->toDateString();
+  //   $todayDateTime = Carbon::now()->toDateTimeString();
+
+  //   $total_jobs      = Job::whereDate('start_date', $today)->count();
+  //   $total_new_clients   = Client::where('created_at', $todayDateTime)->count();
+  //   $total_active_clients   = Client::where('status', 2)->count();
+  //   $total_leads   = Client::where('status', '!=', 2)->count();
+  //   $total_workers   = User::where(function ($q)  use ($today) {
+  //     $q
+  //       ->whereNull('last_work_date')
+  //       ->orWhereDate('last_work_date', '>=', $today);
+  //   })->count();
+  //   $total_schedules  = Schedule::whereDate('start_date', $today)->count();
+  //   $total_offers    = Offer::where('status', 'sent')->count();
+  //   $total_worker_leads = WorkerLeads::all()->count();
+  //   $total_contracts  = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)->count();
+  //   $latest_jobs     = Job::query()
+  //     ->with(['client', 'service', 'worker', 'jobservice'])
+  //     ->where('status', JobStatusEnum::COMPLETED)
+  //     ->orderBy('created_at', 'desc')
+  //     ->paginate(5);
+
+  //   return response()->json([
+  //     'total_jobs'         => $total_jobs,
+  //     'total_new_clients'     => $total_new_clients,
+  //     'total_active_clients'  => $total_active_clients,
+  //     'total_leads'        => $total_leads,
+  //     'total_workers'      => $total_workers,
+  //     'total_worker_leads' => $total_worker_leads,
+  //     'total_schedules'    => $total_schedules,
+  //     'total_offers'       => $total_offers,
+  //     'total_contracts'    => $total_contracts,
+  //     'latest_jobs'        => $latest_jobs,
+  //   ]);
+  // }
+  public function dashboard(Request $request)
   {
+    $filterType = $request->input('filter', 'today');
     $today = Carbon::now()->toDateString();
     $todayDateTime = Carbon::now()->toDateTimeString();
+    $startDate = $endDate = null;
 
-    $total_jobs      = Job::whereDate('start_date', $today)->count();
+    switch ($filterType) {
+      case 'today':
+        $startDate = $endDate = $today;
+        break;
+      case 'this_week':
+        $startDate = Carbon::now()->startOfWeek()->toDateString();
+        $endDate = Carbon::now()->endOfWeek()->toDateString();
+        break;
+      case 'this_month':
+        $startDate = Carbon::now()->startOfMonth()->toDateString();
+        $endDate = Carbon::now()->endOfMonth()->toDateString();
+        break;
+      case 'custom':
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        break;
+      case 'all_time':
+
+        break;
+    }
+    \Log::info('startDate', [$startDate]);
+    \Log::info('endDate', [$endDate]);
+
+    $total_jobs = Job::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('start_date', [$startDate, $endDate]);
+    })->count();
+
+    // $total_new_clients = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+    //   return $query->whereBetween('created_at', [$startDate, $endDate]);
+    // })->count();
     $total_new_clients   = Client::where('created_at', $todayDateTime)->count();
-    $total_active_clients   = Client::where('status', 2)->count();
-    $total_leads   = Client::where('status', '!=', 2)->count();
-    $total_workers   = User::where(function ($q)  use ($today) {
-      $q
-        ->whereNull('last_work_date')
+    $total_new_workers = User::where('created_at', $todayDateTime)->count();
+    $total_active_clients = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('created_at', [$startDate, $endDate])
+        ->where('status', 2);
+    })->count();
+
+
+    $total_leads = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('created_at', [$startDate, $endDate])
+        ->where('status', '!=', 2);
+    })->count();
+
+    $total_workers = User::where(function ($q) use ($today) {
+      $q->whereNull('last_work_date')
         ->orWhereDate('last_work_date', '>=', $today);
     })->count();
-    $total_schedules  = Schedule::whereDate('start_date', $today)->count();
-    $total_offers    = Offer::where('status', 'sent')->count();
-    $total_worker_leads = WorkerLeads::all()->count();
-    $total_contracts  = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)->count();
-    $latest_jobs     = Job::query()
-      ->with(['client', 'service', 'worker', 'jobservice'])
+
+    $total_schedules = Schedule::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('start_date', [$startDate, $endDate]);
+    })->count();
+
+    $total_offers = Offer::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('created_at', [$startDate, $endDate])
+        ->where('status', 'sent');
+    })->count();
+
+    // Total Worker Leads
+    $total_worker_leads = WorkerLeads::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('created_at', [$startDate, $endDate]);
+    })->count();
+    $total_contracts = Contract::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+      return $query->whereBetween('created_at', [$startDate, $endDate])
+        ->where('status', '!=', ContractStatusEnum::VERIFIED);
+    })->count();
+
+
+    $latest_jobs = Job::with(['client', 'service', 'worker', 'jobservice'])
       ->where('status', JobStatusEnum::COMPLETED)
+      ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
+      })
       ->orderBy('created_at', 'desc')
       ->paginate(5);
 
     return response()->json([
-      'total_jobs'         => $total_jobs,
-      'total_new_clients'     => $total_new_clients,
-      'total_active_clients'  => $total_active_clients,
-      'total_leads'        => $total_leads,
-      'total_workers'      => $total_workers,
+      'total_jobs' => $total_jobs,
+      'total_new_clients' => $total_new_clients,
+      'total_new_workers' => $total_new_workers,
+      'total_active_clients' => $total_active_clients,
+      'total_leads' => $total_leads,
+      'total_workers' => $total_workers,
       'total_worker_leads' => $total_worker_leads,
-      'total_schedules'    => $total_schedules,
-      'total_offers'       => $total_offers,
-      'total_contracts'    => $total_contracts,
-      'latest_jobs'        => $latest_jobs,
+      'total_schedules' => $total_schedules,
+      'total_offers' => $total_offers,
+      'total_contracts' => $total_contracts,
+      'latest_jobs' => $latest_jobs,
     ]);
   }
 
@@ -409,7 +507,7 @@ class DashboardController extends Controller
 
             if (isset($worker)) {
               $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
-                  "</a> leave date has been set to " . (isset($notice->data['date']) ? $notice->data['date'] : $notice->data['last_work_date']) . '.';
+                "</a> leave date has been set to " . (isset($notice->data['date']) ? $notice->data['date'] : $notice->data['last_work_date']) . '.';
             }
           } else if ($notice->type == NotificationTypeEnum::ORDER_CANCELLED) {
             $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
@@ -426,59 +524,56 @@ class DashboardController extends Controller
           } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_DISCOUNT) {
             $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> with discount.";
-          }else if ($notice->type == NotificationTypeEnum::UNANSWERED_LEAD) {
+          } else if ($notice->type == NotificationTypeEnum::UNANSWERED_LEAD) {
             $client = Client::find($notice->user_id);
-        
+
             if (isset($client)) {
-                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                    "</a> has unanswered leads for 24 hours or more than 24 hours.";
-            }
-          }else if ($notice->type == NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER) {
-            $client = Client::find($notice->user_id);
-        
-            if (isset($client)) {
-                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                    "</a> has a follow-up price offer after 3 days.";
-            }
-          }else if($notice->type == NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER) {
-            $client = Client::find($notice->user_id);
-        
-            if (isset($client)) {
-                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                    "</a> has a final follow-up price offer after 7 days.";
-            }
-          }else if ($notice->type == NotificationTypeEnum::LEAD_ACCEPTED_PRICE_OFFER) {
-            $client = Client::find($notice->user_id);
-        
-            if (isset($client)) {
-                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                    "</a> has accepted the price offer.";
-            }
-        } else if ($notice->type == NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER) {
-          $client = Client::find($notice->user_id);
-          
-          if (isset($client)) {
               $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                  "</a> has rejected the price offer.";
-          }
-        }else if ($notice->type == NotificationTypeEnum::LEAD_DECLINED_CONTRACT) {
-          $client = Client::find($notice->user_id);
-      
-          if (isset($client)) {
+                "</a> has unanswered leads for 24 hours or more than 24 hours.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
               $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                  "</a> has declined the contract.";
-          }
-        }else if ($notice->type == NotificationTypeEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT) {
-          $client = Client::find($notice->user_id);
-      
-          if (isset($client)) {
+                "</a> has a follow-up price offer after 3 days.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
               $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                  "</a> has signed the contract and is ready to be booked.";
+                "</a> has a final follow-up price offer after 7 days.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::LEAD_ACCEPTED_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has accepted the price offer.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has rejected the price offer.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::LEAD_DECLINED_CONTRACT) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has declined the contract.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has signed the contract and is ready to be booked.";
+            }
           }
-        }
-    
-      
-          
         }
       }
 
