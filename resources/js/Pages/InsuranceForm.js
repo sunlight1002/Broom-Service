@@ -559,9 +559,6 @@ const InsuranceForm = ({
         setFieldValue("signature", "");
     };
 
-    console.log(errors);
-
-
     return (
         <div>
             <div className="mb-4">

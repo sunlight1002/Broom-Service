@@ -43,7 +43,6 @@ if(!function_exists('generateShortUrl')) {
             'url' => $urlData,
             'token' => $token,
         ]);
-        \Log::info($shortUrl);
 
         if($shortUrl) {
             return config("services.short_url.domain")."/". $token;

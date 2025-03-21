@@ -263,20 +263,39 @@ class DocumentController extends Controller
     {
         // Find the form by ID
         $form = Form::find($form_id);
-
+    
         if ($form) {
+            // Ensure data is an array
+            $data = is_string($form->data) ? json_decode($form->data, true) : $form->data;
+    
+            // List of keys to empty
+            $fieldsToEmpty = [
+                'signature', 'signatureDate', 'signature1', 'signature2', 'signature3',
+                'signatureDate1', 'signatureDate2', 'signatureDate3', 'signatureDate4'
+            ];
+    
+            // Empty the specified fields if they exist
+            foreach ($fieldsToEmpty as $field) {
+                if (array_key_exists($field, $data)) {
+                    $data[$field] = null;
+                }
+            }
+    
+            // Update the form record
             $form->update([
                 'pdf_name' => null,
                 'submitted_at' => null,
+                'data' => $data, // Save directly if Laravel handles JSON casting
             ]);
-
+    
             return response()->json([
                 'message' => 'Document has been reset successfully!',
             ]);
         }
-
+    
         return response()->json([
             'message' => 'Form not found!',
         ], 404);
     }
+    
 }
