@@ -65,6 +65,10 @@ class AuthController extends Controller
              'password'  => $request->password
          ])) {
              $user = User::where('status', 1)->find(auth()->user()->id);
+             if (!$user) {
+                 return response()->json(['errors' => ['worker' => 'User not found']]);
+             }
+     
              DeviceToken::where('tokenable_id', $user->id)
              ->where('tokenable_type', User::class)
              ->where('expires_at', '<', now())
@@ -1315,7 +1319,7 @@ class AuthController extends Controller
     }
     public function getAllForms($id, $type = null) 
     {
-        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::find($id);
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',

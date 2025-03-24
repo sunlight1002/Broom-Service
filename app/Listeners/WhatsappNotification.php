@@ -706,9 +706,9 @@ class WhatsappNotification
             // $receiverNumber = config('services.whatsapp_groups.notification_test');
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                Log::info($text);
-                Log::info($eventType);
-                Log::info($lng);
+                // Log::info($text);
+                // Log::info($eventType);
+                // Log::info($lng);
 
                 $token = $this->whapiApiToken;
 
@@ -740,12 +740,12 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                Log::info($response->json());
+                // Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
-            Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
+            // Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
         }
     }
 }

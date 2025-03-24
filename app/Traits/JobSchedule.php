@@ -605,6 +605,7 @@ trait JobSchedule
             ->select('job_worker_shifts.starting_at', 'job_worker_shifts.ending_at')
             ->get()
             ->toArray();
+            \Log::info($bookedSlots);
 
         $isConflicting = false;
         foreach ($newSlots as $slot) {
@@ -614,7 +615,6 @@ trait JobSchedule
             foreach ($bookedSlots as $key => $bookedSlot) {
                 $bss = Carbon::parse($bookedSlot['starting_at']);
                 $bse = Carbon::parse($bookedSlot['ending_at'])->subSecond();
-
                 if ($ns->between($bss, $bse) || $ne->between($bss, $bse)) {
                     $isConflicting = true;
                     break;

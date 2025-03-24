@@ -60,6 +60,8 @@ export default function WorkerLogin() {
         };
         axios.post(`/api/login`, data).then((result) => {
             if (result.data.errors) {
+                console.log(result.data.errors);
+                
                 setLoading(false)
                 setErrors(result.data.errors);
             } else {

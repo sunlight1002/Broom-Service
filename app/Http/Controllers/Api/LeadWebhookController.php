@@ -1642,58 +1642,96 @@ If you would like to speak to a human representative, please send a message with
         $lead_exists = Client::where('phone', $phone)->orWhere('email', $request->email)->exists();
         if (!$lead_exists) {
             $lead = new Client;
+
+            $name = explode(' ', $request->name);
+
+            $lead->firstname = $name[0];
+            $lead->lastname = (isset($name[1])) ? $name[1] : '';
+            $lead->phone = $phone;
+            $lead->email = $request->email;
+            $lead->status = 0;
+            $lead->lng = 'heb';
+            $lead->password = Hash::make(Str::random(20));
+            $lead->passcode = $phone;
+            $lead->save();
+
+            $lead->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => LeadStatusEnum::PENDING]
+            );
+
+            $m = $this->botMessages['main-menu']['heb'];
+
+            $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
+
+            WhatsAppBotClientState::updateOrCreate([
+                'client_id' => $lead->id,
+            ], [
+                'menu_option' => 'main_menu',
+                'language' => 'he',
+            ]);
+
+            $response = WebhookResponse::create([
+                'status'        => 1,
+                'name'          => 'whatsapp',
+                'message'       => $m,
+                'number'        => $phone,
+                'read'          => 1,
+                'flex'          => 'A',
+            ]);
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                "notificationData" => [
+                    'client' => $lead->toArray(),
+                    'type' => "website"
+                ]
+            ]));
+
         } else {
             $lead = Client::where('phone', 'like', '%' . $phone . '%')->first();
             if (empty($lead)) {
                 $lead = Client::where('email', $request->email)->first();
             }
+
+            if ($lead->lead_status) {
+                $leadStatus = $lead->lead_status;
+                $leadUpdatedAt = $leadStatus->updated_at; 
+                $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING 
+                    && $leadUpdatedAt->diffInDays(now()) > 2;
+                $isNotPending = $leadStatus->lead_status !== LeadStatusEnum::PENDING;
+
+                if ($isPendingForMoreThanTwoDays || $isNotPending) {
+                    $lead->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => LeadStatusEnum::PENDING]
+                    );
+            
+                    $lead->status = 0;
+                    $lead->save();
+            
+                    // Create a notification
+                    Notification::create([
+                        'user_id' => $lead->id,
+                        'user_type' => get_class($lead),
+                        'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
+                        'status' => 'created'
+                    ]);
+            
+                    $lead->load('property_addresses');
+                    
+                    // Trigger WhatsApp notification
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                        "notificationData" => [
+                            'client' => $lead->toArray(),
+                            'type' => "website"
+                        ]
+                    ]));
+                }
+            }
         }
-        $name = explode(' ', $request->name);
-
-        $lead->firstname = $name[0];
-        $lead->lastname = (isset($name[1])) ? $name[1] : '';
-        $lead->phone = $phone;
-        $lead->email = $request->email;
-        $lead->status = 0;
-        $lead->lng = 'heb';
-        $lead->password = Hash::make(Str::random(20));
-        $lead->passcode = $phone;
-        $lead->save();
-
-        if (!$lead_exists) {
-            $lead->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => LeadStatusEnum::PENDING]
-            );
-        }
-
-        $m = $this->botMessages['main-menu']['heb'];
-
-        $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
-
-        WhatsAppBotClientState::updateOrCreate([
-            'client_id' => $lead->id,
-        ], [
-            'menu_option' => 'main_menu',
-            'language' => 'he',
-        ]);
-
-        $response = WebhookResponse::create([
-            'status'        => 1,
-            'name'          => 'whatsapp',
-            'message'       => $m,
-            'number'        => $phone,
-            'read'          => 1,
-            'flex'          => 'A',
-        ]);
-
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
-            "notificationData" => [
-                'client' => $lead->toArray(),
-                'type' => "website"
-            ]
-        ]));
+        
     }
 
     public function fbActiveClientsWebhookCurrentLive(Request $request)

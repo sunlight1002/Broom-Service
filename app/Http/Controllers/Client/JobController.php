@@ -18,6 +18,9 @@ use App\Models\Admin;
 use App\Models\User;
 use App\Models\Problems;
 use App\Models\Job;
+use App\Models\JobHours;
+use App\Models\JobService;
+use App\Models\ParentJobs;
 use App\Models\JobCancellationFee;
 use App\Models\Notification;
 use App\Traits\JobSchedule;
@@ -36,6 +39,7 @@ use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Str;
 
 
 class JobController extends Controller
@@ -206,7 +210,9 @@ class JobController extends Controller
             ->get();
         
         $admin = Admin::where('role', 'admin')->first();
-        
+        $lastKey = $jobs->keys()->last();
+
+       
         foreach ($jobs as $key => $job) {
             $feePercentage = 0;
         
@@ -265,16 +271,142 @@ class JobController extends Controller
                 'cancelled_for' => $repeatancy,
                 'cancel_until_date' => $until_date,
             ]);
+
+            $job->workerShifts()->delete();
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-            if($repeatancy == 'forever' && $key == 0) {
-                GenerateJobInvoice::dispatch(null, $job->client->id);
-            }
+            // if($repeatancy == 'forever' && $key == 0) {
+            //     GenerateJobInvoice::dispatch(null, $job->client->id);
+            // }
 
             CreateJobOrder::dispatch($job->id);
 
-            ScheduleNextJobOccurring::dispatch($job->id,null);
+            $manageTime = ManageTime::first();
+            $workingWeekDays = json_decode($manageTime->days);
+            $preferredWeekDay = strtolower(Carbon::parse($job->start_date)->format('l'));
 
+            $next_job_date = $this->scheduleNextJobDate($job->start_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
+
+            // Find the last job based on the values obtained
+            $lastJob = Job::where('client_id', $job->client_id)
+            ->where('address_id', $job->address_id)
+            ->where('worker_id', $job->worker_id)
+            ->where('contract_id', $job->contract_id)
+            ->where('offer_id', $job->offer_id)
+            ->orderBy('start_date', 'desc')
+            ->first();
+
+            if ($lastJob && ($repeatancy == 'until_date' && $until_date >= $lastJob->start_date) && $key == $lastKey) {
+                ScheduleNextJobOccurring::dispatch($lastJob->id, null);
+            } elseif ($repeatancy != 'forever' && ($repeatancy == "until_date" && $until_date < $lastJob->start_date)) {
+                // Calculate next job date
+                $last_job_next_job_date = $this->scheduleNextJobDate(
+                    $lastJob->next_start_date, 
+                    $job->schedule, 
+                    $preferredWeekDay, 
+                    $workingWeekDays
+                );
+            
+                // Convert offer_service to an array safely
+                $minutes = 0;
+                $selectedService = $lastJob->offer_service ?? [];
+                
+                if (isset($selectedService['type'])) {
+                    if ($selectedService['type'] == 'hourly') {
+                        $hours = ($minutes / 60);
+                        $total_amount = ($selectedService['rateperhour'] ?? 0) * $hours;
+                    } elseif ($selectedService['type'] == 'squaremeter') {
+                        $total_amount = ($selectedService['ratepersquaremeter'] ?? 0) * ($selectedService['totalsquaremeter'] ?? 0);
+                    } else {
+                        $total_amount = $selectedService['fixed_price'] ?? 0;
+                    }
+                } else {
+                    $total_amount = 0;
+                }
+                
+                $mergedContinuousTime = [
+                    [
+                        "starting_at" => $lastJob->start_date . ' ' . $lastJob->start_time,
+                        "ending_at" => $lastJob->start_date . ' ' . $lastJob->end_time
+                    ]
+                ];
+                
+                foreach ($mergedContinuousTime as $slot) {
+                    $start = Carbon::parse($slot['starting_at']);
+                    $end = Carbon::parse($slot['ending_at']);
+                    $interval = 15; // in minutes
+                    while ($start < $end) {
+                        $start->addMinutes($interval);
+                        $minutes += $interval;
+                    }
+                }
+            
+                // Determine job status
+                $status = $this->isJobTimeConflicting($mergedContinuousTime, $lastJob->start_date, $lastJob->worker_id) 
+                    ? JobStatusEnum::UNSCHEDULED 
+                    : JobStatusEnum::SCHEDULED;
+
+                    if (is_string($selectedService)) {
+                        $selectedService = json_decode($selectedService, true);
+                    }
+            
+                // Create new job
+                $newjob = Job::create([
+                    'uuid'              => Str::uuid(),
+                    'worker_id'         => $lastJob->worker_id,
+                    'client_id'         => $lastJob->client_id,
+                    'contract_id'       => $lastJob->contract_id,
+                    'offer_id'          => $lastJob->offer_id,
+                    'parent_job_id'     => $lastJob->parent_job_id,
+                    'start_date'        => Carbon::parse($lastJob->next_start_date)->format('Y-m-d'),
+                    'start_time'        => $lastJob->start_time,
+                    'end_time'          => $lastJob->end_time,
+                    'shifts'            => $lastJob->shifts,
+                    'schedule'          => $lastJob->schedule,
+                    'schedule_id'       => $lastJob->schedule_id,
+                    'status'            => $status,
+                    'subtotal_amount'   => $total_amount,
+                    'total_amount'      => $total_amount,
+                    'next_start_date'   => $this->scheduleNextJobDate(
+                                            $lastJob->next_start_date, 
+                                            $job->schedule, 
+                                            $preferredWeekDay, 
+                                            $workingWeekDays
+                                        ),        
+                    'address_id'        => $selectedService['address']['id'] ?? null,
+                    'keep_prev_worker'  => $lastJob->keep_prev_worker,
+                    'original_worker_id'=> $lastJob->worker_id,
+                    'original_shifts'   => $lastJob->shifts,
+                    'offer_service'     => json_encode($selectedService),
+                ]);
+
+                $jobser = JobService::create([
+                    'job_id'            => $newjob->id,
+                    'service_id'        => $selectedService['service'],
+                    'name'              => $selectedService['name'],
+                    'heb_name'          => $selectedService['service_name_heb'],
+                    'duration_minutes'  => $minutes,
+                    'freq_name'         => $selectedService['freq_name'],
+                    'cycle'             => $selectedService['cycle'],
+                    'period'            => $selectedService['period'],
+                    'total'             => $total_amount,
+                    'config'            => [
+                        'cycle'             => $selectedService['cycle'],
+                        'period'            => $selectedService['period'],
+                        'preferred_weekday' => $preferredWeekDay
+                    ]
+                ]);
+            
+                // Assign shifts to new job
+                foreach ($mergedContinuousTime as $shift) {
+                    $newjob->workerShifts()->create([
+                        'start_time' => $shift['starting_at'],
+                        'end_time' => $shift['ending_at']
+                    ]);
+                }
+
+            }
+            
             if($key == 0){
                 Notification::create([
                     'user_id' => $job->client->id,

@@ -34,6 +34,7 @@ const CustomMessage = () => {
         message_ru: "",
     });
 
+    const alert = useAlert();
 
     useEffect(() => {
         if (windowWidth < 768) {
@@ -82,6 +83,10 @@ const CustomMessage = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        if(templates.message_heb === "" || templates.message_en === "" || templates.message_spa === "" || templates.message_ru === "") {
+            return alert.error("Please fill the fields");
+        }
 
         const selectedWorkerInculdeIds = workersInclude.map(worker => worker.value);
         const selectedWorkerExculdeIds = workersExclude.map(worker => worker.value);
