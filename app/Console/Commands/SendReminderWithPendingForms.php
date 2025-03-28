@@ -162,46 +162,54 @@ class SendReminderWithPendingForms extends Command
             }
         }
 
-        // Process and prepare the message
-        $message = "Hi team,\n\nThe following workers didn't complete the forms:\n\n";
-
-        foreach ($matchingUsers as $user) {
-            $incompleteForms = collect($user)->filter(function ($value, $key) {
-                return $value === 'False' && !in_array($key, ['id', 'worker_name', 'country', 'company_type']);
-            });
-
-            if ($incompleteForms->isNotEmpty()) {
-                $userId = $user['id'];
-
-                $forms = $incompleteForms->keys()->implode(', ');
-                $message .= "{$user['worker_name']} - {$forms}\n";
-
-                $worker = User::find($userId);
-                // dd($incompleteForms, $incompleteForms->count() == 1 && $incompleteForms->has('form101') && $incompleteForms->get('form101') == "False");
-                if ($incompleteForms->count() == 1 && $incompleteForms->has('form101') && $incompleteForms->get('form101') == "False") {
-                    $form101 = Form::where('user_id', $worker->id)->where('type', 'form101')->whereYear('created_at', now()->year)->whereNull('submitted_at')->first();
-                    if($form101) {
-                        echo("Sending Form 101 reminder to: " . $worker->email) . PHP_EOL;
-
-                        // echo $worker->email . PHP_EOL;
-                        event(new WorkerForm101Requested($worker, 'form101', $form101->id));
+        if (!empty($matchingUsers)) { // Check if users exist
+            $message = "Hi team,\n\nThe following workers didn't complete the forms:\n\n";
+            $hasIncompleteForms = false; // Flag to check if there's any worker with incomplete forms
+        
+            foreach ($matchingUsers as $user) {
+                $incompleteForms = collect($user)->filter(function ($value, $key) {
+                    return $value === 'False' && !in_array($key, ['id', 'worker_name', 'country', 'company_type']);
+                });
+        
+                if ($incompleteForms->isNotEmpty()) {
+                    $hasIncompleteForms = true; // Set flag to true if at least one worker has incomplete forms
+                    $userId = $user['id'];
+                    $forms = $incompleteForms->keys()->implode(', ');
+                    $message .= "{$user['worker_name']} - {$forms}\n";
+        
+                    $worker = User::find($userId);
+        
+                    if ($incompleteForms->count() == 1 && $incompleteForms->has('form101') && $incompleteForms->get('form101') == "False") {
+                        $form101 = Form::where('user_id', $worker->id)
+                            ->where('type', 'form101')
+                            ->whereYear('created_at', now()->year)
+                            ->whereNull('submitted_at')
+                            ->first();
+        
+                        if ($form101) {
+                            echo "Sending Form 101 reminder to: " . $worker->email . PHP_EOL;
+                            event(new WorkerForm101Requested($worker, 'form101', $form101->id));
+                        }
+                    } else {
+                        echo $userId . "/" . $worker->email . "/Test" . PHP_EOL;
+                        $this->sendReminder($worker);
                     }
-                } else {
-                    echo $userId . "/" . $worker->email . "/Test". PHP_EOL;
-                    $this->sendReminder($worker);
                 }
             }
-        }
-
-        $message .= "\n\nBest Regards,\nBroom Service Team 🌹";
-
-        $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-
-        $response = Http::withToken($this->whapiApiToken)
+        
+            if ($hasIncompleteForms) { // Send message only if at least one worker has incomplete forms
+                $message .= "\n\nBest Regards,\nBroom Service Team 🌹";
+                $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+        
+                Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $message
                     ]);
+            }
+        } else {
+            echo "No matching users found, skipping message send." . PHP_EOL;
+        }
 
         // Log::info($response->json());
         // Log::info($message);
