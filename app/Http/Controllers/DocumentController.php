@@ -18,6 +18,12 @@ class DocumentController extends Controller
     {
         $worker = User::find($id);
 
+        if (!$worker) {
+            return response()->json([
+                'error' => 'Worker not found'
+            ], 404);
+        }
+
         $documents = $worker->documents()
             ->with(['document_type' => function ($query) {
                 return $query->select(['id', 'name']);
@@ -33,18 +39,25 @@ class DocumentController extends Controller
     public function adminDocuments($id)
     {
         $user = Admin::find($id);
-
+    
+        if (!$user) {
+            return response()->json([
+                'error' => 'Admin not found'
+            ], 404);
+        }
+    
         $documents = $user->documents()
             ->with(['document_type' => function ($query) {
                 return $query->select(['id', 'name']);
             }])
-            ->where('userable_type', 'App\Models\Admin')
+            ->where('userable_type', Admin::class)
             ->get();
-
+    
         return response()->json([
             'documents' => $documents
         ]);
     }
+    
 
     public function save(Request $request)
     {

@@ -84,9 +84,9 @@ const CustomMessage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if(templates.message_heb === "" || templates.message_en === "" || templates.message_spa === "" || templates.message_ru === "") {
-            return alert.error("Please fill the fields");
-        }
+        // if(templates.message_heb === "" || templates.message_en === "" || templates.message_spa === "" || templates.message_ru === "") {
+        //     return alert.error("Please fill the fields");
+        // }
 
         const selectedWorkerInculdeIds = workersInclude.map(worker => worker.value);
         const selectedWorkerExculdeIds = workersExclude.map(worker => worker.value);
@@ -259,15 +259,6 @@ const CustomMessage = () => {
                             </div>
                             <div className="d-flex align-items-center flex-wrap">
                                 <Filter_Buttons
-                                    text={t("admin.sidebar.worker_lead")}
-                                    className="px-3 mr-1"
-                                    value="worker_leads"
-                                    onClick={() => {
-                                        setType("worker_leads");
-                                    }}
-                                    selectedFilter={type}
-                                />
-                                <Filter_Buttons
                                     text={t("admin.global.leads")}
                                     className="px-3 mr-1"
                                     value="leads"
@@ -291,6 +282,15 @@ const CustomMessage = () => {
                                     value="workers"
                                     onClick={() => {
                                         setType("workers");
+                                    }}
+                                    selectedFilter={type}
+                                />
+                                <Filter_Buttons
+                                    text={t("admin.sidebar.worker_lead")}
+                                    className="px-3 mr-1"
+                                    value="worker_leads"
+                                    onClick={() => {
+                                        setType("worker_leads");
                                     }}
                                     selectedFilter={type}
                                 />

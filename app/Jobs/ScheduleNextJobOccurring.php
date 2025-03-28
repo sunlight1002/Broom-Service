@@ -15,6 +15,7 @@ use App\Models\Services;
 use App\Models\ServiceSchedule;
 use App\Models\JobHours;
 use App\Models\JobService;
+use App\Models\Conflict;
 use App\Models\Setting;
 use App\Models\Notification;
 use App\Traits\JobSchedule;
@@ -160,7 +161,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
     protected function scheduleNextJob($job_date, $selectedService,  $client, $job, $preferredWeekDay, $workingWeekDays, &$i){
             $next_job_date = $this->scheduleNextJobDate($job_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
-            \Log::info("Next job date calculated: " . $next_job_date);
 
             // if ($job->cancelled_for == 'until_date') {
             //     $carbon_next_job_date = Carbon::parse($next_job_date);
@@ -241,15 +241,22 @@ class ScheduleNextJobOccurring implements ShouldQueue
             }
             $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
-
+            $conflictClientId = NULL;
+            $conflictJobId = NULL;
             if ($workerId) {
                 $status = JobStatusEnum::SCHEDULED;
-                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerId)) {
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerId);
+
+                if ($conflictCheck['is_conflicting']) {
                     $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
                 }
             } else {
                 $status = JobStatusEnum::UNSCHEDULED;
             }
+
+            \Log::info("------------------------------------");
 
             $minutes = 0;
             $slotsInString = '';
@@ -318,13 +325,27 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'previous_shifts_after' => $previous_shifts_after,
                 'offer_service' => $job->offer_service,
             ]);
-            \Log::info("Merged Continuous Time for job ID: " . $nextJob->id, $mergedContinuousTime);
 
             $nextJobService = $job->jobservice->replicate()->fill([
                 'job_id' => $nextJob->id,
                 'duration_minutes'  => $minutes,
                 'total'             => $total_amount,
             ]);
+
+
+            if($status == JobStatusEnum::UNSCHEDULED) {
+                Conflict::create([
+                    'job_id' => $conflictJobId,
+                    'worker_id' => $nextJob->worker_id,
+                    'client_id' => $conflictClientId,
+                    'conflict_client_id' => $nextJob->client_id,
+                    'conflict_job_id' => $nextJob->id,
+                    'date' => $nextJob->start_date,
+                    'shift' => $nextJob->shifts,
+                    'hours' => round($minutes / 60, 2)
+                ]);
+            }
+
             $nextJobService->save();
 
             foreach ($mergedContinuousTime as $key => $shift) {
@@ -338,8 +359,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
             $job->update([
                 'is_next_job_created' => true
             ]);
-
-            \Log::info('Job created: ' . $nextJob->id);
 
             $this->copyDefaultCommentsToJob($nextJob);
 

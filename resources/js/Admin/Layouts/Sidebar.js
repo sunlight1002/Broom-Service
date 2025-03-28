@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { CgInsights } from "react-icons/cg";
+import { LuShuffle } from "react-icons/lu";
 
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
@@ -260,6 +261,13 @@ export default function Sidebar() {
                                     className="d-flex align-items-center"
                                 >
                                     <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
+                                </NavLink>
+                            </li>
+                            <li className="list-group-item">
+                                <NavLink to="/admin/conflicts"
+                                    className="d-flex align-items-center"
+                                >
+                                    <LuShuffle className="font-20 mr-2" />{t("admin.sidebar.conflicts")}
                                 </NavLink>
                             </li>
                             <li className="list-group-item">

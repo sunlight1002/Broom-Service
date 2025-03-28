@@ -324,7 +324,12 @@
         "contacts": "אנשי קשר",
         "address_contact": "כתובת איש קשר",
         "payment_contact": "איש קשר לתשלום",
-        "remove": "הסר"
+        "remove": "הסר",
+        "client_id": "מזהה לקוח",
+        "worker_id": "זיהוי עובד",
+        "shift": "Shift",
+        "job_id": "מזהה משרה",
+        "hours": "שעות"
     },
     "modal": {
         "title": "מודל",
@@ -1099,7 +1104,6 @@
                 "ReviewPlaceholder": "הביקורת שלך כאן",
                 "Submit": "שלח",
                 "Cancel": "בטל"
-
             }
         },
         "property_address": {
@@ -1407,7 +1411,6 @@
             "clients": "לקוחות",
             "newClients": "לקוחות חדשים",
             "newWorker": "עובדים חדשים",
-            
             "clientLeads": "לידים של לקוחות",
             "activeClients": "לקוחות פעילים",
             "pendingLeads": "לידים ממתינים",
@@ -1846,7 +1849,7 @@
             "card": "כרטיסים",
             "notSent": "לא נשלח",
             "commenst": "הערות",
-            "pending Request":"בקשה ממתינה",
+            "pending Request": "בקשה ממתינה",
             "noRecord": "לא נמצאו רשומות",
             "meetingStatus": "סטָטוּס פגישה",
             "meetingAttender": "פגישה עם",
@@ -2107,6 +2110,7 @@
             "workerLeave": "עובדים עוזבים",
             "workerHearing": "שימועי עובדים",
             "task_management": "ניהול משימות",
+            "conflicts": "התנגשויות",
             "worker_lead": "ראש עובד",
             "pending_request": "בקשה ממתינה",
             "fb_insights": "תובנות בפייסבוק",
@@ -2120,13 +2124,12 @@
                 "freeze_client": "הקפא לקוח"
             },
             "day": {
-                 "today": "היום",
-                 "this week": "השבוע",
-                 "this month": "החודש",
-                 "custom": "מותאם אישית",
-                  "all time": "כל הזמנים"
+                "today": "היום",
+                "this week": "השבוע",
+                "this month": "החודש",
+                "custom": "מותאם אישית",
+                "all time": "כל הזמנים"
             },
-
             "settings": {
                 "title": "הגדרות",
                 "manage_team": "ניהול צוות",

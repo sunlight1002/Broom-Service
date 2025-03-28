@@ -401,7 +401,7 @@ trait PaymentAPI
             // "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
-            "doc_date" => $serviceDate,
+            // "doc_date" => $serviceDate,
             "items" => $items,
             "totalsum" => $totalsum,
             "discount" => $discount,

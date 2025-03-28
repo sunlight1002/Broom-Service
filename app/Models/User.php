@@ -220,4 +220,9 @@ class User extends Authenticatable
     {
         $this->notify(new CustomResetPassword($token, "user"));
     }
+
+    public function conflicts()
+    {
+        return $this->hasMany(Conflict::class, 'worker_id');
+    }
 }

@@ -14,6 +14,7 @@ use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Problems;
+use App\Models\Conflict;
 use App\Models\Offer;
 use App\Models\Client;
 use App\Models\Job;
@@ -175,6 +176,118 @@ class JobController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
+
+    public function showConflicts(Request $request)
+    {
+        $columns = [
+            'id',
+            'job_id',
+            'worker_id',
+            'client_id',
+            'conflict_client_id',
+            'conflict_job_id',
+            'date',
+            'shift',
+            'hours',
+            'created_at',
+            'updated_at'
+        ];
+    
+        // Retrieve filter values from the request
+        $search = $request->get('search')['value'] ?? null;
+        $start_time_filter = $request->get('start_time_filter');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+        $worker_id = $request->get('worker_id');
+        $client_id = $request->get('client_id');
+    
+        // Get sorting and pagination parameters
+        $start = $request->get("start", 0);
+        $length = $request->get("length", 10);
+        $columnIndex = $request->get('order')[0]['column'] ?? 0;
+        $dir = $request->get('order')[0]['dir'] ?? 'asc';
+    
+        // Query the Conflict model with relationships
+        $query = Conflict::with(['job', 'client', 'worker', 'conflictClient']);
+    
+        // Search functionality
+        if ($search) {
+            $query->where(function ($query) use ($search, $columns) {
+                foreach ($columns as $column) {
+                    $query->orWhere($column, 'like', "%{$search}%");
+                }
+                $query->orWhereHas('worker', function ($q) use ($search) {
+                    $q->where('firstname', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%");
+                });
+                $query->orWhereHas('client', function ($q) use ($search) {
+                    $q->where('firstname', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%");
+                });
+                $query->orWhereHas('conflictClient', function ($q) use ($search) {
+                    $q->where('firstname', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%");
+                });
+                $query->orWhereHas('job', function ($q) use ($search) {
+                    $q->where('start_date', 'like', "%{$search}%")
+                      ->orWhere('end_date', 'like', "%{$search}%")
+                      ->orWhere('shift', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%");
+                });
+            });
+        }
+    
+        // Apply filters
+        $query->when($worker_id, function ($q) use ($worker_id) {
+            return $q->where('worker_id', $worker_id);
+        })
+        // ->when($start_time_filter, function ($q) use ($start_time_filter) {
+        //     return $q->where('hours', '>=', $start_time_filter);
+        // })
+        // ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
+        //     return $q->whereBetween('date', [$start_date, $end_date]);
+        // })
+        ->when($client_id, function ($q) use ($client_id) {
+            return $q->where('client_id', $client_id);
+        });
+    
+        // Get total record count before pagination
+        $totalRecords = $query->count();
+    
+        // Apply sorting and pagination
+        $query->orderBy($columns[$columnIndex] ?? 'id', $dir);
+        $conflicts = $query->skip($start)->take($length)->get();
+    
+        // Format the data
+        $conflicts = $conflicts->map(function ($conflict) {
+            return [
+                'id' => $conflict->id,
+                'job_id' => $conflict->job_id,
+                'worker_id' => $conflict->worker_id,
+                'worker_name' => optional($conflict->worker)->firstname . ' ' . optional($conflict->worker)->lastname,
+                'client_id' => $conflict->client_id,
+                'client_name' => optional($conflict->client)->firstname . ' ' . optional($conflict->client)->lastname,
+                'conflict_client_id' => $conflict->conflict_client_id,
+                'conflict_client_name' => optional($conflict->conflictClient)->firstname . ' ' . optional($conflict->conflictClient)->lastname,
+                'conflict_job_id' => $conflict->conflict_job_id,
+                'date' => $conflict->date,
+                'shift' => $conflict->shift,
+                'hours' => $conflict->hours,
+                'created_at' => $conflict->created_at,
+                'updated_at' => $conflict->updated_at,
+            ];
+        });
+    
+        // Return response in the required format
+        return response()->json([
+            'filter' => $request->filter,
+            'draw' => intval($request->get('draw')),
+            'data' => $conflicts,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $totalRecords,
+        ]);
+    }
+    
 
     public function shiftChangeWorker($sid, $date)
     {
@@ -468,9 +581,13 @@ class JobController extends Controller
                 }
 
                 $status = JobStatusEnum::SCHEDULED;
-
-                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
+                $conflictClientId = null;
+                $conflictJobId = NULL;
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id);
+                if ($conflictCheck['is_conflicting']) {
                     $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
@@ -484,6 +601,19 @@ class JobController extends Controller
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
                 ];
+
+                if($status == JobStatusEnum::UNSCHEDULED) {
+                    Conflict::create([
+                        'job_id' => $conflictJobId,
+                        'worker_id' => $editJob->worker_id,
+                        'client_id' => $conflictClientId,
+                        'conflict_client_id' => $editJob->client_id,
+                        'conflict_job_id' => $editJob->id,
+                        'job_date' => $editJob->start_date,
+                        'shifts' => $editJob->shifts,
+                        'hours' => round($minutes / 60, 2)
+                    ]);
+                }
 
                 $jobData['previous_shifts'] = $editJob->shifts;
                 $jobData['previous_shifts_after'] = NULL;
@@ -594,10 +724,13 @@ class JobController extends Controller
                 }
 
                 $status = JobStatusEnum::SCHEDULED;
-                \Log::info([$mergedContinuousTime]);
-
-                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerDate['worker_id'])) {
+                $conflictClientId = null;
+                $conflictJobId = NULL;
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerDate['worker_id']);
+                if ($conflictCheck['is_conflicting']) {
                     $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
@@ -659,6 +792,19 @@ class JobController extends Controller
                         'preferred_weekday' => $preferredWeekDay
                     ]
                 ]);
+
+                if($status == JobStatusEnum::UNSCHEDULED) {
+                    Conflict::create([
+                        'job_id' => $conflictJobId,
+                        'worker_id' => $job->worker_id,
+                        'client_id' => $conflictClientId,
+                        'conflict_client_id' => $job->client_id,
+                        'conflict_job_id' => $job->id,
+                        'job_date' => $job->start_date,
+                        'shifts' => $job->shifts,
+                        'hours' => round($minutes / 60, 2)
+                    ]);
+                }
 
                 $jobGroupID = $jobGroupID ? $jobGroupID : $job->id;
 
@@ -813,9 +959,13 @@ class JobController extends Controller
                 }
 
                 $status = JobStatusEnum::SCHEDULED;
-
-                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
+                $conflictClientId = null;
+                $conflictJobId = NULL;
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id);
+                if ($conflictCheck['is_conflicting']) {
                     $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
@@ -829,6 +979,19 @@ class JobController extends Controller
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
                 ];
+
+                if($status == JobStatusEnum::UNSCHEDULED) {
+                    Conflict::create([
+                        'job_id' => $conflictJobId,
+                        'worker_id' => $editJob->worker_id,
+                        'client_id' => $conflictClientId,
+                        'conflict_client_id' => $editJob->client_id,
+                        'conflict_job_id' => $editJob->id,
+                        'job_date' => $editJob->start_date,
+                        'shifts' => $editJob->shifts,
+                        'hours' => round($minutes / 60, 2)
+                    ]);
+                }
 
                 $jobData['previous_shifts'] = $editJob->shifts;
                 $jobData['previous_shifts_after'] = NULL;
@@ -903,9 +1066,14 @@ class JobController extends Controller
         }
 
         $status = JobStatusEnum::SCHEDULED;
-
-        if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $data['worker']['worker_id'])) {
+        $conflictClientId = null;
+        $conflictJobId = NULL;
+        $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $data['worker']['worker_id']);
+        if ($conflictCheck['is_conflicting']) {
             $status = JobStatusEnum::UNSCHEDULED;
+            $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+            $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
+
         }
 
         $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
@@ -920,6 +1088,19 @@ class JobController extends Controller
             'status'        => $status,
             'next_start_date'   => $next_job_date,
         ];
+
+        if($status == JobStatusEnum::UNSCHEDULED) {
+            Conflict::create([
+                'job_id' => $conflictJobId,
+                'worker_id' => $job->worker_id,
+                'client_id' => $conflictClientId,
+                'conflict_client_id' => $job->client_id,
+                'conflict_job_id' => $job->id,
+                'job_date' => $job->start_date,
+                'shifts' => $job->shifts,
+                'hours' => round($minutes / 60, 2)
+            ]);
+        }
 
         if ($data['repeatancy'] == 'one_time') {
             $jobData['previous_worker_id'] = $job->worker_id;
@@ -1123,9 +1304,13 @@ class JobController extends Controller
                 }
 
                 $status = JobStatusEnum::SCHEDULED;
-
-                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
+                $conflictClientId = null;
+                $conflictJobId = NULL;
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id);
+                if ($conflictCheck['is_conflicting']) {
                     $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
@@ -1139,6 +1324,19 @@ class JobController extends Controller
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
                 ];
+
+                if($status == JobStatusEnum::UNSCHEDULED) {
+                    Conflict::create([
+                        'job_id' => $conflictJobId,
+                        'worker_id' => $editJob->worker_id,
+                        'client_id' => $conflictClientId,
+                        'conflict_client_id' => $editJob->client_id,
+                        'conflict_job_id' => $editJob->id,
+                        'job_date' => $editJob->start_date,
+                        'shifts' => $editJob->shifts,
+                        'hours' => round($minutes / 60, 2)
+                    ]);
+                }
 
                 $jobData['previous_shifts'] = $editJob->shifts;
                 $jobData['previous_shifts_after'] = NULL;
@@ -1205,9 +1403,13 @@ class JobController extends Controller
         }
 
         $status = JobStatusEnum::SCHEDULED;
-
-        if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $job->worker_id, $job->id)) {
+        $conflictClientId = null;
+        $conflictJobId = NULL;
+        $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $job->worker_id, $job->id);
+        if ($conflictCheck['is_conflicting']) {
             $status = JobStatusEnum::UNSCHEDULED;
+            $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+            $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
         }
 
         $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
@@ -1221,6 +1423,19 @@ class JobController extends Controller
             'status'        => $status,
             'next_start_date'   => $next_job_date,
         ];
+
+        if($status == JobStatusEnum::UNSCHEDULED) {
+            Conflict::create([
+                'job_id' => $conflictJobId,
+                'worker_id' => $job->worker_id,
+                'client_id' => $conflictClientId,
+                'conflict_client_id' => $job->client_id,
+                'conflict_job_id' => $job->id,
+                'job_date' => $job->start_date,
+                'shifts' => $job->shifts,
+                'hours' => round($minutes / 60, 2)
+            ]);
+        }
 
         if ($data['repeatancy'] == 'one_time') {
             $jobData['previous_shifts'] = $job->shifts;
@@ -1557,11 +1772,17 @@ class JobController extends Controller
                         $minutes += $interval;
                     }
                 }
-            
-                // Determine job status
-                $status = $this->isJobTimeConflicting($mergedContinuousTime, $lastJob->start_date, $lastJob->worker_id) 
-                    ? JobStatusEnum::UNSCHEDULED 
-                    : JobStatusEnum::SCHEDULED;
+
+
+                $status = JobStatusEnum::SCHEDULED;
+                $conflictClientId = null;
+                $conflictJobId = NULL;
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $lastJob->start_date, $lastJob->worker_id);
+                if ($conflictCheck['is_conflicting']) {
+                    $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
+                }
             
                 // Create new job
                 $newjob = Job::create([
@@ -1610,6 +1831,19 @@ class JobController extends Controller
                     ]
                 ]);
             
+                if($status == JobStatusEnum::UNSCHEDULED) {
+                    Conflict::create([
+                        'job_id' => $conflictJobId,
+                        'worker_id' => $newjob->worker_id,
+                        'client_id' => $conflictClientId,
+                        'conflict_client_id' => $newjob->client_id,
+                        'conflict_job_id' => $newjob->id,
+                        'date' => $newjob->start_date,
+                        'shift' => $newjob->shifts,
+                        'hours' => round($minutes / 60, 2)
+                    ]);
+                }
+
                 // Assign shifts to new job
                 foreach ($mergedContinuousTime as $shift) {
                     $newjob->workerShifts()->create([
