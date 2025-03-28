@@ -198,4 +198,9 @@ class Job extends Model
     {
         return $this->hasMany(WorkerMetas::class, 'job_id');
     }
+
+    public function conflicts()
+    {
+        return $this->hasMany(Conflict::class, 'job_id');
+    }
 }

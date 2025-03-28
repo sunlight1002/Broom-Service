@@ -203,6 +203,7 @@ import OnMyWayJob from "./Pages/OnMyWayJob";
 import FinishJobByWorker from "./Pages/FinishJobByWorker";
 import WorkerForgetPassword from "./Admin/Pages/Workers/WorkerForgetPassword";
 import AdminForgetPassword from "../js/Admin/Pages/Auth/AdminForgetPassword"
+import Conflicts from "./Admin/Pages/Jobs/Conflicts";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -654,6 +655,11 @@ export default function MyRoutes() {
                                 path="jobs/change-worker-requests"
                                 element={<ChangeWorkerRequestList />}
                             /> */}
+                            <Route
+                                exact
+                                path="conflicts"
+                                element={<Conflicts />}
+                            />
                             <Route
                                 exact
                                 path="schedule-requests"

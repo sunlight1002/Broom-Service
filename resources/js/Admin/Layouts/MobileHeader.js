@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./mobile.css"
 import { useTranslation } from "react-i18next";
+import { LuShuffle } from "react-icons/lu";
 
 
 export default function MobileHeader() {
@@ -99,7 +100,7 @@ export default function MobileHeader() {
                         <li className="nav-item">
                             <div id="clientDropdown" className="fence commonDropdown">
                                 <div id="clientHead">
-                                <a
+                                    <a
                                         href="#"
                                         className="text-left btn btn-header-link"
                                         data-toggle="collapse"
@@ -217,7 +218,12 @@ export default function MobileHeader() {
                                 {t("admin.sidebar.schedule_meet")}
                             </a>
                         </li>
-
+                        <li className="nav-item">
+                            <a href="/admin/conflicts" onClick={(e) => handleClick(e, "/admin/conflicts")}>
+                                <i class="fa-solid fa-shuffle"></i>
+                                {t("admin.sidebar.conflicts")}
+                            </a>
+                        </li>
                         <li className="nav-item">
                             <a href="/admin/schedule-requests" onClick={(e) => handleClick(e, "/admin/schedule-requests")}>
                                 <i className="fa-solid fa-hand"></i>
@@ -231,7 +237,12 @@ export default function MobileHeader() {
                                 {t("admin.sidebar.fb_insights")}
                             </a>
                         </li>
-
+                        <li className="nav-item">
+                            <a href="/admin/custom-message" onClick={(e) => handleClick(e, "/admin/custom-message")}>
+                                <i className="fa-solid fa-paper-plane"></i>
+                                {t("admin.sidebar.custom_message")}
+                            </a>
+                        </li>
                         <li className="nav-item">
                             <a href="/admin/chat" onClick={(e) => handleClick(e, "/admin/chat")}>
                                 <i className="fa-solid fa-message"></i>
@@ -361,97 +372,97 @@ export default function MobileHeader() {
                                 {t("admin.sidebar.notification")}
                             </a>
                         </li>
-                    <li className="nav-item">
-                        <div id="fence" className="fence commonDropdown">
-                            <div id="fencehead1">
-                                <a
-                                    href="#"
-                                    className="text-left btn btn-header-link"
-                                    data-toggle="collapse"
-                                    data-target="#fence1"
-                                    aria-expanded="true"
-                                    aria-controls="fence1"
+                        <li className="nav-item">
+                            <div id="fence" className="fence commonDropdown">
+                                <div id="fencehead1">
+                                    <a
+                                        href="#"
+                                        className="text-left btn btn-header-link"
+                                        data-toggle="collapse"
+                                        data-target="#fence1"
+                                        aria-expanded="true"
+                                        aria-controls="fence1"
+                                    >
+                                        <i className="fa-solid fa-gear"></i>{" "}
+                                        {t("admin.sidebar.settings.title")}{" "}
+                                        <i className="fa-solid fa-angle-down"></i>
+                                    </a>
+                                </div>
+                                <div
+                                    id="fence1"
+                                    className="collapse"
+                                    aria-labelledby="fencehead1"
+                                    data-parent="#fence"
                                 >
-                                    <i className="fa-solid fa-gear"></i>{" "}
-                                    {t("admin.sidebar.settings.title")}{" "}
-                                    <i className="fa-solid fa-angle-down"></i>
-                                </a>
-                            </div>
-                            <div
-                                id="fence1"
-                                className="collapse"
-                                aria-labelledby="fencehead1"
-                                data-parent="#fence"
-                            >
-                                <div className="card-body">
-                                    <ul className="list-group">
-                                        {role !== "member" && (
+                                    <div className="card-body">
+                                        <ul className="list-group">
+                                            {role !== "member" && (
+                                                <li className="list-group-item">
+                                                    <a href="/admin/manage-team">
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.manage_team")}
+                                                    </a>
+                                                </li>
+                                            )}
                                             <li className="list-group-item">
-                                                <a href="/admin/manage-team">
+                                                <a href="/admin/services">
                                                     <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.settings.manage_team")}
+                                                    {t("admin.sidebar.settings.services")}
                                                 </a>
                                             </li>
-                                        )}
-                                        <li className="list-group-item">
-                                            <a href="/admin/services">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.settings.services")}
-                                            </a>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <a href="/admin/manpower-companies">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.settings.manpower")}
-                                            </a>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <a href="/admin/manage-time">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.settings.manageTime")}
-                                            </a>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <a href="/admin/holidays">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.settings.holidays")}
-                                            </a>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <a href="/admin/templates">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.templates.title")}
-                                            </a>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <a href="/admin/payslip-settings">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.settings.payslip_settings")}
-                                            </a>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <a href="/admin/settings">
-                                                <i className="fa fa-angle-right"></i>{" "}
-                                                {t("admin.sidebar.settings.account")}
-                                            </a>
-                                        </li>
-                                    </ul>
+                                            <li className="list-group-item">
+                                                <a href="/admin/manpower-companies">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.settings.manpower")}
+                                                </a>
+                                            </li>
+                                            <li className="list-group-item">
+                                                <a href="/admin/manage-time">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.settings.manageTime")}
+                                                </a>
+                                            </li>
+                                            <li className="list-group-item">
+                                                <a href="/admin/holidays">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.settings.holidays")}
+                                                </a>
+                                            </li>
+                                            <li className="list-group-item">
+                                                <a href="/admin/templates">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.templates.title")}
+                                                </a>
+                                            </li>
+                                            <li className="list-group-item">
+                                                <a href="/admin/payslip-settings">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.settings.payslip_settings")}
+                                                </a>
+                                            </li>
+                                            <li className="list-group-item">
+                                                <a href="/admin/settings">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.settings.account")}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+                        </li>
+                    </ul>
+                    <div className="sideLogout">
+                        <div className="logoutBtn">
+                            <button
+                                className="btn btn-danger"
+                                onClick={HandleLogout}
+                            >
+                                {t("admin.sidebar.logout")}
+                            </button>
                         </div>
-                    </li>
-                </ul>
-                <div className="sideLogout">
-                    <div className="logoutBtn">
-                        <button
-                            className="btn btn-danger"
-                            onClick={HandleLogout}
-                        >
-                            {t("admin.sidebar.logout")}
-                        </button>
                     </div>
                 </div>
-        </div>
             </nav >
         </div >
     );

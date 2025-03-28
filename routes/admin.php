@@ -99,6 +99,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Jobs Api
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
+    Route::get('conflicts', [JobController::class, 'showConflicts']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
     Route::get('get-pending-job-orders/{id}', [JobController::class, 'getPendingJobsAndPayment']);
     Route::put('cancel-pending-job-orders/{id}', [JobController::class, 'CancelPendingJobsAndPayment']);

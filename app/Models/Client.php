@@ -219,5 +219,10 @@ class Client extends Authenticatable
     {
         $this->notify(new CustomResetPassword($token, "client"));
     }
+
+    public function conflicts()
+    {
+        return $this->hasMany(Conflict::class, 'client_id');
+    }
 }
 

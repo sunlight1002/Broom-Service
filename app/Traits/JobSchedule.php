@@ -597,36 +597,43 @@ trait JobSchedule
     {
         $bookedSlots = JobWorkerShift::query()
             ->leftJoin('jobs', 'job_worker_shifts.job_id', '=', 'jobs.id')
-            ->whereDate('jobs.start_date', $job_date)
+            // ->whereDate('jobs.start_date', $job_date)
             ->where('jobs.worker_id', $workerID)
             ->when($ignoreJobID, function ($q) use ($ignoreJobID) {
                 return $q->where('jobs.id', '!=', $ignoreJobID);
             })
-            ->select('job_worker_shifts.starting_at', 'job_worker_shifts.ending_at')
+            ->select('job_worker_shifts.starting_at', 'job_worker_shifts.ending_at', 'jobs.client_id', 'jobs.id') // Include client_id
             ->get()
             ->toArray();
 
-        $isConflicting = false;
+        $is_conflicting = false;
+        $conflict_client_id = null;
+        $conflict_job_id = null;
         foreach ($newSlots as $slot) {
             $ns = Carbon::parse($slot['starting_at']);
-            $ne = Carbon::parse($slot['ending_at'])->subSecond();
+            $ne = Carbon::parse($slot['ending_at']);
 
             foreach ($bookedSlots as $key => $bookedSlot) {
                 $bss = Carbon::parse($bookedSlot['starting_at']);
-                $bse = Carbon::parse($bookedSlot['ending_at'])->subSecond();
-
+                $bse = Carbon::parse($bookedSlot['ending_at']);
                 if ($ns->between($bss, $bse) || $ne->between($bss, $bse)) {
-                    $isConflicting = true;
+                    $is_conflicting = true;
+                    $conflict_client_id = $bookedSlot['client_id'];
+                    $conflict_job_id = $bookedSlot['id'];
                     break;
                 }
             }
 
-            if ($isConflicting) {
+            if ($is_conflicting) {
                 break;
             }
         }
 
-        return $isConflicting;
+        return [
+            'is_conflicting' => $is_conflicting,
+            'conflict_client_id' => $conflict_client_id,
+            'conflict_job_id' => $conflict_job_id
+        ];
     }
 
     private function getClientLeadStatusBasedOnJobs($client)

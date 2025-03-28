@@ -15,6 +15,7 @@ use App\Models\Services;
 use App\Models\ServiceSchedule;
 use App\Models\JobHours;
 use App\Models\JobService;
+use App\Models\Conflict;
 use App\Models\Setting;
 use App\Models\Notification;
 use App\Traits\JobSchedule;
@@ -100,34 +101,47 @@ class ScheduleNextJobOccurring implements ShouldQueue
         try {
             if ($job) {
                 $client = $job->client;
+                $offer_service = $job->offer_service;
 
-                $offerServices = $this->formatServices($job->offer, false);
+                $offerServices = $this->formatServices($offer_service, false);
 
-                $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
-                    return $value['service'] == $job->schedule_id;
-                });
+                // $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
+                //     return $value['service'] == $job->schedule_id;
+                // });
 
-                $selectedService = head($filtered);
+                // $selectedService = head($filtered);
+
+                $selectedService = $offerServices;
 
 
                 $preferredWeekDay = $job->jobservice->config['preferred_weekday'];
 
-                $sixMonthsFromNow = Carbon::now()->addMonths(2);  // Calculate date 6 months from now
+                if ($job->cancelled_for == 'until_date') {
+                    $sixMonthsFromNow = Carbon::parse($job->cancel_until_date)->addMonths(2);
+                }else{
+                    $sixMonthsFromNow = Carbon::now()->addMonths(2);  // Calculate date 6 months from now
+                }
+
 
                 // Check if startDate is provided
                 if ($this->startDate) {
                     $job_start_date = Carbon::parse($this->startDate);
+                    \Log::info("Job Start Date: " . $job_start_date);
 
                     // Run scheduleNextJob only once with startDate
                     $nextJobDate =  $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays, $i);
 
                 } else {
-                     $job_start_date = Carbon::parse($job->start_date);
+                    if ($job->cancelled_for == 'until_date') {
+                        $job_start_date = Carbon::parse($job->cancel_until_date)->format('Y-m-d');
+                    }else{
+                        $job_start_date = Carbon::parse($job->start_date);
+                    }
 
                     do {
                         $nextJobDate = $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays, $i);
 
-                        // If the next job date is after 6 months, stop the scheduling
+                        // If the next job date is after 2 months, stop the scheduling
                         if (Carbon::parse($nextJobDate)->gt($sixMonthsFromNow)) {
                             break;
                         }
@@ -148,14 +162,14 @@ class ScheduleNextJobOccurring implements ShouldQueue
     protected function scheduleNextJob($job_date, $selectedService,  $client, $job, $preferredWeekDay, $workingWeekDays, &$i){
             $next_job_date = $this->scheduleNextJobDate($job_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
 
-            if ($job->cancelled_for == 'until_date') {
-                $carbon_next_job_date = Carbon::parse($next_job_date);
-                while (Carbon::parse($job->cancel_until_date)->gte($carbon_next_job_date)) {
-                    $next_job_date = $this->scheduleNextJobDate($carbon_next_job_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
+            // if ($job->cancelled_for == 'until_date') {
+            //     $carbon_next_job_date = Carbon::parse($next_job_date);
+            //     while (Carbon::parse($job->cancel_until_date)->gte($carbon_next_job_date)) {
+            //         $next_job_date = $this->scheduleNextJobDate($carbon_next_job_date, $job->schedule, $preferredWeekDay, $workingWeekDays);
 
-                    $carbon_next_job_date = Carbon::parse($next_job_date);
-                }
-            }
+            //         $carbon_next_job_date = Carbon::parse($next_job_date);
+            //     }
+            // }
             $next_to_next_job_date = $this->scheduleNextJobDate(Carbon::parse($next_job_date), $job->schedule, $preferredWeekDay, $workingWeekDays);
             // $job->update([
             //     'next_start_date' => $next_job_date,
@@ -221,21 +235,28 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
 
                 $shiftFormattedArr[$key] = [
-                    'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
-                    'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+                    'starting_at' => Carbon::parse($next_job_date . ' ' . $start_time)->toDateTimeString(),
+                    'ending_at' => Carbon::parse($next_job_date . ' ' . $end_time)->toDateTimeString()
                 ];
             }
-
             $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
 
+            $conflictClientId = NULL;
+            $conflictJobId = NULL;
             if ($workerId) {
                 $status = JobStatusEnum::SCHEDULED;
-                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerId)) {
+                $conflictCheck = $this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerId);
+
+                if ($conflictCheck['is_conflicting']) {
                     $status = JobStatusEnum::UNSCHEDULED;
+                    $conflictClientId = $conflictCheck['conflict_client_id']; // Extract conflict_client_id
+                    $conflictJobId = $conflictCheck['conflict_job_id']; // Extract conflict_job_id
                 }
             } else {
                 $status = JobStatusEnum::UNSCHEDULED;
             }
+
+            \Log::info("------------------------------------");
 
             $minutes = 0;
             $slotsInString = '';
@@ -310,10 +331,29 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'duration_minutes'  => $minutes,
                 'total'             => $total_amount,
             ]);
+
+
+            if($status == JobStatusEnum::UNSCHEDULED) {
+                Conflict::create([
+                    'job_id' => $conflictJobId,
+                    'worker_id' => $nextJob->worker_id,
+                    'client_id' => $conflictClientId,
+                    'conflict_client_id' => $nextJob->client_id,
+                    'conflict_job_id' => $nextJob->id,
+                    'date' => $nextJob->start_date,
+                    'shift' => $nextJob->shifts,
+                    'hours' => round($minutes / 60, 2)
+                ]);
+            }
+
             $nextJobService->save();
 
             foreach ($mergedContinuousTime as $key => $shift) {
-                $nextJob->workerShifts()->create($shift);
+                $nextJob->workerShifts()->create([
+                    'starting_at' => Carbon::parse($shift['starting_at'])->toDateTimeString(),
+                    'ending_at'   => Carbon::parse($shift['ending_at'])->toDateTimeString(),
+                ]);
+               
             }
 
             $job->update([
@@ -321,15 +361,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
             ]);
 
             $this->copyDefaultCommentsToJob($nextJob);
-
-            // $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
-
-            // if ($client->lead_status->lead_status != $newLeadStatus) {
-            //     $client->lead_status()->updateOrCreate(
-            //         [],
-            //         ['lead_status' => $newLeadStatus]
-            //     );
-            // }
 
             // SyncGoogleSheetAddJobOccurring::dispatch($nextJob);
 

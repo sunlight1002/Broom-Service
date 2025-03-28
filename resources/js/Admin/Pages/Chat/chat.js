@@ -147,42 +147,42 @@ export default function chat() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getData = () => {
-        axios.get(`/api/admin/chats`, { headers }).then((res) => {
-            const r = res.data.data;
-            setClients(res.data.clients);
-            setData(r);
-        });
-    };
-
-        // const getData = () => {
-    //     if (loadingChats || !hasMore) return; // Prevent multiple requests
-
-    //     setLoadingChats(true);
-    //     axios.get(`/api/admin/chats?page=${page}`, { headers })
-    //         .then((res) => {
-    //             const newData = res.data.data;
-    //             const newClients = res.data.clients;
-
-    //             // Update data and clients
-    //             setClients(prevClients => [...prevClients, ...newClients]);
-    //             setData(prevData => [...prevData, ...newData]);
-
-    //             // Update page number
-    //             setPage(prevPage => prevPage + 1);
-
-    //             // If no more data to load, set hasMore to false
-    //             if (newData.length === 0) {
-    //                 setHasMore(false);
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.error("Error loading data:", error);
-    //         })
-    //         .finally(() => {
-    //             setLoadingChats(false);
-    //         });
+    // const getData = () => {
+    //     axios.get(`/api/admin/chats`, { headers }).then((res) => {
+    //         const r = res.data.data;
+    //         setClients(res.data.clients);
+    //         setData(r);
+    //     });
     // };
+
+        const getData = () => {
+        if (loadingChats || !hasMore) return; // Prevent multiple requests
+
+        setLoadingChats(true);
+        axios.get(`/api/admin/chats?page=${page}`, { headers })
+            .then((res) => {
+                const newData = res.data.data;
+                const newClients = res.data.clients;
+
+                // Update data and clients
+                setClients(prevClients => [...prevClients, ...newClients]);
+                setData(prevData => [...prevData, ...newData]);
+
+                // Update page number
+                setPage(prevPage => prevPage + 1);
+
+                // If no more data to load, set hasMore to false
+                if (newData.length === 0) {
+                    setHasMore(false);
+                }
+            })
+            .catch((error) => {
+                console.error("Error loading data:", error);
+            })
+            .finally(() => {
+                setLoadingChats(false);
+            });
+    };
     
     const getLeads = async () => {
         try {
@@ -413,26 +413,26 @@ export default function chat() {
     };
 
 
-    // const handleScroll = (e) => {
-    //     const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-    //     if (bottom) {
-    //         getData(); // Load more data when reaching the bottom
-    //     }
-    // };
+    const handleScroll = (e) => {
+        const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
+        if (bottom) {
+            getData(); // Load more data when reaching the bottom
+        }
+    };
 
 
-    // // Add the scroll event listener to the container
-    // useEffect(() => {
-    //     const scrollContainer = document.getElementById('scrollContainer');
-    //     if (scrollContainer) {
-    //         scrollContainer.addEventListener('scroll', handleScroll);
-    //     }
-    //     return () => {
-    //         if (scrollContainer) {
-    //             scrollContainer.removeEventListener('scroll', handleScroll);
-    //         }
-    //     };
-    // }, [data, loadingChats, hasMore]);
+    // Add the scroll event listener to the container
+    useEffect(() => {
+        const scrollContainer = document.getElementById('scrollContainer');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handleScroll);
+        }
+        return () => {
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, [data, loadingChats, hasMore]);
 
 
     useEffect(() => {
@@ -910,6 +910,7 @@ export default function chat() {
                                                     <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
                                                         {clientsCard}
                                                     </div>
+                                                    {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader/></div>}
                                                 </div>
                                                 <div
                                                     id="tab-client-details"

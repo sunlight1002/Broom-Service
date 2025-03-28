@@ -98,6 +98,7 @@ return [
         'twilio_id' => env('TWILIO_SID'),
         'twilio_token' => env('TWILIO_AUTH_TOKEN'),
         'twilio_number' => env('TWILIO_NUMBER'),
+        'twilio_whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
     ],
 
     'short_url' => [

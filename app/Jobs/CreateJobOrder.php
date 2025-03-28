@@ -104,7 +104,7 @@ class CreateJobOrder implements ShouldQueue
 
             $job->refresh();
 
-            \Log::info('upcomingJobCountInCurrentMonth : ' . $upcomingJobCountInCurrentMonth . '. Job Final Refresh : ', $job?->toArray()??[]);
+            // \Log::info('upcomingJobCountInCurrentMonth : ' . $upcomingJobCountInCurrentMonth . '. Job Final Refresh : ', $job?->toArray()??[]);
 
             // App::setLocale($client->lng);
             App::setLocale("heb");

@@ -11,7 +11,7 @@ trait PriceOffered
 {
     private function formatServices($offer, $returnJson = true)
     {
-        $services = isset($offer['services']) ? json_decode($offer['services'], true) : [];
+        $services = isset($offer['services']) ? json_decode($offer['services'], true) : (array)$offer ?? [];
 
         if (!empty($services)) {
             foreach ($services as $key => $service) {
