@@ -7,6 +7,7 @@ use App\Enums\JobStatusEnum;
 use App\Events\ClientOrderWithDiscount;
 use App\Events\ClientOrderWithExtra;
 use App\Models\Job;
+use App\Models\Services;
 use App\Models\JobCancellationFee;
 use App\Models\ClientPropertyAddress;
 use App\Traits\PaymentAPI;
@@ -112,12 +113,24 @@ class CreateJobOrder implements ShouldQueue
             $serviceName = null;
             
             if(($offerService['template'] == "airbnb")) {
-                $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address["geo_address"]));
-                $address = $offerService['address'];
-                $address = ClientPropertyAddress::find($address['id'] ?? $address);
+                $addressId = $offerService['sub_services']['address'] ?? $offerService['address'];
+
+                $address = ClientPropertyAddress::find($addressId);
+
+                $cleaned_address = '';
+                if($address) {
+                    $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address->geo_address));
+                }
+
+                $subServiceId = $offerService['sub_services']['id'] ?? null;
+                $s = Services::find($subServiceId);
+                $subServiceName = "";
+                if($s) {
+                    $subServiceName = "(" . $s->heb_name . ")";
+                }
                 
                 // if($client->lng == "heb") {
-                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->heb_name . "(". $offerService['sub_services']['subServices']['name_heb'] .")" . " - " . $cleaned_address;
+                    $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->heb_name . $subServiceName . " - " . $cleaned_address;  
                 // } else {
                 //     $serviceName = Carbon::parse($job->start_date)->format('d.m') . " - " . $service->name . "(". $offerService['sub_services']['subServices']['name_en'] .")" . " - " . $cleaned_address;
                 // }
@@ -198,12 +211,12 @@ class CreateJobOrder implements ShouldQueue
                 event(new ClientOrderWithDiscount($client, $order));
             }
 
-            if ($service->freq_name == 'One Time' && isset($order)) {
-                \Log::info("GenerateJobInvoice one time job");
-                GenerateJobInvoice::dispatch($order->id, $client->id);
-            }else if ($job->is_one_time_in_month_job && isset($order)) {
-                GenerateJobInvoice::dispatch(null, $client->id);
-            }
+            // if ($service->freq_name == 'One Time' && isset($order)) {
+            //     \Log::info("GenerateJobInvoice one time job");
+            //     GenerateJobInvoice::dispatch($order->id, $client->id);
+            // }else if ($job->is_one_time_in_month_job && isset($order)) {
+            //     GenerateJobInvoice::dispatch(null, $client->id);
+            // }
         }
     }
 }
