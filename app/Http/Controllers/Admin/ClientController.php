@@ -280,31 +280,31 @@ class ClientController extends Controller
             }
         }
 
-        if($request->send_bot_message) {
-            try {
-                $m = $this->botMessages['main-menu']['heb'];
+        // if($request->send_bot_message) {
+        //     try {
+        //         $m = $this->botMessages['main-menu']['heb'];
 
-                $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
+        //         $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
 
-                WhatsAppBotClientState::updateOrCreate([
-                    'client_id' => $client->id,
-                ], [
-                    'menu_option' => 'main_menu',
-                    'language' => 'he',
-                ]);
+        //         WhatsAppBotClientState::updateOrCreate([
+        //             'client_id' => $client->id,
+        //         ], [
+        //             'menu_option' => 'main_menu',
+        //             'language' => 'he',
+        //         ]);
 
-                $response = WebhookResponse::create([
-                    'status'        => 1,
-                    'name'          => 'whatsapp',
-                    'message'       => $m,
-                    'number'        => $client->phone,
-                    'read'          => 1,
-                    'flex'          => 'A',
-                ]);
-            } catch (\Throwable $th) {
-                logger($th);
-            }
-        }
+        //         $response = WebhookResponse::create([
+        //             'status'        => 1,
+        //             'name'          => 'whatsapp',
+        //             'message'       => $m,
+        //             'number'        => $client->phone,
+        //             'read'          => 1,
+        //             'flex'          => 'A',
+        //         ]);
+        //     } catch (\Throwable $th) {
+        //         logger($th);
+        //     }
+        // }
 
         if (!empty($request->jobdata)) {
             $allServices = json_decode($request->jobdata['services'], true);

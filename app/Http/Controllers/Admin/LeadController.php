@@ -204,31 +204,31 @@ class LeadController extends Controller
             }
         }
 
-        if($data["send_bot_message"] == 1) {
-            try {
-                $m = $this->botMessages['main-menu']['heb'];
+        // if($data["send_bot_message"] == 1) {
+        //     try {
+        //         $m = $this->botMessages['main-menu']['heb'];
                 
-                $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
+        //         $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
 
-                WhatsAppBotClientState::updateOrCreate([
-                    'client_id' => $client->id,
-                ], [
-                    'menu_option' => 'main_menu',
-                    'language' => 'he',
-                ]);
+        //         WhatsAppBotClientState::updateOrCreate([
+        //             'client_id' => $client->id,
+        //         ], [
+        //             'menu_option' => 'main_menu',
+        //             'language' => 'he',
+        //         ]);
 
-                $response = WebhookResponse::create([
-                    'status'        => 1,
-                    'name'          => 'whatsapp',
-                    'message'       => $m,
-                    'number'        => $client->phone,
-                    'read'          => 1,
-                    'flex'          => 'A',
-                ]);
-            } catch (\Throwable $th) {
-                logger($th);
-            }
-        }
+        //         $response = WebhookResponse::create([
+        //             'status'        => 1,
+        //             'name'          => 'whatsapp',
+        //             'message'       => $m,
+        //             'number'        => $client->phone,
+        //             'read'          => 1,
+        //             'flex'          => 'A',
+        //         ]);
+        //     } catch (\Throwable $th) {
+        //         logger($th);
+        //     }
+        // }
 
         // Update or create lead status
         $client->lead_status()->updateOrCreate(

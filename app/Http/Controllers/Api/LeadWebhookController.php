@@ -410,6 +410,7 @@ Broom Service Team 🌹",
                 return response()->json(['status' => 'Already processed'], 200);
             }
 
+            return response()->json(['status' => "message sent"], 200);
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -1660,9 +1661,9 @@ If you would like to speak to a human representative, please send a message with
                 ['lead_status' => LeadStatusEnum::PENDING]
             );
 
-            $m = $this->botMessages['main-menu']['heb'];
+            // $m = $this->botMessages['main-menu']['heb'];
 
-            $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
+            // $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 
             WhatsAppBotClientState::updateOrCreate([
                 'client_id' => $lead->id,
