@@ -727,7 +727,12 @@ class WhatsappNotification
                     $eventType == WhatsappMessageTemplateEnum::FORM101 ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_FORMS ||
                     $eventType == WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS ||
-                    $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT ||
+                    $eventType == WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD ||
+                    $eventType == WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM ||
+                    $eventType == WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM
                 ){
                     $token = $this->whapiWorkerApiToken;
                 }else {
