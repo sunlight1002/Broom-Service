@@ -36,6 +36,12 @@ export default function WorkerContract({
         window.scroll(0, 0);
     }, [nextStep])
 
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
     const handleSubmit = async (values) => {
         if (!isSubmitted) {
             setIsGeneratingPDF(true);
@@ -127,8 +133,14 @@ export default function WorkerContract({
 
     const getWorker = () => {
         axios
-            .post(`/api/worker-detail`, { worker_id: Base64.decode(param.id), type: type })
-            .then((res) => {
+            .post(`/api/worker-detail`,
+                { worker_id: Base64.decode(param.id), type: type }, 
+                { headers: {
+                    Accept: "application/json, text/plain, */*",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
+                } }
+            ).then((res) => {
                 if (res.data.worker) {
                     let w = res.data.worker;
 

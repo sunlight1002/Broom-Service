@@ -2411,7 +2411,8 @@
             "loanStart": "תאריך תחילת ההלוואה",
             "submit": "לְהַגִישׁ",
             "invitation_for_hearing": "לתאם שימוע",
-            "verification": "אימות דו-שלבי"
+            "verification": "אימות דו-שלבי",
+            "wa_chat_history": "היסטוריית הצ'אט של וואטסאפ"
         }
     },
     "worker_contract": {

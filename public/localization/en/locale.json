@@ -2395,7 +2395,8 @@
             "termination": "Termination",
             "pending Request":"Pending Request",
             "invitation_for_hearing": "Schedule Hearing",
-            "verification": "Two step Verification"
+            "verification": "Two step Verification",
+            "wa_chat_history": "Whatsapp chat history"
         }
     },
     "worker_contract": {
