@@ -121,7 +121,13 @@ function AllForms() {
 
     const getWorker = () => {
         axios
-            .get(`/api/worker/${param.id}`)
+            .get(`/api/worker/${param.id}`, {
+                headers: {
+                    Accept: "application/json, text/plain, */*",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
+                },
+            })
             .then((res) => {
                 const { worker: workData, forms: formData } = res.data;
                 if (!page) {
@@ -141,7 +147,13 @@ function AllForms() {
 
 
     const getAllForm = async () => {
-        const res = await axios.get(`/api/getAllForms/${id}/${type}`);
+        const res = await axios.get(`/api/getAllForms/${id}/${type}`, {
+            headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
+            },
+        });
         if (res.data?.forms?.length > 0) {
             const _form101Forms = res.data?.forms?.filter((f) =>
                 f.type.includes("form101")
@@ -1405,10 +1417,16 @@ function AllForms() {
     };
 
     const getForm = () => {
-        axios.get(`/api/get101/${id}/${formId}/${type}`).then((res) => {
+        axios.get(`/api/get101/${id}/${formId}/${type}`, {
+            headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
+            },
+        }).then((res) => {
             i18next.changeLanguage(res.data.lng);
             console.log(res.data);
-            
+
 
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
@@ -1481,9 +1499,9 @@ function AllForms() {
                     setFieldValue("employeeIdCardCopy", _worker.id_card);
                 }
 
-                if(_worker?.country == "Israel"){
+                if (_worker?.country == "Israel") {
                     setFieldValue("employeeIsraeliResident", "Yes")
-                }else{
+                } else {
                     setFieldValue("employeeIsraeliResident", "No")
                 }
 

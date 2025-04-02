@@ -31,7 +31,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
     const getForm = () => {
         axios
-            .get(`/api/getAllForms/${worker.id}`)
+            .get(`/api/getAllForms/${worker.id}`,{
+                headers
+            })
             .then((res) => {
                 const formsData = res.data.forms;
 

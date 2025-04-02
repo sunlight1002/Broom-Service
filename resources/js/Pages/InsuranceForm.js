@@ -478,7 +478,13 @@ const InsuranceForm = ({
     const handleClose = () => setShow(false);
 
     const getForm = async () => {
-        await axios.get(`/api/worker/${id}/insurance-form/${type}`).then((res) => {
+        await axios.get(`/api/worker/${id}/insurance-form/${type}`, {
+            headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+            }
+        }).then((res) => {
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../Assets/css/rtl.css");

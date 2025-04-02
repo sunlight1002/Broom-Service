@@ -146,37 +146,51 @@ const SafeAndGear = ({
     };
 
     useEffect(() => {
-        axios.get(`/api/getSafegear/${id}/${type}`).then((res) => {
-            i18next.changeLanguage(res.data.lng);
-            if (res.data.lng == "heb") {
-                import("../../../Assets/css/rtl.css");
-                document.querySelector("html").setAttribute("dir", "rtl");
-            } else {
-                document.querySelector("html").removeAttribute("dir");
-                const rtlLink = document.querySelector('link[href*="rtl.css"]');
-                if (rtlLink) {
-                    rtlLink.remove();
-                }
-            }
-            if (res.data.worker) {
-                setFieldValue("workerName", res.data.worker.firstname);
-                setFieldValue("workerName2", res.data.worker.lastname);
-                setIs_existing_worker(res.data.worker.is_existing_worker)
-                setCountry(res.data.worker.country)
-            }
+        axios
+    .get(`/api/getSafegear/${id}/${type}`, {
+        headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
+        },
+    })
+    .then((res) => {
+        i18next.changeLanguage(res.data.lng);
 
-            if (res.data.form) {
-                setFormValues(res.data.form.data);
-                setFieldValue("workerName", res.data.form.data.workerName);
-                setFieldValue("workerName2", res.data.form.data.workerName2);
-                setFieldValue("signature", res.data.form.data.signature);
-
-                if (res.data.form.submitted_at) {
-                    disableInputs();
-                    setIsSubmitted(true);
-                }
+        if (res.data.lng === "heb") {
+            import("../../../Assets/css/rtl.css");
+            document.querySelector("html").setAttribute("dir", "rtl");
+        } else {
+            document.querySelector("html").removeAttribute("dir");
+            const rtlLink = document.querySelector('link[href*="rtl.css"]');
+            if (rtlLink) {
+                rtlLink.remove();
             }
-        });
+        }
+
+        if (res.data.worker) {
+            setFieldValue("workerName", res.data.worker.firstname);
+            setFieldValue("workerName2", res.data.worker.lastname);
+            setIs_existing_worker(res.data.worker.is_existing_worker);
+            setCountry(res.data.worker.country);
+        }
+
+        if (res.data.form) {
+            setFormValues(res.data.form.data);
+            setFieldValue("workerName", res.data.form.data.workerName);
+            setFieldValue("workerName2", res.data.form.data.workerName2);
+            setFieldValue("signature", res.data.form.data.signature);
+
+            if (res.data.form.submitted_at) {
+                disableInputs();
+                setIsSubmitted(true);
+            }
+        }
+    })
+    .catch((error) => {
+        console.error("Error fetching Safegear data:", error);
+    });
+
     }, []);
 
     const disableInputs = () => {

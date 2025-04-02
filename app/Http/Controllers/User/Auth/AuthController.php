@@ -441,10 +441,17 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
+        $isAdmin = false;
+    
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+
         $user = $request->type == 'lead' 
             ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first() 
-            : User::with('forms')->where('id', $request->worker_id)->first();
-    
+            : ($isAdmin ? User::find($request->worker_id) : User::where('status', 1)->find($request->worker_id));
+
         if (!$user) {
             return response()->json([
                 'error' => 'Worker not found',
@@ -729,10 +736,16 @@ class AuthController extends Controller
         return ($weekDay == 5 || $weekDay == 6);
     }
 
-    public function getWorker($id)
+    public function getWorker($id, Request $request)
     {
+        $isAdmin = false;
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+    
         $workerId = base64_decode($id);
-        $user = User::where('status', 1)->find($workerId);
+        $user = $isAdmin ? User::find($workerId) : User::where('status', 1)->find($workerId);
         if (!$user) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -750,8 +763,6 @@ class AuthController extends Controller
             ->orderBy('created_at', 'DESC')
             ->get()
             ->groupBy('type');
-
-        \Log::info([$forms]);
 
         $contractForm = $forms[WorkerFormTypeEnum::CONTRACT][0] ?? null;
         $safetyAndGearForm = $forms[WorkerFormTypeEnum::SAFTEY_AND_GEAR][0] ?? null;
@@ -1264,19 +1275,32 @@ class AuthController extends Controller
         ]);
     }
 
-    public function getSafegear($id, $type = null)
+    public function getSafegear($id, $type = null, Request $request)
     {
-        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $isAdmin = false;
+    
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+    
+        \Log::info("Is Admin: " . ($isAdmin ? 'Yes' : 'No'));
+    
+        // Fetch worker based on type and admin scope
+        $worker = $type == 'lead' 
+            ? WorkerLeads::find($id) 
+            : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+    
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-
+    
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
-
+    
         return response()->json([
             'lng' => $worker->lng,
             'worker' => $worker,
@@ -1284,9 +1308,20 @@ class AuthController extends Controller
         ]);
     }
 
-    public function get101($id, $formId = null, $type = null)
+    public function get101(Request $request, $id, $formId = null, $type = null)
     {
-        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $isAdmin = false;
+    
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+    
+        // Fetch worker based on type and admin scope
+        $worker = $type == 'lead' 
+        ? WorkerLeads::find($id) 
+        : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1319,9 +1354,22 @@ class AuthController extends Controller
             'worker' => $worker
         ]);
     }
-    public function getAllForms($id, $type = null)
+    public function getAllForms(Request $request, $id, $type = null)
     {
-        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::find($id);
+        $isAdmin = false;
+    
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+    
+        \Log::info("Is Admin: " . ($isAdmin ? 'Yes' : 'No'));
+
+        // Fetch worker based on type and admin scope
+        $worker = $type == 'lead' 
+            ? WorkerLeads::find($id) 
+            : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1339,7 +1387,15 @@ class AuthController extends Controller
 
     public function getWorkContract($id)
     {
-        $worker = User::where('status', 1)->find($id);
+        $isAdmin = false;
+    
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+
+        $worker = $isAdmin ? User::find($id) : User::where('status', 1)->find($id);
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1356,9 +1412,16 @@ class AuthController extends Controller
         ]);
     }
 
-    public function getInsuranceForm($id, $type = null)
+    public function getInsuranceForm(Request $request, $id, $type = null)
     {
-        $worker =$type == 'lead' ? WorkerLeads::find($id) :  User::where('status', 1)->find($id);
+        $isAdmin = false;
+    
+        // Check if the request has a valid admin token
+        if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
+            $isAdmin = true; // The user is an authenticated admin
+        }
+
+        $worker = $type == 'lead' ? WorkerLeads::find($id) :  ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
