@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\HearingInvitation;
+use Illuminate\Support\Facades\Storage;
+
 
 class DashboardController extends Controller
 {
@@ -87,7 +89,7 @@ class DashboardController extends Controller
                 return '';
             })
             ->addColumn('document', function ($data) {
-                return $data->file ? '<a href="' . asset($data->file) . '" target="_blank">Download Document</a>' : 'No Document';
+                return $data->file ? '<a href="' . Storage::disk('public')->url($data->file) . '" target="_blank">Download Document</a>' : 'No Document';
             })
             ->rawColumns(['action', 'document'])
             ->toJson();

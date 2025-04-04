@@ -146,8 +146,8 @@ class LeadWebhookController extends Controller
             "heb" => "תודה! קיבלנו את בקשתך לשינוי או עדכון שיבוץ.\nאנו נעביר זאת לצוות ונחזור אליך במידת הצורך. 🌸"
         ],
         "team_change_update_schedule" => [
-            "en" => "🔔 Client :client_name has requested to change or update their schedule. \nMessage logged: :message\n📞 Phone: :client_phone\n:comment_link\n📄 :client_link",
-            "heb" => "🔔 לקוח בשם :client_name ביקש לשנות או לעדכן שיבוץ. ההודעה שנרשמה: :message\n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
+            "en" => "🔔 Client *:client_name* has requested to change or update their schedule. \nMessage logged: *:message* \n📞 Phone: :client_phone\n:comment_link\n📄 :client_link",
+            "heb" => "🔔 לקוח בשם *:client_name* ביקש לשנות או לעדכן שיבוץ. ההודעה שנרשמה: *:message* \n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
         ],
         "access_portal" => [
             "en" => "To access our client portal, please click here: :client_portal_link.",
@@ -2397,10 +2397,9 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([
-                        ':client_name', ":client_phone", ":message", ":comment_link",':client_link'
-                    ], [
-                        $clientName, $client->phone, '*' . trim($input) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    $personalizedMessage = str_replace(
+                        [':client_name', ":client_phone", ":message", ":comment_link",':client_link'], 
+                        [$clientName, $client->phone, trim($input), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
@@ -2855,11 +2854,11 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
-                        $teammsg = "שלום צוות,\n\n:client_name שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:\n':message'\n\nאנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.\n:comment_link";
-                        $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                        $teammsg = "שלום צוות,\n\n *:client_name* שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:\n' *:message* \n\nאנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.\n:comment_link";
+                        $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                         $teammsg = str_replace([
                             ':client_name', ':message', ':comment_link'], [
-                                $clientName, '*' . trim($scheduleChange->comments) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin')
+                                $clientName, trim($scheduleChange->comments), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin')
                             ], $teammsg);
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
@@ -2934,7 +2933,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 }
 
                 $isMonday = now()->isMonday();
-                if ($isMonday && $client && $client->stop_last_message == 0) {
+                if ($client && $client->stop_last_message == 0) {
 
                     $msgStatus = Cache::get('client_monday_msg_status_' . $client->id);
                     if(!empty($msgStatus)) {

@@ -265,8 +265,8 @@ class HearingInvitationController extends Controller
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true,
         ]);
-        $pdfPath = 'pdfs/hearing_invitation_' . $invitation->id . '.pdf';
-        $pdf->save(public_path($pdfPath));
+        $pdfPath = 'hearing_protocols/hearing_invitation_' . $invitation->id . '.pdf';
+        $pdf->save(storage_path("app/public/" . $pdfPath));
 
         // Update the invitation record with the file path
         $invitation->update(['file' => $pdfPath]);

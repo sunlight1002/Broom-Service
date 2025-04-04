@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ChatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\ExpanseController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
@@ -29,7 +30,7 @@ Route::post('/zcredit/callback', [PaymentController::class, 'callback']);
 Route::post('/icount/webhook', [iCountController::class, 'webhook']);
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
-Route::post('/wallybox/callback', [GoogleController::class, 'wallyboxCallback']);
+Route::post('/wallybox/callback', [ExpanseController::class, 'wallyboxCallback']);
 
 
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');

@@ -102,17 +102,40 @@ The Broom Service Team 🌹',
 
         ];
 
+        $specialSundayMsg = [
+            'en' => "Hello :worker_name,
+
+On Sunday, the 13th of the month, due to Passover, there will be no work.
+
+If you are unavailable on another day that week, please let us know as soon as possible.
+
+Thank you,
+Broom Service Team",
+
+            'heb' => "שלום :worker_name,
+
+ביום ראשון, ה-13 לחודש, חג פסח – לא עובדים.
+
+אם אינך יכול לעבוד באחד מימי השבוע האחרים – אנא עדכן אותנו עוד היום.
+
+בברכה,
+צוות ברום סרוויס",
+             
+            'ru' => "Здравствуйте :worker_name,
+
+В воскресенье, 13 числа, в связи с праздником Песах, работы не будет.
+
+Если вы не можете работать в другой день этой недели – пожалуйста, сообщите нам как можно скорее.
+
+С уважением,
+Команда Broom Service 🌹"
+        ];
+
         // $workers = User::where('status', '1')->where('phone', '918469138538')->get();
          $workers = User::where('status', '1')->where('stop_last_message', 0)->get();
         //  dd($workers);
         foreach ($workers as $worker) {
             \Log::info('Sending message to ' . $worker->phone . ' (' . $worker->firstname . ')');
-
-            // $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $message[$worker->lng] ?? $message['en']));
-
-            // if (!$result) {
-            //     \Log::error('Failed to send message to ' . $worker->phone);
-            // }
 
             $workerData = [
                 'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
@@ -129,6 +152,15 @@ The Broom Service Team 🌹',
                 'key' => 'monday_msg_sent',
                 'value' => now()->toISOString(),
             ]);
+
+            $modifyMessage = str_replace(':worker_name', trim(($worker->firstname ?? '') . ' ' . ($worker->lastname ?? '')), $specialSundayMsg[$worker->lng] ?? $specialSundayMsg['en']);
+
+            $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $modifyMessage));
+
+            if (!$result) {
+                \Log::error('Failed to send message to ' . $worker->phone);
+            }
+
             Cache::put('worker_monday_msg_status_' . $worker->id, 'main_monday_msg', now()->addDay(1));
         }
     }

@@ -36,10 +36,10 @@ class SendCustomMessage implements ShouldQueue
     {
         $payload = [
             'to' => $this->phone,
-            'content' => $this->message,
+            'body' => $this->message,
         ];
 
-        Http::withToken(config('services.whapi.token'))
+       $res =  Http::withToken(config('services.whapi.token'))
             ->post(config('services.whapi.url') . 'messages/text', $payload);
     }
 }

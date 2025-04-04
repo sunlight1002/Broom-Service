@@ -99,6 +99,26 @@ office@broomservice.co.il',
 
         ];
 
+        $specialSundayMsg = [
+            "en" => "Dear Clients,
+
+On Sunday, the 13th of the month, due to Passover Holiday, Broom Service will not be operating.
+
+If you are scheduled for service on that day and wish to reschedule, please let us know, and we’ll do our best to offer you an alternative time.
+
+Warm regards,
+Broom Service Team 🌷",
+
+            "heb" => "לקוחות יקרים,
+
+ביום ראשון, ה-13 לחודש, בחג הפסח, החברה לא תעבוד.
+
+לקוחות אשר משובצים לקבלת שירות ביום זה ורוצים לשנות את התאריך – מוזמנים לעדכן אותנו וננסה למצוא עבורם תחליף במועד אחר.
+
+בברכה,
+צוות ברום סרוויס 🌸"
+        ];
+
         $clients = Client::where('status', '2')
                 ->whereHas('lead_status', function ($query) {
                     $query->where('lead_status', 'active client');
@@ -115,13 +135,6 @@ office@broomservice.co.il',
                 \Log::info('monday notification already sent: ' . $client->id);
                 continue;
             }
-
-            // $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $message[$client->lng]));
-
-            // if (!$result) {
-            //     \Log::error('Failed to send message to ' . $client->phone);
-            // }
-
             $clientData = [
                 'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
                 'notificationData' => [
@@ -131,6 +144,15 @@ office@broomservice.co.il',
             event(new WhatsappNotificationEvent($clientData));
             $client->stop_last_message = 0;
             $client->save();
+
+
+            $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $specialSundayMsg[$client->lng]));
+
+            if (!$result) {
+                \Log::error('Failed to send message to ' . $client->phone);
+            }
+
+
             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addDay(1));
             // echo $client->id . PHP_EOL;
         }

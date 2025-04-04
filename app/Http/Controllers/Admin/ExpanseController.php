@@ -11,6 +11,8 @@ use App\Models\Setting;
 use App\Enums\SettingKeyEnum;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class ExpanseController extends Controller
 {
@@ -68,6 +70,190 @@ class ExpanseController extends Controller
         ]);
     }
     
+    public function wallyboxCallback(Request $request)
+    {
+        $data = $request->all();
+        \Log::info([$data]);
+        if($data['status'] == "ready"){
+            $this->createExpanseIcount($data);    
+        }
+
+    }
+
+
+    public function createExpanseIcount($data, $scanFile = null)
+    {
+        $iCountCompanyID = Setting::where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)->value('value');
+        $iCountUsername = Setting::where('key', SettingKeyEnum::ICOUNT_USERNAME)->value('value');
+        $iCountPassword = Setting::where('key', SettingKeyEnum::ICOUNT_PASSWORD)->value('value');
+
+        $expenseTypes = $this->getExpenseTypes();
+        $supplierList = $this->getSuplierList();
+
+        $matchedExpenseTypeId = null;
+        $matchedSupplierId = null;
+
+        if (!empty($expenseTypes['expense_types']) && isset($data['Expense Category'])) {
+            foreach ($expenseTypes['expense_types'] as $type) {
+                if (isset($type['expense_type_name']) && $type['expense_type_name'] == $data['Expense Category']) {
+                    $matchedExpenseTypeId = $type['expense_type_id'];
+                    break;
+                }
+            }
+        }
+        if (!empty($supplierList['suppliers']) && isset($data['Vendor'])) {
+            foreach ($supplierList['suppliers'] as $type) {
+                if (isset($type['supplier_name']) && $type['supplier_name'] == $data['Vendor']) {
+                    $matchedSupplierId = $type['supplier_id'];
+                    break;
+                }
+            }
+        }
+
+        if (!$matchedSupplierId && isset($data['Vendor']) && isset($data['Vendor Number'])) {
+            try {
+                $newSupplier = $this->createSupplier($data);
+                if (isset($newSupplier['supplier_id'])) {
+                    $matchedSupplierId = $newSupplier['supplier_id'];
+                }
+            } catch (\Exception $e) {
+                \Log::error("Failed to create supplier: " . $e->getMessage());
+                throw $e;
+            }
+        }
+
+        if (!$matchedExpenseTypeId && isset($data['Expense Category'])) {
+            try {
+                $newExpenseType = $this->createExpenseType($data);
+                if (isset($newExpenseType['expense_type_id'])) {
+                    $matchedExpenseTypeId = $newExpenseType['expense_type_id'];
+                }
+            } catch (\Exception $e) {
+                \Log::error("Failed to create expense type: " . $e->getMessage());
+                throw $e;
+            }
+        }
+
+        if (!empty($data['Link'])) {
+            $scanFile = file_get_contents($data['Link']);
+        }
+    
+        $url = 'https://api.icount.co.il/api/v3.php/expense/create';
+    
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'supplier_id' => $matchedSupplierId,
+            'expense_type_id' => $matchedExpenseTypeId,
+            'expense_doctype' => $data['Expense Category'],
+            'expense_sum' => $data['Total Amount'],
+            'expense_docnum' => $data['Doc Number']
+        ];
+    
+        $multipartData = [
+            [
+                'name' => 'json',
+                'contents' => json_encode($requestData),
+                'filename' => 'request.json',
+                'headers' => ['Content-Type' => 'application/json']
+            ]
+        ];
+    
+        if ($scanFile) {
+            $multipartData[] = [
+                'name' => 'scan',
+                'contents' => $scanFile,
+                'filename' => 'scan.pdf',
+                'headers' => ['Content-Type' => 'application/pdf']
+            ];
+        }
+    
+        $response = Http::attach(
+            'json', json_encode($requestData), 'request.json'
+        );
+        
+        if ($scanFile) {
+            $response = $response->attach('scan', $scanFile, 'scan.pdf');
+        }
+    
+        $response = $response->post($url);
+    
+        $responseData = $response->json();
+        
+        if ($response->failed()) {
+            throw new Exception("Error: Failed to create expense in iCount. Response: " . json_encode($responseData, JSON_UNESCAPED_UNICODE));
+        }
+    
+        return $responseData;
+    }
+
+
+    public function createSupplier($data) {
+        $iCountCompanyID = Setting::where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)->value('value');
+        $iCountUsername = Setting::where('key', SettingKeyEnum::ICOUNT_USERNAME)->value('value');
+        $iCountPassword = Setting::where('key', SettingKeyEnum::ICOUNT_PASSWORD)->value('value');
+    
+        $url = 'https://api.icount.co.il/api/v3.php/supplier/add';
+    
+        // Prepare API request data
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'supplier_name' => $data['Vendor'],
+            'vat_id' => $data['Vendor Number']
+        ];
+    
+        // Send the request to iCount API
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+    
+        // Decode JSON response
+        $responseData = $response->json();
+        $httpCode = $response->status();
+    
+        // Handle errors
+        if ($httpCode != 200) {
+            throw new Exception("Error: Failed to create supplier in iCount. Response: " . json_encode($responseData));
+        }
+    
+        return $responseData;
+    }
+
+    public function createExpenseType($data) {
+        $iCountCompanyID = Setting::where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)->value('value');
+        $iCountUsername = Setting::where('key', SettingKeyEnum::ICOUNT_USERNAME)->value('value');
+        $iCountPassword = Setting::where('key', SettingKeyEnum::ICOUNT_PASSWORD)->value('value');
+    
+        $url = 'https://api.icount.co.il/api/v3.php/expense_type/add';
+    
+        // Prepare API request data
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'expense_type_name' => $data['Expense Category'],
+            'no_vat' => true
+        ];
+    
+        // Send the request to iCount API
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+    
+        // Decode JSON response
+        $responseData = $response->json();
+        $httpCode = $response->status();
+    
+        // Handle errors
+        if ($httpCode != 200) {
+            throw new Exception("Error: Failed to create expense type in iCount. Response: " . json_encode($responseData));
+        }
+    
+        return $responseData;
+    }
     
     public function expanseStore(Request $request)
     {

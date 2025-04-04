@@ -104,8 +104,10 @@ class Kernel extends ConsoleKernel
         // Tuesday at 8:30 AM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
             ->weeklyOn(Schedule::TUESDAY, '08:30');
-        // $schedule->command('gmail:fetch')->everyMinute();
-    }
+
+        // $schedule->command('gmail:fetch')->everyFiveMinutes();
+
+        }
 
     /**
      * Register the commands for the application.
