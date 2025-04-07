@@ -205,7 +205,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         $grouped[$currentDate] = [];
                     }
 
-                    if ($currentDate !== null && !empty($row[1])) {
+
+
+                    if ($currentDate !== null && !empty($row[1]) && $currentDate == "2025-03-30") {
                         $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -215,7 +217,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         } else if (filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
                             $email = trim($row[1]);
                         }
-
 
                         if ($id || $email) {
                             $client = null;
@@ -246,12 +247,16 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                                 $selectedFrequency = $frequencyMap[$row[18] ?? null] ?? null;
                                 if ($selectedFrequency) {
-                                    $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
+                                    $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)
+                                    ->orWhere('name_heb', $selectedFrequency)->first();
                                 }
 
                                 $selectedType = (isset($row[23]) && trim($row[23]) == "h") ? "hourly" : "fixed";
 
                                 $selectedAddress = $row[19] ?? null;
+                                $workerHours = $row[13] ?? null;
+                                $workerHours = str_replace(',', '.', $workerHours);
+                                // \Log::info("Worker hours: {$workerHours}");
 
                                 $services = [];
                                 $frequencies = [];
@@ -274,24 +279,32 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         }
                                         if (empty($selectedService) && $selectedFrequency) {
                                             $selectedServiceStr = trim($row[11] ?? null);
-                                            if ($s == $selectedServiceStr && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType)) {
+                                            if ($s == $selectedServiceStr && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType) && ($d['workers'][0]['jobHours'] == $workerHours)) {
                                                 $selectedOfferDataArr[] = $d;
                                             }
                                         }
                                         $services[] = $s;
                                         $frequencies[] = $d['freq_name'];
                                     } else {
-                                        if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType)) {
+                                        // \Log::info($offerId);
+                                        // \Log::info($d['workers'][0]['jobHours']. "offerWorkerHours");
+                                        // \Log::info($workerHours . " workerHours");
+                                        if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType) && ($d['workers'][0]['jobHours'] == $workerHours)) {
+                                           \Log::info("Selected offer data arr ". $offerId);
                                             $selectedOfferDataArr[] = $d;
                                         }
                                         $services[] = $d['name'];
                                         $frequencies[] = $d['freq_name'];
                                     }
+
+                                    // if(($d['workers'][0]['jobHours'] != $workerHours)){
+                                    //     \Log::info($selectedOfferDataArr);
+                                    //     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Job hours not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    // }
                                 }
                                 if (empty($selectedService) && $selectedFrequency) {
                                     $selectedService = Services::where('name', 'Airbnb')->first();
                                 }
-                                // \Log::info($offers);
 
                                 if (empty($selectedOfferDataArr)) {
                                     $sheetService = trim($row[11] ?? null);
@@ -300,8 +313,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     continue;
                                 }
                                 $selectedOfferData = [];
-                                $workerHours = $row[13] ?? null;
-                                $workerHours = str_replace(',', '.', $workerHours);
                                 if (count($selectedOfferDataArr) > 1) {
                                     foreach ($selectedOfferDataArr as $d) {
                                         $jobHours = Arr::pluck($d['workers'], 'jobHours');
