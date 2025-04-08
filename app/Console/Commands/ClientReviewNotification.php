@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
 use App\Models\WhatsAppBotActiveClientState;
 use App\Models\WebhookResponse;
 use Illuminate\Support\Facades\Http;
+use Twilio\Rest\Client as TwilioClient;
 use Illuminate\Support\Facades\Cache;
 
 class ClientReviewNotification extends Command
@@ -29,6 +30,10 @@ class ClientReviewNotification extends Command
      * @var string
      */
     protected $description = 'Client Review Notification';
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioPhoneNumber;
+    protected $twilio;
     protected $message = [
         "en" => "Hello :client_name,
 We hope you enjoyed the service provided by our team.
@@ -60,6 +65,13 @@ Please reply with the appropriate number.",
     public function __construct()
     {
         parent::__construct();
+
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     /**
@@ -69,17 +81,28 @@ Please reply with the appropriate number.",
      */
     public function handle()
     {
-        $clients = Client::where('status', '2')
+        $clients = Client::where('status', '2')->where('id', '194')
         ->whereHas('lead_status', function ($query) {
             $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
         })
         ->get();
-
+        
         foreach ($clients as $client) {
             WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
             $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
+            $sid = $client->lng == "heb" ? "HX7910a7bdaa795b555c5a000950fc32d9" : "HXd5cd4117dda2b3b972bdd22927a32c54";
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+$client->phone",
+                [
+                    "from" => $this->twilioWhatsappNumber, 
+                    "contentSid" => $sid,
+                    "contentVariables" => json_encode([
+                        "1" => $clientName,
+                    ]),
+                ]
+            );
             $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
-            sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
+            // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
             Cache::put('client_review' . $client->id, true, now()->addDay(1));
         }
     }

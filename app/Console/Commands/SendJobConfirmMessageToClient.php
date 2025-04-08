@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\WhatsAppBotActiveClientState;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Twilio\Rest\Client as TwilioClient;
 
 class SendJobConfirmMessageToClient extends Command
 {
@@ -77,6 +78,13 @@ www.broomservice.co.il
     public function __construct()
     {
         parent::__construct();
+
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     /**
@@ -235,7 +243,7 @@ www.broomservice.co.il
         foreach($clientIds as $clientId => $c) {
             $client = Client::find($clientId);
             if($client) {
-
+                // \Log::info('client: ' .$c . $client->id);
                 if($client->wednesday_notification == 1 || $client->disable_notification == 1){
                     \Log::info('wednesday notification client: ' . $client->id);
                     continue;
@@ -259,7 +267,7 @@ www.broomservice.co.il
                     if(count($shiftMsgs) > 1) {
                         $msg .= implode("\nAnd on ", $shiftMsgs);
                     } else {
-                        $msg .= $shiftMsgs[0];
+                        $msg .= $shiftMsgs[0] ?? '';
                     }
                     $personalizedMessage = str_replace(':next_week_schedule', $msg, $personalizedMessage);
                 } else {
@@ -281,9 +289,24 @@ www.broomservice.co.il
                     }
                     $personalizedMessage = str_replace(':next_week_schedule', $msg, $personalizedMessage);
                 }
+                
+                $sid = $client->lng == "heb" ? "HX24ce33a6a7f5ba297f6756127e3d80e0" : "HXe77a7ad3eb2c4394e74c52307c89c8a7";
+
+                $this->twilio->messages->create(
+                    "whatsapp:+$client->phone",
+                    [
+                        "from" => $this->twilioWhatsappNumber,
+                        "contentSid" => $sid,
+                        "contentVariables" => json_encode([
+                            '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
+                            '2' => $msg,
+                        ]),
+                    ]
+                );
+
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
                 // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
-                Cache::put('client_job_confirm_msg' . $client->id, 'main_msg', now()->addDay(1));
+                Cache::put('client_job_confirm_msg' . $client->id, 'main_msg', now()->addHours(20));
             }
         }
 

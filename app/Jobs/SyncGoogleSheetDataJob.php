@@ -258,6 +258,9 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 $client_ids[] = $client->id;
                                 $rowCount = $index + 1;
                                 $offerId = trim($row[2] ?? '');
+                                $jobHours = str_replace(',', '.', $row[13] ?? '');
+                                \Log::info("Job Hours: $jobHours");
+
                                 // Find offer
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
                                 if (!$offer) {

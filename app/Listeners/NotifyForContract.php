@@ -20,7 +20,6 @@ class NotifyForContract implements ShouldQueue
      */
     public function __construct()
     {
-        //
     }
 
     /**

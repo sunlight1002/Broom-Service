@@ -20,7 +20,6 @@ class NotifyForOffer implements ShouldQueue
      */
     public function __construct()
     {
-        //
     }
 
     /**

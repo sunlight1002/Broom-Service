@@ -831,6 +831,7 @@ class JobController extends Controller
                     'emailTitle'  => __('mail.worker_new_job.new_job_assigned'),
                     'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
+                \Log::info($emailData);
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
                 ScheduleNextJobOccurring::dispatch($job->id, null);
 
