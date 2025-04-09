@@ -342,6 +342,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('my-account', [SettingController::class, 'getAccountDetails']);
     Route::post('my-account', [SettingController::class, 'saveAccountDetails']);
     Route::post('change-bank-details', [SettingController::class, 'changeBankDetails']);
+    Route::post('add-discount', [SettingController::class, 'addDiscount']);
+    Route::get('get-discount', [SettingController::class, 'getDiscount']);
 
     // Change Password Api
     Route::post('change-password', [SettingController::class, 'changePassword']);

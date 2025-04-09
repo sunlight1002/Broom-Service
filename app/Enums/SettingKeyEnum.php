@@ -29,4 +29,6 @@ final class SettingKeyEnum extends AbstractEnum
     public const RECOVERY_FEE = 'recovery_fee_year_ofservice';
     public const DRIVING_FEE_PERMONTH = 'driving_fee_perMonth';
     public const DRIVING_FEE_PERDAY = 'driving_fee_perDay';
+    public const DISCOUNT_TYPE = 'discount_type';
+    public const DISCOUNT_VALUE = 'discount_value';
 }

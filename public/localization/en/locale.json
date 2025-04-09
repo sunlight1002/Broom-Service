@@ -2105,6 +2105,7 @@
             },
             "settings": {
                 "title": "Settings",
+                "add_discount": "Add Discount",
                 "manage_team": "Manage team",
                 "services": "Services",
                 "manpower": "Manpower Companies",

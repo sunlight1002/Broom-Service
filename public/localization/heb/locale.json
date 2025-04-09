@@ -2132,6 +2132,7 @@
             },
             "settings": {
                 "title": "הגדרות",
+                "add_discount": "הוסף הנחה",
                 "manage_team": "ניהול צוות",
                 "services": "שירותים",
                 "manpower": "חברות כוח אדם",
