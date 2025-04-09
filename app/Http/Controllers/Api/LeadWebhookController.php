@@ -2396,7 +2396,7 @@ If you would like to speak to a human representative, please send a message with
                     $scheduleChange->save();
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
-                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace(
                         [':client_name', ":client_phone", ":message", ":comment_link",':client_link'], 
                         [$clientName, $client->phone, trim($input), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
