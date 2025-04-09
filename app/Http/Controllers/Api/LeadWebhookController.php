@@ -2162,9 +2162,12 @@ Broom Service Team 🌹",
                 }
 
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
-                if ((!empty($msgStatus) && $input == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
+                if ((!empty($msgStatus) && ($listId || $ButtonPayload) == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
+                    \Log::info('Client already in (monday / wednesday) message');
+                    $this->activeClientsWednesday($request);
                     die('Client confirm job');
                 }
+
             }
 
             if($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT){
@@ -2328,6 +2331,7 @@ Broom Service Team 🌹",
                 $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
 
                 if(!empty($msgStatus) || !empty($MondaymsgStatus)) {
+                    \Log::info('Client already in (monday / wednesday) message');
                     $this->activeClientsWednesday($request);
                     die("already client in (monday / wednesday) message");
                 }
@@ -3914,7 +3918,7 @@ Broom Service Team 🌹",
                         $messageBody = trim($data['Body'] ?? '');
                         $last_menu = end($menu_option);
 
-                        if($last_menu == 'main_msg' && $listId == '1') {
+                        if($last_menu == 'main_msg' && ($listId == '1' || $ButtonPayload == '1')) {
                             $m = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change for next week?";
@@ -4063,7 +4067,7 @@ office@broomservice.co.il';
                                 $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                                 $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                                sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                                // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
@@ -4094,7 +4098,7 @@ office@broomservice.co.il';
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName. "*". " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
@@ -4121,12 +4125,12 @@ office@broomservice.co.il';
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'entry_id'      => $messageId,
                                 'message'       => $follow_up_msg,
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data),
+                                'data'          => json_encode($data),
                             ]);
 
                             $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";

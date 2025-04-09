@@ -100,146 +100,157 @@ www.broomservice.co.il
             Log::info("No sheet found", ['sheets' => $sheets]);
             return;
         }
-        $clientIds = [];
+        $clientIds = ["194"=> [
+            [
+                "shift" => "בוקר",
+                "dayName" => "ראשון",
+                "currentDate" => "2023-10-01"
+            ],
+            [
+                "shift" => "אחהצ",
+                "dayName" => "שני",
+                "currentDate" => "2023-10-02"
+            ]
+        ]];
         $currentDate = null;
         $dates = [];
         $shifts = [];
-        foreach ($sheets as $key => $sheet) {
-            $data = $this->getGoogleSheetData($sheet);
-            if (empty($data)) {
-                Log::warning("Sheet $sheet is empty.");
-                continue;
-            }
+        // foreach ($sheets as $key => $sheet) {
+        //     $data = $this->getGoogleSheetData($sheet);
+        //     if (empty($data)) {
+        //         Log::warning("Sheet $sheet is empty.");
+        //         continue;
+        //     }
 
-            foreach ($data as $index => $row) {
-                if ($index == 0) {
-                    continue;
-                }
-                if (!empty($row[3]) && (
-                    preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
-                    preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
-                    // preg_match('/(?:יום\s*)?[א-ת]+\s*\d{2}\d{2}/u', $row[3])
-                )) {
-                    $currentDate = $this->convertDate($row[3], $sheet);
-                    $grouped[$currentDate] = [];
-                }
-                if ($currentDate !== null && !empty($row[1]) && !empty($row[5]) && $row[5] == 'TRUE') {
-                    $grouped[$currentDate][] = $row;
-                    $id = null;
-                    $email = null;
-                    if (strpos(trim($row[1]), '#') === 0) {
-                        $id = substr(trim($row[1]), 1);
-                    } else if (filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
-                        $email = trim($row[1]);
-                    }
+        //     foreach ($data as $index => $row) {
+        //         if ($index == 0) {
+        //             continue;
+        //         }
+        //         if (!empty($row[3]) && (
+        //             preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
+        //             preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
+        //             // preg_match('/(?:יום\s*)?[א-ת]+\s*\d{2}\d{2}/u', $row[3])
+        //         )) {
+        //             $currentDate = $this->convertDate($row[3], $sheet);
+        //             $grouped[$currentDate] = [];
+        //         }
+        //         if ($currentDate !== null && !empty($row[1]) && !empty($row[5]) && $row[5] == 'TRUE') {
+        //             $grouped[$currentDate][] = $row;
+        //             $id = null;
+        //             $email = null;
+        //             if (strpos(trim($row[1]), '#') === 0) {
+        //                 $id = substr(trim($row[1]), 1);
+        //             } else if (filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
+        //                 $email = trim($row[1]);
+        //             }
 
-                    if ($id || $email) {
-                        $client = null;
-                        if ($id) {
-                            $client = Client::find($id);
-                        } else if ($email) {
-                            $client = Client::where('email', $email)->first();
-                        }
-                        $shifts[] = trim($row[9] ?? '');
-                        if ($client) {
-                            $currentDateObj = Carbon::parse($currentDate); // Current date
-                            $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
-                            $nextWeekEnd = $nextWeekStart->copy()->addDays(6); // Next week's Saturday
+        //             if ($id || $email) {
+        //                 $client = null;
+        //                 if ($id) {
+        //                     $client = Client::find($id);
+        //                 } else if ($email) {
+        //                     $client = Client::where('email', $email)->first();
+        //                 }
+        //                 $shifts[] = trim($row[9] ?? '');
+        //                 if ($client) {
+        //                     $currentDateObj = Carbon::parse($currentDate); // Current date
+        //                     $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
+        //                     $nextWeekEnd = $nextWeekStart->copy()->addDays(6); // Next week's Saturday
 
-                            if ($currentDateObj->between($nextWeekStart, $nextWeekEnd)) {
-                                $shift = "";
-                                $day = $currentDateObj->format('l');
-                                if($client->lng == 'en') {
-                                    switch (trim($row[9])) {
-                                        case 'יום':
-                                        case 'בוקר':
-                                        case '7 בבוקר':
-                                        case 'בוקר 11':
-                                        case 'בוקר מוקדם':
-                                        case 'בוקר 6':
-                                            $shift = "Morning";
-                                            break;
+        //                     if ($currentDateObj->between($nextWeekStart, $nextWeekEnd)) {
+        //                         $shift = "";
+        //                         $day = $currentDateObj->format('l');
+        //                         if($client->lng == 'en') {
+        //                             switch (trim($row[9])) {
+        //                                 case 'יום':
+        //                                 case 'בוקר':
+        //                                 case '7 בבוקר':
+        //                                 case 'בוקר 11':
+        //                                 case 'בוקר מוקדם':
+        //                                 case 'בוקר 6':
+        //                                     $shift = "Morning";
+        //                                     break;
 
-                                        case 'צהריים':
-                                        case 'צהריים 14':
-                                            $shift = "Noon";
-                                            break;
+        //                                 case 'צהריים':
+        //                                 case 'צהריים 14':
+        //                                     $shift = "Noon";
+        //                                     break;
 
-                                        case 'אחהצ':
-                                        case 'אחה״צ':
-                                        case 'ערב':
-                                        case 'אחר״צ':
-                                            $shift = "After noon";
-                                            break;
+        //                                 case 'אחהצ':
+        //                                 case 'אחה״צ':
+        //                                 case 'ערב':
+        //                                 case 'אחר״צ':
+        //                                     $shift = "After noon";
+        //                                     break;
 
-                                        default:
-                                            $shift = $row[9];
-                                            break;
-                                    }
-                                } else {
-                                    switch (trim($row[9])) {
-                                        case 'יום':
-                                        case 'בוקר':
-                                        case '7 בבוקר':
-                                        case 'בוקר 11':
-                                        case 'בוקר מוקדם':
-                                        case 'בוקר 6':
-                                            $shift = "בוקר";
-                                            break;
+        //                                 default:
+        //                                     $shift = $row[9];
+        //                                     break;
+        //                             }
+        //                         } else {
+        //                             switch (trim($row[9])) {
+        //                                 case 'יום':
+        //                                 case 'בוקר':
+        //                                 case '7 בבוקר':
+        //                                 case 'בוקר 11':
+        //                                 case 'בוקר מוקדם':
+        //                                 case 'בוקר 6':
+        //                                     $shift = "בוקר";
+        //                                     break;
 
-                                        case 'צהריים':
-                                        case 'צהריים 14':
-                                            $shift = 'אחה"צ';
-                                            break;
+        //                                 case 'צהריים':
+        //                                 case 'צהריים 14':
+        //                                     $shift = 'אחה"צ';
+        //                                     break;
 
-                                        case 'אחהצ':
-                                        case 'אחה״צ':
-                                        case 'ערב':
-                                        case 'אחר״צ':
-                                            $shift = "אחהצ";
-                                            break;
+        //                                 case 'אחהצ':
+        //                                 case 'אחה״צ':
+        //                                 case 'ערב':
+        //                                 case 'אחר״צ':
+        //                                     $shift = "אחהצ";
+        //                                     break;
 
-                                        default:
-                                            $shift = $row[9];
-                                            break;
-                                    }
-                                    switch ($day) {
-                                        case 'Sunday':
-                                            $day = "ראשון";
-                                            break;
-                                        case 'Monday':
-                                            $day = "שני";
-                                            break;
-                                        case 'Tuesday':
-                                            $day = "שלישי";
-                                            break;
-                                        case 'Wednesday':
-                                            $day = "רביעי";
-                                            break;
-                                        case 'Thursday':
-                                            $day = "חמישי";
-                                            break;
-                                        case 'Friday':
-                                            $day = "שישי";
-                                            break;
-                                        case 'Saturday':
-                                            $day = "שבת";
-                                            break;
-                                    }
+        //                                 default:
+        //                                     $shift = $row[9];
+        //                                     break;
+        //                             }
+        //                             switch ($day) {
+        //                                 case 'Sunday':
+        //                                     $day = "ראשון";
+        //                                     break;
+        //                                 case 'Monday':
+        //                                     $day = "שני";
+        //                                     break;
+        //                                 case 'Tuesday':
+        //                                     $day = "שלישי";
+        //                                     break;
+        //                                 case 'Wednesday':
+        //                                     $day = "רביעי";
+        //                                     break;
+        //                                 case 'Thursday':
+        //                                     $day = "חמישי";
+        //                                     break;
+        //                                 case 'Friday':
+        //                                     $day = "שישי";
+        //                                     break;
+        //                                 case 'Saturday':
+        //                                     $day = "שבת";
+        //                                     break;
+        //                             }
 
-                                }
+        //                         }
 
-                                $clientIds[$client->id][] = [
-                                    "shift" => $shift,
-                                    "dayName" => $day,
-                                    "currentDate" => $currentDateObj->format('j.n.y')
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //                         $clientIds[$client->id][] = [
+        //                             "shift" => $shift,
+        //                             "dayName" => $day,
+        //                             "currentDate" => $currentDateObj->format('j.n.y')
+        //                         ];
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         foreach($clientIds as $clientId => $c) {
             $client = Client::find($clientId);
             if($client) {
@@ -292,15 +303,16 @@ www.broomservice.co.il
                 
                 $sid = $client->lng == "heb" ? "HX24ce33a6a7f5ba297f6756127e3d80e0" : "HXe77a7ad3eb2c4394e74c52307c89c8a7";
 
-                $this->twilio->messages->create(
+                $res = $this->twilio->messages->create(
                     "whatsapp:+$client->phone",
                     [
                         "from" => $this->twilioWhatsappNumber,
                         "contentSid" => $sid,
                         "contentVariables" => json_encode([
                             '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
-                            '2' => $msg,
+                            '2' => preg_replace("/[\n\r\t]+/", " ", $msg)
                         ]),
+                        "statusCallback" => "https://65e5-2405-201-2022-10c3-d0f4-b071-727e-165e.ngrok-free.app/twilio/webhook",
                     ]
                 );
 
