@@ -2120,7 +2120,7 @@ Broom Service Team 🌹",
         if ($data['SmsStatus'] == 'received') {
             $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
-            $isMonday = now()->isTuesday();
+            $isMonday = now()->isMonday();
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
             if ($workerLead) {
@@ -3600,7 +3600,7 @@ Broom Service Team 🌹",
                     }
                 }
 
-                $isMonday = now()->isTuesday();
+                $isMonday = now()->isMonday();
                 if ($isMonday && $client && $client->stop_last_message == 0) {
 
                     $msgStatus = Cache::get('client_monday_msg_status_' . $client->id);
@@ -3712,7 +3712,7 @@ Broom Service Team 🌹",
                             );
 
                             // sendClientWhatsappMessage($from, ['message' => $message]);
-                        } else if ($last_menu == 'review_changes' && ($messageBody == '1' || $ButtonPayload == '1')) {
+                        } else if ($last_menu == 'review_changes' && ($listId == '1' || $ButtonPayload == '1')) {
                             // Cache the user's intention to edit
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes->changes', now()->addDay(1));
 
@@ -3728,7 +3728,7 @@ Broom Service Team 🌹",
                                     ]
                                 );
                             // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '2') {
+                        } else if ($last_menu == 'review_changes' && $listId == '2') {
                             // Cache the user's intention to edit
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes->additional', now()->addDay(1));
 
@@ -3853,12 +3853,11 @@ Broom Service Team 🌹",
     {
         \Log::info('activeClientsWednesday');
         try {
-            $get_data = $request->getContent();
+            $data = $request->all();
             $responseClientState = [];
-            $data_returned = json_decode($get_data, true);
             $message = null;
 
-            $messageId = $data_returned['messages'][0]['id'] ?? null;
+            $messageId = $data['SmsMessageSid'] ?? null;
 
             if (!$messageId) {
                 return response()->json(['status' => 'Invalid message data'], 400);
@@ -3874,30 +3873,29 @@ Broom Service Team 🌹",
             Cache::put('client_wednesday_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
 
-            if (
-                isset($data_returned['messages']) &&
-                isset($data_returned['messages'][0]['from_me']) &&
-                $data_returned['messages'][0]['from_me'] == false
-            ) {
-                $message_data = $data_returned['messages'];
-                if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-                    die("Group message");
-                }
-                $from = $message_data[0]['from'];
+            if ($data['SmsStatus'] == 'received') {
+                $input = trim($data['Body'] ?? '');
+                $listId = $data['ListId'] ?? $message;
+                $ButtonPayload = $data['ButtonPayload'] ?? null;
+
+                // $message_data = $data_returned['messages'];
+                // if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                //     die("Group message");
+                // }
+                $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
+
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
-                if($client){
 
+                if($client){
                     $msgStatus = Cache::get('client_review' . $client->id);
-                    $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
-                    if (!empty($msgStatus) && ($input == '7' || $input == '8')) {
+                    if (!empty($msgStatus) && ($listId == '7' || $listId == '8')) {
                         \Log::info('Client already reviewed');
                         die('Client already reviewed');
                     }
 
                     $msgStatus = Cache::get('client_review_input2' . $client->id);
-                    $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
                     if (!empty($msgStatus)) {
                         \Log::info('Client already reviewed');
                         die('Client already reviewed');
@@ -3905,31 +3903,40 @@ Broom Service Team 🌹",
                 }
 
                 $isWednesday = now()->isWednesday();
+
                 if ($isWednesday && $client) {
 
                     $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
                     \Log::info('$msgStatus', [$msgStatus]);
+
                     if(!empty($msgStatus)) {
                         $menu_option = explode('->', $msgStatus);
-                        $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                        $messageBody = trim($data['Body'] ?? '');
                         $last_menu = end($menu_option);
 
-                        if($last_menu == 'main_msg' && $messageBody == '1') {
+                        if($last_menu == 'main_msg' && $listId == '1') {
                             $m = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change for next week?";
 
-                            sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "body" => $m,
+                                ]
+                            );
+                            // sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change', now()->addDay(1));
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'entry_id'      => $messageId,
                                 'message'       => $m,
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data),
+                                'data'          => json_encode($data),
                             ]);
                         } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
                             $scheduleChange = ScheduleChange::create([
@@ -3943,7 +3950,7 @@ Broom Service Team 🌹",
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName . "*". "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes', now()->addDay(1));
 
@@ -3990,23 +3997,55 @@ Phone: 03-525-70-60
 office@broomservice.co.il';
                             }
 
-                            sendClientWhatsappMessage($from, ['message' => $message]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '1') {
+                            $sid = $client->lng == "heb" ? "HXb44309cfdec973dc0fa8709509c4b718" : "HX059442ac501424d65f6c225e19711d11";
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "contentSid" => $sid,
+                                    "contentVariables" => json_encode([
+                                        '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
+                                        '2' => $scheduleChange->comments,
+                                    ]),
+                                ]
+                            );
+
+                            // sendClientWhatsappMessage($from, ['message' => $message]);
+                        } else if ($last_menu == 'review_changes' && ($listId == '1' || $ButtonPayload == '1')) {
                             // Cache the user's intention to edit
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes->changes', now()->addDay(1));
 
                             $promptMessage = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change or request for next week?";
-                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '2') {
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $promptMessage,
+                                    ]
+                                );
+
+                            // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                        } else if ($last_menu == 'review_changes' && $listId == '2') {
                             // Cache the user's intention to edit
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes->additional', now()->addDay(1));
 
                             $promptMessage = $client->lng == 'heb'
                                 ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
                                 : "Please enter a message to add additional information.";
-                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $promptMessage,
+                                    ]
+                                );
+
+                            // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
                         } else if ($last_menu == 'changes' && !empty($messageBody)) {
                             // Process editing the existing message
                             $scheduleChange = ScheduleChange::where('user_type', get_class($client))
@@ -4029,7 +4068,16 @@ office@broomservice.co.il';
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                     : "Your message has been received and will be forwarded to our team for further handling.";
-                                sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                                   
+                                    $this->twilio->messages->create(
+                                        "whatsapp:+$from",
+                                        [
+                                            "from" => $this->twilioWhatsappNumber,
+                                            "body" => $confirmationMessage,
+                                        ]
+                                    );
+                                   
+                                    // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
                             }
                             sleep(2);
                             // Clear the cache after the action is complete
@@ -4051,7 +4099,16 @@ office@broomservice.co.il';
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                 : "Your message has been received and will be forwarded to our team for further handling.";
-                            sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                            // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "body" => $confirmationMessage,
+                                ]
+                            );
+
                             $client->stop_last_message = 1 ;
                             $client->save();
                             // Clear the cache after the action is complete
@@ -4072,7 +4129,17 @@ office@broomservice.co.il';
                                 'data'          => json_encode($get_data),
                             ]);
 
-                            sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
+                            $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "contentSid" => $sid,
+                                ]
+                            );
+
+                            // sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
                         }
                     }
                 }
