@@ -3,7 +3,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap');
 
 
-
 body {
   font-family: 'Rubik', sans-serif !important;
   direction: ltr;
@@ -4412,6 +4411,11 @@ tbody tr:hover {
 }
 
 
+.form-select {
+  border-width: 2px;
+  border-radius: 0.40rem;
+  padding: 0.6rem 1rem;
+}
 
 
 

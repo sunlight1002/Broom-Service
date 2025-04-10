@@ -109,6 +109,7 @@ Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']
 Route::post('contracts/{hash}/initialize-card', [ClientCardController::class, 'createCardSession']);
 Route::post('contracts/{hash}/check-card', [ClientCardController::class, 'checkContractCard']);
 Route::post('accept-contract', [ClientEmailController::class, 'AcceptContract']);
+Route::post('new-accept-contract', [ClientEmailController::class, 'NewAcceptContract']);
 Route::post('reject-contract', [ClientEmailController::class, 'RejectContract']);
 Route::post('get-service-template', [ClientEmailController::class, 'serviceTemplate']);
 Route::post('add-file', [DashboardController::class, 'addfile']);

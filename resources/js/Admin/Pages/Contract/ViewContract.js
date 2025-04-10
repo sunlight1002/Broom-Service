@@ -3,10 +3,12 @@ import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 import ContractEng from '../../Components/contract/ContractEng'
 import ContractHeb from '../../Components/contract/ContractHeb'
-export default function WorkContract() {
+import AdminNewContract from './AdminNewContract'
 
+export default function WorkContract() {
     const param = useParams();
     const [lng, setLng] = useState([]);
+    const [clientId, setClientId] = useState(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -18,7 +20,7 @@ export default function WorkContract() {
         axios
             .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
             .then((res) => {
-                console.log(res.data?.contract?.client?.lng);
+                setClientId(res.data?.contract?.client?.id)
                 setLng(res.data?.contract?.client?.lng)
             })
     }
@@ -28,7 +30,11 @@ export default function WorkContract() {
 
 
     return (
-        (lng == 'heb') ? <ContractHeb />: <ContractEng />
+        <>
+            {
+                [194].includes(clientId) ? <AdminNewContract/> : ((lng == 'heb') ? <ContractHeb />: <ContractEng />)
+            }
+        </>
         // <ContractEng/>
 
     )

@@ -182,7 +182,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $client_ids = [];
             $selectedType = null;
             foreach ($sheets as $key => $sheet) {
-                if ($sheet == "ינואר") {
+                if ($sheet == "ינואר" || $sheet == "פברואר") {
                     continue;
                 }
                 $data = $this->getGoogleSheetData($sheet);
@@ -196,6 +196,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     if ($index == 0) {
                         continue;
                     }
+                    // if($index < 1021) {
+                    //     continue;
+                    // }
                     if (!empty($row[3]) && (
                         preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
                         preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
@@ -208,7 +211,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
 
                     if ($currentDate !== null && !empty($row[1]) && $currentDate == "2025-03-30") {
-                        $grouped[$currentDate][] = $row;
+                       $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
                         if (strpos(trim($row[1]), '#') === 0) {
@@ -218,6 +221,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             $email = trim($row[1]);
                         }
 
+
                         if ($id || $email) {
                             $client = null;
                             if ($id) {
@@ -225,13 +229,28 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             } else if ($email) {
                                 $client = Client::where('email', $email)->first();
                             }
+                            $currentDateObj = Carbon::parse($currentDate);
+                            $aprilFirst = Carbon::createFromDate($currentDateObj->year, 4, 1);
+
+                            if (!$currentDateObj->greaterThanOrEqualTo($aprilFirst)) {
+                                continue;
+                            }
 
                             if ($client) {
+                                $rowCount = $index + 1;
                                 if(!empty($row[20])) {
                                     continue;
                                 }
-                                $client_ids[] = $client->id;
-                                $rowCount = $index + 1;
+
+                                // if(empty($row[22]) && ($row[6] === "TRUE")) {
+                                //     echo "Row {$rowCount}: Sheet: {$sheet} Order Not Created, Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                //     continue;
+                                // }
+
+                                // continue;
+                                // $client_ids[] = $client->id;
+                                // continue;
+                               
                                 $offerId = trim($row[2] ?? '');
                                 // Find offer
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
@@ -249,7 +268,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 if ($selectedFrequency) {
                                     $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)
                                     ->orWhere('name_heb', $selectedFrequency)->first();
-                                }
+                               }
 
                                 $selectedType = (isset($row[23]) && trim($row[23]) == "h") ? "hourly" : "fixed";
 
@@ -297,22 +316,26 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         $frequencies[] = $d['freq_name'];
                                     }
 
-                                    // if(($d['workers'][0]['jobHours'] != $workerHours)){
-                                    //     \Log::info($selectedOfferDataArr);
-                                    //     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Job hours not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
-                                    // }
+                                    if(($d['workers'][0]['jobHours'] != $workerHours)){
+                                        echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Job hours not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    }
                                 }
                                 if (empty($selectedService) && $selectedFrequency) {
                                     $selectedService = Services::where('name', 'Airbnb')->first();
                                 }
 
-                                if (empty($selectedOfferDataArr)) {
+                                
+                                // \Log::info($offers);
+
+                                if (empty($selectedOfferDataArr) && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
                                     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Frequency and service not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
                                     continue;
                                 }
                                 $selectedOfferData = [];
+                                $workerHours = $row[13] ?? null;
+                                $workerHours = str_replace(',', '.', $workerHours);
                                 if (count($selectedOfferDataArr) > 1) {
                                     foreach ($selectedOfferDataArr as $d) {
                                         $jobHours = Arr::pluck($d['workers'], 'jobHours');
@@ -341,14 +364,14 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $selectedOfferData = $newSelectedOfferData;
                                 }
 
-                                if (empty($selectedOfferData)) {
+                                if (empty($selectedOfferData) && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
                                     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
                                     continue;
                                 }
 
-                                if (count($selectedOfferData) > 1) {
+                                if (count($selectedOfferData) > 1 && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
                                     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
@@ -357,95 +380,95 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
 
                                 // Update invoice name or client name in sheet
-                                // $invoiceName = trim($row[0]);
-                                // $fields = [];
-                                // if (empty($invoiceName)) {
-                                //     if (!empty($client->invoicename)) {
-                                //         $invoiceName = $client->invoicename;
-                                //     } else {
-                                //         $invoiceName = $client->firstname . ' ' . $client->lastname;
-                                //     }
-                                //     $fields[] = [
-                                //         'sheetId' => $sheetId, // Sheet ID
-                                //         'cell' => "A" . ($index + 1), // Cell location
-                                //         'type' => 'text', // Field type
-                                //         'value' => trim($invoiceName),
-                                //     ];
-                                // }
-                                // $selectedWorker = $row[8] ?? null;
-                                // $bestMatch = null;
+                                $invoiceName = trim($row[0]);
+                                $fields = [];
+                                if (empty($invoiceName)) {
+                                    if (!empty($client->invoicename)) {
+                                        $invoiceName = $client->invoicename;
+                                    } else {
+                                        $invoiceName = $client->firstname . ' ' . $client->lastname;
+                                    }
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "A" . ($index + 1), // Cell location
+                                        'type' => 'text', // Field type
+                                        'value' => trim($invoiceName),
+                                    ];
+                                }
+                                $selectedWorker = $row[8] ?? null;
+                                $bestMatch = null;
 
 
-                                // foreach ($workers as $worker) {
-                                //     if ($worker->sheet_name == trim($selectedWorker)) {
-                                //         $bestMatch = $worker->fullname;
-                                //     }
-                                // }
+                                foreach ($workers as $worker) {
+                                    if ($worker->sheet_name == trim($selectedWorker)) {
+                                        $bestMatch = $worker->fullname;
+                                    }
+                                }
 
 
-                                // $fields[] = [
-                                //     'sheetId' => $sheetId, // Sheet ID
-                                //     'cell' => "J" . ($index + 1), // Cell location
-                                //     'type' => 'dropdown', // Field type
-                                //     'values' => $workers->pluck('fullname')->toArray(), // Dropdown options
-                                //     'value' => $bestMatch,
-                                // ];
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "J" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $workers->pluck('fullname')->toArray(), // Dropdown options
+                                    'value' => $bestMatch,
+                                ];
 
-                                // $fields[] = [
-                                //     'sheetId' => $sheetId, // Sheet ID
-                                //     'cell' => "M" . ($index + 1), // Cell location
-                                //     'type' => 'dropdown', // Field type
-                                //     'values' => $services, // Dropdown options
-                                //     'value' => count($services) == 1 ? $services[0] : ($selectedOfferData[0]['name'] ?? null),
-                                // ];
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "M" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $services, // Dropdown options
+                                    'value' => count($services) == 1 ? $services[0] : ($selectedOfferData[0]['name'] ?? null),
+                                ];
 
 
-                                // $selectedFrequencyName = null;
-                                // if ($selectedFrequency) {
-                                //     if ($client->lng == 'en') {
-                                //         $selectedFrequencyName = $selectedFrequency->name;
-                                //     } else {
-                                //         $selectedFrequencyName = $selectedFrequency->name_heb;
-                                //     }
-                                // }
+                                $selectedFrequencyName = null;
+                                if ($selectedFrequency) {
+                                    if ($client->lng == 'en') {
+                                        $selectedFrequencyName = $selectedFrequency->name;
+                                    } else {
+                                        $selectedFrequencyName = $selectedFrequency->name_heb;
+                                    }
+                                }
 
-                                // $fields[] = [
-                                //     'sheetId' => $sheetId, // Sheet ID
-                                //     'cell' => "Q" . ($index + 1), // Cell location
-                                //     'type' => 'dropdown', // Field type
-                                //     'values' => $frequencies, // Dropdown options
-                                //     'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
-                                // ];
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "Q" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $frequencies, // Dropdown options
+                                    'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
+                                ];
 
-                                // $addresses = $client->property_addresses;
-                                // $addressesArr = $addresses->pluck('address_name')->toArray();
-                                // $selectedAddress = '';
-                                // if (isset($selectedOfferData[0]['address'])) {
-                                //     $selectedAddress = $addresses->where('id', $selectedOfferData[0]['address'])->first()->address_name ?? '';
-                                // }
+                                $addresses = $client->property_addresses;
+                                $addressesArr = $addresses->pluck('address_name')->toArray();
+                                $selectedAddress = '';
+                                if (isset($selectedOfferData[0]['address'])) {
+                                    $selectedAddress = $addresses->where('id', $selectedOfferData[0]['address'])->first()->address_name ?? '';
+                                }
 
-                                // $fields[] = [
-                                //     'sheetId' => $sheetId, // Sheet ID
-                                //     'cell' => "T" . ($index + 1), // Cell location
-                                //     'type' => 'dropdown', // Field type
-                                //     'values' => $addressesArr, // Dropdown options
-                                //     'value' => count($addressesArr) == 1 ? $addressesArr[0] : $selectedAddress,
-                                // ];
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "T" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $addressesArr, // Dropdown options
+                                    'value' => count($addressesArr) == 1 ? $addressesArr[0] : $selectedAddress,
+                                ];
 
-                                // if ($selectedOfferData) {
-                                //     $fields[] = [
-                                //         'sheetId' => $sheetId, // Sheet ID
-                                //         'cell' => "D" . ($index + 1), // Cell location
-                                //         'type' => 'number', // Field type
-                                //         'value' => $selectedOfferData[0]['totalamount'] ?? null,
-                                //     ];
-                                // }
+                                if ($selectedOfferData) {
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "D" . ($index + 1), // Cell location
+                                        'type' => 'number', // Field type
+                                        'value' => $selectedOfferData[0]['totalamount'] ?? null,
+                                    ];
+                                }
 
 
 
                                 $services[] = trim($row[11] ?? '');
 
-                                if ($selectedOfferData) {
+                                if ($selectedOfferData && isset($selectedOfferData[0]['type'])) {
                                     $fields[] = [
                                         'sheetId' => $sheetId, // Sheet ID
                                         'cell' => "X" . ($index + 1), // Cell location
@@ -460,16 +483,18 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 // \Log::info('Fields', ['fields' => $fields]);
                                 // echo json_encode($fields) . PHP_EOL;
                                 // $this->initGoogleConfig();
-                                $response = $this->updateGoogleSheetFields($fields);
+                                // $response = $this->updateGoogleSheetFields($fields);
                                 // echo $response . PHP_EOL;
                                 // sleep(1);
 
+                                // if(isset($selectedOfferData[0])) {
 
-                                // $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
-
-
-                                sleep(3);
-                                echo ($index + 1) . PHP_EOL;
+                                //     $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
+    
+    
+                                //     sleep(3);
+                                //     echo ($index + 1) . PHP_EOL;
+                                // }
                             }
                         }
                     }

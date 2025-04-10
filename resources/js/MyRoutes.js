@@ -204,6 +204,7 @@ import FinishJobByWorker from "./Pages/FinishJobByWorker";
 import WorkerForgetPassword from "./Admin/Pages/Workers/WorkerForgetPassword";
 import AdminForgetPassword from "../js/Admin/Pages/Auth/AdminForgetPassword"
 import Conflicts from "./Admin/Pages/Jobs/Conflicts";
+import Contracts from "./Pages/Contracts";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -331,7 +332,7 @@ export default function MyRoutes() {
                     <Route
                         exact
                         path="work-contract/:id"
-                        element={<WorkContract />}
+                        element={<Contracts />}
                     />
                     <Route
                         exact

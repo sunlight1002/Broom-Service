@@ -211,12 +211,14 @@ class CreateJobOrder implements ShouldQueue
                 event(new ClientOrderWithDiscount($client, $order));
             }
 
-            // if ($service->freq_name == 'One Time' && isset($order)) {
-            //     \Log::info("GenerateJobInvoice one time job");
-            //     GenerateJobInvoice::dispatch($order->id, $client->id);
-            // }else if ($job->is_one_time_in_month_job && isset($order)) {
-            //     GenerateJobInvoice::dispatch(null, $client->id);
-            // }
+            if(in_array($job->client->id, [194])){
+                if ($service->freq_name == 'One Time' && isset($order)) {
+                    \Log::info("GenerateJobInvoice one time job");
+                    GenerateJobInvoice::dispatch($order->id, $client->id);
+                }else if ($job->is_one_time_in_month_job && isset($order)) {
+                    GenerateJobInvoice::dispatch(null, $client->id);
+                }
+            }
         }
     }
 }
