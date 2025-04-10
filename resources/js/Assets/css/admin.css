@@ -4413,6 +4413,11 @@ tbody tr:hover {
 
 
 
+.form-select {
+  border-width: 2px;
+  border-radius: 0.40rem;
+  padding: 0.6rem 1rem;
+}
 
 
 

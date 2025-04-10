@@ -317,6 +317,7 @@ class ClientController extends Controller
                     'status'        => 1,
                     'name'          => 'whatsapp',
                     'message'       => $m,
+                    'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
                     'number'        => $client->phone,
                     'read'          => 1,
                     'flex'          => 'A',

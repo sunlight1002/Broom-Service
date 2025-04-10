@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Models\WebhookResponse;
 
 class WhapiController extends Controller
 {
@@ -153,4 +154,29 @@ class WhapiController extends Controller
     }
     
 
+    public function getUniqueFromNumber()
+    {
+        $numbers = [];
+    
+        $responses = WebhookResponse::whereNotNull('from')->get();
+    
+        foreach ($responses as $response) {
+    
+            $from = null;
+    
+            // Case 1: messages[0].from
+            if (isset($response['from'])) {
+                $from = $response['from'];
+            }
+    
+            // Add if not null and not already in the array
+            if ($from && !in_array($from, $numbers)) {
+                $numbers[] = $from;
+            }
+        }
+    
+        return $numbers;
+    }
+    
+    
 }

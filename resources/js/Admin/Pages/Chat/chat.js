@@ -49,6 +49,8 @@ export default function chat() {
     const [loadingChats, setLoadingChats] = useState(false);
     const [page, setPage] = useState(1); // Page number to fetch
     const [hasMore, setHasMore] = useState(true); // To track if more records exist
+    const [tabs, setTabs] = useState([]);
+    const [activeTab, setActiveTab] = useState(null);
 
     const windowWidth = useWindowWidth();
 
@@ -155,11 +157,11 @@ export default function chat() {
     //     });
     // };
 
-        const getData = () => {
+    const getData = () => {
         if (loadingChats || !hasMore) return; // Prevent multiple requests
 
         setLoadingChats(true);
-        axios.get(`/api/admin/chats?page=${page}`, { headers })
+        axios.get(`/api/admin/chats?page=${page}&from=${activeTab}`, { headers })
             .then((res) => {
                 const newData = res.data.data;
                 const newClients = res.data.clients;
@@ -169,7 +171,7 @@ export default function chat() {
                 setData(prevData => [...prevData, ...newData]);
 
                 // Update page number
-                setPage(prevPage => prevPage + 1);
+                // setPage(prevPage => prevPage + 1);
 
                 // If no more data to load, set hasMore to false
                 if (newData.length === 0) {
@@ -183,7 +185,7 @@ export default function chat() {
                 setLoadingChats(false);
             });
     };
-    
+
     const getLeads = async () => {
         try {
             const res = await axios.get(`/api/admin/leads`, { headers })
@@ -416,6 +418,8 @@ export default function chat() {
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
         if (bottom) {
+            console.log("Loading more data...");
+            setPage(prevPage => prevPage + 1);
             getData(); // Load more data when reaching the bottom
         }
     };
@@ -434,6 +438,16 @@ export default function chat() {
         };
     }, [data, loadingChats, hasMore]);
 
+    const getFromNumber = async () => {
+        try {
+            const response = await axios.get(`/api/admin/get-from-numbers`, { headers });
+            setTabs(response.data);
+            setActiveTab(response.data[0]);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
 
     useEffect(() => {
         getLead();
@@ -442,11 +456,21 @@ export default function chat() {
 
     useEffect(() => {
         getLeads()
-        getData();
+        getFromNumber();
         if (localStorage.getItem("number")) {
             callApi();
         }
     }, []);
+
+    useEffect(() => {
+        if (activeTab) {
+            setPage(1); // optional: reset pagination if tab changed
+            setData([]);
+            setClients([]);
+            setHasMore(true);
+            getData();
+        }
+    }, [activeTab]);
 
     const handleDeleteConversation = (e) => {
         e.preventDefault();
@@ -626,6 +650,21 @@ export default function chat() {
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-xl-8 col-12" style={{ backgroundColor: "white" }}>
+                                                <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
+                                                    {/* <div className="flex-grow-1 w-100 text-center"> */}
+                                                    <select
+                                                        className="form-select w-100 mx-auto"
+                                                        value={activeTab}
+                                                        onChange={(e) => setActiveTab(e.target.value)}
+                                                    >
+                                                        {tabs.map((tab) => (
+                                                            <option key={tab} value={tab}>
+                                                                {tab}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    {/* </div> */}
+                                                </header>
                                                 <div className=" mb-3 d-lg-block position-relative">
                                                     <input
                                                         type="text"
@@ -681,7 +720,10 @@ export default function chat() {
                                                         role="tabpanel"
                                                         aria-labelledby="chat-details"
                                                     >
-                                                        {clientsCard}
+                                                        <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+                                                            {clientsCard}
+                                                        </div>
+                                                        {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                     </div>
                                                     <div
                                                         id="tab-client-details"
@@ -795,54 +837,23 @@ export default function chat() {
                                             }}
                                         >
 
-                                            <header className="header-container">
-                                                <div className="profile-picture-container" >
-                                                    <button
-                                                        className="btn navyblue mx-2 d-lg-none"
-                                                        onClick={handleBack}
-                                                        style={{ borderRadius: "50%" }}
-                                                    >
-                                                        <i className="fa-solid fa-arrow-left"></i>
-                                                    </button>
-                                                    <div className="user-icon2"
-                                                        style={{
-                                                            background: "#dfe5e7"
-                                                        }}
-                                                    >
-                                                        <RiAccountCircleFill className="font-24" style={{ color: "#2F4054" }} />
-                                                    </div>
-                                                </div>
-                                                {/* <div className="contact-info-container" role="button">
-                                                    <div className="contact-info">
-                                                        <div className="contact-name"><span className="phone-number">{chatName}</span></div>
-                                                    </div>
-                                                    <div className="last-seen-container"><span title="last seen today at 6:15 PM" className="last-seen">+{selectNumber}</span></div>
-                                                </div> */}
-                                                <div className="header-buttons-container">
-                                                    <div className="button-icons">
-                                                        {/* <div className="icon-container">
-                                                        <div title="Search">
-                                                            <span data-icon="search-alt" className="search-icon"></span>
-                                                        </div>
-                                                        <span></span>
-                                                    </div>
-                                                    <div className="icon-container">
-                                                        <div role="button" title="Attach">
-                                                            <span data-icon="clip" className="attach-icon"></span>
-                                                        </div>
-                                                        <span></span>
-                                                    </div>
-                                                    <div className="icon-container">
-                                                        <div title="Menu">
-                                                            <span data-icon="menu" className="menu-icon"></span>
-                                                        </div>
-                                                        <span></span>
-                                                    </div> */}
-                                                    </div>
-                                                </div>
+                                            <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
+                                                {/* <div className="flex-grow-1 w-100 text-center"> */}
+                                                <select
+                                                    className="form-select w-100 mx-auto"
+                                                    value={activeTab}
+                                                    onChange={(e) => setActiveTab(e.target.value)}
+                                                >
+                                                    {tabs.map((tab) => (
+                                                        <option key={tab} value={tab}>
+                                                            {tab}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {/* </div> */}
                                             </header>
 
-                                            <div className="d-none mb-3 mt-3 mx-3 d-lg-block position-relative">
+                                            <div className="d-none mb-3 mx-3 d-lg-block position-relative">
                                                 <input
                                                     type="text"
                                                     name="smsg"
@@ -896,10 +907,10 @@ export default function chat() {
                                             </div>
 
                                             <div className="tab-content"
-                                                style={{
-                                                    height: "77.6vh",
-                                                    overflowY: "auto",
-                                                }}
+                                            // style={{
+                                            //     height: "77.6vh",
+                                            //     overflowY: "auto",
+                                            // }}
                                             >
                                                 <div
                                                     id="tab-chat-details"
@@ -910,7 +921,7 @@ export default function chat() {
                                                     <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
                                                         {clientsCard}
                                                     </div>
-                                                    {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader/></div>}
+                                                    {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                 </div>
                                                 <div
                                                     id="tab-client-details"
@@ -1123,7 +1134,10 @@ export default function chat() {
                                                                                                                         style={{ display: "flex", flexDirection: "column" }}
                                                                                                                     >
                                                                                                                         {m?.message != null && m?.message?.startsWith("Replying to:") && (
-                                                                                                                            <span className="replying-text" >{m.message}</span>
+                                                                                                                            // <span className="replying-text" >{m.message}</span>
+                                                                                                                            <pre className="replying-text" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                                                                                                                                {m.message}
+                                                                                                                            </pre>
                                                                                                                         )}
 
                                                                                                                         {m?.message != null && m?.message?.startsWith("Replying to:") && (
@@ -1170,8 +1184,9 @@ export default function chat() {
                                                                                                                                     />
                                                                                                                                 )}
                                                                                                                                 <br />
-                                                                                                                                {m.message}
-                                                                                                                            </>
+                                                                                                                                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                                                                                                                                    {m.message}
+                                                                                                                                </pre>                                                                                                                            </>
                                                                                                                         )}
                                                                                                                     </div>
                                                                                                                     <div className="message-info">

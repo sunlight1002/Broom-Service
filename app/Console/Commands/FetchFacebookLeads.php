@@ -17,9 +17,15 @@ use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
+use Twilio\Rest\Client as TwilioClient;
+
 
 class FetchFacebookLeads extends Command
 {
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilio;
     /**
      * The name and signature of the console command.
      *
@@ -46,6 +52,13 @@ class FetchFacebookLeads extends Command
     public function __construct()
     {
         parent::__construct();
+        
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     /**
@@ -282,7 +295,24 @@ class FetchFacebookLeads extends Command
                                         if ($lng == 'heb') {
                                             $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                                         }
-                                        sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
+
+                                        $sid = null;
+
+                                        if ($client->lng == 'heb') {
+                                            $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                                        } else {
+                                            $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                                        }
+
+                                        $twi = $this->twilio->messages->create(
+                                            "whatsapp:+$client->phone",
+                                            [
+                                                "from" => $this->twilioWhatsappNumber, 
+                                                "contentSid" => $sid, 
+                                            ]
+                                        );
+
+                                        // sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
                                     }
                                 } catch (\Throwable $th) {
                                 }
@@ -323,6 +353,7 @@ class FetchFacebookLeads extends Command
                                     'status'        => 1,
                                     'name'          => 'whatsapp',
                                     'message'       => $m,
+                                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                                     'number'        => $phone,
                                     'read'          => 1,
                                     'flex'          => 'A',

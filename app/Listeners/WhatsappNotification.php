@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\WhatsappTemplate;
 use App\Models\ShortUrl;
+use App\Models\WebhookResponse;
 use Twilio\Rest\Client as TwilioClient;
 
 class WhatsappNotification
@@ -3440,7 +3441,6 @@ class WhatsappNotification
             } else {
                 switch ($eventType) {
 
-
                     case WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION:
                         $userData = $eventData['user'];
                         $clientData = $eventData['client'];
@@ -3456,18 +3456,25 @@ class WhatsappNotification
                             'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                         ]);
 
-
                         break;
                 }
             }
 
-            // $receiverNumber = '918469138538';
-            // $receiverNumber = config('services.whatsapp_groups.notification_test');
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 // Log::info($text);
                 // Log::info($eventType);
                 // Log::info($lng);
+
+               $res = WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'message'       => $text,
+                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                    'number'        => $receiverNumber,
+                    'flex'          => 'A',
+                    'read'          => 1,
+                ]);
 
                 $token = $this->whapiApiToken;
 

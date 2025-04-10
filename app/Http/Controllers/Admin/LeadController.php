@@ -259,6 +259,7 @@ class LeadController extends Controller
                     'status'        => 1,
                     'name'          => 'whatsapp',
                     'message'       => $m,
+                    'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
                     'number'        => $client->phone,
                     'read'          => 1,
                     'flex'          => 'A',
@@ -680,6 +681,12 @@ class LeadController extends Controller
 
     public function facebookWebhook(Request $request)
     {
+
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+
         $challenge = $request->hub_challenge;
         if (!empty($challenge)) {
             $verify_token = $request->hub_verify_token;
@@ -751,7 +758,17 @@ class LeadController extends Controller
                             if($lng == 'heb') {
                                 $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                             }
-                            $result = sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
+                            $sid = $client->lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
+
+                            $message = $twilio->messages->create(
+                                "whatsapp:+$client->phone",
+                                [
+                                    "from" => "$twilioWhatsappNumber", 
+                                    "contentSid" => $sid, 
+                                ]
+                            );
+                            \Log::info($message->sid);
+                            // $result = sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
                         }
                         $client->lead_status()->updateOrCreate(
                             [],
@@ -765,6 +782,8 @@ class LeadController extends Controller
                     'entry_id'  => $entry_data['id'],
                     'read'      => 1,
                     'flex'      => 'A',
+                    'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
+                    'number'    => $client->phone,
                     'name'      => 'facebook-callback-lead',
                     'data'      => json_encode($request_data)
                 ]);
