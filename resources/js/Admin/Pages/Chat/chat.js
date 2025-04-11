@@ -207,7 +207,7 @@ export default function chat() {
 
 
     const getMessages = (no) => {
-        axios.get(`/api/admin/chat-message/${no}`, { headers }).then((res) => {
+        axios.get(`/api/admin/chat-message/${no}?from=${activeTab ?? localStorage.getItem("from")}`, { headers }).then((res) => {
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
             if (cl > c.length) {
@@ -443,6 +443,7 @@ export default function chat() {
             const response = await axios.get(`/api/admin/get-from-numbers`, { headers });
             setTabs(response.data);
             setActiveTab(response.data[0]);
+            // localStorage.setItem("from", response.data[0]);
         } catch (error) {
             console.error(error);
         }
@@ -641,7 +642,7 @@ export default function chat() {
     return (
         <div id="container">
             <Sidebar />
-            <div id="content">
+            <div id="content" className="pb-0">
                 <div className="view-applicant">
                     {
                         showChatList && (
@@ -655,7 +656,10 @@ export default function chat() {
                                                     <select
                                                         className="form-select w-100 mx-auto"
                                                         value={activeTab}
-                                                        onChange={(e) => setActiveTab(e.target.value)}
+                                                        onChange={(e) => {
+                                                            setActiveTab(e.target.value)
+                                                            localStorage.setItem("from", e.target.value)
+                                                        }}
                                                     >
                                                         {tabs.map((tab) => (
                                                             <option key={tab} value={tab}>
@@ -842,8 +846,11 @@ export default function chat() {
                                                 <select
                                                     className="form-select w-100 mx-auto"
                                                     value={activeTab}
-                                                    onChange={(e) => setActiveTab(e.target.value)}
-                                                >
+                                                    onChange={(e) => {
+                                                        setActiveTab(e.target.value)
+                                                        localStorage.setItem("from", e.target.value)
+                                                    }}
+                                                                                                    >
                                                     {tabs.map((tab) => (
                                                         <option key={tab} value={tab}>
                                                             {tab}

@@ -73,6 +73,11 @@ return [
         'business_id' => env('FB_BUSINESS_ID'),
     ],
 
+    'insta' => [
+        'insta_id' => env('INSTA_BUSINESS_ID'),
+        'insta_name' => env('INSTA_USERNAME'),
+    ],
+
     'whapi' => [
         'url' => env('WHAPI_API_URL'),
         'token' => env('WHAPI_API_TOKEN'),

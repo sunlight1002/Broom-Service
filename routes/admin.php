@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ClientController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\InstagramController;
 use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -376,6 +377,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('messenger-participants', [ChatController::class, 'participants']);
     Route::get('messenger-message/{id}', [ChatController::class, 'messengerMessage']);
     Route::post('messenger-reply', [ChatController::class, 'messengerReply']);
+
+    //instagram
+    // Route::get('get-instagram', [InstagramController::class, 'getInstaInfo']);
 
     // settings
     Route::get('settings', [SettingController::class, 'allSettings']);

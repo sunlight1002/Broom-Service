@@ -160,7 +160,7 @@ const WhatsappChatHistory = ({
 
 
     const getMessages = (no) => {
-        axios.get(`/api/admin/chat-message/${worker?.phone}`, { headers }).then((res) => {
+        axios.get(`/api/admin/chat-message/${worker?.phone}?from=${activeTab ?? localStorage.getItem("from")}`, { headers }).then((res) => {
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
             if (cl > c.length) {
@@ -455,14 +455,30 @@ const WhatsappChatHistory = ({
                 <select
                     className="form-select w-100 mx-auto"
                     value={activeTab}
-                    onChange={(e) => setActiveTab(e.target.value)}
-                >
+                    onChange={(e) => {
+                        setActiveTab(e.target.value)
+                        localStorage.setItem("from", e.target.value)
+                    }}                >
                     {tabs.map((tab) => (
                         <option key={tab} value={tab}>
                             {tab}
                         </option>
                     ))}
                 </select>
+                <div className="header-buttons-container">
+                    <div className="button-icons mx-3">
+                        <div className="icon-container">
+                            <button
+                                type="button"
+                                className="btn navyblue text-right float-right py-1 px-2 "
+                                onClick={(e) => handleDeleteConversation(e)}
+                            >
+                                <i className="fa fa-trash"></i>
+                            </button>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
                 {/* </div> */}
             </header>
             <div className="wa chat-conversation"

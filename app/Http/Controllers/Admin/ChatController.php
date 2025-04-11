@@ -204,9 +204,12 @@ class ChatController extends Controller
 
 
 
-    public function chatsMessages($no)
+    public function chatsMessages($no, Request $request)
     {
-        $chat = WebhookResponse::where('number', $no)->get();
+        $from = $request->input('from'); 
+        \Log::info($from. " from");
+
+        $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
 
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([
             'read' => 1
