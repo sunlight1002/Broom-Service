@@ -169,7 +169,7 @@ class CreateJobOrder implements ShouldQueue
                 ->where('is_order_generated', false)
                 ->first(['cancellation_fee_amount', 'action']);
 
-            if($cancellationFees) {
+            if($cancellationFees && $cancellationFees->cancellation_fee_amount > 0) {
                 $items[] = [
                         "description" => $serviceName . " - " . __('mail.job_status.cancellation_fee'),
                         "unitprice"   => $cancellationFees->cancellation_fee_amount,
@@ -177,7 +177,7 @@ class CreateJobOrder implements ShouldQueue
                     ];
             }
 
-            if ($job->extra_amount) {
+            if ($job->extra_amount && $job->extra_amount > 0) {
                 $items[] = [
                     "description" => $serviceName . " - " . __('mail.job_common.extra_amount'),
                     "unitprice"   => $job->extra_amount,

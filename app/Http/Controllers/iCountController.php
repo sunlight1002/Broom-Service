@@ -129,6 +129,7 @@ class iCountController extends Controller
                                         } else {
                                             if ($invoice->is_webhook_created) {
                                                 $invoice->update([
+                                                    'order_id'              => $order->id,
                                                     'doc_url'               => $invoiceData['doc_info']['doc_url'],
                                                     'response'              => $webhookJson,
                                                     'amount'                => $invoiceData['doc_info']['totalsum'],
@@ -227,6 +228,7 @@ class iCountController extends Controller
                                             } else {
                                                 if ($invoice->is_webhook_created) {
                                                     $invoice->update([
+                                                        'order_id'              => $order->id,
                                                         'doc_url'               => $invrecData['doc_info']['doc_url'],
                                                         'response'              => $webhookJson,
                                                         'amount'                => $invrecData['doc_info']['totalsum'],

@@ -212,8 +212,6 @@ export default function WorkContract() {
         axios
             .post(`/api/client/contracts/${params.id}/initialize-card`, {})
             .then((response) => {
-                console.log(response);
-
                 setCheckingForCard(true);
 
                 setSessionURL(response.data.redirect_url);
