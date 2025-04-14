@@ -106,6 +106,7 @@ class Kernel extends ConsoleKernel
             ->weeklyOn(Schedule::TUESDAY, '08:30');
 
         // $schedule->command('gmail:fetch')->everyFiveMinutes();
+        // $schedule->command('set:active-workers-monday-message')->weeklyOn(Schedule::SUNDAY, '08:00');
 
         }
 
