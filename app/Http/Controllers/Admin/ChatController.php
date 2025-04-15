@@ -110,8 +110,6 @@ class ChatController extends Controller
     {
         $page = $request->input('page', 1);
         $from = $request->input('from');
-        \Log::info("FROM: " . $from);
-    
         $perPage = 20;
     
         // Build the base query
@@ -165,7 +163,6 @@ class ChatController extends Controller
     public function storeWebhookResponse(Request $request)
     {
         $response = $request->all();
-        \Log::info($response);
         // Validate incoming request data
         $validatedData = $request->validate([
             'number' => 'required|string|unique:webhook_responses,number',
@@ -207,8 +204,6 @@ class ChatController extends Controller
     public function chatsMessages($no, Request $request)
     {
         $from = $request->input('from'); 
-        \Log::info($from. " from");
-
         $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
 
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([
@@ -693,7 +688,6 @@ class ChatController extends Controller
         $pageAccessToken = $tokenData['access_token'] ?? null;
 
 
-        \Log::info("Fetching Messenger messages for ID: " . $id);
         $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . $pageAccessToken;
 
         Log::info("Requesting Messenger messages", ["URL" => $url]);

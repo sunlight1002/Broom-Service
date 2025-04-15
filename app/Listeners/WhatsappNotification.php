@@ -114,7 +114,7 @@ class WhatsappNotification
                     : '',
                     'worker'
                 );
-                $workerViewLink = generateShortUrl(url("worker/view/" . base64_encode($workerData['id'])), 'worker');
+                $workerViewLink = generateShortUrl(url("admin/workers/view/" . $workerData['id']), 'worker');
                 $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']). "?type=worker" ?? ''), 'worker');
                 $workerLeadFormsLink = generateShortUrl(url("worker-forms/" . base64_encode($workerData['id']) . "?type=lead" ?? ''), 'worker');
             }
@@ -1593,7 +1593,7 @@ class WhatsappNotification
                         //     \Log::info($twi->sid);
 
                         // break;
-                        
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
                         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                         $lng = 'heb';
@@ -3416,7 +3416,6 @@ class WhatsappNotification
                         // \Log::info($twi->sid);
                         // break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE:
@@ -3516,7 +3515,7 @@ class WhatsappNotification
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
-            // Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
+            Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
         }
     }
 }

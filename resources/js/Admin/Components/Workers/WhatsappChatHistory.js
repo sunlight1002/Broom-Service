@@ -73,9 +73,6 @@ const WhatsappChatHistory = ({
             });
     }
 
-    console.log(worker, "getWorkerDetails");
-
-
 
     useEffect(() => {
         getWebhook()
