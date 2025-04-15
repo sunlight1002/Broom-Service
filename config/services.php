@@ -104,6 +104,7 @@ return [
         'twilio_token' => env('TWILIO_AUTH_TOKEN'),
         'twilio_number' => env('TWILIO_NUMBER'),
         'twilio_whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
+        'webhook' => env('TWILIO_WEBHOOK_URL')
     ],
 
     'short_url' => [

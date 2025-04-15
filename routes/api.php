@@ -37,9 +37,13 @@ use App\Http\Controllers\HearingCommentController;
 
 // Unauthenticated Routes
 Route::post('twiml', [TwimlController::class, 'index']);
+Route::post('twiml/handleInitialInput', [TwimlController::class, 'handleInitialInput']);
 Route::post('twiml/handlelanguage', [TwimlController::class, 'handleLanguage']);
 Route::post('twiml/handleSelection', [TwimlController::class, 'handleSelection']);
 Route::post('twiml/handleName', [TwimlController::class, 'handleName']);
+Route::post('twiml/verifyArea', [TwimlController::class, 'verifyArea']);
+Route::post('twiml/getServices', [TwimlController::class, 'getServices']);
+Route::post('twiml/expensiveAndBack', [TwimlController::class, 'expensiveAndBack']);
 
 
 Route::post('login', [AuthController::class, 'login']);

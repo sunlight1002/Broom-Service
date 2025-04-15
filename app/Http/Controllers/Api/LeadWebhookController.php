@@ -1636,6 +1636,8 @@ Broom Service Team 🌹",
                                     [],
                                     ['lead_status' => LeadStatusEnum::POTENTIAL]
                                 );
+                                $client->status = 1;
+                                $client->save();
 
                                 event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
 
