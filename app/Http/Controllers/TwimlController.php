@@ -579,13 +579,7 @@ class TwimlController extends Controller
                     $phone = str_replace("+", "", $called);
                     $client = Client::where('phone', 'like', '%' . $phone . '%')->first();
                     if (!$client) {
-                        $m = [
-                            "en" => "Sorry, we can't find your number in our database. Please try
-                            to contact us through our website or by phone at 03-566-4444.",
-                            "he" => "",
-                            ];
-                            $response->say($this->lang === 'he' ? $m['he'] : $m['en'], $this->getLocale());
-                            $response->hangup();
+                        $client = $this->createLead($client,$phone);
                     }
 
                     $client->lead_status()->updateOrCreate(
