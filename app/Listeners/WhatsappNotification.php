@@ -104,7 +104,7 @@ class WhatsappNotification
                     : '',
                     'worker'
                 );
-                $workerViewLink = generateShortUrl(url("worker/view/" . base64_encode($workerData['id'])), 'worker');
+                $workerViewLink = generateShortUrl(url("admin/workers/view/" . $workerData['id']), 'worker');
                 $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']). "?type=worker" ?? ''), 'worker');
                 $workerLeadFormsLink = generateShortUrl(url("worker-forms/" . base64_encode($workerData['id']) . "?type=lead" ?? ''), 'worker');
             }
@@ -498,6 +498,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::TEAM_JOB_NOT_CONFIRM_BEFORE_30_MINS:
                     case WhatsappMessageTemplateEnum::TEAM_JOB_NOT_CONFIRM_AFTER_30_MINS:
                     case WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
                         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                         $lng = 'heb';
@@ -656,7 +657,6 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::STOP:
-                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE:

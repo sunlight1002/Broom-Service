@@ -398,6 +398,22 @@ export default function AllWorkers() {
         setShow(true);
     };
 
+    useEffect(() => {
+        const status = localStorage.getItem("worker-status");
+
+        if (localStorage.getItem("company") || status) {
+            const company = JSON.parse(localStorage.getItem("company"));
+            setFilters({
+                ...filters,
+                status: status ? status :"",
+                is_my_company: company.is_my_company ?? "",
+                is_manpower: company.is_manpower ?? "",
+                is_freelancer: company.is_freelancer ?? ""
+            })
+        }
+
+    }, [filters.status, filters.is_my_company, filters.is_manpower, filters.is_freelancer]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -462,6 +478,7 @@ export default function AllWorkers() {
                                                 ...filters,
                                                 status: "active",
                                             });
+                                            localStorage.setItem("worker-status", "active");
                                         }}
                                     >
                                         {t("admin.global.active")}
@@ -473,6 +490,7 @@ export default function AllWorkers() {
                                                 ...filters,
                                                 status: "inactive",
                                             });
+                                            localStorage.setItem("worker-status", "inactive");
                                         }}
                                     >
                                         {t("admin.global.inactive")}
@@ -485,6 +503,7 @@ export default function AllWorkers() {
                                                 ...filters,
                                                 status: "past",
                                             });
+                                            localStorage.setItem("worker-status", "past");
                                         }}
                                     >
                                         {t("admin.global.past")}
@@ -528,6 +547,7 @@ export default function AllWorkers() {
                                     ...filters,
                                     status: "active",
                                 });
+                                localStorage.setItem("worker-status", "active");
                             }}
                         >
                             {t("admin.global.active")}
@@ -547,6 +567,7 @@ export default function AllWorkers() {
                                     ...filters,
                                     status: "inactive",
                                 });
+                                localStorage.setItem("worker-status", "inactive");
                             }}
                         >
                             {t("admin.global.inactive")}
@@ -566,6 +587,7 @@ export default function AllWorkers() {
                                     ...filters,
                                     status: "past",
                                 });
+                                localStorage.setItem("worker-status", "past");
                             }}
                         >
                             {t("admin.global.past")}
@@ -592,7 +614,7 @@ export default function AllWorkers() {
                             >
                                 <option value="">--- Select ---</option>
 
-                                {manpowerCompanies.map((company, _index) => (
+                                {manpowerCompanies?.map((company, _index) => (
                                     <option key={_index} value={company.id}>
                                         {" "}
                                         {company.name}
@@ -617,6 +639,13 @@ export default function AllWorkers() {
                                         is_manpower: false,
                                         is_freelancer: false
                                     });
+                                    const company = {
+                                        is_my_company: true,
+                                        is_manpower: false,
+                                        is_freelancer: false
+                                      };
+                                      
+                                      localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.myCompany")}
@@ -639,6 +668,13 @@ export default function AllWorkers() {
                                         is_my_company: false,
                                         is_freelancer: false
                                     });
+                                    const company = {
+                                        is_my_company: false,
+                                        is_manpower: true,
+                                        is_freelancer: false
+                                      };
+                                      
+                                      localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.manpower_company")}
@@ -661,6 +697,13 @@ export default function AllWorkers() {
                                         is_my_company: false,
                                         is_manpower: false
                                     });
+                                    const company = {
+                                        is_my_company: false,
+                                        is_manpower: false,
+                                        is_freelancer: true
+                                      };
+                                      
+                                      localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.freelancer")}
@@ -683,6 +726,13 @@ export default function AllWorkers() {
                                         is_my_company: false,
                                         is_freelancer: false,
                                     });
+                                    const company = {
+                                        is_my_company: false,
+                                        is_manpower: false,
+                                        is_freelancer: false
+                                      };
+                                      
+                                      localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.All")}
