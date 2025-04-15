@@ -181,8 +181,8 @@ export function IsrailContact({
             </div>
 
             <form onSubmit={handleNextPrev}>
-                {/* {
-                    (nextStep === 5 || !nextStep) && ( */}
+                {
+                    ((isGeneratingPDF ? nextStep === 6 : nextStep === 5) || !nextStep) && (
                         <div className="row">
                             <section className={`${isGeneratingPDF ? "col-12" : "col-12"} px-3`}>
                                 <ol
@@ -257,7 +257,6 @@ export function IsrailContact({
                                         />
                                         <div className="row">
                                             <div className="col-sm">
-
                                                 <TextField
                                                     name={"MobileNo"}
                                                     type="number"
@@ -287,17 +286,9 @@ export function IsrailContact({
                                                         "israilContract.HomePhone"
                                                     )}
                                                     value={values.PhoneNo}
-
-                                                    // required={true}
-                                                // error={
-                                                //     touched.PhoneNo &&
-                                                //     errors.PhoneNo && "Mobile is required"
-                                                // }
                                                 />
                                             </div>
-
                                         </div>
-
                                         <p className="mb-2">
                                             <strong>
                                                 {t("israilContract.is1NOte")}
@@ -338,19 +329,12 @@ export function IsrailContact({
                                                         payment_per_hour: workerDetail.payment_per_hour,
                                                     })}
                                                 </p>
-                                                <p
-                                                    style={{
-                                                        marginBottom: isGeneratingPDF
-                                                            ? "16px"
-                                                            : "16px",
-                                                    }}
-                                                >
+                                                <p>
                                                     {t("israilContract.is5-2")}
                                                 </p>
                                             </>
                                         )}
                                     </li>
-
                                 </ol>
                             </section>
                             <section className={`${isGeneratingPDF ? "col-12" : "col-12"} px-3`}>
@@ -530,11 +514,11 @@ export function IsrailContact({
                                 </ol>
                             </section>
                         </div>
-                    {/* )
-                } */}
-                {/* {
-                    (nextStep === 6 || !nextStep) && ( */}
-                        <div className="row mt-4">
+                    )
+                }
+                {
+                    (nextStep === 6 || !nextStep) && (
+                        <div className={`${isGeneratingPDF ? "" : "row"} mt-4`}>
                             <section className="col-12">
                                 <ol>
                                     <li>
@@ -725,23 +709,21 @@ export function IsrailContact({
                                                 </tr>
                                             </tbody>
                                         </Table>
-                                        <p
-                                            style={{
-                                                marginBottom: isGeneratingPDF
-                                                    ? "16px"
-                                                    : "16px",
-                                            }}
-                                        >
-                                            {t("israilContract.is13-3")}
-                                        </p>
+                                        {/* <p
+                                                // style={{
+                                                //     marginBottom: isGeneratingPDF
+                                                //         ? "16px"
+                                                //         : "16px",
+                                                // }}
+                                            >
+                                                {t("israilContract.is13-3")}
+                                            </p> */}
                                     </li>
-                                    <li>{t("israilContract.is14")}</li>
+                                    {/* <li>{t("israilContract.is14")}</li> */}
                                 </ol>
                             </section>
                             <section className="col-12">
-                                <ol>
-                                    <li>{t("israilContract.is14")}</li>
-                                </ol>
+                                {/* <li>{t("israilContract.is14")}</li> */}
                                 <div className="d-flex mt-3 align-items-center flex-wrap" style={{ marginLeft: "40px", gap: "20px" }}>
                                     <div className="">
                                         <DateField
@@ -810,8 +792,8 @@ export function IsrailContact({
                                 </div>
                             </section>
                         </div>
-                    {/* )
-                } */}
+                    )
+                }
 
                 {[5, 6].includes(nextStep) && (
                     <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`}>
