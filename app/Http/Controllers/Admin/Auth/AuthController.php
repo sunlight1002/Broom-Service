@@ -84,23 +84,6 @@ class AuthController extends Controller
                 $emailError = $e->getMessage();
             }
     
-
-            // Save OTP and expiry to the database
-            $admin->otp = $otp;
-            $admin->otp_expiry = now()->addMinutes(10); 
-            $admin->save();
-            
-            $emailSent = false;
-            $smsSent = false;
-
-            try {
-                // Send OTP via email
-                Mail::to($admin->email)->send(new LoginOtpMail($otp, $admin));
-                $emailSent = true;
-            } catch (\Exception $e) {
-                $emailError = $e->getMessage();
-            }
-    
             try {
                 // Send OTP via SMS using Twilio
                 $twilioAccountSid = config('services.twilio.twilio_id');
@@ -112,8 +95,12 @@ class AuthController extends Controller
                 
                 $twilioClient->messages->create(
                     $phone_number,
-                    ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                    [
+                        'from' => $twilioPhoneNumber,
+                        'body' => "Your login OTP is: $otp\nThis code will expire in 10 minutes. Do not share it with anyone."
+                    ]
                 );
+                
                 $smsSent = true;
             } catch (\Exception $e) {
                 $smsError = $e->getMessage();
@@ -259,8 +246,12 @@ class AuthController extends Controller
 
             $twilioClient->messages->create(
                 $phone_number,
-                ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                [
+                    'from' => $twilioPhoneNumber,
+                    'body' => "Your login OTP is: $otp\nThis code will expire in 10 minutes. Do not share it with anyone."
+                ]
             );
+
             $smsSent = true;
         } catch (\Exception $e) {
             $smsError = $e->getMessage();
