@@ -84,23 +84,6 @@ class AuthController extends Controller
                 $emailError = $e->getMessage();
             }
     
-
-            // Save OTP and expiry to the database
-            $admin->otp = $otp;
-            $admin->otp_expiry = now()->addMinutes(10); 
-            $admin->save();
-            
-            $emailSent = false;
-            $smsSent = false;
-
-            try {
-                // Send OTP via email
-                Mail::to($admin->email)->send(new LoginOtpMail($otp, $admin));
-                $emailSent = true;
-            } catch (\Exception $e) {
-                $emailError = $e->getMessage();
-            }
-    
             try {
                 // Send OTP via SMS using Twilio
                 $twilioAccountSid = config('services.twilio.twilio_id');
