@@ -2668,6 +2668,7 @@ class JobController extends Controller
 
     public function updateJobDoneByGoogleSheet(Request $request, $id)
     {
+       
         $job = Job::with(['order'])->find($id);
 
         if (!$job) {
@@ -2682,8 +2683,30 @@ class JobController extends Controller
             ], 403);
         }
 
+        $minutesDuration = 0;
+        $totalMinutes = 0;
+
+        $value = floatval(str_replace(',', '.', $request->jobhours ?? 0));
+        $wholePart = floor($value);
+        $decimalPart = $value - $wholePart;
+        if ($decimalPart == 0) {
+            $minutesDuration = 0;
+        } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
+            $minutesDuration = 15;
+        } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
+            $minutesDuration = 30;
+        } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
+            $minutesDuration = 45;
+        } else {
+            $wholePart += 1;
+            $minutesDuration = 0;
+        }
+
+        $totalMinutes = ($wholePart * 60) + $minutesDuration;
+
         $job->update([
-            'is_job_done' => $request->checked
+            'is_job_done' => $request->checked,
+            'actual_time_taken_minutes' => $totalMinutes
         ]);
 
         if ($job->is_job_done) {
