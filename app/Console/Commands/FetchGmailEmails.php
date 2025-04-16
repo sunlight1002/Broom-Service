@@ -103,6 +103,7 @@ class FetchGmailEmails extends Command
             try {
                 $fiveMinutesAgo = now()->subMinutes(15)->timestamp;
                 $query = "after:{$fiveMinutesAgo}";
+                \Log::info($query);
                 
                 $messages = $service->users_messages->listUsersMessages($user, ['q' => $query]);
                 
@@ -124,7 +125,7 @@ class FetchGmailEmails extends Command
                                 preg_match('/<([^>]+)>/', $fromEmail, $matches);
                                 $email = $matches[1] ?? null;
                         
-                                if ($email == "pratik.panchal@spexiontechnologies.com") {
+                                if ($email == "TELESERVICE@beepertalk.co.il") {
                                     $matched = true;
                                     break;
                                 }
