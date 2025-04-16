@@ -142,11 +142,12 @@
 		@endif
 
 		<div class="center">
-			<a href='{{ url("thankyou/".base64_encode($id)."/accept")}}' style="margin-top: 5px; color: white;" target='_blank' class="action-button">{{__('mail.meeting.accept')}}</a>
-			<a href='{{ url("thankyou/".base64_encode($id)."/reject")}}' style="margin-top: 5px; color: white;" class="action-button red">{{__('mail.meeting.reject')}}</a>
+			<!-- <a href='{{ url("thankyou/".base64_encode($id)."/accept")}}' style="margin-top: 5px; color: white;" target='_blank' class="action-button">{{__('mail.meeting.accept')}}</a>
+			<a href='{{ url("thankyou/".base64_encode($id)."/reject")}}' style="margin-top: 5px; color: white;" class="action-button red">{{__('mail.meeting.reject')}}</a> -->
 
 			@if($start_date)
-			<a href='{{ url("meeting-status/".base64_encode($id)."/reschedule")}}' style="margin-top: 5px; color: white;" target='_blank' class="action-button orange">{{__('mail.meeting.reschedule')}}</a>
+			<!-- <a href='{{ url("meeting-status/".base64_encode($id)."/reschedule")}}' style="margin-top: 5px; color: white;" target='_blank' class="action-button orange">{{__('mail.meeting.reschedule')}}</a> -->
+			<a href='{{ url("meeting-schedule/".base64_encode($id))}}' style="margin-top: 5px; color: white;" target='_blank' class="action-button orange">{{__('mail.meeting.reschedule')}}</a>
 			@endif
 
 			<a href='{{ url("meeting-files/".base64_encode($id))}}' style="margin-top: 5px; color: white;" target='_blank' class="action-button black">{{__('mail.meeting.upload_job_description')}}</a>

@@ -685,8 +685,8 @@ export default function OfferServiceModal({
                                 </div>
                             )}
 
-                            {toggleOtherService[index] && (
-                                <div className="form-group">
+                            {toggleOtherService[index] || offerServiceTmp[index]?.other_title && (
+                                <div className="form-group mt-2">
                                     <textarea
                                         type="text"
                                         name="other_title"

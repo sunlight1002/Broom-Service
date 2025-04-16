@@ -211,16 +211,19 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.not_allowed_worker_ids
                         ? updatedData.not_allowed_worker_ids
                         : "";
-                addressVal["contact_person_name"] =
+                addressVal[addressId.current.value]["contact_person_name"] =
                     updatedData.contact_person_name
                         ? updatedData.contact_person_name
                         : "";
-                addressVal["contact_person_phone"] =
+                addressVal[addressId.current.value]["contact_person_phone"] =
                     updatedData.contact_person_phone
                         ? updatedData.contact_person_phone
                         : "";
                 // console.log(updatedData.not_allowed_worker_ids);
             }
+
+            console.log(addressVal);
+            
             if (params.id) {
                 axios
                     .post(
