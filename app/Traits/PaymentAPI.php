@@ -345,7 +345,7 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
-        // if(!$client->icount_client_id) {
+        if(!$client->icount_client_id) {
             // Call createOrUpdateUser with the constructed Request
             $iCountResponse = $this->createOrUpdateUser($client);
 
@@ -355,7 +355,7 @@ trait PaymentAPI
             if (isset($iCountData['client_id'])) {
                 $client->update(['icount_client_id' => $iCountData['client_id']]);
             }
-        // }
+        }
 
         $address = $client->property_addresses()->first();
 

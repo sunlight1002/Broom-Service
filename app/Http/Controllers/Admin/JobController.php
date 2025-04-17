@@ -75,75 +75,60 @@ class JobController extends Controller
         $end_date = $request->get('end_date');
 
         $query = Job::query()
-            ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
-            ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
-            ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
-            ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
-            ->leftJoin('order', 'order.id', '=', 'jobs.order_id')
-            ->when($start_date, function ($q) use ($start_date) {
-                return $q->whereDate('jobs.start_date', '>=', $start_date);
-            })
-            ->when($end_date, function ($q) use ($end_date) {
-                return $q->whereDate('jobs.start_date', '<=', $end_date);
-            })
-            ->when($done_filter == 'done', function ($q) {
-                return $q->where('jobs.is_job_done', 1);
-            })
-            ->when($done_filter == 'undone', function ($q) {
-                return $q->where('jobs.is_job_done', 0);
-            })
-            ->when($start_time_filter == 'morning', function ($q) {
-                return $q->where('jobs.start_time', '<=', '12:00:00');
-            })
-            ->when($start_time_filter == 'noon', function ($q) {
-                return $q->where('jobs.start_time', '>', '12:00:00')
-                    ->where('jobs.start_time', '<=', '16:00:00');
-            })
-            ->when($start_time_filter == 'afternoon', function ($q) {
-                return $q->where('jobs.start_time', '>', '16:00:00');
-            })
-            ->when($actual_time_exceed_filter == 1, function ($q) {
-                return $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes');
-            })
-            ->when($has_no_worker == 1, function ($q) {
-                return $q->whereNull('jobs.worker_id');
-            })
-            ->select(
-                'jobs.id',
-                'jobs.start_date',
-                'clients.id as client_id',
-                'clients.color as client_color',
-                'users.id as worker_id',
-                'jobs.shifts',
-                'jobs.is_job_done',
-                'jobs.status',
-                'job_services.duration_minutes',
-                'job_services.freq_name', // Include freq_name
-                'jobs.actual_time_taken_minutes',
-                'jobs.comment',
-                'jobs.review',
-                'jobs.rating',
-                'jobs.total_amount',
-                'jobs.is_order_generated',
-                'jobs.job_group_id',
-                DB::raw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name"),
-                DB::raw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name"),
-                DB::raw('IF(order.status = "Closed", 1, 0) AS is_order_closed'),
-                DB::raw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name'),
-                DB::raw('
+        ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
+        ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
+        ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+        ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
+        ->leftJoin('order', 'order.id', '=', 'jobs.order_id')
+        ->when($start_date, fn($q) => $q->whereDate('jobs.start_date', '>=', $start_date))
+        ->when($end_date, fn($q) => $q->whereDate('jobs.start_date', '<=', $end_date))
+        ->when($done_filter == 'done', fn($q) => $q->where('jobs.is_job_done', 1))
+        ->when($done_filter == 'undone', fn($q) => $q->where('jobs.is_job_done', 0))
+        ->when($start_time_filter == 'morning', fn($q) => $q->where('jobs.start_time', '<=', '12:00:00'))
+        ->when($start_time_filter == 'noon', fn($q) => $q->where('jobs.start_time', '>', '12:00:00')->where('jobs.start_time', '<=', '16:00:00'))
+        ->when($start_time_filter == 'afternoon', fn($q) => $q->where('jobs.start_time', '>', '16:00:00'))
+        ->when($actual_time_exceed_filter == 1, fn($q) => $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes'))
+        ->when($has_no_worker == 1, fn($q) => $q->whereNull('jobs.worker_id'))
+        ->select(
+            'jobs.id',
+            'jobs.start_date',
+            'clients.id as client_id',
+            'clients.color as client_color',
+            'users.id as worker_id',
+            'jobs.shifts',
+            'jobs.is_job_done',
+            'jobs.status',
+            'job_services.duration_minutes',
+            'job_services.freq_name',
+            'jobs.actual_time_taken_minutes',
+            'jobs.comment',
+            'jobs.review',
+            'jobs.rating',
+            'jobs.total_amount',
+            'jobs.is_order_generated',
+            'jobs.job_group_id',
+            DB::raw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name"),
+            DB::raw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name"),
+            DB::raw('IF(order.status = "Closed", 1, 0) AS is_order_closed'),
+            DB::raw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name'),
+            DB::raw('
                 CASE
-                    WHEN job_services.name = "AirBnb" THEN "#00FF00" -- This condition should come first
+                    WHEN job_services.name = "AirBnb" THEN "#00FF00"
                     WHEN job_services.freq_name = "Once Time week" AND job_services.name LIKE "%Star%" THEN "#FFFFFF"
                     WHEN job_services.freq_name = "Once in every two weeks" AND job_services.name LIKE "%Star%" THEN "#00FF"
                     WHEN job_services.freq_name = "One Time" OR job_services.name = "Cleaning After Renovation" OR job_services.name = "Window cleaning" OR job_services.name LIKE "%Basic%" OR job_services.name LIKE "%Standard%" OR job_services.name LIKE "%Premium%" THEN "#D3D3D3"
                     WHEN job_services.name LIKE "%Star%" THEN "#FFFFFF"
                     WHEN job_services.name = "Office Cleaning" THEN "#FFA07A"
                     ELSE services.color_code
-                END AS service_color
-            ')
-
+                END AS service_color'
             )
-            ->groupBy('jobs.id');
+        )
+        ->groupBy('jobs.id')
+        ->orderBy('users.id')           // group by worker
+        ->orderBy('jobs.start_date')    // group by day
+        ->orderBy('jobs.start_time')    // sort within day (existing jobs come first)
+        ->orderBy('jobs.id');           // stable fallback sort
+    
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {

@@ -211,7 +211,7 @@ class CreateJobOrder implements ShouldQueue
                 event(new ClientOrderWithDiscount($client, $order));
             }
 
-            if(in_array($job->client->id, [194])){
+            if(in_array($job->client->id, [0])){
                 if ($service->freq_name == 'One Time' && isset($order)) {
                     \Log::info("GenerateJobInvoice one time job");
                     GenerateJobInvoice::dispatch($order->id, $client->id);

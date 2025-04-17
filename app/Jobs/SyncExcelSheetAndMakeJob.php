@@ -39,11 +39,15 @@ use Exception;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Jobs\CreateJobOrder;
+
+
 
 
 class SyncExcelSheetAndMakeJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GoogleAPI, JobSchedule, PriceOffered;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GoogleAPI, JobSchedule, PriceOffered, PaymentAPI;
 
     protected $spreadsheetId;
     protected $googleAccessToken;
@@ -208,9 +212,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         $grouped[$currentDate] = [];
                     }
 
+                    
 
-
-                    if ($currentDate !== null && !empty($row[1]) && $currentDate == "2025-03-30") {
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-01'))) {
                        $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -230,11 +234,11 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 $client = Client::where('email', $email)->first();
                             }
                             $currentDateObj = Carbon::parse($currentDate);
-                            $aprilFirst = Carbon::createFromDate($currentDateObj->year, 4, 1);
+                            // $aprilFirst = Carbon::createFromDate($currentDateObj->year, 4, 1);
 
-                            if (!$currentDateObj->greaterThanOrEqualTo($aprilFirst)) {
-                                continue;
-                            }
+                            // if (!$currentDateObj->greaterThanOrEqualTo($aprilFirst)) {
+                            //     continue;
+                            // }
 
                             if ($client) {
                                 $rowCount = $index + 1;
@@ -298,7 +302,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         }
                                         if (empty($selectedService) && $selectedFrequency) {
                                             $selectedServiceStr = trim($row[11] ?? null);
-                                            if ($s == $selectedServiceStr && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType) && ($d['workers'][0]['jobHours'] == $workerHours)) {
+                                            if ($s == $selectedServiceStr && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType)) {
                                                 $selectedOfferDataArr[] = $d;
                                             }
                                         }
@@ -308,7 +312,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         // \Log::info($offerId);
                                         // \Log::info($d['workers'][0]['jobHours']. "offerWorkerHours");
                                         // \Log::info($workerHours . " workerHours");
-                                        if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType) && ($d['workers'][0]['jobHours'] == $workerHours)) {
+                                        if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType)) {
                                            \Log::info("Selected offer data arr ". $offerId);
                                             $selectedOfferDataArr[] = $d;
                                         }
@@ -316,9 +320,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         $frequencies[] = $d['freq_name'];
                                     }
 
-                                    if(($d['workers'][0]['jobHours'] != $workerHours)){
-                                        echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Job hours not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
-                                    }
+                                    // if(($d['workers'][0]['jobHours'] != $workerHours)){
+                                    //     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Job hours not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    // }
                                 }
                                 if (empty($selectedService) && $selectedFrequency) {
                                     $selectedService = Services::where('name', 'Airbnb')->first();
@@ -487,14 +491,13 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 // echo $response . PHP_EOL;
                                 // sleep(1);
 
-                                // if(isset($selectedOfferData[0])) {
-
-                                //     $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
+                                if(isset($selectedOfferData[0])) {
+                                    // echo $currentDate . PHP_EOL;
+                                    $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
     
-    
-                                //     sleep(3);
-                                //     echo ($index + 1) . PHP_EOL;
-                                // }
+                                    sleep(3);
+                                    echo ($index + 1) . PHP_EOL;
+                                }
                             }
                         }
                     }
@@ -623,12 +626,108 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 )
                 ->first();
 
+                
+            $tMinutes = 0;
+
+            // Calculate job duration based on row[13]
+            $durationRaw = $row[13] ?? 0;
+            $durationRaw = str_replace(',', '.', $durationRaw);
+
+            // Check if input contains '+'
+            if (strpos($durationRaw, '+') !== false) {
+                $parts = explode('+', $durationRaw);
+
+                foreach ($parts as $part) {
+                    $value = floatval(trim($part));
+                    $wholePart = floor($value);
+                    $decimalPart = $value - $wholePart;
+
+                    if ($decimalPart == 0) {
+                        $minutes = 0;
+                    } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
+                        $minutes = 15;
+                    } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
+                        $minutes = 30;
+                    } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
+                        $minutes = 45;
+                    } else {
+                        $wholePart += 1;
+                        $minutes = 0;
+                    }
+
+                    $tMinutes += ($wholePart * 60) + $minutes;
+                }
+            } else {
+                // Handle normal single value
+                $value = floatval($durationRaw);
+                $wholePart = floor($value);
+                $decimalPart = $value - $wholePart;
+
+                if ($decimalPart == 0) {
+                    $minutes = 0;
+                } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
+                    $minutes = 15;
+                } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
+                    $minutes = 30;
+                } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
+                    $minutes = 45;
+                } else {
+                    $wholePart += 1;
+                    $minutes = 0;
+                }
+
+                $tMinutes = ($wholePart * 60) + $minutes;
+            }
+
+
             if ($jobData) {
                 $this->updateColumnInRow(($index + 1), "U", $jobData->id, $sheet);
                 if ($row[5] === "FALSE" && $row[6] === "FALSE") {
                     $jobData->status = JobStatusEnum::CANCEL;
                     $jobData->save();
+                    if(isset($jobData->order)) {
+                        $order = $jobData->order;
+                        if ($order->status == 'Closed') {
+                            return response()->json([
+                                'message' => 'Job order is already closed',
+                            ], 403);
+                        }
+        
+                        $closeDocResponse = $this->cancelICountDocument(
+                            $order->order_id,
+                            'order',
+                            'Creating another order'
+                        );
+        
+                        if ($closeDocResponse['status'] != true) {
+                            return response()->json([
+                                'message' => $closeDocResponse['reason']
+                            ], 500);
+                        }
+        
+                        $order->update(['status' => 'Cancelled']);
+        
+                        $order->jobs()->update([
+                            'isOrdered' => 'c',
+                            'order_id' => NULL,
+                            'is_order_generated' => false
+                        ]);
+                    }
+                }else if($row[6] === "TRUE" && !$jobData->order) {
+                    $jobData->status = JobStatusEnum::COMPLETED;
+                    $jobData->actual_time_taken_minutes = $tMinutes;
+                    $jobData->is_job_done = true;
+                    $jobData->save();
+                    $this->updateJobAmount($jobData->id);
+                    CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                    $jobData->refresh();
+                    $orderId = $jobData->order->order_id;
+                    if($orderId) {
+                        $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                        $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                    }
                 }
+
                 \Log::info("Job already exists. ID: {$jobData->id}");
                 return;
             }
@@ -735,22 +834,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             \Log::info("Offer ID: {$offer->id}");
             \Log::info("Client ID: {$offer->client_id}");
 
-            // Calculate job duration based on row[13]
-            $value = floatval(str_replace(',', '.', $row[13] ?? 0));
-            $wholePart = floor($value);
-            $decimalPart = $value - $wholePart;
-            if ($decimalPart == 0) {
-                $minutesDuration = 0;
-            } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
-                $minutesDuration = 15;
-            } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
-                $minutesDuration = 30;
-            } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
-                $minutesDuration = 45;
-            } else {
-                $wholePart += 1;
-                $minutesDuration = 0;
-            }
             $startDateTime = Carbon::createFromFormat('H:i:s', $startTime);
             $endDateTime   = $startDateTime->copy()->addHours($wholePart)->addMinutes($minutesDuration);
             $endTime       = $endDateTime->format('H:i');
@@ -840,6 +923,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             // Create the job and related entries
             $job = Job::create([
+                'uuid'          => Str::uuid(),
                 'worker_id'          => $worker->id,
                 'client_id'          => $contract->client_id,
                 'contract_id'        => $contract->id,
@@ -901,6 +985,22 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             foreach ($mergedContinuousTime as $slot) {
                 $job->workerShifts()->create($slot);
+            }
+
+            if($row[6] === "TRUE") {
+                $job->status = JobStatusEnum::COMPLETED;    
+                $job->actual_time_taken_minutes = $tMinutes;
+                $job->is_job_done = true;
+                $job->save();
+                $this->updateJobAmount($job->id);
+                CreateJobOrder::dispatch($job->id)->onConnection('sync');
+                $job->refresh();
+                $orderId = $job->order->order_id;
+                if($orderId) {
+                    $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                    $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                }
+
             }
 
             $this->updateColumnInRow(($index + 1), "U", $job->id, $sheet);

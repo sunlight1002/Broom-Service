@@ -23,58 +23,73 @@ class GoogleSheetsService
         $this->client = new Client();
         $this->client->setApplicationName('Laravel CRM Google Sheets Sync');
         $this->client->setScopes(Sheets::SPREADSHEETS);
-
-        // Explicitly set your client ID and secret:
         $this->client->setClientId(config('services.google.client_id'));
         $this->client->setClientSecret(config('services.google.client_secret'));
-
-        // Retrieve the access token from the database.
-        // It must be stored as a JSON string containing keys such as "access_token".
-        $accessTokenJson = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
-        // Optionally, ensure the token has a refresh token.
-        $refreshToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
-            ->value('value');
-        $tokenArray = [
-            'access_token' => $accessTokenJson,  // your plain token string
-            'refresh_token' => $refreshToken, // if available
-            // 'expires_in'   => 3600,                       // adjust this to the correct expiry (in seconds)
-            // 'created'      => time(),                     // current timestamp
-        ];
-        $this->client->setAccessToken($tokenArray);
-        if (!isset($tokenArray['refresh_token']) && !empty($refreshToken)) {
-            $tokenArray['refresh_token'] = $refreshToken;
-        }
-
-        $this->client->setAccessToken($tokenArray);
-
-        // Check if the token is expired and refresh it if necessary.
-        if ($this->client->isAccessTokenExpired()) {
-            $newToken = $this->client->fetchAccessTokenWithRefreshToken($tokenArray['refresh_token']);
-            // Save the new token back to the database (as JSON).
-            if (isset($tokenArray['refresh_token'])) {
-                Setting::updateOrCreate(
-                    ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
-                    ['value' => $tokenArray['refresh_token']]
-                );
+    
+        try {
+            // Fetch tokens from DB
+            $accessToken = Setting::where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)->value('value');
+            $refreshToken = Setting::where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)->value('value');
+    
+            if (!$accessToken) {
+                \Log::warning('Google access token not found.');
+                return;
             }
-            if (isset($tokenArray['access_token'])) {
-                Setting::updateOrCreate(
-                    ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                    ['value' => $tokenArray['access_token']]
-                );
+    
+            // Set token
+            $token = ['access_token' => $accessToken];
+            if ($refreshToken) {
+                $token['refresh_token'] = $refreshToken;
             }
-            $this->client->setAccessToken($newToken);
+    
+            $this->client->setAccessToken($token);
+    
+            // Refresh token if expired
+            if ($this->client->isAccessTokenExpired()) {
+                if (empty($refreshToken)) {
+                    \Log::warning('Access token expired and no refresh token is available.');
+                    return;
+                }
+    
+                $newToken = $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
+    
+                if (isset($newToken['error'])) {
+                    \Log::error("Failed to refresh Google access token: {$newToken['error_description']}");
+                    return;
+                }
+    
+                if (isset($newToken['access_token'])) {
+                    Setting::updateOrCreate(
+                        ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                        ['value' => $newToken['access_token']]
+                    );
+                }
+    
+                if (isset($newToken['refresh_token'])) {
+                    Setting::updateOrCreate(
+                        ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                        ['value' => $newToken['refresh_token']]
+                    );
+                }
+    
+                $this->client->setAccessToken($newToken);
+            }
+    
+            // Load Sheets service
+            $this->service = new Sheets($this->client);
+    
+            $this->spreadsheetId = Setting::where('key', SettingKeyEnum::GOOGLE_SHEET_ID)->value('value');
+    
+            if (!$this->spreadsheetId) {
+                \Log::warning('Google Spreadsheet ID not found.');
+            }
+    
+        } catch (\Throwable $e) {
+            \Log::error('Google Sheets Initialization Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
         }
-
-        $this->service = new Sheets($this->client);
-        $this->spreadsheetId = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_SHEET_ID)
-            ->value('value');
     }
-
 
     /**
      * Retrieve data from a given sheet and range.
