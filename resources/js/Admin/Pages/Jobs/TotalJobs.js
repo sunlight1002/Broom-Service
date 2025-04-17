@@ -238,7 +238,7 @@ export default function TotalJobs() {
                                 displayName += " " + nameParts[1].substring(0, 2); // Append first two letters of last name
                             }
 
-                            let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
+                            let _html = `<span class="worker-name-badge dt-client-badge" data-client-id="${row.client_id}" data-total-amount="${row.total_amount}">`;
                             _html += `<i class="fa-solid fa-user"></i> `;
                             _html += displayName; // Show formatted name
                             _html += `</span>`;
@@ -319,6 +319,7 @@ export default function TotalJobs() {
                         data: "actual_time_taken_minutes",
                         width: "10%",
                         orderable: false,
+                        // className: "",
                         render: function (data, type, row, meta) {
                             const _hours = row.actual_time_taken_minutes
                                 ? parseFloat(
@@ -338,7 +339,7 @@ export default function TotalJobs() {
                                 _timeBGColor = "#e7e7e7";
                             }
 
-                            let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center">`;
+                            let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center ">`;
 
                             _html += `<button type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
                                 }" data-hours="${_hours}" ${isOrderClosed ? "disabled" : ""
@@ -466,7 +467,6 @@ export default function TotalJobs() {
         const pageInfo = table.page.info();
         return pageInfo.page + 1; // Adjusted to return 1-based page number
     };
-
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const pageFromUrl = parseInt(searchParams.get("page")) || 1;
@@ -517,12 +517,8 @@ export default function TotalJobs() {
         // Event listener for pagination
         $(tableRef.current).on("page.dt", function () {
             const currentPageNumber = getCurrentPageNumber();
-
-            // Update the URL with the page number
             const url = new URL(window.location);
             url.searchParams.set("page", currentPageNumber);
-
-            // Use replaceState to avoid adding new history entry
             window.history.replaceState({}, "", url);
         });
 
@@ -531,32 +527,24 @@ export default function TotalJobs() {
             navigate(`/admin/clients/view/${_clientID}`);
         });
 
-        $(tableRef.current).on(
-            "change",
-            ".dt-if-job-done-checkbox",
-            function () {
-                const _id = $(this).data("id");
-                handleJobDone(_id, this.checked);
-            }
-        );
+        $(tableRef.current).on("change", ".dt-if-job-done-checkbox", function () {
+            const _id = $(this).data("id");
+            handleJobDone(_id, this.checked);
+        });
 
-        $(tableRef.current).on("click", ".dt-time-counter-dec", function () {
+        $(tableRef.current).on("click", ".dt-time-counter-dec", function (e) {
             const _id = $(this).data("id");
             const _hours = parseFloat($(this).data("hours"));
-
             const _changedHours = (
                 _hours > 0 ? parseFloat(_hours) - 0.25 : 0
             ).toFixed(2);
-
             handleWorkerActualTime(_id, _changedHours * 60);
         });
 
-        $(tableRef.current).on("click", ".dt-time-counter-inc", function () {
+        $(tableRef.current).on("click", ".dt-time-counter-inc", function (e) {
             const _id = $(this).data("id");
             const _hours = $(this).data("hours");
-
             const _changedHours = (parseFloat(_hours) + 0.25).toFixed(2);
-
             handleWorkerActualTime(_id, _changedHours * 60);
         });
 
@@ -574,12 +562,7 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
             const _id = $(this).data("id");
             const _totalAmount = $(this).data("total-amount");
-
-
-            handleSwitchWorker({
-                id: _id,
-                total_amount: _totalAmount,
-            });
+            handleSwitchWorker({ id: _id, total_amount: _totalAmount });
         });
 
         $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
@@ -590,28 +573,23 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-cancel-btn", function () {
             const _id = $(this).data("id");
             const _groupID = $(this).data("group-id");
-
-            handleCancel({
-                id: _id,
-                job_group_id: _groupID,
-            });
+            handleCancel({ id: _id, job_group_id: _groupID });
         });
 
-        // Handle language changes
         i18n.on("languageChanged", () => {
-            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            $(tableRef.current).DataTable().destroy();
             initializeDataTable(initialPage);
         });
 
-        // Cleanup event listeners and destroy DataTable when unmounting
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
-                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).DataTable().destroy(true);
                 $(tableRef.current).off("click");
                 $(tableRef.current).off("page.dt");
             }
         };
     }, [probbtn]);
+
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
@@ -663,13 +641,53 @@ export default function TotalJobs() {
                 { value: _value },
                 { headers }
             )
-            .then((response) => {
-                $(tableRef.current).DataTable().draw();
+            .then(() => {
+                const table = $(tableRef.current).DataTable();
+    
+                const newHours = (_value / 60).toFixed(2);
+    
+                // Get both the parent row and child row
+                const $mainRow = table.rows().nodes().to$().filter(`[data-id="${_jobID}"]`);
+                const $childRow = $mainRow.hasClass("dtr-expanded")
+                    ? $mainRow.next(".child")
+                    : null;
+    
+                // === 🟢 1. Update in main row if visible ===
+                const $targetTD = $mainRow.find("td").filter(function () {
+                    return $(this).find(".dt-time-counter-dec").length > 0;
+                });
+    
+                $targetTD.find(".dt-time-counter-dec").data("hours", newHours);
+                $targetTD.find(".dt-time-counter-inc").data("hours", newHours);
+                $targetTD.find("span.time-counter").text(newHours);
+    
+                // === 🟢 2. Update inside child row (collapsed view) ===
+                if ($childRow && $childRow.length > 0) {
+                    $childRow.find(".dt-time-counter-dec").data("hours", newHours);
+                    $childRow.find(".dt-time-counter-inc").data("hours", newHours);
+                    $childRow.find("span.time-counter").text(newHours);
+                }
+    
+                // ✅ Optional: visual feedback
+                $targetTD.find("span.time-counter").css("background", "#d4edda");
+                if ($childRow) {
+                    $childRow.find("span.time-counter").css("background", "#d4edda");
+                }
+    
+                setTimeout(() => {
+                    $targetTD.find("span.time-counter").css("background", "");
+                    if ($childRow) {
+                        $childRow.find("span.time-counter").css("background", "");
+                    }
+                }, 1000);
             })
             .catch((e) => {
-                $(tableRef.current).DataTable().draw();
+                console.error("Error updating time", e);
             });
     };
+    
+    
+    
 
     const header = [
         { label: "Worker Name", key: "worker_name" },
