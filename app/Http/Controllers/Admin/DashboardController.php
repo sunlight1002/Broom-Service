@@ -71,100 +71,88 @@ class DashboardController extends Controller
   // }
   public function dashboard(Request $request)
   {
-    $filterType = $request->input('filter', 'today');
-    $today = Carbon::now()->toDateString();
-    $todayDateTime = Carbon::now()->toDateTimeString();
-    $startDate = $endDate = null;
-
-    switch ($filterType) {
-      case 'today':
-        $startDate = $endDate = $today;
-        break;
-      case 'this_week':
-        $startDate = Carbon::now()->startOfWeek()->toDateString();
-        $endDate = Carbon::now()->endOfWeek()->toDateString();
-        break;
-      case 'this_month':
-        $startDate = Carbon::now()->startOfMonth()->toDateString();
-        $endDate = Carbon::now()->endOfMonth()->toDateString();
-        break;
-      case 'custom':
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        break;
-      case 'all_time':
-
-        break;
-    }
-    \Log::info('startDate', [$startDate]);
-    \Log::info('endDate', [$endDate]);
-
-    $total_jobs = Job::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('start_date', [$startDate, $endDate]);
-    })->count();
-
-    // $total_new_clients = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-    //   return $query->whereBetween('created_at', [$startDate, $endDate]);
-    // })->count();
-    $total_new_clients   = Client::where('created_at', $todayDateTime)->count();
-    $total_new_workers = User::where('created_at', $todayDateTime)->count();
-    $total_active_clients = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('created_at', [$startDate, $endDate])
-        ->where('status', 2);
-    })->count();
-
-
-    $total_leads = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('created_at', [$startDate, $endDate])
-        ->where('status', '!=', 2);
-    })->count();
-
-    $total_workers = User::where(function ($q) use ($today) {
-      $q->whereNull('last_work_date')
-        ->orWhereDate('last_work_date', '>=', $today);
-    })->count();
-
-    $total_schedules = Schedule::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('start_date', [$startDate, $endDate]);
-    })->count();
-
-    $total_offers = Offer::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('created_at', [$startDate, $endDate])
-        ->where('status', 'sent');
-    })->count();
-
-    // Total Worker Leads
-    $total_worker_leads = WorkerLeads::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('created_at', [$startDate, $endDate]);
-    })->count();
-    $total_contracts = Contract::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-      return $query->whereBetween('created_at', [$startDate, $endDate])
-        ->where('status', '!=', ContractStatusEnum::VERIFIED);
-    })->count();
-
-
-    $latest_jobs = Job::with(['client', 'service', 'worker', 'jobservice'])
-      ->where('status', JobStatusEnum::COMPLETED)
-      ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-        return $query->whereBetween('created_at', [$startDate, $endDate]);
-      })
-      ->orderBy('created_at', 'desc')
-      ->paginate(5);
-
-    return response()->json([
-      'total_jobs' => $total_jobs,
-      'total_new_clients' => $total_new_clients,
-      'total_new_workers' => $total_new_workers,
-      'total_active_clients' => $total_active_clients,
-      'total_leads' => $total_leads,
-      'total_workers' => $total_workers,
-      'total_worker_leads' => $total_worker_leads,
-      'total_schedules' => $total_schedules,
-      'total_offers' => $total_offers,
-      'total_contracts' => $total_contracts,
-      'latest_jobs' => $latest_jobs,
-    ]);
+      $filterType = $request->input('filter', 'today');
+      $today = Carbon::today();
+      $startDate = $endDate = null;
+  
+      switch ($filterType) {
+          case 'today':
+              $startDate = $today->copy()->startOfDay();
+              $endDate = $today->copy()->endOfDay();
+              break;
+          case 'this_week':
+              $startDate = Carbon::now()->startOfWeek();
+              $endDate = Carbon::now()->endOfWeek();
+              break;
+          case 'this_month':
+              $startDate = Carbon::now()->startOfMonth();
+              $endDate = Carbon::now()->endOfMonth();
+              break;
+          case 'custom':
+              $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+              $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+              break;
+          case 'all_time':
+              $startDate = $endDate = null; // Show all
+              break;
+      }
+  
+      $total_jobs = Job::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
+  
+      $total_new_clients = Client::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
+  
+      $total_new_workers = User::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
+  
+      $total_active_clients = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+          return $query->whereBetween('created_at', [$startDate, $endDate])
+                       ->where('status', 2);
+      })->count();
+  
+      $total_leads = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+          return $query->whereBetween('created_at', [$startDate, $endDate])
+                       ->where('status', '!=', 2);
+      })->count();
+  
+      $total_workers = User::where(function ($q) use ($today) {
+          $q->whereNull('last_work_date')
+            ->orWhereDate('last_work_date', '>=', $today);
+      })->count();
+  
+      $total_schedules = Schedule::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
+  
+      $total_offers = Offer::when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+          return $q->whereBetween('created_at', [$startDate, $endDate])
+                   ->where('status', 'sent');
+      })->count();
+  
+      $total_worker_leads = WorkerLeads::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
+  
+      $total_contracts = Contract::when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+          return $q->whereBetween('created_at', [$startDate, $endDate])
+                   ->where('status', '!=', ContractStatusEnum::VERIFIED);
+      })->count();
+  
+      $latest_jobs = Job::with(['client', 'service', 'worker', 'jobservice'])
+          ->where('status', JobStatusEnum::COMPLETED)
+          ->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
+          ->orderBy('created_at', 'desc')
+          ->paginate(5);
+  
+      return response()->json([
+          'total_jobs' => $total_jobs,
+          'total_new_clients' => $total_new_clients,
+          'total_new_workers' => $total_new_workers,
+          'total_active_clients' => $total_active_clients,
+          'total_leads' => $total_leads,
+          'total_workers' => $total_workers,
+          'total_worker_leads' => $total_worker_leads,
+          'total_schedules' => $total_schedules,
+          'total_offers' => $total_offers,
+          'total_contracts' => $total_contracts,
+          'latest_jobs' => $latest_jobs,
+      ]);
   }
+  
 
   public function updateTime(Request $request)
   {
@@ -614,17 +602,17 @@ class DashboardController extends Controller
     $end_date = $request->get('end_date');
 
     $data = Job::query()
-      ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
-      ->where('jobs.status', JobStatusEnum::COMPLETED)
-      ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-        return $q->whereBetween('jobs.created_at', [$start_date, $end_date]);;
-      })
-      ->selectRaw('SUM(jobs.subtotal_amount) as income')
-      ->selectRaw('SUM(jobs.actual_time_taken_minutes) as actual_time_taken_minutes')
-      ->selectRaw('SUM(job_services.duration_minutes) as duration_minutes')
-      ->selectRaw('SUM(jobs.actual_time_taken_minutes - job_services.duration_minutes) as difference_minutes')
-      ->selectRaw('COUNT(jobs.id) as total_jobs')
-      ->first();
+    ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+    ->where('jobs.status', JobStatusEnum::COMPLETED)
+    ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
+      return $q->whereBetween('jobs.created_at', [$start_date, $end_date]);;
+    })
+    ->selectRaw('SUM(jobs.subtotal_amount) as income')
+    ->selectRaw('SUM(jobs.actual_time_taken_minutes) as actual_time_taken_minutes')
+    ->selectRaw('SUM(job_services.duration_minutes) as duration_minutes')
+    ->selectRaw('SUM(jobs.actual_time_taken_minutes - job_services.duration_minutes) as difference_minutes')
+    ->selectRaw('COUNT(jobs.id) as total_jobs')
+    ->first();
 
     $graph = [];
     if ($start_date && $end_date) {
@@ -641,13 +629,19 @@ class DashboardController extends Controller
         ->value('value');
 
       $url = 'https://api.icount.co.il/api/v3.php/chart/monthly_profitability';
-      $response = Http::post($url, [
+
+      $postData = [
         'cid' => $iCountCompanyID,
         'user' => $iCountUsername,
         'pass' => $iCountPassword,
-        'start_date' => $start_date,
-        'end_date' => $end_date
-      ]);
+      ];
+
+      if(isset($start_date) && isset($end_date)) {
+        $postData['start_date'] = $start_date;
+        $postData['end_date'] = $end_date;
+      }
+
+      $response = Http::post($url, $postData);
 
       $json = $response->json();
 
@@ -658,8 +652,8 @@ class DashboardController extends Controller
     }
 
     return response()->json([
-      'data' => $data,
-      'graph' => $graph
+      'graph' => $graph,
+      'data' => $data
     ]);
   }
 

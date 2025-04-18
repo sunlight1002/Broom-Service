@@ -35,6 +35,7 @@ export default function Dashboard() {
     const [contracts, setContracts] = useState([0]);
     const [latestJobs, setlatestJobs] = useState([]);
     const [income, setIncome] = useState(0);
+    const [expense, setExpense] = useState(0);
     const [loading, setLoading] = useState("Loading...");
     // const [latestClient, setLatestClients] = useState([]);
     // const [pageCount, setPageCount] = useState(0);
@@ -102,13 +103,35 @@ export default function Dashboard() {
             });
     };
 
-    const getIncome = (duration) => {
+    const getIncome = (start_date = null, end_date = null) => {
         axios
-            .post("/api/admin/income", { duration }, { headers })
+            .post("/api/admin/income", { start_date, end_date }, { headers })
             .then((res) => {
-                setIncome(res.data.data.income);
+                const profitArray = res.data?.graph?.data?.profit || [];
+                const expenseArray = res.data?.graph?.data?.expense || [];
+    
+                const totalProfit = Array.isArray(profitArray)
+                    ? profitArray.reduce((acc, val) =>{
+                        return acc + val;
+                    }, 0)
+                    : 0;
+
+                        
+                const totalExpense = Array.isArray(expenseArray)
+                ? expenseArray.reduce((acc, val) =>{
+                    return acc + val;
+                }, 0)
+                : 0;
+    
+                setIncome(totalProfit);
+                setExpense(totalExpense);
+            })
+            .catch((err) => {
+                console.error("Error fetching income", err);
+                setIncome(0); // fallback
             });
     };
+    
 
     // const latestClients = () => {
     //     axios.get(`/api/admin/latest-clients`, { headers }).then((res) => {
@@ -196,8 +219,9 @@ export default function Dashboard() {
                 dateRange.start_date,
                 dateRange.end_date
             );
+            getIncome(dateRange.start_date, dateRange.end_date);
         }
-    }, [dateRange, getCompletedJobs]);
+    }, [dateRange]);
 
     return (
         <div id="container column-left">
@@ -574,7 +598,7 @@ export default function Dashboard() {
                                                 ></img>
                                             </div>
                                             <div className="dashText">
-                                                <h3>{0}</h3>
+                                                <h3>{expense}</h3>
                                                 <p>
                                                     {" "}
                                                     {t(

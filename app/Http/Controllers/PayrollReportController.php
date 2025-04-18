@@ -328,7 +328,8 @@ class PayrollReportController extends Controller
 
             $form101 = Form::where('user_id', $user->id)
             ->where('type', 'form101')
-            ->whereNotNull('pdf_name') 
+            ->whereNotNull('pdf_name')
+            ->whereYear('created_at', now()->year)
             ->orderBy('created_at', 'desc')
             ->first();
             $form101Display = 'Not available';
