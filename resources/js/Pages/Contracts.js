@@ -30,7 +30,7 @@ const Contracts = () => {
 
     return (
         <div>{
-            ([194].includes(clientId) || isEnabled ) ? <NewContract/> : <WorkContract/>
+            ([0].includes(clientId) || isEnabled ) ? <NewContract/> : <WorkContract/>
         }</div>
     )
 }
