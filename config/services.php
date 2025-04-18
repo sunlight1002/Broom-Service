@@ -110,6 +110,8 @@ return [
 
     'mail' => [
         'default' => env('DEFAULT_MAIL'),
-    ]
+    ],
+
+    "enable_new_contract" => env('ENABLE_NEW_CONTRACT'),
 
 ];

@@ -6,6 +6,7 @@ import WorkContract from './WorkContract';
 const Contracts = () => {
     const param = useParams();
     const [clientId, setClientId] = useState(null);
+    const isEnabled = (process.env.MIX_ENABLE_NEW_CONTRACT === 'true');
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -29,7 +30,7 @@ const Contracts = () => {
 
     return (
         <div>{
-            [194].includes(clientId) ? <NewContract/> : <WorkContract/>
+            ([194].includes(clientId) || isEnabled ) ? <NewContract/> : <WorkContract/>
         }</div>
     )
 }

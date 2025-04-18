@@ -150,6 +150,7 @@ export default function Dashboard() {
             setRole(res.data.success.role);
         });
     };
+    
 
     useEffect(() => {
         getCompletedJobs();

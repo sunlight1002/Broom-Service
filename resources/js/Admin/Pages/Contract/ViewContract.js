@@ -9,6 +9,9 @@ export default function WorkContract() {
     const param = useParams();
     const [lng, setLng] = useState([]);
     const [clientId, setClientId] = useState(null);
+    const isEnabled = (process.env.MIX_ENABLE_NEW_CONTRACT === 'true');
+    console.log(isEnabled);
+    
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -28,11 +31,12 @@ export default function WorkContract() {
         getContract();
     }, [])
 
+    console.log(clientId);
 
     return (
         <>
             {
-                [194].includes(clientId) ? <AdminNewContract/> : ((lng == 'heb') ? <ContractHeb />: <ContractEng />)
+                ([194].includes(clientId) || isEnabled) ? <AdminNewContract/> : ((lng == 'heb') ? <ContractHeb />: <ContractEng />)
             }
         </>
         // <ContractEng/>
