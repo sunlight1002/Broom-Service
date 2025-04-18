@@ -15,6 +15,7 @@ export default function JobDiscountModal({
     const [formValues, setFormValues] = useState({
         discount_type: job.discount_type ?? "fixed",
         discount_value: job.discount_value ?? 0,
+        discount_comment: job.discount_comment ?? "",
     });
     const [loading, setLoading] = useState(false);
 
@@ -68,7 +69,7 @@ export default function JobDiscountModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                            {t("admin.global.discountType")}
+                                {t("admin.global.discountType")}
                             </label>
 
                             <select
@@ -90,7 +91,7 @@ export default function JobDiscountModal({
 
                         <div className="form-group">
                             <label className="control-label">
-                            {t("admin.global.discountValue")}
+                                {t("admin.global.discountValue")}
                             </label>
 
                             <input
@@ -105,6 +106,26 @@ export default function JobDiscountModal({
                                 value={formValues.discount_value}
                                 className="form-control mb-3"
                             />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="control-label">
+                                Comment
+                            </label>
+                            <textarea
+                                type="text"
+                                value={formValues.discount_comment}
+                                name="discount_comment"
+                                onChange={(e) => {
+                                    setFormValues({
+                                        ...formValues,
+                                        discount_comment: e.target.value,
+                                    });
+                                }}
+                                className="form-control"
+                                required
+                                placeholder="Enter Note"
+                            ></textarea>
                         </div>
                     </div>
                 </div>
@@ -126,7 +147,7 @@ export default function JobDiscountModal({
                     className="btn btn-primary"
                     disabled={loading}
                 >
-                   {t("modal.save")}
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

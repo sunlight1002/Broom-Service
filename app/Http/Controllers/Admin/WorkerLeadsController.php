@@ -151,13 +151,23 @@ class WorkerLeadsController extends Controller
 
             // Create a new worker lead
             $workerLead = WorkerLeads::create([
-                'firstname' => $request->firstname,
-                'lastname' => $request->lastname,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'status' => $request->status,
-                'role' => $role,
-                'lng' => $request->lng
+                'firstname' => $request->firstname ?? '',
+                'lastname' => $request->lastname ?? '',
+                'email' => $request->email ?? '',
+                'phone' => $request->phone ?? '',
+                'status' => $request->status ?? '',
+                'role' => $role ?? '',
+                'lng' => $request->lng ?? "en",
+                'latitude' => $request->latitude ?? '',
+                'longitude' => $request->longitude ?? '',
+                'address' => $request->address ?? '',
+                'renewal_visa' => $request->renewal_visa ?? '',
+                'gender' => $request->gender ?? '',
+                'country' => $request->country ?? '',
+                'manpower_company_id' => $request->manpower_company_id ?? '',
+                'company_type' => $request->company_type ?? '',
+                'experience_in_house_cleaning' => $request->experience_in_house_cleaning ?? '',
+                'you_have_valid_work_visa' => $request->you_have_valid_work_visa ?? '',
             ]);
 
             if ($request->send_bot_message) {

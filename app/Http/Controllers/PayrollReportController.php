@@ -131,7 +131,7 @@ class PayrollReportController extends Controller
                 }, 0);
                 
                 // Log the total salary for all jobs
-                \Log::info('Total Salary for All Jobs: ' . $totalSalary);
+                // \Log::info('Total Salary for All Jobs: ' . $totalSalary);
                 
 
             $totalMinutesWorked = Job::where('worker_id', $user->id)
@@ -331,13 +331,12 @@ class PayrollReportController extends Controller
             ->whereNotNull('pdf_name') 
             ->orderBy('created_at', 'desc')
             ->first();
-                        
             $form101Display = 'Not available';
             
             if ($form101) {
                 $form101Path = $form101->pdf_name;        
                 if ($form101Path) {                     
-                    $form101Link = url('storage/' . $form101Path);
+                    $form101Link = url('storage/signed-docs/' . $form101Path);
                     $form101Display = $form101Link;    
                 }
             }

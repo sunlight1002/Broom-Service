@@ -2860,6 +2860,7 @@ class JobController extends Controller
         $job->update([
             'discount_type' => $data['discount_type'],
             'discount_value' => $data['discount_value'],
+            'discount_comment' => $data['discount_comment'],
         ]);
 
         $this->updateJobAmount($job->id);
@@ -2896,6 +2897,7 @@ class JobController extends Controller
         $job->update([
             'extra_amount_type' => $data['extra_amount_type'],
             'extra_amount_value' => $data['extra_amount_value'],
+            'extra_comment' => $data['extra_comment'],
         ]);
     
         $this->updateJobAmount($job->id);
@@ -4027,6 +4029,22 @@ class JobController extends Controller
             throw $th;
         }
 
+    }
+
+    public function saveComment(Request $request) {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'job_id' => 'required',
+            'comment' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        
+        $job = Job::find($data['job_id']);
+        $job->comment = $data['comment'];
+        $job->save();
     }
 
     public function convertDate($dateString, $sheet=null)

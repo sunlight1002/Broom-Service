@@ -1,6 +1,7 @@
 import axios from "axios";
 import Moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import { CSVLink } from "react-csv";
 import { renderToString } from "react-dom/server";
@@ -35,10 +36,12 @@ export default function TotalJobs() {
     const [startTimeFilter, setStartTimeFilter] = useState("");
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
+    const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
     const [selectedDateRange, setSelectedDateRange] = useState("Week");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
     const [probbtn, setProbbtn] = useState(false)
     const [problems, setProblems] = useState([])
+    const [comment, setComment] = useState("");
 
     const tableRef = useRef(null);
     const tableRef2 = useRef(null);
@@ -136,6 +139,11 @@ export default function TotalJobs() {
 
 
 
+    const handleComent = (id) => {
+        setSelectedJob(id);
+        setIsOpenCommentModal(true);
+    }
+
 
     const fetchProblems = () => {
         $.ajax({
@@ -202,8 +210,6 @@ export default function TotalJobs() {
                         responsivePriority: 1,
                         width: "3%",
                         render: function (data, type, row, meta) {
-                            console.log(row);
-
                             if (!data) return ""; // Handle empty data
                             let formattedDate = "";
 
@@ -361,6 +367,10 @@ export default function TotalJobs() {
                         title: t("admin.leads.leadDetails.Comments"),
                         data: "comment",
                         orderable: false,
+                        className: "dt-comment",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-wrap" data-id="${row.id}"> ${data} </span>`;
+                        },
                     },
                     {
                         title: t("admin.global.client_review"),
@@ -490,6 +500,7 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-time-counter-inc") &&
                     !e.target.closest(".dt-switch-worker-btn") &&
                     !e.target.closest(".dt-if-job-done-checkbox") &&
+                    !e.target.closest(".dt-comment") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -503,7 +514,8 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-time-counter-dec") &&
                     !e.target.closest(".dt-time-counter-inc") &&
                     !e.target.closest(".dt-switch-worker-btn") &&
-                    !e.target.closest(".dt-if-job-done-checkbox")
+                    !e.target.closest(".dt-if-job-done-checkbox") &&
+                    !e.target.closest(".dt-comment")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
@@ -576,6 +588,12 @@ export default function TotalJobs() {
             handleCancel({ id: _id, job_group_id: _groupID });
         });
 
+        $(tableRef.current).on("click", ".dt-comment", function () {
+            const _id = $(this).find("span").data("id"); // or more specific like `.find("span.dt-comment-text")`
+            handleComent(_id);
+        });
+        
+
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy();
             initializeDataTable(initialPage);
@@ -634,6 +652,15 @@ export default function TotalJobs() {
         }
     };
 
+    const handleSaveComment = async (jobid) => {
+        const res = await axios.post("/api/admin/jobs/save-comment", { job_id: jobid, comment: comment }, { headers });
+        if (res.status == 200) {
+            setComment('');
+            setIsOpenCommentModal(false);
+            $(tableRef.current).DataTable().draw();
+        }
+    }
+
     const handleWorkerActualTime = (_jobID, _value) => {
         axios
             .post(
@@ -643,37 +670,37 @@ export default function TotalJobs() {
             )
             .then(() => {
                 const table = $(tableRef.current).DataTable();
-    
+
                 const newHours = (_value / 60).toFixed(2);
-    
+
                 // Get both the parent row and child row
                 const $mainRow = table.rows().nodes().to$().filter(`[data-id="${_jobID}"]`);
                 const $childRow = $mainRow.hasClass("dtr-expanded")
                     ? $mainRow.next(".child")
                     : null;
-    
+
                 // === 🟢 1. Update in main row if visible ===
                 const $targetTD = $mainRow.find("td").filter(function () {
                     return $(this).find(".dt-time-counter-dec").length > 0;
                 });
-    
+
                 $targetTD.find(".dt-time-counter-dec").data("hours", newHours);
                 $targetTD.find(".dt-time-counter-inc").data("hours", newHours);
                 $targetTD.find("span.time-counter").text(newHours);
-    
+
                 // === 🟢 2. Update inside child row (collapsed view) ===
                 if ($childRow && $childRow.length > 0) {
                     $childRow.find(".dt-time-counter-dec").data("hours", newHours);
                     $childRow.find(".dt-time-counter-inc").data("hours", newHours);
                     $childRow.find("span.time-counter").text(newHours);
                 }
-    
+
                 // ✅ Optional: visual feedback
                 $targetTD.find("span.time-counter").css("background", "#d4edda");
                 if ($childRow) {
                     $childRow.find("span.time-counter").css("background", "#d4edda");
                 }
-    
+
                 setTimeout(() => {
                     $targetTD.find("span.time-counter").css("background", "");
                     if ($childRow) {
@@ -685,9 +712,9 @@ export default function TotalJobs() {
                 console.error("Error updating time", e);
             });
     };
-    
-    
-    
+
+
+
 
     const header = [
         { label: "Worker Name", key: "worker_name" },
@@ -1407,6 +1434,65 @@ export default function TotalJobs() {
                     </div>
                 </div>
             </div>
+
+
+            {
+                isOpenCommentModal && (
+                    <Modal
+                        size="md"
+                        className="modal-container"
+                        show={isOpenCommentModal}
+                        onHide={() => {
+                            setIsOpenCommentModal(false);
+                        }}
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Comment</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Comment
+                                        </label>
+                                        <textarea
+                                            type="text"
+                                            value={comment}
+                                            name="comment"
+                                            onChange={(e) => setComment(e.target.value)}
+                                            className="form-control"
+                                            required
+                                            placeholder="Enter Note"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <Button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => {
+                                    setIsOpenCommentModal(false);
+                                }}
+                            >
+                                {t("modal.close")}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => handleSaveComment(selectedJob)}
+                                className="btn btn-primary"
+                            // disabled={loading}
+                            >
+                                {t("modal.save")}
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )
+            }
 
             {isOpenSwitchWorker && (
                 <SwitchWorkerModal

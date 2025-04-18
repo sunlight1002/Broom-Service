@@ -144,11 +144,19 @@ class CreateJobOrder implements ShouldQueue
             }
             
             if ($job->is_job_done) {
-                $items[] = [
-                    'description' => $serviceName,
-                    'unitprice' => $job->subtotal_amount,
-                    'quantity' => 1
-                ];
+                if($job->discount_comment) {
+                    $items[] = [
+                        'description' => $serviceName . " (" . $job->discount_comment . ")",
+                        'unitprice' => $job->subtotal_amount,
+                        'quantity' => 1
+                    ];
+                }else{
+                    $items[] = [
+                        'description' => $serviceName,
+                        'unitprice' => $job->subtotal_amount,
+                        'quantity' => 1
+                    ];
+                }
             }
 
             // $cancellationFees = JobCancellationFee::query()
@@ -179,7 +187,7 @@ class CreateJobOrder implements ShouldQueue
 
             if ($job->extra_amount && $job->extra_amount > 0) {
                 $items[] = [
-                    "description" => $serviceName . " - " . __('mail.job_common.extra_amount'),
+                    "description" => $serviceName . " - " . __('mail.job_common.extra_amount') . $job->extra_comment ? " (" . $job->extra_comment . ")" : "",
                     "unitprice"   => $job->extra_amount,
                     "quantity"    => 1,
                 ];

@@ -11,6 +11,7 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
     const [formValues, setFormValues] = useState({
         extra_amount_type: job.extra_amount_type ?? "fixed",
         extra_amount_value: job.extra_amount_value ?? 0,
+        extra_comment: job.extra_comment ?? "",
     });
     const [loading, setLoading] = useState(false);
 
@@ -97,6 +98,25 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
                                 value={formValues.extra_amount_value}
                                 className="form-control mb-3"
                             />
+                        </div>
+                        <div className="form-group">
+                            <label className="control-label">
+                                Comment
+                            </label>
+                            <textarea
+                                type="text"
+                                value={formValues.extra_comment}
+                                name="extra_comment"
+                                onChange={(e) => {
+                                    setFormValues({
+                                        ...formValues,
+                                        extra_comment: e.target.value,
+                                    });
+                                }}
+                                className="form-control"
+                                required
+                                placeholder="Enter Note"
+                            ></textarea>
                         </div>
                     </div>
                 </div>
