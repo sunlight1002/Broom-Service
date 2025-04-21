@@ -50,7 +50,7 @@ class TeamNotifyBefore30MinsIfWorkerNotConfirm extends Command
     {
         $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
-            ->whereIn('worker_id', ['209','185'])
+            ->whereIn('worker_id', ['209','185', '67'])
             ->whereHas('worker')
             // ->whereDoesntHave('workerMetas', function ($query) {
             //     $query->where('worker_id', DB::raw('jobs.worker_id'));

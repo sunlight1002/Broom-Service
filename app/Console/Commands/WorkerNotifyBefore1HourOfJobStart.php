@@ -51,7 +51,7 @@ class WorkerNotifyBefore1HourOfJobStart extends Command
 
         $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
-            ->whereIn('worker_id', ['209','185'])
+            ->whereIn('worker_id', ['209','185', '67'])
             ->whereHas('worker')
             ->whereDoesntHave('workerMetas', function ($query) {
                 $query->whereColumn('job_id', 'jobs.id') // Match by job_id

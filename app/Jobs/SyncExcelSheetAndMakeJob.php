@@ -486,22 +486,17 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                                 if(isset($selectedOfferData[0])) {
                                     // echo $currentDate . PHP_EOL;
-                                    $resJob = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
+                                    $resId = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
                                     
                                     if (!isset($newJob[$currentDate])) {
                                         $newJob[$currentDate] = [];
                                     }
                                 
                                     // Add job ID (if set)
-                                    if (isset($res['job']) && isset($res['job']->id)) {
-                                        $newJob[$currentDate][] = $res['job']->id;
+                                    if (isset($resId)) {
+                                        $newJob[$currentDate][] = $resId;
                                     }
                                 
-                                    // Add existing job ID (if set)
-                                    if (isset($res['existingJob']) && isset($res['existingJob']->id)) {
-                                        $newJob[$currentDate][] = $res['existingJob']->id;
-                                    }
-
                                     sleep(3);
                                     echo ($index + 1) . PHP_EOL;
                                 }
@@ -516,52 +511,51 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
-            }
+                \Log::info([$newJob]);
 
-            \Log::info('newJob', ['newJob' => $newJob]);
+                foreach ($newJob as $date => $jobIds) {
+                    $jobs = Job::whereDate('start_date', $date)
+                        ->whereNotIn('id', $jobIds)
+                        ->get();
 
-            foreach ($newJob as $date => $jobIds) {
-                $jobs = Job::whereDate('start_date', $date)
-                    ->whereNotIn('id', $jobIds)
-                    ->get();
-
-                    foreach ($jobs as $job) {
-                        $job->update([
-                            'status' => JobStatusEnum::CANCEL,
-                            'cancelled_by_role' => 'admin',
-                            'cancelled_at' => now(),
-                        ]);
-
-                        if(isset($job->order)) {
-                            $order = $job->order;
-                            if ($order->status == 'Closed') {
-                                return response()->json([
-                                    'message' => 'Job order is already closed',
-                                ], 403);
-                            }
-            
-                            $closeDocResponse = $this->cancelICountDocument(
-                                $order->order_id,
-                                'order',
-                                'Creating another order'
-                            );
-            
-                            if ($closeDocResponse['status'] != true) {
-                                return response()->json([
-                                    'message' => $closeDocResponse['reason']
-                                ], 500);
-                            }
-            
-                            $order->update(['status' => 'Cancelled']);
-            
-                            $order->jobs()->update([
-                                'isOrdered' => 'c',
-                                'order_id' => NULL,
-                                'is_order_generated' => false
+                        foreach ($jobs as $job) {
+                            $job->update([
+                                'status' => JobStatusEnum::CANCEL,
+                                'cancelled_by_role' => 'admin',
+                                'cancelled_at' => now(),
                             ]);
+
+                            if(isset($job->order)) {
+                                $order = $job->order;
+                                if ($order->status == 'Closed') {
+                                    return response()->json([
+                                        'message' => 'Job order is already closed',
+                                    ], 403);
+                                }
+                
+                                $closeDocResponse = $this->cancelICountDocument(
+                                    $order->order_id,
+                                    'order',
+                                    'Creating another order'
+                                );
+                
+                                if ($closeDocResponse['status'] != true) {
+                                    return response()->json([
+                                        'message' => $closeDocResponse['reason']
+                                    ], 500);
+                                }
+                
+                                $order->update(['status' => 'Cancelled']);
+                
+                                $order->jobs()->update([
+                                    'isOrdered' => 'c',
+                                    'order_id' => NULL,
+                                    'is_order_generated' => false
+                                ]);
+                            }
                         }
-                    }
-            };
+                };
+            }
             dd(implode(',', array_unique($client_ids)));
         } catch (\Exception $e) {
             dd($e);
@@ -860,11 +854,11 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $jobData->save();
                 
                 \Log::info("Job already exists. ID: {$jobData->id}");
-                return;
+                return $jobData->id;
             }
 
             if ($row[5] === "FALSE" && $row[6] === "FALSE") {
-                return;
+                return 0;
             }
 
             // Determine shift based on client's language and provided row values
@@ -1140,10 +1134,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $client->lead_status()->updateOrCreate([], ['lead_status' => $newLeadStatus]);
             }
 
-            return [
-                'job' => $job,
-                'existingJob' => $jobData
-            ];
+            return $job->id;
         } catch (\Throwable $th) {
             throw $th;
         }
