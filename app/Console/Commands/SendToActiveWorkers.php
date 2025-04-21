@@ -109,7 +109,7 @@ The Broom Service Team 🌹',
         ];
 
         // $workers = User::where('status', '1')->where('phone', '918469138538')->get();
-         $workers = User::where('status', '1')->where('stop_last_message', 1)->get();
+         $workers = User::where('status', '1')->where('stop_last_message', 0)->get();
         //  dd($workers);
         foreach ($workers as $worker) {
             \Log::info('Sending message to ' . $worker->phone . ' (' . $worker->firstname . ')');
@@ -121,8 +121,6 @@ The Broom Service Team 🌹',
                 ],
             ];
             event(new WhatsappNotificationEvent($workerData));
-            $worker->stop_last_message = 0;
-            $worker->save();
             WorkerMetas::create([
                 'worker_id' => $worker->id,
                 'job_id' => null,

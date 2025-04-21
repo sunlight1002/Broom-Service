@@ -20,7 +20,7 @@ class SetActiveWorkersMondayMessage extends Command
      *
      * @var string
      */
-    protected $description = 'set active workers monday message 0 to 1';
+    protected $description = 'set active workers monday message 1 to 0';
 
     /**
      * Create a new command instance.
@@ -39,15 +39,7 @@ class SetActiveWorkersMondayMessage extends Command
      */
     public function handle()
     {
-        $isSunday = now()->isSunday();
-
-        $users = User::where('status', 1)->get();
-        foreach ($users as $user) {
-            if($user->stop_last_message == 0 && $isSunday){
-                $user->stop_last_message = 1;
-                $user->save();
-            }
-        }
+        $users = User::where('status', 1)->where('stop_last_message', 1)->update(['stop_last_message' => 0]);
         return 0;
     }
 }
