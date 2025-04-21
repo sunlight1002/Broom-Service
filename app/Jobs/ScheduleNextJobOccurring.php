@@ -331,7 +331,8 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'duration_minutes'  => $minutes,
                 'total'             => $total_amount,
             ]);
-
+            
+            $nextJobService->save();
 
             if($status == JobStatusEnum::UNSCHEDULED) {
                 Conflict::create([
@@ -346,7 +347,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 ]);
             }
 
-            $nextJobService->save();
 
             foreach ($mergedContinuousTime as $key => $shift) {
                 $nextJob->workerShifts()->create([

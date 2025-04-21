@@ -166,6 +166,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $user->sheet_name = isset($sheetsName[$key]) ? $sheetsName[$key] : null;
             return $user;
         });
+        $newJob = [];
+
 
         try {
             $this->initGoogleConfig();
@@ -242,9 +244,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                             if ($client) {
                                 $rowCount = $index + 1;
-                                if(!empty($row[20])) {
-                                    continue;
-                                }
+                                // if(!empty($row[20])) {
+                                //     continue;
+                                // }
 
                                 // if(empty($row[22]) && ($row[6] === "TRUE")) {
                                 //     echo "Row {$rowCount}: Sheet: {$sheet} Order Not Created, Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
@@ -386,20 +388,20 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 // Update invoice name or client name in sheet
                                 $invoiceName = trim($row[0]);
                                 $fields = [];
-                                if (empty($invoiceName)) {
-                                    if (!empty($client->invoicename)) {
-                                        $invoiceName = $client->invoicename;
-                                    } else {
-                                        $invoiceName = $client->firstname . ' ' . $client->lastname;
-                                    }
-                                    $fields[] = [
-                                        'sheetId' => $sheetId, // Sheet ID
-                                        'cell' => "A" . ($index + 1), // Cell location
-                                        'type' => 'text', // Field type
-                                        'value' => trim($invoiceName),
-                                    ];
-                                }
-                                $selectedWorker = $row[8] ?? null;
+                                // if (empty($invoiceName)) {
+                                //     if (!empty($client->invoicename)) {
+                                //         $invoiceName = $client->invoicename;
+                                //     } else {
+                                //         $invoiceName = $client->firstname . ' ' . $client->lastname;
+                                //     }
+                                //     $fields[] = [
+                                //         'sheetId' => $sheetId, // Sheet ID
+                                //         'cell' => "A" . ($index + 1), // Cell location
+                                //         'type' => 'text', // Field type
+                                //         'value' => trim($invoiceName),
+                                //     ];
+                                // }
+                                $selectedWorker = $row[9] ?? null;
                                 $bestMatch = null;
 
 
@@ -408,7 +410,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         $bestMatch = $worker->fullname;
                                     }
                                 }
-
 
                                 $fields[] = [
                                     'sheetId' => $sheetId, // Sheet ID
@@ -459,14 +460,14 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     'value' => count($addressesArr) == 1 ? $addressesArr[0] : $selectedAddress,
                                 ];
 
-                                if ($selectedOfferData) {
-                                    $fields[] = [
-                                        'sheetId' => $sheetId, // Sheet ID
-                                        'cell' => "D" . ($index + 1), // Cell location
-                                        'type' => 'number', // Field type
-                                        'value' => $selectedOfferData[0]['totalamount'] ?? null,
-                                    ];
-                                }
+                                // if ($selectedOfferData) {
+                                //     $fields[] = [
+                                //         'sheetId' => $sheetId, // Sheet ID
+                                //         'cell' => "D" . ($index + 1), // Cell location
+                                //         'type' => 'number', // Field type
+                                //         'value' => $selectedOfferData[0]['totalamount'] ?? null,
+                                //     ];
+                                // }
 
 
 
@@ -483,26 +484,84 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                                 // continue;
 
-
-                                // \Log::info('Fields', ['fields' => $fields]);
-                                // echo json_encode($fields) . PHP_EOL;
-                                // $this->initGoogleConfig();
-                                // $response = $this->updateGoogleSheetFields($fields);
-                                // echo $response . PHP_EOL;
-                                // sleep(1);
-
                                 if(isset($selectedOfferData[0])) {
                                     // echo $currentDate . PHP_EOL;
-                                    $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
-    
+                                    $resJob = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
+                                    
+                                    if (!isset($newJob[$currentDate])) {
+                                        $newJob[$currentDate] = [];
+                                    }
+                                
+                                    // Add job ID (if set)
+                                    if (isset($res['job']) && isset($res['job']->id)) {
+                                        $newJob[$currentDate][] = $res['job']->id;
+                                    }
+                                
+                                    // Add existing job ID (if set)
+                                    if (isset($res['existingJob']) && isset($res['existingJob']->id)) {
+                                        $newJob[$currentDate][] = $res['existingJob']->id;
+                                    }
+
                                     sleep(3);
                                     echo ($index + 1) . PHP_EOL;
                                 }
+
+                                // // \Log::info('Fields', ['fields' => $fields]);
+                                // // echo json_encode($fields) . PHP_EOL;
+                                $this->initGoogleConfig();
+                                $response = $this->updateGoogleSheetFields($fields);
+                                // echo $response . PHP_EOL;
+                                // sleep(1);
                             }
                         }
                     }
                 }
             }
+
+            \Log::info('newJob', ['newJob' => $newJob]);
+
+            foreach ($newJob as $date => $jobIds) {
+                $jobs = Job::whereDate('start_date', $date)
+                    ->whereNotIn('id', $jobIds)
+                    ->get();
+
+                    foreach ($jobs as $job) {
+                        $job->update([
+                            'status' => JobStatusEnum::CANCEL,
+                            'cancelled_by_role' => 'admin',
+                            'cancelled_at' => now(),
+                        ]);
+
+                        if(isset($job->order)) {
+                            $order = $job->order;
+                            if ($order->status == 'Closed') {
+                                return response()->json([
+                                    'message' => 'Job order is already closed',
+                                ], 403);
+                            }
+            
+                            $closeDocResponse = $this->cancelICountDocument(
+                                $order->order_id,
+                                'order',
+                                'Creating another order'
+                            );
+            
+                            if ($closeDocResponse['status'] != true) {
+                                return response()->json([
+                                    'message' => $closeDocResponse['reason']
+                                ], 500);
+                            }
+            
+                            $order->update(['status' => 'Cancelled']);
+            
+                            $order->jobs()->update([
+                                'isOrdered' => 'c',
+                                'order_id' => NULL,
+                                'is_order_generated' => false
+                            ]);
+                        }
+                    }
+            };
             dd(implode(',', array_unique($client_ids)));
         } catch (\Exception $e) {
             dd($e);
@@ -609,22 +668,30 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $subServicesId      = $subServices['id'] ?? null;
             $subServicesAddress = $subServices['address'] ?? null;
 
-            // Build the job query with JSON conditions
-            $jobData = Job::where('offer_id', $offer->id)
-                ->where('start_date', $currentDate)
-                ->where('client_id', $client->id)
-                ->whereHas('contract', function ($q) {
-                    $q->where('status', 'verified');
-                })
-                ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
-                ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
-                ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
-                ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
-                ->when(
-                    (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
-                    fn($q) => $q->where('offer_service->address', $address)
-                )
-                ->first();
+            $jobData = null;
+
+            if(!empty($row[20])) {
+                $jobData = Job::where('id', trim($row[20]))->whereDate('start_date' ,$currentDate)->first();
+            }
+
+            if(!$jobData){
+                // Build the job query with JSON conditions
+                $jobData = Job::where('offer_id', $offer->id)
+                    ->where('start_date', $currentDate)
+                    ->where('client_id', $client->id)
+                    ->whereHas('contract', function ($q) {
+                        $q->where('status', 'verified');
+                    })
+                    ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
+                    ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
+                    ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
+                    ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
+                    ->when(
+                        (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
+                        fn($q) => $q->where('offer_service->address', $address)
+                    )
+                    ->first();
+            }
 
                 
             $tMinutes = 0;
@@ -643,19 +710,19 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     $decimalPart = $value - $wholePart;
 
                     if ($decimalPart == 0) {
-                        $minutes = 0;
+                        $minutesDuration = 0;
                     } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
-                        $minutes = 15;
+                        $minutesDuration = 15;
                     } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
-                        $minutes = 30;
+                        $minutesDuration = 30;
                     } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
-                        $minutes = 45;
+                        $minutesDuration = 45;
                     } else {
                         $wholePart += 1;
-                        $minutes = 0;
+                        $minutesDuration = 0;
                     }
 
-                    $tMinutes += ($wholePart * 60) + $minutes;
+                    $tMinutes += ($wholePart * 60) + $minutesDuration;
                 }
             } else {
                 // Handle normal single value
@@ -664,19 +731,19 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $decimalPart = $value - $wholePart;
 
                 if ($decimalPart == 0) {
-                    $minutes = 0;
+                    $minutesDuration = 0;
                 } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
-                    $minutes = 15;
+                    $minutesDuration = 15;
                 } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
-                    $minutes = 30;
+                    $minutesDuration = 30;
                 } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
-                    $minutes = 45;
+                    $minutesDuration = 45;
                 } else {
                     $wholePart += 1;
-                    $minutes = 0;
+                    $minutesDuration = 0;
                 }
 
-                $tMinutes = ($wholePart * 60) + $minutes;
+                $tMinutes = ($wholePart * 60) + $minutesDuration;
             }
 
 
@@ -719,15 +786,79 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     $jobData->is_job_done = true;
                     $jobData->save();
                     $this->updateJobAmount($jobData->id);
+                    
                     CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
                     $jobData->refresh();
-                    $orderId = $jobData->order->order_id;
+                    $orderId = $jobData->order ? $jobData->order->order_id : null;
+
                     if($orderId) {
                         $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
                         $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
                     }
+                }else if($row[6] === "TRUE" && $row[5] === "TRUE") {
+                    if($jobData->status != JobStatusEnum::COMPLETED || !isset($jobData->order)) {
+                        $jobData->status = JobStatusEnum::COMPLETED;
+                        $jobData->actual_time_taken_minutes = $tMinutes;
+                        $jobData->is_job_done = true;
+                        $jobData->save();
+                        $this->updateJobAmount($jobData->id);
+                        $jobData->refresh();
+
+                        if(isset($jobData->order)) {
+                            $orderId = $jobData->order ? $jobData->order->order_id : null;
+                            if($orderId) {
+                                $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                                $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                            }              
+                        }
+                    }
                 }
 
+                if($tMinutes != $jobData->actual_time_taken_minutes) {
+                    $jobData->actual_time_taken_minutes = $tMinutes;
+                    $jobData->save();
+                }
+                $selectedAddress = $row[19] ?? null;
+                $selectedOffer = is_array($jobData->offer_service)
+                ? $jobData->offer_service
+                : json_decode($jobData->offer_service, true);
+
+                $newSelectedOfferData = [];
+                
+                    if ($selectedOffer['template'] == 'airbnb' && isset($selectedOffer['sub_services']['address']) && !empty($selectedOffer['sub_services']['address'])) {
+                        $addressRecord = ClientPropertyAddress::where('id', $selectedOffer['sub_services']['address'])
+                            ->where('address_name', $selectedAddress)
+                            ->first();
+                
+                        if ($addressRecord) {
+                            // Update the address field
+                            $selectedOffer['sub_services']['address'] = $addressRecord->id;
+                
+                            // Set jobData address_id
+                            $jobData->address_id = $addressRecord->id;
+                
+                            $newSelectedOfferData[] = $selectedOffer;
+                        }
+                    } else {
+                        $addressRecord = ClientPropertyAddress::where('id', $selectedOffer['address'] ?? null)
+                            ->where('address_name', $selectedAddress)
+                            ->first();
+                
+                        if ($addressRecord) {
+                            // Update the address field
+                            $selectedOffer['address'] = $addressRecord->id;
+                
+                            // Set jobData address_id
+                            $jobData->address_id = $addressRecord->id;
+                
+                            $newSelectedOfferData[] = $selectedOffer;
+                        }
+                    }
+                
+                // Save modified offer_service back to jobData
+                $jobData->offer_service = $selectedOffer;
+                $jobData->save();
+                
                 \Log::info("Job already exists. ID: {$jobData->id}");
                 return;
             }
@@ -830,9 +961,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 ];
                 $startTime = $shiftMapping[$shift] ?? "08:00:00";
             }
-
-            \Log::info("Offer ID: {$offer->id}");
-            \Log::info("Client ID: {$offer->client_id}");
 
             $startDateTime = Carbon::createFromFormat('H:i:s', $startTime);
             $endDateTime   = $startDateTime->copy()->addHours($wholePart)->addMinutes($minutesDuration);
@@ -1011,6 +1139,11 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                 $client->lead_status()->updateOrCreate([], ['lead_status' => $newLeadStatus]);
             }
+
+            return [
+                'job' => $job,
+                'existingJob' => $jobData
+            ];
         } catch (\Throwable $th) {
             throw $th;
         }

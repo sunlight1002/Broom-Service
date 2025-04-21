@@ -406,6 +406,7 @@ class ClientController extends Controller
                 $sdata = $jd['service'];
 
                 $job = Job::create([
+                    'uuid'        => Str::uuid(),
                     'worker_id' => $jdata['worker'],
                     'address_id' => $jdata['address_id'],
                     'client_id' => $jdata['client_id'],

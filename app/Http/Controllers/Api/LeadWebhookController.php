@@ -1405,9 +1405,9 @@ If you would like to speak to a human representative, please send a message with
                                 }
                             } else {
                                 if ($client->lng == 'heb') {
-                                    $msg = "מצטערים, אין כרגע זמינות לפגישות. נציג מטעמנו ייצור עמכם קשר בהקדם. \n\nהאם יש משהו נוסף שאני יכול לעזור לך בו היום? (כן או לא) 👋";
+                                    $msg = "נציג מטעמנו ייצור עמכם קשר בהקדם. \n\nהאם יש משהו נוסף שאני יכול לעזור לך בו היום? (כן או לא) 👋";
                                 } else {
-                                    $msg = "Sorry, there are no available slots for an appointment at the moment.\n\nA representative from our team will contact you shortly.\n\nIs there anything else I can help you with today? (Yes or No) 👋";
+                                    $msg = "A representative from our team will contact you shortly.\n\nIs there anything else I can help you with today? (Yes or No) 👋";
                                 }
 
                                 event(new WhatsappNotificationEvent([
@@ -3282,8 +3282,8 @@ office@broomservice.co.il';
                                 $scheduleChange->save();
 
                                 // Send message to team
-                                $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
-                                $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                                $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                                $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . trim($messageBody). '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                                 $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
@@ -3304,7 +3304,9 @@ office@broomservice.co.il';
                             $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
-                            $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+
+                            // Send message to team
+                            $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName. "*". " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
