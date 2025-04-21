@@ -99,24 +99,9 @@ office@broomservice.co.il',
 
         ];
 
-        $specialSundayMsg = [
-            "en" => "Dear Clients,
-
-On Sunday, the 13th of the month, due to Passover Holiday, Broom Service will not be operating.
-
-If you are scheduled for service on that day and wish to reschedule, please let us know, and we’ll do our best to offer you an alternative time.
-
-Warm regards,
-Broom Service Team 🌷",
-
-            "heb" => "לקוחות יקרים,
-
-ביום ראשון, ה-13 לחודש, בחג הפסח, החברה לא תעבוד.
-
-לקוחות אשר משובצים לקבלת שירות ביום זה ורוצים לשנות את התאריך – מוזמנים לעדכן אותנו וננסה למצוא עבורם תחליף במועד אחר.
-
-בברכה,
-צוות ברום סרוויס 🌸"
+        $specialMsg = [
+            "en" => "Dear Clients,\n\nOn Wednesday, April 30th (Independence Day Eve), Broom Service will be operating until 1:00 PM only.\nOn Thursday, May 1st (Independence Day), the company will be closed.\n\nIf you are scheduled for service on that day and wish to change your appointment, please let us know as soon as possible and we will try to reschedule you.\n\nClients who would like to request service on Independence Day (for ongoing cleaning or help with hosting) are welcome to contact us to check availability.\n\nBest regards,\nBroom Service Team 🌷",
+            "heb" => "לקוחות יקרים,\n\nביום רביעי 30.04 (ערב יום העצמאות) החברה תעבוד עד השעה 13:00 בלבד.\nביום חמישי 01.05 (יום העצמאות) החברה לא תעבוד.\n\nלקוחות אשר משובצים לקבלת שירות ביום זהומעוניינים לשנות את המועד – מוזמנים לעדכן אותנו בהקדם וננסה למצוא עבורם חלופה.\n\nלקוחות המעוניינים לקבל שירות דווקא ביום העצמאות (לצורך ניקיון שוטף או עזרה באירוח) – מוזמנים לפנות אלינו ונשמח לבדוק עבורם אפשרות לשיבוץ מיוחד.\n\nבברכה,\nצוות ברום סרוויס 🌸"
         ];
 
         $clients = Client::where('status', '2')
@@ -146,7 +131,7 @@ Broom Service Team 🌷",
             $client->save();
 
 
-            $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $specialSundayMsg[$client->lng]));
+            $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $specialMsg[$client->lng]));
 
             if (!$result) {
                 \Log::error('Failed to send message to ' . $client->phone);

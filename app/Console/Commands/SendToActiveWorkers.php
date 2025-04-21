@@ -102,37 +102,14 @@ The Broom Service Team 🌹',
 
         ];
 
-        $specialSundayMsg = [
-            'en' => "Hello :worker_name,
-
-On Sunday, the 13th of the month, due to Passover, there will be no work.
-
-If you are unavailable on another day that week, please let us know as soon as possible.
-
-Thank you,
-Broom Service Team",
-
-            'heb' => "שלום :worker_name,
-
-ביום ראשון, ה-13 לחודש, חג פסח – לא עובדים.
-
-אם אינך יכול לעבוד באחד מימי השבוע האחרים – אנא עדכן אותנו עוד היום.
-
-בברכה,
-צוות ברום סרוויס",
-             
-            'ru' => "Здравствуйте :worker_name,
-
-В воскресенье, 13 числа, в связи с праздником Песах, работы не будет.
-
-Если вы не можете работать в другой день этой недели – пожалуйста, сообщите нам как можно скорее.
-
-С уважением,
-Команда Broom Service 🌹"
+        $specialMsg = [
+            "heb" => "שלום :worker_name,\n\nביום רביעי 30.04 (ערב יום העצמאות) – עובדים עד השעה 13:00 בלבד.\nביום חמישי 01.05 (יום העצמאות) – אין עבודה.\n\nאם יש לך אילוצים או בקשות מיוחדות לשבוע הזה – נא לעדכן אותנו בהקדם.\n\nתודה,\nצוות ברום סרוויס",
+            "en" => "Hello :worker_name,\n\nOn Wednesday, April 30th (Independence Day Eve) – we will work until 1:00 PM only.\nOn Thursday, May 1st (Independence Day) – there is no work.\n\nIf you have any special requests or changes for this week, please let us know.\n\nThank you,\nBroom Service Team",
+            "ru" => "Здравствуйте :worker_name,\n\nВ среду, 30 апреля (канун Дня независимости) – мы работаем только до 13:00.\nВ четверг, 1 мая (День независимости) – работы не будет.\n\nЕсли у вас есть пожелания или изменения на эту неделю – пожалуйста, сообщите нам.\n\nС уважением,\nКоманда Broom Service"
         ];
 
         // $workers = User::where('status', '1')->where('phone', '918469138538')->get();
-         $workers = User::where('status', '1')->where('stop_last_message', 0)->get();
+         $workers = User::where('status', '1')->where('stop_last_message', 1)->get();
         //  dd($workers);
         foreach ($workers as $worker) {
             \Log::info('Sending message to ' . $worker->phone . ' (' . $worker->firstname . ')');
@@ -153,7 +130,7 @@ Broom Service Team",
                 'value' => now()->toISOString(),
             ]);
 
-            $modifyMessage = str_replace(':worker_name', trim(($worker->firstname ?? '') . ' ' . ($worker->lastname ?? '')), $specialSundayMsg[$worker->lng] ?? $specialSundayMsg['en']);
+            $modifyMessage = str_replace(':worker_name', trim(($worker->firstname ?? '') . ' ' . ($worker->lastname ?? '')), $specialMsg[$worker->lng ?? 'en']);
 
             $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $modifyMessage));
 
