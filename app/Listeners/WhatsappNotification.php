@@ -739,8 +739,6 @@ class WhatsappNotification
                     $token = $this->whapiApiToken;
                 }
 
-                $receiverNumber = "918000318833";
-
                 $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
