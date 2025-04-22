@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use Carbon\Carbon;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
@@ -61,6 +62,9 @@ class ContractController extends Controller
                         });
                     }
                 }
+            })
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
             })
             ->editColumn('client_name', function ($data) {
                 return $data->firstname . ' ' . $data->lastname;

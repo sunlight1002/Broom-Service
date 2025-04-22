@@ -76,7 +76,6 @@ export default function Contract() {
                     {
                         title: t("global.date"),
                         data: "created_at",
-                        visible: false,
                     },
                     {
                         title: t("client.dashboard.client"),
