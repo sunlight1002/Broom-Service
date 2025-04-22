@@ -215,11 +215,11 @@ export default function ClientViewOffer() {
                                                                     <Th
                                                                         style={
                                                                             ofr.type !=
-                                                                            "fixed"
+                                                                                "fixed"
                                                                                 ? {
-                                                                                      display:
-                                                                                          "none",
-                                                                                  }
+                                                                                    display:
+                                                                                        "none",
+                                                                                }
                                                                                 : {}
                                                                         }
                                                                         className="text-right"
@@ -231,11 +231,11 @@ export default function ClientViewOffer() {
                                                                     <Th
                                                                         style={
                                                                             perhour ==
-                                                                            0
+                                                                                0
                                                                                 ? {
-                                                                                      display:
-                                                                                          "none",
-                                                                                  }
+                                                                                    display:
+                                                                                        "none",
+                                                                                }
                                                                                 : {}
                                                                         }
                                                                         className="text-right"
@@ -247,11 +247,11 @@ export default function ClientViewOffer() {
                                                                     <Th
                                                                         style={
                                                                             ofr.type ==
-                                                                            "fixed"
+                                                                                "fixed"
                                                                                 ? {
-                                                                                      display:
-                                                                                          "none",
-                                                                                  }
+                                                                                    display:
+                                                                                        "none",
+                                                                                }
                                                                                 : {}
                                                                         }
                                                                         className="text-right"
@@ -278,13 +278,14 @@ export default function ClientViewOffer() {
                                                                                     <Td>
                                                                                         {s.address ? (
                                                                                             <Link
-                                                                                                to={`https://maps.google.com?q=${s.address.geo_address}`}
-                                                                                            >
-                                                                                                {
-                                                                                                    s
-                                                                                                        .address
-                                                                                                        .address_name
+                                                                                                to={
+                                                                                                    s.address.latitude && s.address.longitude
+                                                                                                        ? `https://maps.google.com/?q=${s.address.latitude},${s.address.longitude}`
+                                                                                                        : `https://maps.google.com?q=${s.address.geo_address}`
                                                                                                 }
+                                                                                                target="_blank"
+                                                                                            >
+                                                                                                {s.address.address_name}
                                                                                             </Link>
                                                                                         ) : (
                                                                                             "NA"
@@ -315,16 +316,16 @@ export default function ClientViewOffer() {
                                                                                     </Td>
                                                                                     {s.type !=
                                                                                         "fixed" ||
-                                                                                    perhour ==
+                                                                                        perhour ==
                                                                                         1 ? (
                                                                                         <>
                                                                                             <Td className="text-right">
                                                                                                 {s.rateperhour
                                                                                                     ? s.rateperhour +
-                                                                                                      " " +
-                                                                                                      t(
-                                                                                                          "global.currency"
-                                                                                                      )
+                                                                                                    " " +
+                                                                                                    t(
+                                                                                                        "global.currency"
+                                                                                                    )
                                                                                                     : "--"}
                                                                                             </Td>
                                                                                             <Td className="text-right">

@@ -40,7 +40,7 @@ class ScheduleController extends Controller
             ->leftJoin('admins', 'schedules.team_id', '=', 'admins.id')
             ->leftJoin('clients', 'schedules.client_id', '=', 'clients.id')
             ->leftJoin('client_property_addresses', 'schedules.address_id', '=', 'client_property_addresses.id')
-            ->select('schedules.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.phone', 'schedules.booking_status', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time', 'client_property_addresses.geo_address');
+            ->select('schedules.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.phone', 'schedules.booking_status', 'client_property_addresses.city', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time', 'client_property_addresses.geo_address');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -311,9 +311,9 @@ class ScheduleController extends Controller
             ->get();
 
         $events = [];
+        $eventArr = [];
         foreach ($schedules as $schedule) {
-            $eventArr = [];
-
+            \Log::info($schedule);
             $date = Carbon::parse($schedule['start_date'])->format('Y-m-d');
             $startAt = $date . ' ' . $schedule['start_time'];
             $endAt = $date . ' ' . $schedule['end_time'];

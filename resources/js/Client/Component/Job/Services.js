@@ -28,7 +28,7 @@ export default function Services({ job }) {
         status = t("j_status.cancel");
     }
 
-    const service = job.jobservice;    
+    const service = job.jobservice;
 
     return (
         <>
@@ -92,8 +92,11 @@ export default function Services({ job }) {
                                             <p>
                                                 <Link
                                                     target="_blank"
-                                                    to={`https://maps.google.com?q=${job.property_address.geo_address}`}
-                                                >
+                                                    to={
+                                                        job.property_address.latitude && job.property_address.longitude
+                                                            ? `https://maps.google.com/?q=${job.property_address.latitude},${job.property_address.longitude}`
+                                                            : `https://maps.google.com?q=${job.property_address.geo_address}`
+                                                    }>
                                                     {
                                                         job.property_address
                                                             .address_name

@@ -85,7 +85,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                         </span>
                                                     </p>
                                                     <p>
-                                                    {t("client.offer.view.email")}:{" "}
+                                                        {t("client.offer.view.email")}:{" "}
                                                         <span>
                                                             office@broomservice.co.il
                                                         </span>
@@ -105,11 +105,11 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                             cl.zipcode}
                                                     </p> */}
                                                     <p>
-                                                    {t("client.offer.view.phone")}:{" "}
+                                                        {t("client.offer.view.phone")}:{" "}
                                                         <span>+{cl.phone}</span>
                                                     </p>
                                                     <p>
-                                                    {t("client.offer.view.email")}:{" "}
+                                                        {t("client.offer.view.email")}:{" "}
                                                         <span>{cl.email}</span>
                                                     </p>
                                                 </div>
@@ -138,12 +138,12 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                             <div className="card card-dark" style={{ boxShadow: "none", backgroundColor: "#FFFFFF" }}>
                                                 <div className="card-header border-0 card-black">
                                                     <h3 className="card-title mb-0 navyblueColor">
-                                                    {t("client.offer.view.services")}
+                                                        {t("client.offer.view.services")}
                                                     </h3>
                                                 </div>
                                                 <div className="card-body">
                                                     <div className="table-responsive">
-                                                    <table className="table table-md navyblueColor">
+                                                        <table className="table table-md navyblueColor">
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "30%" }}>{t("client.offer.view.address")}</th>
@@ -168,13 +168,16 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                                         <tr key={i}>
                                                                             <td>
                                                                                 {s.address ? (
-                                                                                    <a
-                                                                                        href={`https://maps.google.com?q=${s.address.geo_address}`}
+                                                                                    <Link
+                                                                                        to={
+                                                                                            s.address.latitude && s.address.longitude
+                                                                                                ? `https://maps.google.com/?q=${s.address.latitude},${s.address.longitude}`
+                                                                                                : `https://maps.google.com?q=${s.address.geo_address}`
+                                                                                        }
                                                                                         target="_blank"
-                                                                                        rel="noopener noreferrer"
                                                                                     >
                                                                                         {s.address.address_name}
-                                                                                    </a>
+                                                                                    </Link>
                                                                                 ) : (
                                                                                     "NA"
                                                                                 )}

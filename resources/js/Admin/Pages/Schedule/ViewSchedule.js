@@ -211,6 +211,7 @@ export default function ViewSchedule() {
             alert.success(res.data.message);
             setEmailModal(false);
             setEmail("");
+            getClient();
         }        
     }
 

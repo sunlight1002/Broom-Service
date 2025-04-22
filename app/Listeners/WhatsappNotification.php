@@ -355,12 +355,13 @@ class WhatsappNotification
         $placeholders = [];
         if($eventData) {
             $placeholders = [
-                ':order_id' => $eventData['order_id'] ?? '',
+                ':order_id' => $eventData['order_id'] ? $eventData['order_id'] : $eventData['order']['order_id'] ?? '',
                 ':discount' => $eventData['discount'] ?? '',
                 ':total' => $eventData['total_amount'] ?? '',
                 ':extra' => $eventData['extra'] ?? '',
-                ':invoice_id' => $eventData['invoice']['invoice_id'] ?? '',
-                ':card_number' => $eventData['card']['card_number'] ?? ''
+                ':invoice_id' => $eventData['invoice']['invoice_id'] ? $eventData['invoice']['invoice_id'] : $eventData['invoice_id'] ?? '',
+                ':card_number' => $eventData['card']['card_number'] ? $eventData['card']['card_number'] : $eventData['card_number'] ?? '',
+                ':icount_doc_url' => $eventData['order'] ? "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=" . $eventData['order']['order_id'] : '',
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);

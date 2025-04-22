@@ -36,7 +36,7 @@ class NotifyTeamAndWorkerForVisaRenewal extends Command
         $nextSunday = $nextMonday->copy()->endOfWeek();        // Following Sunday
 
         // Find users with a renewal date within the next Monday - Sunday range
-        $users = User::whereBetween('renewal_visa', [$nextMonday, $nextSunday])->get();
+        $users = User::whereBetween('renewal_visa', [$nextMonday, $nextSunday])->where('status', 1)->get();
 
         if ($users->isEmpty()) {
             $this->info("No users have a visa renewal date in the upcoming week.");

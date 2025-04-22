@@ -44,21 +44,12 @@ export default function WorkContract() {
 
     const handleAccept = (e) => {
 
-        if (!cards) {
-            if (!ctype) { swal('Please select card type', '', 'error'); return false; }
-            if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
-            if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
-            if (cvv.length < 3) { swal('Invalid cvv', '', 'error'); return false; }
-        } else {
-
-            setCtype(cards?.card_type || '')
-            setCname(cards?.card_holder_name || '')
-            setCnumber(cards?.card_number || '')
-        }
+        if (!ctype) { swal('Please select card type', '', 'error'); return false; }
+        if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
+        if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
+        if (cvv.length < 3) { swal('Invalid cvv', '', 'error'); return false; }
         if (!signature) { swal('Please sign the contract', '', 'error'); return false; }
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
-
-
 
         const data = {
             unique_hash: param.id,

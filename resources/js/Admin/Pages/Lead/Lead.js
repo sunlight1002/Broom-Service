@@ -21,7 +21,7 @@ import FilterButtons from "../../../Components/common/FilterButton";
 export default function Lead() {
     const { t, i18n } = useTranslation();
     const statusArr = {
-        // pending: t("admin.leads.Pending"),
+        pending: t("admin.leads.Pending"),
         // potential: t("admin.leads.Potential"),
         irrelevant: t("admin.leads.Irrelevant"),
         uninterested: t("admin.leads.Uninterested"),

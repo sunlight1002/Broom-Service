@@ -68,7 +68,6 @@ class WorkerNotifyBefore1HourOfJobStart extends Command
             ->get();
 
         foreach ($jobs as $key => $job) {
-            \Log::info($job->toArray());
             $worker = $job->worker;
             $client = $job->client;
             if ($worker) {

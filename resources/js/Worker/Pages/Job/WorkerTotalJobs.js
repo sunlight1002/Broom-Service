@@ -318,13 +318,16 @@ export default function WorkerTotalJobs() {
                                                         <Td>
                                                             {item.property_address ? (
                                                                 <Link
-                                                                    to={`https://maps.google.com?q=${item.property_address.geo_address}`}
-                                                                    target="_blank"
-                                                                >
-                                                                    {
-                                                                        address_name
-                                                                    }
-                                                                </Link>
+                                                                to={
+                                                                    item.property_address.latitude && item.property_address.longitude
+                                                                        ? `https://maps.google.com/?q=${item.property_address.latitude},${item.property_address.longitude}`
+                                                                        : `https://maps.google.com?q=${item.property_address.geo_address}`
+                                                                }
+                                                                target="_blank"
+                                                            >
+                                                                {address_name}
+                                                            </Link>
+                                                            
                                                             ) : (
                                                                 <>
                                                                     {

@@ -44,17 +44,26 @@ class NotifyTeamAndClientTommorowMeetings extends Command
 
         if ($schedules->isNotEmpty()) {
             foreach ($schedules as $schedule) {
-                $geoAddress = urlencode($schedule->propertyAddress->geo_address); // Encode the address
+                $propertyAddress = $schedule->propertyAddress;
+
+                // Determine the map link
+                if (!empty($propertyAddress->latitude) && !empty($propertyAddress->longitude)) {
+                    $mapLink = "https://maps.google.com/?q={$propertyAddress->latitude},{$propertyAddress->longitude}";
+                } else {
+                    $geoAddress = urlencode($propertyAddress->geo_address);
+                    $mapLink = "https://maps.google.com?q={$geoAddress}";
+                }
+        
+                $shortMapLink = generateShortUrl(url($mapLink), 'admin');
+
                 $TeamMessage .= "$count. *פגישה עם " . $schedule->client->firstname ." " .$schedule->client->lastname ."*"."  
  - *שעה*: " . Carbon::parse($schedule->start_date ?? "00-00-0000")->format('M d Y') . " " .  ($schedule->start_time ?? '') . "  
  - *מיקום*: " . $schedule->meet_link ."
  - *נושא הפגישה*: " . $schedule->purpose ."
  - *פרטי קשר של הלקוח*: " . $schedule->client->phone ." / " . $schedule->client->email . "
- - *כתובת*: " . generateShortUrl(url("https://maps.google.com?q=" . $geoAddress), 'admin') . "\n";
+ - *כתובת*: " . $shortMapLink . "\n";
 
                 $count += 1;
-                
-                $geoAddress = generateShortUrl(url("https://maps.google.com?q=" . $schedule->client->geo_address), 'admin');
             $this->notifyClient($schedule);
             }
             

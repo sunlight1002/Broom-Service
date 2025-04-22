@@ -21,10 +21,13 @@ export default function WorkerLead() {
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [filter, setFilter] = useState("All");
+    const [subFilter, setSubFilter] = useState("All");
     const [workerLeadId, setWorkerLeadId] = useState(null);
     const [status, setStatus] = useState("pending");
+    const [notHiredStatus, setNotHiredStatus] = useState("construction visa");
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
+    const subFilterRef = useRef(subFilter);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -51,6 +54,14 @@ export default function WorkerLead() {
         "not-hired": "not-hired",
     };
 
+    const notHiredSubStatus = {
+        "construction visa": "construction visa",
+        "caregiver visa": "caregiver visa",
+        "hotel sector": "hotel sector",
+        "Tied to employer": "Tied to employer",
+        "expired": "expired"
+    };
+
     const toggleChangeStatusModal = (_id) => {
         setIsOpen(!isOpen);
         setWorkerLeadId(_id);
@@ -61,7 +72,7 @@ export default function WorkerLead() {
         try {
             const response = await axios.post(
                 `/api/admin/worker-leads/${workerLeadId}/status`,
-                { status },
+                { status, sub_status: notHiredStatus },
                 { headers }
             );
             setLoading(false);
@@ -92,6 +103,10 @@ export default function WorkerLead() {
                             filterRef.current === "All"
                                 ? null
                                 : filterRef.current; // Use ref here
+                        d.sub_status =
+                            subFilterRef.current === "All"
+                                ? null
+                                : subFilterRef.current; // Use ref here
                     },
                 },
                 order: [[0, "desc"]],
@@ -162,20 +177,16 @@ export default function WorkerLead() {
                                         <i class="fa fa-ellipsis-vertical"></i> 
                                     </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${
-                                            row.id
-                                        }">${t("admin.leads.Edit")}</button>
-                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${
-                                            row.id
-                                        }">${t("admin.leads.view")}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${
-                                            row.id
-                                        }">${t(
-                                "admin.leads.change_status"
-                            )}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${
-                                            row.id
-                                        }">${t("admin.leads.Delete")}</button>
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id
+                                }">${t("admin.leads.Edit")}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id
+                                }">${t("admin.leads.view")}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id
+                                }">${t(
+                                    "admin.leads.change_status"
+                                )}</button>
+                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id
+                                }">${t("admin.leads.Delete")}</button>
                                     </div> 
                                 </div>`;
                         },
@@ -300,10 +311,11 @@ export default function WorkerLead() {
 
     useEffect(() => {
         filterRef.current = filter; // Update the ref with the latest filter
+        subFilterRef.current = subFilter; // Update the ref with the latest subFilter
         const table = $(tableRef.current).DataTable();
         table.ajax.reload(null, false); // Reload the table without resetting pagination
         table.columns.adjust().draw(); // This forces a redraw to fix the column shifting issue
-    }, [filter]);
+    }, [filter, subFilter]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -396,6 +408,43 @@ export default function WorkerLead() {
                             )}
                         </div>
                     </div>
+                    {
+                        filter == "not-hired" && (
+                            <div className="row mt-2">
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        marginTop: 10,
+                                        marginLeft: 15,
+                                    }}
+                                >
+                                    {t("global.sub_filter")}
+                                </div>
+                                <div>
+                                    <FilterButtons
+                                        text={t("admin.global.All")}
+                                        className="px-3 mr-1 ml-4"
+                                        selectedFilter={subFilter}
+                                        setselectedFilter={setSubFilter}
+                                    />
+                                    {Object.entries(notHiredSubStatus).map(
+                                        ([key, value]) => (
+                                            <FilterButtons
+                                                text={value}
+                                                name={key}
+                                                className="px-3 mr-1"
+                                                key={key}
+                                                selectedFilter={subFilter}
+                                                setselectedFilter={(status) =>
+                                                    setSubFilter(status)
+                                                }
+                                            />
+                                        )
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    }
                     <div
                         className="dashBox pt-4 pb-4 w-100"
                         style={{
@@ -443,6 +492,28 @@ export default function WorkerLead() {
                                 </select>
                             </div>
                         </div>
+                        {
+                            status == "not-hired" && (
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">Sub Status</label>
+
+                                        <select
+                                            name="status"
+                                            onChange={(e) => setNotHiredStatus(e.target.value)}
+                                            value={notHiredStatus}
+                                            className="form-control mb-3"
+                                        >
+                                            {Object.keys(notHiredSubStatus).map((s) => (
+                                                <option key={s} value={s}>
+                                                    {notHiredSubStatus[s]}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            )
+                        }
                     </div>
                 </Modal.Body>
 

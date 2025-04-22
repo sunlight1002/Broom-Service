@@ -43,7 +43,13 @@ export default function Schedule() {
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${data} </a>`;
+                            if(row.latitude && row.longitude){
+                                return `<a href="https://maps.google.com/?q=${row.latitude},${row.longitude}" target="_blank" style="color: black; text-decoration: underline;">
+                                ${row.city ? row.city + ", " : ""} ${data}
+                            </a>`;
+                            }else{
+                                return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${row.city ? row.city + ", " : ""} ${data} </a>`;
+                            }
                         } else {
                             return "NA";
                         }

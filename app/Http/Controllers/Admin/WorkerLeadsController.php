@@ -47,6 +47,7 @@ class WorkerLeadsController extends Controller
             'email',
             'phone',
             'status',
+            'sub_status',
             'experience_in_house_cleaning',
             'you_have_valid_work_visa',
         ];
@@ -68,10 +69,16 @@ class WorkerLeadsController extends Controller
                 }
             });
         }
+        \Log::info($request->get('status'));
 
         // Filter by status if provided
         if ($request->has('status') && $request->get('status') !== null) {
             $query->where('status', $request->get('status'));
+        }
+
+        // Filter by sub_status if provided
+        if ($request->has('sub_status') && $request->get('sub_status') !== null && $request->get('status') == "not-hired") {
+            $query->where('sub_status', $request->get('sub_status'));
         }
 
         // Select specified columns
@@ -92,7 +99,7 @@ class WorkerLeadsController extends Controller
                 'name' => $lead->firstname . ' ' . $lead->lastname,
                 'email' => $lead->email,
                 'phone' => $lead->phone,
-                'status' => $lead->status,
+                'status' => $lead->sub_status && $lead->status == "not-hired" ? $lead->sub_status :$lead->status,
                 'experience_in_house_cleaning' => $lead->experience_in_house_cleaning ? 'Yes' : 'No',
                 'you_have_valid_work_visa' => $lead->you_have_valid_work_visa ? 'Yes' : 'No',
             ];
@@ -275,6 +282,7 @@ class WorkerLeadsController extends Controller
 
         // Change the status
         $workerLead->status = $request->status;
+        $workerLead->sub_status = $request->status == "not-hired" ? $request->sub_status : null;
         \Log::info($request->status);
         $workerLead->save();
 

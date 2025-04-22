@@ -45,9 +45,8 @@ export default function TotalJobs() {
                     title: t("client.jobs.service"),
                     data: "service_name",
                     render: function (data, type, row, meta) {
-                        let _html = `<span class="service-name-badge" style="background-color: ${
-                            row.service_color ?? "#FFFFFF"
-                        };">`;
+                        let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"
+                            };">`;
 
                         _html += data;
 
@@ -69,7 +68,13 @@ export default function TotalJobs() {
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="text-decoration: underline; color: black;"> ${data} </a>`;
+                            if (row.latitude && row.longitude) {
+                                return `<a href="https://maps.google.com/?q=${row.latitude},${row.longitude}" target="_blank" style="color: black; text-decoration: underline;">
+                                ${row.city ? row.city + ", " : ""} ${data}
+                            </a>`;
+                            } else {
+                                return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${row.city ? row.city + ", " : ""} ${data} </a>`;
+                            }
                         } else {
                             return "NA";
                         }
@@ -199,7 +204,7 @@ export default function TotalJobs() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

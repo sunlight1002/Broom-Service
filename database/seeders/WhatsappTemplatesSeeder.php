@@ -1996,6 +1996,9 @@ Click here to take action: :lead_detail_url',
 
 ההזמנה של הלקוח *:client_name* (:order_id) בוטלה.
 
+כתובת אתר להזמנה: :icount_doc_url
+פרטי הלקוח: :client_detail_url
+
 בברכה,
 ברום סרוויס צוות',
 

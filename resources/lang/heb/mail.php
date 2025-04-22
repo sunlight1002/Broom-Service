@@ -16,6 +16,7 @@ return [
         'service'     => 'הצעת מחיר',
         'accept'      => 'אשר',
         'reject'      => 'בטל',
+        'accept_decline' => 'אשר\דחה',
         'reschedule'  => 'מועד אחר',
         'price_offer' => 'הצעת מחיר',
         'quality_check' => 'בקרת איכות',

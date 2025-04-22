@@ -88,6 +88,26 @@ export const leadStatusColor = (_status) => {
             _color = "red";
             break;
 
+        case "construction visa":
+            _color = "#6f6e6e";
+            break;
+
+        case "caregiver visa":
+            _color = "#e565ac";
+            break;
+
+        case "hotel sector":
+            _color = "#53bdb3";
+            break;
+
+        case "Tied to employer":
+            _color = "#4c9b2485";
+            break;
+
+        case "expired":
+            _color = "#a95a3cf2";
+            break;
+
         default:
             break;
     }

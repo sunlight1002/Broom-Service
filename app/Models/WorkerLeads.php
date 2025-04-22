@@ -27,6 +27,7 @@ class WorkerLeads extends Model
         'passport_card',
         'lng',
         'status',
+        'sub_status',
         'role',
         'hourly_rate',
         'company_type',

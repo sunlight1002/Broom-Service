@@ -189,14 +189,16 @@ class ContractController extends Controller
             'status' => ContractStatusEnum::VERIFIED
         ]);
 
-        $newLeadStatus = LeadStatusEnum::FREEZE_CLIENT;
+        $newLeadStatus = LeadStatusEnum::ACTIVE_CLIENT;
 
         if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => $newLeadStatus]
             );
-
+            $client->status = 2;
+            $client->save();
+            
             $emailData = [
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,

@@ -304,7 +304,7 @@ export default function WorkerDashboard() {
                                                                 }
                                                             </Td>
                                                             <Td>
-                                                            {startTime}-{endTime}
+                                                                {startTime}-{endTime}
                                                             </Td>
                                                             <Td>
                                                                 {item.property_address ? (
@@ -453,13 +453,16 @@ export default function WorkerDashboard() {
                                                         <Td>
                                                             {item.property_address ? (
                                                                 <Link
-                                                                    to={`https://maps.google.com?q=${item.property_address.geo_address}`}
+                                                                    to={
+                                                                        item.property_address.latitude && item.property_address.longitude
+                                                                            ? `https://maps.google.com/?q=${item.property_address.latitude},${item.property_address.longitude}`
+                                                                            : `https://maps.google.com?q=${item.property_address.geo_address}`
+                                                                    }
                                                                     target="_blank"
                                                                 >
-                                                                    {
-                                                                        address_name
-                                                                    }
+                                                                    {address_name}
                                                                 </Link>
+
                                                             ) : (
                                                                 <>
                                                                     {

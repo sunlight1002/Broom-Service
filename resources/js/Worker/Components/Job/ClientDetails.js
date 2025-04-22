@@ -43,7 +43,11 @@ export default function ClientDetails({ client, address }) {
                                         </label>
                                         <p>
                                             <a
-                                                href={`https://maps.google.com?q=${address.geo_address}`}
+                                                href={
+                                                    address.latitude && address.longitude
+                                                        ? `https://maps.google.com/?q=${address.latitude},${address.longitude}`
+                                                        : `https://maps.google.com?q=${address.geo_address}`
+                                                }
                                                 target="_blank"
                                             >
                                                 {address.address_name}

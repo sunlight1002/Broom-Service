@@ -282,7 +282,19 @@ const ClientPropertyAdress = () => {
                                             addresses.map((address, index) => (
                                                 <Tr key={index}>
                                                     <Td>{address.address_name || "-"}</Td>
-                                                    <Td><a href={`https://maps.google.com?q=${address.geo_address}`} target="_blank" style={{ "color": "black", "textDecoration": "underline" }}>{address.geo_address || "-"}</a></Td>
+                                                    <Td>
+                                                        <a
+                                                            href={
+                                                                address.latitude && address.longitude
+                                                                    ? `https://maps.google.com/?q=${address.latitude},${address.longitude}`
+                                                                    : `https://maps.google.com?q=${address.geo_address}`
+                                                            }
+                                                            target="_blank"
+                                                            style={{ color: "black", textDecoration: "underline" }}
+                                                        >
+                                                            {address.geo_address || "-"}
+                                                        </a>
+                                                    </Td>
                                                     <Td>{address.city || "-"}</Td>
                                                     <Td>{address.floor || "-"}</Td>
                                                     <Td>{address.zipcode || "-"}</Td>

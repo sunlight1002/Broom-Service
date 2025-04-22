@@ -263,8 +263,12 @@ export default function MeetingFiles() {
                             {t("meet_stat.address")}:{" "}
                             <span>
                                 <Link
+                                    to={
+                                        address.latitude && address.longitude
+                                            ? `https://maps.google.com/?q=${address.latitude},${address.longitude}`
+                                            : `https://maps.google.com?q=${address.geo_address}`
+                                    }
                                     target="_blank"
-                                    to={`https://maps.google.com?q=${address.geo_address}`}
                                 >
                                     {address.geo_address}
                                 </Link>

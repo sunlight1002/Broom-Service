@@ -329,7 +329,8 @@
         "worker_id": "זיהוי עובד",
         "shift": "Shift",
         "job_id": "מזהה משרה",
-        "hours": "שעות"
+        "hours": "שעות",
+        "sub_filter": "סינון משנה"
     },
     "modal": {
         "title": "מודל",

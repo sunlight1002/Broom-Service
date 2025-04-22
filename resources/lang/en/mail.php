@@ -16,6 +16,7 @@ return [
         'service'     => 'service',
         'accept'      => 'Accept',
         'reject'      => 'Reject',
+        'accept_decline' => 'Accept/Decline',
         'reschedule'  => 'Reschedule',
         'price_offer' => 'Price offer',
         'quality_check' => 'Quality check',
