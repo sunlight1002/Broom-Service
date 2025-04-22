@@ -131,11 +131,11 @@ office@broomservice.co.il',
             $client->save();
 
 
-            $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $specialMsg[$client->lng]));
+            // $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $specialMsg[$client->lng]));
 
-            if (!$result) {
-                \Log::error('Failed to send message to ' . $client->phone);
-            }
+            // if (!$result) {
+            //     \Log::error('Failed to send message to ' . $client->phone);
+            // }
 
 
             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addDay(1));

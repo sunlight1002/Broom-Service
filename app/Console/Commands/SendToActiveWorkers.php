@@ -130,11 +130,11 @@ The Broom Service Team 🌹',
 
             $modifyMessage = str_replace(':worker_name', trim(($worker->firstname ?? '') . ' ' . ($worker->lastname ?? '')), $specialMsg[$worker->lng ?? 'en']);
 
-            $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $modifyMessage));
+            // $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $modifyMessage));
 
-            if (!$result) {
-                \Log::error('Failed to send message to ' . $worker->phone);
-            }
+            // if (!$result) {
+            //     \Log::error('Failed to send message to ' . $worker->phone);
+            // }
 
             Cache::put('worker_monday_msg_status_' . $worker->id, 'main_monday_msg', now()->addDay(1));
         }

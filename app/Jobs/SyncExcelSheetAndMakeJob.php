@@ -170,6 +170,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
 
         try {
+            
             $this->initGoogleConfig();
             $sheets = [];
             if (!$this->sheetName) {
@@ -216,7 +217,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                     
 
-                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-01'))) {
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-21'))) {
                        $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -664,9 +665,52 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             $jobData = null;
 
-            if(!empty($row[20])) {
-                $jobData = Job::where('id', trim($row[20]))->whereDate('start_date' ,$currentDate)->first();
+            // Find worker by matching full name
+            $worker = User::with('jobs')
+            ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
+            ->first();
+            
+            if (!$worker || !in_array($worker->id, ['209','185', '67'])) {
+                echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
+                return 0;
             }
+
+            if (!empty($row[20])) {
+                $jobData = Job::with('workerShifts')->where('id', trim($row[20]))->first();
+            
+                if ($jobData && $jobData->start_date != $currentDate) {
+                    $jobData->start_date = $currentDate;
+                    $jobData->save();
+                }
+            
+                if ($jobData) {
+                    foreach ($jobData->workerShifts as $shift) {
+                        $originalStart = $shift->starting_at;
+                        $originalEnd = $shift->ending_at;
+            
+                        $startTime = Carbon::parse($originalStart)->format('H:i:s');
+                        $endTime = Carbon::parse($originalEnd)->format('H:i:s');
+            
+                        $newStart = "{$currentDate} {$startTime}";
+                        $newEnd = "{$currentDate} {$endTime}";
+            
+                        // Update only if the date part is different
+                        if (
+                            Carbon::parse($originalStart)->toDateString() !== $currentDate ||
+                            Carbon::parse($originalEnd)->toDateString() !== $currentDate
+                        ) {
+                            $shift->starting_at = $newStart;
+                            $shift->ending_at = $newEnd;
+                            $shift->save();
+            
+                            \Log::info("Updated shift for Job ID {$jobData->id} - Shift ID {$shift->id}: {$newStart} to {$newEnd}");
+                        }
+                    }
+                }
+            
+                \Log::info($jobData);
+            }
+            
 
             if(!$jobData){
                 // Build the job query with JSON conditions
@@ -921,16 +965,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     'Saturday'  => "שבת"
                 ];
                 $day = $daysMap[$day] ?? $day;
-            }
-
-            // Find worker by matching full name
-            $worker = User::with('jobs')
-                // ->where('status', 1)
-                ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
-                ->first();
-            if (!$worker) {
-                echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
-                return;
             }
 
             // Determine worker's starting time based on any existing jobs on the current date
