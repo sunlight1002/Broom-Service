@@ -345,17 +345,17 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
-        if(!$client->icount_client_id) {
-            // Call createOrUpdateUser with the constructed Request
-            $iCountResponse = $this->createOrUpdateUser($client);
+        // if(!$client->icount_client_id) {
+        //     // Call createOrUpdateUser with the constructed Request
+        //     $iCountResponse = $this->createOrUpdateUser($client);
 
-            $iCountData = $iCountResponse->json();
+        //     $iCountData = $iCountResponse->json();
 
-            // Update client with iCount client_id
-            if (isset($iCountData['client_id'])) {
-                $client->update(['icount_client_id' => $iCountData['client_id']]);
-            }
-        }
+        //     // Update client with iCount client_id
+        //     if (isset($iCountData['client_id'])) {
+        //         $client->update(['icount_client_id' => $iCountData['client_id']]);
+        //     }
+        // }
 
         $address = $client->property_addresses()->first();
 
@@ -395,7 +395,7 @@ trait PaymentAPI
             "lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "user" => $iCountUsername,
             "pass" => $iCountPassword,
-            // "email" => $client->email,
+            "email" => $client->email,
             "doctype" => 'order',
             // "client_name" => $client->invoicename ? $client->invoicename : ($client->firstname . ' ' . $client->lastname),
             // "client_address" => $address ? $address->geo_address : '',
@@ -413,9 +413,9 @@ trait PaymentAPI
             // "email_to" => $client->email,
         ];
 
-        if($client->icount_client_id) {
-            $postData['client_id'] = $client->icount_client_id;
-        }
+        // if($client->icount_client_id) {
+        //     $postData['client_id'] = $client->icount_client_id;
+        // }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',

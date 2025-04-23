@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import useToggle from "../Hooks/useToggle";
 import FullPageLoader from "../Components/common/FullPageLoader";
+import { handleHeicConvert } from "../Utils/common.utils";
 
 export default function MeetingFiles() {
     const param = useParams();
@@ -62,23 +63,34 @@ export default function MeetingFiles() {
                 }
             });
     };
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         if (e.target.files.length > 0) {
-            let file = e.target.files[0];
-            const sanitizedFileName = file.name.replace(/\s+/g, "_");
-            const type = file.type.split("/")[1];
-            const allow = filetype === "image" ? ["jpeg", "png", "jpg"] : ["mp4", "webm"];
-
-            if (allow.includes(type)) {
-                const sanitizedFile = new File([file], sanitizedFileName, { type: file.type });
-                setFile(sanitizedFile);
-            } else {
-                setFile([]);
-                window.alert("This file is not allowed");
-                e.target.value = ""; // Reset the file input
-            }
+          let file = e.target.files[0];
+          const type = file.type.split("/")[1];
+          const allow = filetype === "image" ? ["jpeg", "png", "jpg", "heic", "heif"] : ["mp4", "webm"];
+      
+          // Convert HEIC if needed
+          const processedFile = await handleHeicConvert(file);
+          if (!processedFile) {
+            alert("Error converting HEIC file");
+            e.target.value = "";
+            return;
+          }
+      
+          const sanitizedFileName = processedFile.name.replace(/\s+/g, "_");
+      
+          if (allow.includes(type) || processedFile.type === "image/jpeg") {
+            const sanitizedFile = new File([processedFile], sanitizedFileName, {
+              type: processedFile.type,
+            });
+            setFile(sanitizedFile);
+          } else {
+            setFile([]);
+            window.alert("This file is not allowed");
+            e.target.value = "";
+          }
         }
-    };
+      };
 
 
     const handleFile = (e) => {

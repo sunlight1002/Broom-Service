@@ -50,6 +50,9 @@ export default function ViewSchedule() {
     const [emailModal, setEmailModal] = useState(false);
     const [email, setEmail] = useState("");
 
+    console.log(startSlot, endSlot, interval);
+
+
     const params = useParams();
     const alert = useAlert();
     const navigate = useNavigate();
@@ -76,6 +79,7 @@ export default function ViewSchedule() {
     let addressName = useRef();
     let key = useRef();
     let lobby = useRef();
+    const calendarRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -89,7 +93,7 @@ export default function ViewSchedule() {
     }, [adminLng]);
 
     const sendMeeting = async () => {
-        if(!client.email){
+        if (!client.email) {
             alert.error("Client email not found");
             setEmailModal(true);
             return false
@@ -192,8 +196,8 @@ export default function ViewSchedule() {
         }
     };
 
-    const handleClientField = async() => {
-        if(!email){
+    const handleClientField = async () => {
+        if (!email) {
             alert.error("Please enter email");
             return false
         }
@@ -207,12 +211,12 @@ export default function ViewSchedule() {
             email: email
         }
         const res = await axios.post(`/api/admin/add-some-fields`, data, { headers })
-        if(res.status === 200){
+        if (res.status === 200) {
             alert.success(res.data.message);
             setEmailModal(false);
             setEmail("");
             getClient();
-        }        
+        }
     }
 
     const resetForm = () => {
@@ -502,6 +506,18 @@ export default function ViewSchedule() {
     };
 
     useEffect(() => {
+        const handleResize = () => {
+          if (calendarRef.current) {
+            const calendarApi = calendarRef.current.getApi();
+            calendarApi.updateSize();
+          }
+        };
+      
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, []);
+
+    useEffect(() => {
         if (place?.getPlace() && isModalOpen && isAdd.current) {
             const _place = place.getPlace();
             lat.current.value = _place.geometry.location.lat();
@@ -651,19 +667,19 @@ export default function ViewSchedule() {
 
     const timeSlots = useMemo(() => {
         return startTimeOptions
-          .map((i) => moment(i, "kk:mm").format("hh:mm A")) // format time as hh:mm A
-          .filter((t) => {
-            const todayFormattedDate = moment().format("MMMM, dddd, DD"); 
-      
-            if (formattedSelectedDate === todayFormattedDate) {
-              // Check if the time slot is in the future
-              return moment(t, "hh:mm A").isAfter(moment());
-            }
-      
-            return true;
-          });
-      }, [startTimeOptions, formattedSelectedDate]);
-      
+            .map((i) => moment(i, "kk:mm").format("hh:mm A")) // format time as hh:mm A
+            .filter((t) => {
+                const todayFormattedDate = moment().format("MMMM, dddd, DD");
+
+                if (formattedSelectedDate === todayFormattedDate) {
+                    // Check if the time slot is in the future
+                    return moment(t, "hh:mm A").isAfter(moment());
+                }
+
+                return true;
+            });
+    }, [startTimeOptions, formattedSelectedDate]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -936,34 +952,32 @@ export default function ViewSchedule() {
                                             {t("global.selectDateAndTimeRange")}
                                         </h5>
                                         <div
-                                            className="d-flex gap-3 p-3 flex-wrap justify-content-center"
-                                            style={{ overflowX: "auto" }}
+                                            className="d-flex flex-column flex-md-row gap-3 pt-2 justify-content-around"
                                         >
-                                            <div>
+                                            <div className="datepicker-container mx-auto mx-md-0">
                                                 <DatePicker
                                                     selected={selectedDate}
-                                                    onChange={(date) =>
-                                                        handleDateChange(date)
-                                                    }
+                                                    onChange={(date) => handleDateChange(date)}
                                                     autoFocus
                                                     shouldCloseOnSelect={false}
                                                     inline
                                                     minDate={new Date()}
                                                 />
                                             </div>
-                                            <div className="mt-1 ">
-                                                <h6 className="time-slot-date">
+                                            <div className="time-picker-container mx-auto mx-md-0 mt-3 mt-md-1">
+                                                <h6 className="time-slot-date text-center text-md-start">
                                                     {formattedSelectedDate}
                                                 </h6>
 
-                                                <ul className="list-unstyled mt-4 timeslot">
+                                                <ul className="list-unstyled mt-4 timeslot d-flex flex-row flex-md-column flex-wrap justify-content-center">
                                                     {timeSlots.length > 0 ? (
                                                         timeSlots.map((t, index) => (
                                                             <li
-                                                                className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
+                                                                className={`py-2 px-3 border mb-2 mx-1 mx-md-0 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
                                                                     }`}
                                                                 key={index}
                                                                 onClick={() => handleTimeChange(t)}
+                                                                style={{ minWidth: "80px" }}
                                                             >
                                                                 {t}
                                                             </li>
@@ -973,8 +987,7 @@ export default function ViewSchedule() {
                                                             {t("global.noTimeSlot")}
                                                             {t("global.available")}
                                                         </li>
-                                                    )
-                                                    }
+                                                    )}
                                                 </ul>
                                             </div>
                                         </div>
@@ -997,18 +1010,24 @@ export default function ViewSchedule() {
                             <h4 className="text-center">
                                 {t("admin.schedule.workerAvailability")}
                             </h4>
-                            <FullCalendar
-                                initialView="timeGridWeek"
-                                allDaySlot={false}
-                                slotMinTime={startSlot}
-                                slotMaxTime={endSlot}
-                                hiddenDays={interval}
-                                selectable={true}
-                                height={"auto"}
-                                slotEventOverlap={false}
-                                plugins={[timeGridPlugin]}
-                                events={events}
-                            />
+                            <div className="calendar-container">
+                                <FullCalendar
+                                    ref={calendarRef}
+                                    initialView="timeGridWeek"
+                                    allDaySlot={false}
+                                    slotMinTime={startSlot}
+                                    slotMaxTime={endSlot}
+                                    hiddenDays={interval}
+                                    selectable={true}
+                                    slotEventOverlap={false}
+                                    plugins={[timeGridPlugin]}
+                                    events={events}
+                                    // Mobile responsiveness settings
+                                    height="auto"
+                                    expandRows={true}
+                                    contentHeight="auto"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

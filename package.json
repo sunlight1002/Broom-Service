@@ -55,6 +55,7 @@
         "formik": "^2.4.6",
         "fullcalendar": "^6.1.4",
         "google-map-react": "^2.2.0",
+        "heic2any": "^0.0.4",
         "html2pdf.js": "^0.10.1",
         "i-am-not-a-robot": "^0.7.2",
         "i18next": "^22.4.9",

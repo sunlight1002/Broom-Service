@@ -6,6 +6,7 @@ import * as yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import i18next from "i18next";
+import heic2any from "heic2any";
 
 import EmployerDetails from "./EmployerDetails";
 import EmployeeDetails from "./EmployeeDetails";
@@ -1571,21 +1572,46 @@ function AllForms() {
     };
 
 
-    const handleFileChange = (e, typ) => {
+    const handleFileChange = async (e, typ) => {
+        const file = e.target.files[0];
         const data = new FormData();
+      
         data.append("id", id);
-        data.append("type", type == "lead" ? "lead" : "worker");
-        if (e.target.files.length > 0) {
-            const file = e.target.files[0];
-            const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
-            if (fileSizeInMB > 10) {
-                alert.error(t("form101.step1.imageSize")); // Show an error message
-                return;
+        data.append("type", type === "lead" ? "lead" : "worker");
+      
+        if (file) {
+          const fileSizeInMB = file.size / (1024 * 1024);
+          if (fileSizeInMB > 10) {
+            alert.error(t("form101.step1.imageSize"));
+            return;
+          }
+      
+          let uploadFile = file;
+      
+          // Convert HEIC to JPEG
+          if (file.name.toLowerCase().endsWith(".heic")) {
+            try {
+              const outputBlob = await heic2any({
+                blob: file,
+                toType: "image/jpeg",
+                quality: 0.8,
+              });
+      
+              uploadFile = new File([outputBlob], file.name.replace(/\.heic$/, ".jpg"), {
+                type: "image/jpeg",
+              });
+            } catch (error) {
+              alert.error("Failed to convert HEIC image.");
+              return;
             }
-            data.append(`${typ}`, file);
+          }
+      
+          console.log(uploadFile);
+          
+          data.append(`${typ}`, uploadFile);
+          handleDocSubmit(data);
         }
-        handleDocSubmit(data);
-    };
+      };
 
 
     return (

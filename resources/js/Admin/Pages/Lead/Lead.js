@@ -80,7 +80,12 @@ export default function Lead() {
                         data: "created_at",
                         responsivePriority: 1,
                         width: "10%",
-                    },
+                        render: function (data, type, row) {
+                            if (!data) return "";
+                            const [day, month] = data.split("/");
+                            return `${day}/${month}`;
+                        }
+                    },                    
                     {
                         title: t("admin.global.Name"),
                         data: "name",
@@ -91,8 +96,11 @@ export default function Lead() {
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
+                        responsivePriority: 3,
+                        width: "15%",
+                        className: "text-left",
                         render: function (data) {
-                            return `+${data}`;
+                            return `<a href="tel:${data}">${data ? "+" + data : ""}</a>`;
                         },
                     },
                     {
@@ -140,7 +148,8 @@ export default function Lead() {
                         title: t("admin.global.Action"),
                         data: "action",
                         orderable: false,
-                        responsivePriority: 3,
+                        responsivePriority: 4,
+                        // width: "5%",
                         render: function (data, type, row) {
                             return `
                                 <div class="action-dropdown dropdown">

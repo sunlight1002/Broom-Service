@@ -6,6 +6,7 @@ import DateField from "./inputElements/DateField";
 import SelectElement from "./inputElements/SelectElement";
 import TextField from "./inputElements/TextField";
 import { cityOption } from "./cityCountry";
+import { handleHeicConvert } from "../../Utils/common.utils";
 
 export default function TaxExemption({
     errors,
@@ -67,12 +68,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.disabledCertificate"
                                         id="employeepassportCopy"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.disabledCertificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -124,12 +128,15 @@ export default function TaxExemption({
                                                     type="file"
                                                     name="TaxExemption.disabledCompensationCertificate"
                                                     id="disabledCompensationCertificate"
-                                                    accept="image/*"
-                                                    onChange={(e) =>
+                                                    accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                    onChange={async (e) => {
+                                                        const originalFile = e.target.files[0];
+                                                        const processedFile = await handleHeicConvert(originalFile);
                                                         setFieldValue(
                                                             "TaxExemption.disabledCompensationCertificate",
-                                                            e.target.files[0]
+                                                            processedFile
                                                         )
+                                                    }
                                                     }
                                                     onBlur={handleBlur}
                                                 />
@@ -221,12 +228,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm3Certificate"
                                         id="exm3Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm3Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -293,12 +303,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm4ImmigrationCertificate"
                                         id="exm4ImmigrationCertificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm4ImmigrationCertificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -376,12 +389,15 @@ export default function TaxExemption({
                                             type="file"
                                             name="TaxExemption.exm5disabledCirtificate"
                                             id="exm5disabledCirtificate"
-                                            accept="image/*"
-                                            onChange={(e) =>
+                                            accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                            onChange={async (e) => {
+                                                const originalFile = e.target.files[0];
+                                                const processedFile = await handleHeicConvert(originalFile);
                                                 setFieldValue(
                                                     "TaxExemption.exm5disabledCirtificate",
-                                                    e.target.files[0]
+                                                    processedFile
                                                 )
+                                            }
                                             }
                                             onBlur={handleBlur}
                                         />
@@ -745,12 +761,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm10Certificate"
                                         id="employeepassportCopy"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm10Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -824,12 +843,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm11Certificate"
                                         id="TaxExemption.exm11Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm11Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -881,12 +903,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm12Certificate"
                                         id="TaxExemption.exm12Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm12Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -998,12 +1023,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm14Certificate"
                                         id="TaxExemption.exm14Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm14Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -1055,12 +1083,15 @@ export default function TaxExemption({
                                         type="file"
                                         name="TaxExemption.exm15Certificate"
                                         id="TaxExemption.exm15Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxExemption.exm15Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />

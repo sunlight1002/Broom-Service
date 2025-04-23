@@ -30,6 +30,7 @@
         "owen-it/laravel-auditing": "^13.6",
         "revolution/laravel-google-sheets": "*",
         "spatie/laravel-backup": "^7.8",
+        "symfony/process": "^5.4",
         "tecnickcom/tcpdf": "^6.5",
         "twilio/sdk": "^8.2",
         "yajra/laravel-datatables-oracle": "~9.0"

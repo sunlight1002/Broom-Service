@@ -211,19 +211,19 @@ class ContractController extends Controller
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
         }
 
-        // Create user in iCount
-        $iCountResponse = $this->createOrUpdateUser($client, $address);
+        // // Create user in iCount
+        // $iCountResponse = $this->createOrUpdateUser($client, $address);
 
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to create user in iCount'], 500);
-        }
+        // if ($iCountResponse->status() != 200) {
+        //     return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        // }
 
-        $iCountData = $iCountResponse->json();
+        // $iCountData = $iCountResponse->json();
 
-        // Update client with iCount client_id
-        if (isset($iCountData['client_id'])) {
-            $client->update(['icount_client_id' => $iCountData['client_id']]);
-        }
+        // // Update client with iCount client_id
+        // if (isset($iCountData['client_id'])) {
+        //     $client->update(['icount_client_id' => $iCountData['client_id']]);
+        // }
 
         return response()->json([
             'message' => 'Contract verified successfully'

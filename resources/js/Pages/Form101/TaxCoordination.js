@@ -5,6 +5,7 @@ import CheckBox from "./inputElements/CheckBox";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import TextField from "./inputElements/TextField";
 import { useTranslation } from "react-i18next";
+import { handleHeicConvert } from "../../Utils/common.utils";
 export const employerInitial = {
     firstName: "",
     address: "",
@@ -100,12 +101,15 @@ const TaxCoordination = ({
                                         type="file"
                                         name="TaxCoordination.requestReason1Certificate"
                                         id="TaxCoordination.requestReason1Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxCoordination.requestReason1Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -136,12 +140,15 @@ const TaxCoordination = ({
                                         type="file"
                                         name="TaxCoordination.requestReason3Certificate"
                                         id="TaxCoordination.requestReason3Certificate"
-                                        accept="image/*"
-                                        onChange={(e) =>
+                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                        onChange={async (e) => {
+                                            const originalFile = e.target.files[0];
+                                            const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
                                                 "TaxCoordination.requestReason3Certificate",
-                                                e.target.files[0]
+                                                processedFile
                                             )
+                                        }
                                         }
                                         onBlur={handleBlur}
                                     />
@@ -405,12 +412,15 @@ const TaxCoordination = ({
                                                             type="file"
                                                             name={`TaxCoordination.employer[${index}].payslip`}
                                                             id={`TaxCoordination.employer[${index}].payslip`}
-                                                            accept="image/*"
-                                                            onChange={(e) =>
+                                                            accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                            onChange={async (e) => {
+                                                                const originalFile = e.target.files[0];
+                                                                const processedFile = await handleHeicConvert(originalFile);
                                                                 setFieldValue(
                                                                     `TaxCoordination.employer[${index}].payslip`,
-                                                                    e.target.files[0]
+                                                                    processedFile
                                                                 )
+                                                            }
                                                             }
                                                             onBlur={handleBlur}
                                                         />

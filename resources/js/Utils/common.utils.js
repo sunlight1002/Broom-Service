@@ -1,3 +1,6 @@
+
+import heic2any from "heic2any";
+
 export const monthNames = [
     "January",
     "February",
@@ -175,3 +178,28 @@ export const workerHours = (s, msg) => {
     }
     return "--";
 };
+
+
+export const handleHeicConvert = async (file) => {
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (file.type === "image/heic" || file.name.endsWith(".heic") || ext === "heic" || ext === "heif") {
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.8,
+      });
+  
+      // Debug: check MIME type
+      console.log("Converted Blob type:", convertedBlob.type);
+  
+      const convertedFile = new File([convertedBlob], file.name.replace(".heic", ".jpg"), {
+        type: "image/jpeg",
+      });
+  
+      return convertedFile;
+    }
+  
+    return file;
+  };
+  

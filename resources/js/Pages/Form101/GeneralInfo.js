@@ -5,6 +5,7 @@ import DateField from "./inputElements/DateField";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import { useTranslation } from "react-i18next";
 import { countryOption } from "./cityCountry";
+import { handleHeicConvert } from "../../Utils/common.utils";
 
 
 export default function GeneralInfo({
@@ -349,16 +350,17 @@ export default function GeneralInfo({
                                                     name="employeepassportCopy"
                                                     id="employeepassportCopy"
                                                     title={values.employeepassportCopy}
-                                                    accept="image/*"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files[0];
-                                                        if (file) {
-                                                            const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
+                                                    accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                    onChange={async(e) => {
+                                                        const originalFile = e.target.files[0];
+                                                        const processedFile = await handleHeicConvert(originalFile);
+                                                        if (originalFile) {
+                                                            const fileSizeInMB = originalFile.size / (1024 * 1024); // Convert file size to MB
                                                             if (fileSizeInMB > 10) {
                                                                 alert("File size must be less than 10MB"); // Show error message
                                                                 return;
                                                             }
-                                                            setFieldValue("employeepassportCopy", file);
+                                                            setFieldValue("employeepassportCopy", processedFile);
                                                             handleFileChange(e, "passport");
                                                         }
                                                     }}
@@ -387,12 +389,15 @@ export default function GeneralInfo({
                                                     id="employeeResidencePermit"
                                                     className="form-control man p-0 border-0"
                                                     style={{ fontSize: "unset", backgroundColor: "unset", }}
-                                                    accept="image/*"
                                                     title={values.employeeResidencePermit}
-                                                    onChange={(e) => {
+                                                    accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                    onChange={async(e) => {
+                                                        const originalFile = e.target.files[0];
+                                                        const processedFile = await handleHeicConvert(originalFile);
+                                                        
                                                         setFieldValue(
                                                             "employeeResidencePermit",
-                                                            e.target.files[0]
+                                                            processedFile
                                                         )
                                                         handleFileChange(e, "visa");
                                                     }}
@@ -450,12 +455,11 @@ export default function GeneralInfo({
                                                     name="employeeIdCardCopy"
                                                     id="employeeIdCardCopy"
                                                     title={values.employeeIdCardCopy}
-                                                    accept="image/*"
-                                                    onChange={(e) => {
-                                                        setFieldValue(
-                                                            "employeeIdCardCopy",
-                                                            e.target.files[0]
-                                                        );
+                                                    accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                    onChange={async(e) => {
+                                                        const originalFile = e.target.files[0];
+                                                        const processedFile = await handleHeicConvert(originalFile);
+                                                        setFieldValue("employeeIdCardCopy", processedFile);
                                                         handleFileChange(e, "id_card");
                                                     }
                                                     }

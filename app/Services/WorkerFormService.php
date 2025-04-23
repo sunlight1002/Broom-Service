@@ -1447,7 +1447,7 @@ class WorkerFormService
             } elseif (Storage::disk('public')->exists('uploads/documents/' . $formData['employeeIdCardCopy'])) {
                 $idCardPath = Storage::disk('public')->path('uploads/documents/' . $formData['employeeIdCardCopy']);
             }
-        
+
             if ($idCardPath) {
                 $pdf->AddPage();
                 $text = 'B. Employee details | Photocopy of ID Card';
