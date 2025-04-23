@@ -100,8 +100,6 @@ export default function Lead() {
                         data: "lead_status",
                         orderable: false,
                         render: function (data, type, row) {
-                            console.log(row);
-
                             const _statusColor = leadStatusColor(data);
                             let _html = ``;
 
@@ -263,7 +261,7 @@ export default function Lead() {
                 $(tableRef.current).off("page.dt");
             }
         };
-    }, [location.search]);
+    }, []);
 
 
     const sortTable = (colIdx) => {
@@ -299,10 +297,16 @@ export default function Lead() {
     };
 
     useEffect(() => {
+        const table = $(tableRef.current).DataTable();
+        const url = new URL(window.location);
+        url.searchParams.delete("page");
+        window.history.replaceState({}, "", url);
+
         if (filter == "All") {
-            $(tableRef.current).DataTable().column(4).search(null).draw();
+            table.column(4).search(null).draw();
         } else {
-            $(tableRef.current).DataTable().column(4).search(filter).draw();
+            // table.ajax.reload();
+            table.column(4).search(filter).draw();
         }
     }, [filter]);
 

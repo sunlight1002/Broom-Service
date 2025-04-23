@@ -323,8 +323,8 @@ class ScheduleController extends Controller
             $eventArr["start"]      = Carbon::createFromFormat('Y-m-d H:i A', $startAt)->toDateTimeString();
             $eventArr["end"]        = Carbon::createFromFormat('Y-m-d H:i A', $endAt)->toDateTimeString();
             $eventArr["start_time"] = $schedule['start_time'];
-            $eventArr["backgroundColor"] = $statusColors[$schedule['booking_status']];
-            $eventArr["borderColor"] = $statusColors[$schedule['booking_status']];
+            $eventArr["backgroundColor"] = $statusColors[$schedule['booking_status'] ?? 'pending'];
+            $eventArr["borderColor"] = $statusColors[$schedule['booking_status'] ?? 'pending'];
 
             array_push($events, $eventArr);
         }

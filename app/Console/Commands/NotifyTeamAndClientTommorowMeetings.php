@@ -40,7 +40,7 @@ class NotifyTeamAndClientTommorowMeetings extends Command
                     ->get();
 
         $TeamMessage = "";
-        $count = 1;
+        // $count = 1;
 
         if ($schedules->isNotEmpty()) {
             foreach ($schedules as $schedule) {
@@ -56,18 +56,18 @@ class NotifyTeamAndClientTommorowMeetings extends Command
         
                 $shortMapLink = generateShortUrl(url($mapLink), 'admin');
 
-                $TeamMessage .= "$count. *פגישה עם " . $schedule->client->firstname ." " .$schedule->client->lastname ."*"."  
+                $TeamMessage = "*פגישה עם " . $schedule->client->firstname ." " .$schedule->client->lastname ."*"."  
  - *שעה*: " . Carbon::parse($schedule->start_date ?? "00-00-0000")->format('M d Y') . " " .  ($schedule->start_time ?? '') . "  
  - *מיקום*: " . $schedule->meet_link ."
  - *נושא הפגישה*: " . $schedule->purpose ."
  - *פרטי קשר של הלקוח*: " . $schedule->client->phone ." / " . $schedule->client->email . "
- - *כתובת*: " . $shortMapLink . "\n";
+ - *כתובת*: " . ($propertyAddress->city ? $propertyAddress->city . ", " . $propertyAddress->geo_address : $propertyAddress->geo_address) . "
+ - *קישור למפה*: " . $shortMapLink . "\n";
 
-                $count += 1;
-            $this->notifyClient($schedule);
+                $this->notifyClient($schedule);
+                $this->notifyTeam($TeamMessage);
             }
             
-            $this->notifyTeam($TeamMessage);
             $this->info("Notifications sent for tomorrow's on-site meetings.");
         } else {
             $this->info("No on-site meetings scheduled for tomorrow.");

@@ -39,7 +39,7 @@
   }
   
   .custom-calendar .react-datepicker__current-month {
-    text-align: left !important;
+    /* text-align: left !important; */
     padding-left: 15px !important;
   }
   
