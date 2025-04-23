@@ -254,7 +254,7 @@ class WhatsappNotification
             }
         }
 
-        \Log::info(Carbon::parse($eventData['start_date'] ?? "00-00-0000")->format('M d Y') . " " . ($eventData['start_time'] ?? ''));
+        // \Log::info(Carbon::parse($eventData['start_date'] ?? "00-00-0000")->format('M d Y') . " " . ($eventData['start_time'] ?? ''));
 
         $placeholders = [
             ':meeting_team_member_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
@@ -276,7 +276,6 @@ class WhatsappNotification
             ':meeting_reject' => $meetingRejectLink ?? "",
             ':all_team_meetings' => $eventData['all_meetings'] ?? "",
         ];
-
         // Replace placeholders with actual values
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
@@ -355,13 +354,13 @@ class WhatsappNotification
         $placeholders = [];
         if($eventData) {
             $placeholders = [
-                ':order_id' => $eventData['order_id'] ? $eventData['order_id'] : $eventData['order']['order_id'] ?? '',
+                ':order_id' => isset($eventData['order_id']) ? $eventData['order_id'] : $eventData['order']['order_id'] ?? '',
                 ':discount' => $eventData['discount'] ?? '',
                 ':total' => $eventData['total_amount'] ?? '',
                 ':extra' => $eventData['extra'] ?? '',
-                ':invoice_id' => $eventData['invoice']['invoice_id'] ? $eventData['invoice']['invoice_id'] : $eventData['invoice_id'] ?? '',
-                ':card_number' => $eventData['card']['card_number'] ? $eventData['card']['card_number'] : $eventData['card_number'] ?? '',
-                ':icount_doc_url' => $eventData['order'] ? "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=" . $eventData['order']['order_id'] : '',
+                ':invoice_id' => isset($eventData['invoice']['invoice_id']) ? $eventData['invoice']['invoice_id'] : $eventData['invoice_id'] ?? '',
+                ':card_number' => isset($eventData['card']['card_number']) ? $eventData['card']['card_number'] : $eventData['card_number'] ?? '',
+                ':icount_doc_url' => isset($eventData['order']) ? "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=" . $eventData['order']['order_id'] : '',
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -580,7 +579,6 @@ class WhatsappNotification
                             return;
                         }
                         $receiverNumber = $clientData['phone'] ?? null;
-                        Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
 
@@ -591,7 +589,6 @@ class WhatsappNotification
                             return;
                         }
                         $receiverNumber = isset($clientData['contact_person_phone']) ? $clientData['contact_person_phone'] : $clientData['phone'] ?? null;
-                        Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
 
@@ -702,7 +699,7 @@ class WhatsappNotification
                         break;
                 }
             }
-
+            \Log::info($receiverNumber);
             // $receiverNumber = '918469138538';
             // $receiverNumber = config('services.whatsapp_groups.notification_test');
             if ($receiverNumber && $text) {
@@ -746,12 +743,12 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                // Log::info($response->json());
+                Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
-            // Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
+            Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
         }
     }
 }
