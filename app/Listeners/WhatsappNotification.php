@@ -365,12 +365,13 @@ class WhatsappNotification
         $placeholders = [];
         if($eventData) {
             $placeholders = [
-                ':order_id' => $eventData['order_id'] ?? '',
+                ':order_id' => $eventData['order_id'] ? $eventData['order_id'] : $eventData['order']['order_id'] ?? '',
                 ':discount' => $eventData['discount'] ?? '',
                 ':total' => $eventData['total_amount'] ?? '',
                 ':extra' => $eventData['extra'] ?? '',
-                ':invoice_id' => $eventData['invoice']['invoice_id'] ?? '',
-                ':card_number' => $eventData['card']['card_number'] ?? ''
+                ':invoice_id' => $eventData['invoice']['invoice_id'] ? $eventData['invoice']['invoice_id'] : $eventData['invoice_id'] ?? '',
+                ':card_number' => $eventData['card']['card_number'] ? $eventData['card']['card_number'] : $eventData['card_number'] ?? '',
+                ':icount_doc_url' => $eventData['order'] ? "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=" . $eventData['order']['order_id'] : '',
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -500,7 +501,7 @@ class WhatsappNotification
                             "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
                             "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -546,7 +547,7 @@ class WhatsappNotification
                             "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
                             "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -590,7 +591,7 @@ class WhatsappNotification
                             "5" => "worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                             "6" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -627,7 +628,7 @@ class WhatsappNotification
                             "2" => "worker/jobs/view/" . $jobData['id'],
                             "3" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -707,7 +708,7 @@ class WhatsappNotification
                             "8" => "worker/jobs/" . ($jobData['uuid'] ?? "")
                         ];
                         
-                        $receiverNumber = "918000318833";
+                        
                         try {
                             \Log::info("Sending message via Twilio...");
                             
@@ -749,7 +750,7 @@ class WhatsappNotification
                             "2" => "worker/jobs/view/". $jobData['id'],
                             "3" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -793,7 +794,7 @@ class WhatsappNotification
                             "5" => "worker/jobs/view/". $jobData['id'],
                             "6" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -823,7 +824,7 @@ class WhatsappNotification
                         }else{
                             $sid = "HXdab8de810d8e981955d6a1026f74e996";
                         }
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -868,7 +869,7 @@ class WhatsappNotification
                             "4" => "worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                             "5" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -903,7 +904,7 @@ class WhatsappNotification
                         $variables = [
                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -939,7 +940,7 @@ class WhatsappNotification
                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                            "2" => "worker-forms/" . base64_encode($workerData['id'])
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -976,7 +977,7 @@ class WhatsappNotification
                            ? "form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])
                            : '',
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1022,7 +1023,7 @@ class WhatsappNotification
                             "7" => "worker/jobs/view/". $jobData['id'],
                             "8" => "",
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1063,7 +1064,7 @@ class WhatsappNotification
                                 : (($eventData['job']['jobservice']['name'] ?? '') . ', '),
                             "5" => Carbon::parse($eventData['old_job']['start_time'] ?? "00:00")->format('H:i')
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1095,7 +1096,7 @@ class WhatsappNotification
                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                            "2" => $eventData['refundclaim']['status'] ?? "",
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1128,7 +1129,7 @@ class WhatsappNotification
                            "2" => $eventData['refundclaim']['status'] ?? "",
                            "3" => $eventData['refundclaim']['rejection_comment'] ?? ""
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1164,7 +1165,7 @@ class WhatsappNotification
                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                            "2" => $workerData['renewal_visa'] ?? "",
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1196,7 +1197,7 @@ class WhatsappNotification
                             $sid = "HX8be8446eb9a6a946945a728e77ac49a7";
                         }
 
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1224,7 +1225,7 @@ class WhatsappNotification
                             $sid = "HX85eb9417469bb2ab555225740c720200";
                         }
 
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1252,7 +1253,7 @@ class WhatsappNotification
                             $sid = "HXa2369d2bfc34c47637bb42c319197ea4";
                         }
 
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1285,7 +1286,7 @@ class WhatsappNotification
                         $variables = [
                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                         ];
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1336,7 +1337,7 @@ class WhatsappNotification
                             "7" => "worker/jobs/view/" . $jobData['id'],
                         ];
                         
-                        $receiverNumber = "918000318833";
+                        
                             
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1411,7 +1412,7 @@ class WhatsappNotification
                             "8" => $cancellationFee
                         ];
                         
-                        $receiverNumber = "918000318833";
+                        
                             
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1456,7 +1457,7 @@ class WhatsappNotification
                             "7" => "worker/jobs/view/" . $jobData['id'],
                         ];
                         
-                        $receiverNumber = "918000318833";
+                        
                         try {
                             \Log::info("Sending message via Twilio...");
                             
@@ -1498,7 +1499,7 @@ class WhatsappNotification
                             "2" => "worker-forms/" . base64_encode($workerData['id'])
                         ];
                         
-                        $receiverNumber = "918000318833";
+                        
                             
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1527,7 +1528,7 @@ class WhatsappNotification
                             $sid = "HX36cd452fdedaf0f571ed3ca141656cef";
                         }
                         
-                        $receiverNumber = "918000318833";
+                        
                             
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1555,7 +1556,7 @@ class WhatsappNotification
                             $sid = "HX4f35506ce44f595ba7b88323eae293b3";
                         }
                         
-                        $receiverNumber = "918000318833";
+                        
                             
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1595,7 +1596,7 @@ class WhatsappNotification
                             "6" => isset($eventData['id']) ? "hearing-schedule/" . base64_encode($eventData['id']) : ''
                         ];
                         
-                        $receiverNumber = "918000318833";
+                        
                             
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1630,7 +1631,7 @@ class WhatsappNotification
                         //     "6" => "team-btn/" . base64_encode($jobData['id']),
                         //     "7" => "admin/jobs/view/" . $jobData['id']
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1674,7 +1675,7 @@ class WhatsappNotification
                         //     "6" => "action-comment/" . ($commentData['id'] ?? ''),
                         //     "7" => "admin/jobs/view/" . $jobData['id']
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1713,7 +1714,7 @@ class WhatsappNotification
                         //     "3" => $eventData['discount'] ?? '',
                         //     "4" => $eventData['total_amount'] ?? '',
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1738,7 +1739,7 @@ class WhatsappNotification
                         //     "4" => $eventData['total_amount'] ?? '',
                         //     "5" => $eventData['extra'] ?? '',
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1762,7 +1763,7 @@ class WhatsappNotification
                         // $variables = [
                         //     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1784,7 +1785,7 @@ class WhatsappNotification
                         //     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                         //     "2" => $eventData['order_id'] ?? '',
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1807,7 +1808,7 @@ class WhatsappNotification
                         //     "2" => $eventData['card']['card_number'] ?? '',
                         //     "3" => "admin/clients/view/" .$clientData['id'] ."?=card"
                         // ];
-                        // $receiverNumber = "918000318833";
+                        // 
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+$receiverNumber",
@@ -1925,7 +1926,7 @@ class WhatsappNotification
                         ];
                         Log::info($receiverNumber);
 
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -1952,7 +1953,7 @@ class WhatsappNotification
                         $lng = $clientData['lng'] ?? 'heb';
 
                         $sid = $lng == "heb" ? "HXe75478323d1897dfe660aa0efd68afa8" :"HX7a0c41761ad3a45cad1d68c64132afb3";
-                        $receiverNumber = "918000318833";
+                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2484,7 +2485,7 @@ class WhatsappNotification
 
                         $sid = $lng == "heb" ? "HXb8968c5efd4a94ba9bc8c718993c9bcc" :"HXca5ecd51118c6222d0443dbf4d6038c3";
 
-                        $receiverNumber = "918000318833";
+                        
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
                             [
@@ -2848,7 +2849,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $receiverNumber = "918000318833";
+                        
 
                         $sid = $lng == "heb" ? "HXb1d2ed5e977018e2488d428531d48389" :"HX9391bb3e7f827f0b24813d17bccfc00b";
 
@@ -3469,7 +3470,7 @@ class WhatsappNotification
                         // ];
                         
                         // $teamMsg = $this->twilio->messages->create(
-                        //     "whatsapp:+918000318833",
+                        //     "whatsapp:",
                         //     [
                         //         "from" => "$this->twilioWhatsappNumber",
                         //         "contentSid" => "HX6966c131706592080d5e1c00acd394c0",
@@ -3551,8 +3552,8 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                // Log::info($text);
-                // Log::info($eventType);
+                Log::info($text);
+                Log::info($eventType);
                 // Log::info($lng);
 
                $res = WebhookResponse::create([
