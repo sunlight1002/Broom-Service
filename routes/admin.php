@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ClientController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\InstagramController;
 use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -343,6 +344,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('my-account', [SettingController::class, 'getAccountDetails']);
     Route::post('my-account', [SettingController::class, 'saveAccountDetails']);
     Route::post('change-bank-details', [SettingController::class, 'changeBankDetails']);
+    Route::post('add-discount', [SettingController::class, 'addDiscount']);
+    Route::get('get-discount', [SettingController::class, 'getDiscount']);
 
     // Change Password Api
     Route::post('change-password', [SettingController::class, 'changePassword']);
@@ -375,6 +378,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('messenger-participants', [ChatController::class, 'participants']);
     Route::get('messenger-message/{id}', [ChatController::class, 'messengerMessage']);
     Route::post('messenger-reply', [ChatController::class, 'messengerReply']);
+
+    //instagram
+    // Route::get('get-instagram', [InstagramController::class, 'getInstaInfo']);
 
     // settings
     Route::get('settings', [SettingController::class, 'allSettings']);
@@ -480,6 +486,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/get-all-chats', [WhapiController::class, 'getAllChats']);
     Route::get('/get-chat/{chatId}', [WhapiController::class, 'getChatById']);
     Route::get('/get-conversations/{chatId}', [WhapiController::class, 'getConversationsByNumber']);
+    Route::get('/get-from-numbers', [WhapiController::class, 'getUniqueFromNumber']);
     Route::delete('/delete-message/{messageId}', [WhapiController::class, 'deleteMessage']);
 
 

@@ -9,6 +9,7 @@ import WorkerForms from "./WorkerForms";
 import WorkerTermination from "./WorkerTermination";
 import { useTranslation } from "react-i18next";
 import WorkerPendingRequest from "./WorkerPendingRequest";
+import WhatsappChatHistory from "./WhatsappChatHistory";
 
 export default function WorkerHistory({ worker, getWorkerDetails }) {
     const { t } = useTranslation();
@@ -144,6 +145,18 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         {t("worker.settings.pending Request")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="chat-history"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-chat-history"
+                        aria-selected="false"
+                        role="tab"
+                    >
+                        {t("worker.settings.wa_chat_history")}
+                    </a>
+                </li>
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -226,6 +239,14 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     aria-labelledby="worker-pending"
                 >
                     <WorkerPendingRequest workerId={worker.id}/>
+                </div>
+                <div
+                    id="tab-chat-history"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="chat-history"
+                >
+                    <WhatsappChatHistory workerId={worker.id} worker={worker}/>
                 </div>
             </div>
         </div>

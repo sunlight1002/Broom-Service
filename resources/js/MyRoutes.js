@@ -205,6 +205,7 @@ import WorkerForgetPassword from "./Admin/Pages/Workers/WorkerForgetPassword";
 import AdminForgetPassword from "../js/Admin/Pages/Auth/AdminForgetPassword"
 import Conflicts from "./Admin/Pages/Jobs/Conflicts";
 import Contracts from "./Pages/Contracts";
+import Discount from "./Admin/Pages/Setting/Discount";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -908,6 +909,11 @@ export default function MyRoutes() {
                                 exact
                                 path="insurance-companies"
                                 element={<InsuranceCompany />}
+                            />
+                            <Route
+                                exact
+                                path="discount"
+                                element={<Discount />}
                             />
                             <Route
                                 exact

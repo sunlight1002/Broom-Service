@@ -48,8 +48,10 @@ class SendPriceOffer extends Command
 
         foreach ($clients as $client) {
             $offer = Offer::where('client_id', $client->id)->first();
+            $isExist = false;
 
             if ($offer) {
+                $isExist = true;
                 $message = " שלום {$client->firstname},
 
                             אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
@@ -75,7 +77,7 @@ class SendPriceOffer extends Command
                             צוות ברום סרוויס";
             }
 
-            $this->sendWhatsAppMessage($client->phone, $message);
+            $this->sendWhatsAppMessage($client, $isExist);
         }
 
         return 0;
@@ -88,19 +90,33 @@ class SendPriceOffer extends Command
      * @param string $message
      * @return void
      */
-    protected function sendWhatsAppMessage($phoneNumber, $message)
+    protected function sendWhatsAppMessage($client, $isExist)
     {
-  
-        $response = Http::withToken($this->whapiApiToken)
-                        ->post($this->whapiApiEndpoint . 'messages/text', [
-                            'to' => $phoneNumber . '@s.whatsapp.net',
-                            'body' => $message
-                        ]);
 
-        if ($response->successful()) {
-            $this->info("Message sent to {$phoneNumber}");
-        } else {
-            $this->error("Failed to send message to {$phoneNumber}");
-        }
+
+        $sid = $isExist ? "HXdc842110cb02e087fcd10b0fc98dab50" : "HX82175832e5151a2169610546bce06a5b";
+
+        $this->twilio->messages->create(
+            "whatsapp:+$client->phone",
+            [
+                "from" => $this->twilioWhatsappNumber,
+                "contentSid" => $sid,
+                "contentVariables" => json_encode([
+                    '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
+                ]),
+            ]
+        );
+  
+        // $response = Http::withToken($this->whapiApiToken)
+        //                 ->post($this->whapiApiEndpoint . 'messages/text', [
+        //                     'to' => $phoneNumber . '@s.whatsapp.net',
+        //                     'body' => $message
+        //                 ]);
+
+        // if ($response->successful()) {
+        //     $this->info("Message sent to {$phoneNumber}");
+        // } else {
+        //     $this->error("Failed to send message to {$phoneNumber}");
+        // }
     }
 }

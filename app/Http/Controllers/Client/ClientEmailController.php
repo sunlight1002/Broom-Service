@@ -31,10 +31,27 @@ use Illuminate\Support\Facades\App;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
 use App\Jobs\SendMeetingMailJob;
+use Twilio\Rest\Client as TwilioClient;
+
 
 class ClientEmailController extends Controller
 {
     use PriceOffered, ClientCardTrait, ScheduleMeeting;
+
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioPhoneNumber;
+    protected $twilio;
+
+    public function __construct()
+    {
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
+    }
 
     public function ShowMeeting(Request $request)
     {
@@ -198,7 +215,7 @@ class ClientEmailController extends Controller
 
             $newLeadStatus = LeadStatusEnum::UNINTERESTED;
     
-            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                 $client->lead_status()->updateOrCreate(
                     [],
                     ['lead_status' => $newLeadStatus]
@@ -210,6 +227,8 @@ class ClientEmailController extends Controller
                 'message' => 'Thanks, your offer has been rejected and the client is marked as uninterested.'
             ]);
          } else {
+            $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER,
                 "notificationData" => [
@@ -217,12 +236,7 @@ class ClientEmailController extends Controller
                 ]
             ]));
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
     
             return response()->json([
                 'message' => 'The offer has been rejected. The client already has an accepted offer.'
@@ -638,7 +652,6 @@ class ClientEmailController extends Controller
                 event(new SendClientLogin($client->toArray()));
             }
 
-            
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
                 "notificationData" => [
@@ -708,6 +721,8 @@ class ClientEmailController extends Controller
 
             if($hasUnVerifiedContract){
                 \Log::info('Client Declined Contract');
+                //  heb 
+                
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT,
                     "notificationData" => [

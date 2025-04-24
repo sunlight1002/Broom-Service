@@ -34,7 +34,7 @@ use App\Models\LeadActivity;
 use App\Jobs\AddGoogleContactJob;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-
+use Twilio\Rest\Client as TwilioClient;
 
 
 class LeadController extends Controller
@@ -151,6 +151,12 @@ class LeadController extends Controller
     public function store(Request $request)
     {
         $data = $request->data;
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
 
         $validator = Validator::make($data, [
             'firstname' => ['required', 'string', 'max:255'],
@@ -180,21 +186,6 @@ class LeadController extends Controller
 
         AddGoogleContactJob::dispatch($client);
 
-        // Create user in iCount
-        // $iCountResponse = $this->createOrUpdateUser($request);
-
-        // Handle iCount response
-        // if ($iCountResponse->status() != 200) {
-        //     return response()->json(['error' => 'Failed to create user in iCount'], 500);
-        // }
-
-        // $iCountData = $iCountResponse->json();
-
-        // // Update client with iCount client_id
-        // if (isset($iCountData['client_id'])) {
-        //     $client->update(['icount_client_id' => $iCountData['client_id']]);
-        // }
-
         // Process property addresses
         $property_address_data = $request->propertyAddress;
         if (count($property_address_data) > 0) {
@@ -203,32 +194,6 @@ class LeadController extends Controller
                 ClientPropertyAddress::create($address);
             }
         }
-
-        // if($data["send_bot_message"] == 1) {
-        //     try {
-        //         $m = $this->botMessages['main-menu']['heb'];
-                
-        //         $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
-
-        //         WhatsAppBotClientState::updateOrCreate([
-        //             'client_id' => $client->id,
-        //         ], [
-        //             'menu_option' => 'main_menu',
-        //             'language' => 'he',
-        //         ]);
-
-        //         $response = WebhookResponse::create([
-        //             'status'        => 1,
-        //             'name'          => 'whatsapp',
-        //             'message'       => $m,
-        //             'number'        => $client->phone,
-        //             'read'          => 1,
-        //             'flex'          => 'A',
-        //         ]);
-        //     } catch (\Throwable $th) {
-        //         logger($th);
-        //     }
-        // }
 
         // Update or create lead status
         $client->lead_status()->updateOrCreate(
@@ -245,6 +210,7 @@ class LeadController extends Controller
         ]);
 
         $client->load('property_addresses');
+
         // Trigger WhatsApp notification
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
@@ -262,7 +228,47 @@ class LeadController extends Controller
             'reason' => " ",
         ]);
 
-        // Load property addresses and include them in the response
+
+        if($data["send_bot_message"] == 1) {
+            try {
+                \Log::info("send_bot_message");
+
+                $sid = $client->lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
+
+                $message = $twilio->messages->create(
+                    "whatsapp:+$client->phone",
+                    [
+                        "from" => "$twilioWhatsappNumber", 
+                        "contentSid" => $sid, 
+                    ]
+                );
+                \Log::info($message->sid);
+
+                $m = $this->botMessages['main-menu']['heb'];
+                
+                // $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
+
+                WhatsAppBotClientState::updateOrCreate([
+                    'client_id' => $client->id,
+                ], [
+                    'menu_option' => 'main_menu',
+                    'language' => 'he',
+                ]);
+
+                $response = WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'message'       => $m,
+                    'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
+                    'number'        => $client->phone,
+                    'read'          => 1,
+                    'flex'          => 'A',
+                ]);
+            } catch (\Throwable $th) {
+                \Log::error($th);
+            }
+        }
+
 
         return response()->json([
             'message' => 'Lead created successfully',
@@ -675,6 +681,12 @@ class LeadController extends Controller
 
     public function facebookWebhook(Request $request)
     {
+
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+
         $challenge = $request->hub_challenge;
         if (!empty($challenge)) {
             $verify_token = $request->hub_verify_token;
@@ -746,7 +758,17 @@ class LeadController extends Controller
                             if($lng == 'heb') {
                                 $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                             }
-                            $result = sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
+                            $sid = $client->lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
+
+                            $message = $twilio->messages->create(
+                                "whatsapp:+$client->phone",
+                                [
+                                    "from" => "$twilioWhatsappNumber", 
+                                    "contentSid" => $sid, 
+                                ]
+                            );
+                            \Log::info($message->sid);
+                            // $result = sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
                         }
                         $client->lead_status()->updateOrCreate(
                             [],
@@ -760,6 +782,8 @@ class LeadController extends Controller
                     'entry_id'  => $entry_data['id'],
                     'read'      => 1,
                     'flex'      => 'A',
+                    'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
+                    'number'    => $client->phone,
                     'name'      => 'facebook-callback-lead',
                     'data'      => json_encode($request_data)
                 ]);

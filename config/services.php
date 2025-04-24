@@ -73,6 +73,11 @@ return [
         'business_id' => env('FB_BUSINESS_ID'),
     ],
 
+    'insta' => [
+        'insta_id' => env('INSTA_BUSINESS_ID'),
+        'insta_name' => env('INSTA_USERNAME'),
+    ],
+
     'whapi' => [
         'url' => env('WHAPI_API_URL'),
         'token' => env('WHAPI_API_TOKEN'),
@@ -99,6 +104,7 @@ return [
         'twilio_token' => env('TWILIO_AUTH_TOKEN'),
         'twilio_number' => env('TWILIO_NUMBER'),
         'twilio_whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
+        'webhook' => env('TWILIO_WEBHOOK_URL')
     ],
 
     'short_url' => [

@@ -74,6 +74,7 @@ export default function Sidebar() {
         manageTime: "/admin/manage-time",
         accountSettings: "/admin/settings",
         holidays: "/admin/holidays",
+        discount: "/admin/discount",
         waTemplates: "/admin/templates",
         payslipSettings: "/admin/payslip-settings",
         // Client routes
@@ -404,6 +405,12 @@ export default function Sidebar() {
                                                     <Link to={routes.holidays} style={isActive(routes.holidays) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i>{" "}
                                                         {t("admin.sidebar.settings.holidays")}
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.discount) ? "active" : ""}`}>
+                                                    <Link to={routes.discount} style={isActive(routes.discount) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        {t("admin.sidebar.settings.add_discount")}
                                                     </Link>
                                                 </li>
                                                 <li className={`list-group-item ${isActive(routes.waTemplates) ? "active text-white" : ""}`}>

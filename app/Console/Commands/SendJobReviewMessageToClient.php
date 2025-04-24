@@ -12,6 +12,7 @@ use App\Traits\GoogleAPI;
 use Illuminate\Support\Facades\Http;
 use App\Models\WhatsAppBotActiveClientState;
 use Illuminate\Support\Facades\Cache;
+use Twilio\Rest\Client as TwilioClient;
 
 class SendJobReviewMessageToClient extends Command
 {
@@ -33,6 +34,10 @@ class SendJobReviewMessageToClient extends Command
     protected $spreadsheetId;
     protected $googleAccessToken;
     protected $googleRefreshToken;
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioPhoneNumber;
+    protected $twilio;
     protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
 
     protected $message = [
@@ -66,6 +71,13 @@ Please reply with the appropriate number.",
     public function __construct()
     {
         parent::__construct();
+
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     /**
@@ -156,10 +168,21 @@ Please reply with the appropriate number.",
 
                 WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
                 $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
+                $sid = $client->lng == "heb" ? "HX7910a7bdaa795b555c5a000950fc32d9" : "HXd5cd4117dda2b3b972bdd22927a32c54";
+                $twi = $this->twilio->messages->create(
+                    "whatsapp:+$client->phone",
+                    [
+                        "from" => $this->twilioWhatsappNumber, 
+                        "contentSid" => $sid,
+                        "contentVariables" => json_encode([
+                            "1" => $clientName,
+                        ]),
+                    ]
+                );
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
-                sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
-                Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));
+                // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
+                Cache::put('client_review' . $client->id, 'client_review', now()->addHours(12));
                 sleep(1);
             }
         }

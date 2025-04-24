@@ -129,16 +129,7 @@ office@broomservice.co.il',
             event(new WhatsappNotificationEvent($clientData));
             $client->stop_last_message = 0;
             $client->save();
-
-
-            // $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $specialMsg[$client->lng]));
-
-            // if (!$result) {
-            //     \Log::error('Failed to send message to ' . $client->phone);
-            // }
-
-
-            Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addDay(1));
+            Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addHours(20));
             // echo $client->id . PHP_EOL;
         }
     }

@@ -14,6 +14,7 @@ class WorkerWebhookResponse extends Model
         'status',
         'entry_id',
         'message',
+        'from',
         'number',
         'data',
         'flex',

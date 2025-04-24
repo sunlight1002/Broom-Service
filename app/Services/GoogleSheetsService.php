@@ -90,6 +90,7 @@ class GoogleSheetsService
             ]);
         }
     }
+    
 
     /**
      * Retrieve data from a given sheet and range.

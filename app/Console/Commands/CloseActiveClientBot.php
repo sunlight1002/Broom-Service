@@ -49,7 +49,18 @@ class CloseActiveClientBot extends Command
                 if($client->from) {
                     $lng = $client->lng ?? 'en';
                     $nextMessage = $message[$lng];
-                    sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
+
+                    $sid = $lng == "heb" ? "HX2644430417b4d902fc511736b03ca652" : "HX60098186d1018c92154ac59afb8f92b4";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$client->phone",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
+                    // sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
                     $client->delete();
                 }
             } catch (\Throwable $th) {

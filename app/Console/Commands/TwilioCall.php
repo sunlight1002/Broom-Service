@@ -8,7 +8,7 @@ use Twilio\Rest\Client;
 class TwilioCall extends Command
 {
     // The name and signature of the console command.
-    protected $signature = 'call {phone}';
+    protected $signature = 'call:twilio {phone}';
 
     // The console command description.
     protected $description = 'Make a call using Twilio and specify the text to be spoken';
@@ -28,11 +28,8 @@ class TwilioCall extends Command
         // Initialize the Twilio client
         $twilio = new Client($twilioAccountSid, $twilioAuthToken);
 
-        // Generate TwiML response
-        // $twiml = "<Response><Say>{$text}</Say></Response>";
-
         // Use a temporary endpoint to serve TwiML
-        $twimlUrl = 'https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml';
+        $twimlUrl = config("services.twilio.webhook") . 'api/twiml';
 
         try {
             // Make the call

@@ -95,8 +95,12 @@ class AuthController extends Controller
                 
                 $twilioClient->messages->create(
                     $phone_number,
-                    ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                    [
+                        'from' => $twilioPhoneNumber,
+                        'body' => "Your login OTP is: $otp\nThis code will expire in 10 minutes. Do not share it with anyone."
+                    ]
                 );
+                
                 $smsSent = true;
             } catch (\Exception $e) {
                 $smsError = $e->getMessage();
@@ -242,8 +246,12 @@ class AuthController extends Controller
 
             $twilioClient->messages->create(
                 $phone_number,
-                ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                [
+                    'from' => $twilioPhoneNumber,
+                    'body' => "Your login OTP is: $otp\nThis code will expire in 10 minutes. Do not share it with anyone."
+                ]
             );
+
             $smsSent = true;
         } catch (\Exception $e) {
             $smsError = $e->getMessage();

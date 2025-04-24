@@ -366,4 +366,51 @@ class SettingController extends Controller
         ]);
 
     }
+
+    public function addDiscount(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "type" => 'required|in:percentage,fixed',
+            "value" => [
+                'required',
+                'numeric',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type === 'percentage' && $value > 100) {
+                        $fail("The {$attribute} may not be greater than 100 when type is percentage.");
+                    }
+                },
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+            
+        Setting::updateOrCreate(
+            ['key' => SettingKeyEnum::DISCOUNT_TYPE],
+            ['value' => $request->type]
+        );
+    
+        Setting::updateOrCreate(
+            ['key' => SettingKeyEnum::DISCOUNT_VALUE],
+            ['value' => $request->value]
+        );
+    
+        return response()->json([
+            'message' => 'Settings have been updated'
+        ]);
+    }
+    
+
+    public function getDiscount()
+    {
+        $discount = Setting::query()
+            ->select('key', 'value')
+            ->whereIn('key', [SettingKeyEnum::DISCOUNT_TYPE, SettingKeyEnum::DISCOUNT_VALUE])
+            ->get()
+            ->pluck('value', 'key')
+            ->toArray();
+
+        return response()->json($discount);
+    }
 }

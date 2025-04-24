@@ -2133,6 +2133,7 @@
             },
             "settings": {
                 "title": "הגדרות",
+                "add_discount": "הוסף הנחה",
                 "manage_team": "ניהול צוות",
                 "services": "שירותים",
                 "manpower": "חברות כוח אדם",
@@ -2411,7 +2412,8 @@
             "loanStart": "תאריך תחילת ההלוואה",
             "submit": "לְהַגִישׁ",
             "invitation_for_hearing": "לתאם שימוע",
-            "verification": "אימות דו-שלבי"
+            "verification": "אימות דו-שלבי",
+            "wa_chat_history": "היסטוריית הצ'אט של וואטסאפ"
         }
     },
     "worker_contract": {

@@ -53,6 +53,7 @@ use App\Models\WhatsAppBotClientState;
 use App\Jobs\AddGoogleContactJob;
 use App\Jobs\SaveGoogleCalendarCallJob;
 use App\Jobs\NotifyClientForCallAfterHoliday;
+use Twilio\Rest\Client as TwilioClient;
 
 
 class ClientController extends Controller
@@ -228,6 +229,14 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             'invoicename' => ['required', 'string', 'max:255'],
@@ -280,11 +289,22 @@ class ClientController extends Controller
             }
         }
 
-        // if($request->send_bot_message) {
-        //     try {
-        //         $m = $this->botMessages['main-menu']['heb'];
+        if($request->send_bot_message) {
+            try {
+                $sid = $client->lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
 
-        //         $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
+                $message = $twilio->messages->create(
+                    "whatsapp:+$client->phone",
+                    [
+                        "from" => "$twilioWhatsappNumber", 
+                        "contentSid" => $sid, 
+                    ]
+                );
+                \Log::info($message->sid);
+                
+                $m = $this->botMessages['main-menu']['heb'];
+
+                // $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
 
         //         WhatsAppBotClientState::updateOrCreate([
         //             'client_id' => $client->id,
@@ -293,18 +313,19 @@ class ClientController extends Controller
         //             'language' => 'he',
         //         ]);
 
-        //         $response = WebhookResponse::create([
-        //             'status'        => 1,
-        //             'name'          => 'whatsapp',
-        //             'message'       => $m,
-        //             'number'        => $client->phone,
-        //             'read'          => 1,
-        //             'flex'          => 'A',
-        //         ]);
-        //     } catch (\Throwable $th) {
-        //         logger($th);
-        //     }
-        // }
+                $response = WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'message'       => $m,
+                    'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
+                    'number'        => $client->phone,
+                    'read'          => 1,
+                    'flex'          => 'A',
+                ]);
+            } catch (\Throwable $th) {
+                logger($th);
+            }
+        }
 
         if (!empty($request->jobdata)) {
             $allServices = json_decode($request->jobdata['services'], true);

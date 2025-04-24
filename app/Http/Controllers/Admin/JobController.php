@@ -43,6 +43,7 @@ use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\JobCancellationFee;
 use App\Models\ManageTime;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Traits\PaymentAPI;
 use App\Events\JobNotificationToAdmin;
@@ -793,11 +794,38 @@ class JobController extends Controller
 
                 $jobGroupID = $jobGroupID ? $jobGroupID : $job->id;
 
+
+                $discount = Discount::whereJsonContains('client_ids', $contract->client_id)
+                        ->whereJsonContains('service_ids', $s_id)
+                        ->whereDate('created_at', '=', $job->start_date)
+                        ->where(function ($query) use ($contract) {
+                            $query->whereNull('applied_client_ids') 
+                                ->orWhereJsonDoesntContain('applied_client_ids', $contract->client_id); 
+                        })
+                        ->first();
+
                 $job->update([
                     'origin_job_id' => $job->id,
                     'job_group_id' => $jobGroupID,
-                    'parent_job_id' => $parentJob->id
+                    'parent_job_id' => $parentJob->id,
+                    'discount_type' => $discount ? $discount->type : null,
+                    'discount_value' => $discount ? $discount->value : null,
                 ]);
+
+                if ($discount) {
+                    $applied = $discount->applied_client_ids ?? [];
+
+                    // Ensure it's an array
+                    if (!is_array($applied)) {
+                        $applied = json_decode($applied, true);
+                    }
+
+                    $applied[] = $contract->client_id;
+                    $applied = array_unique($applied);
+
+                    $discount->applied_client_ids = $applied;
+                    $discount->save();
+                }
 
                 foreach ($mergedContinuousTime as $key => $shift) {
                     $job->workerShifts()->create($shift);
@@ -816,6 +844,7 @@ class JobController extends Controller
                     'emailTitle'  => __('mail.worker_new_job.new_job_assigned'),
                     'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
+                \Log::info($emailData);
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
                 ScheduleNextJobOccurring::dispatch($job->id, null);
 

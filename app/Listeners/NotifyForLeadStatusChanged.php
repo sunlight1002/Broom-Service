@@ -11,6 +11,7 @@ use App\Events\ClientLeadStatusChanged;
 use App\Events\WhatsappNotificationEvent;
 use App\Models\Notification;
 
+
 class NotifyForLeadStatusChanged implements ShouldQueue
 {
     /**
@@ -20,7 +21,6 @@ class NotifyForLeadStatusChanged implements ShouldQueue
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -44,6 +44,7 @@ class NotifyForLeadStatusChanged implements ShouldQueue
         \Log::info("Status changed to " . $event->newStatus);
 
         if($event->newStatus === 'past'){
+
             event(new WhatsappNotificationEvent([
                "type" => WhatsappMessageTemplateEnum::PAST,
                "notificationData" => [
@@ -53,6 +54,7 @@ class NotifyForLeadStatusChanged implements ShouldQueue
        }
 
         if($event->newStatus === 'freeze client'){
+
             event(new WhatsappNotificationEvent([
                "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
                "notificationData" => [
@@ -153,15 +155,15 @@ class NotifyForLeadStatusChanged implements ShouldQueue
             ]));
         };
 
-        if ($event->newStatus === 'waiting') {
+        // if ($event->newStatus === 'waiting') {
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WAITING,
-                "notificationData" => [
-                    'client' => $event->client->toArray(),
-                ]
-            ]));
-        };
+        //     event(new WhatsappNotificationEvent([
+        //         "type" => WhatsappMessageTemplateEnum::WAITING,
+        //         "notificationData" => [
+        //             'client' => $event->client->toArray(),
+        //         ]
+        //     ]));
+        // };
 
         if ($event->newStatus === 'active client') {
 

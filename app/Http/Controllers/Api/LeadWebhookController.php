@@ -51,6 +51,10 @@ class LeadWebhookController extends Controller
     protected $spreadsheetId;
     protected $googleAccessToken;
     protected $googleRefreshToken;
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilio;
     protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
 
     protected $botMessages = [
@@ -167,7 +171,7 @@ If you have any further questions or requests, feel free to contact us.
 
 Best regards,
 Broom Service Team 🌹",
-            "heb" => "שלום :client_name,
+            "heb" => "שלום :client_name, 
 בקשתך להפסיק לקבל הודעות פרסומיות התקבלה.
 
 לתשומת ליבך, תזכורות והתראות חשובות הקשורות לשירותיך ימשיכו להישלח ממספר זה על מנת להבטיח תקשורת חלקה.
@@ -179,118 +183,23 @@ Broom Service Team 🌹",
         ]
     ];
 
-    public function saveLead(Request $request)
+    public function __construct()
     {
-        $challenge = $request->hub_challenge;
-        if (!empty($challenge)) {
-            $verify_token = $request->hub_verify_token;
-            if ($verify_token === config('services.facebook.webhook_token')) {
-                Fblead::create(["challenge" => $challenge]);
-                return $challenge;
-            }
-        } else {
-            $validator = Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:255'],
-                'phone'     => ['required'],
-                'email'     => ['required'],
-            ]);
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
 
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->messages()]);
-            }
-
-            // Remove all special characters from the phone number
-            $phone = preg_replace('/[^0-9+]/', '', $request->phone);
-
-            // Adjust phone number formatting
-            if (strpos($phone, '0') === 0) {
-                $phone = '972' . substr($phone, 1);
-            }
-            if (strpos($phone, '+') === 0) {
-                $phone = substr($phone, 1);
-            }
-
-            // Ensure phone starts with '972'
-            if (strlen($phone) === 9 || strlen($phone) === 10) {
-                $phone = '972' . $phone;
-            }
-
-
-            $lead_exists = Client::where('phone', $phone)->orWhere('email', $request->email)->exists();
-            if (!$lead_exists) {
-                $lead = new Client;
-            } else {
-                $lead = Client::where('phone', 'like', '%' . $phone . '%')->first();
-                if (empty($lead)) {
-                    $lead = Client::where('email', $request->email)->first();
-                }
-            }
-            $nm = explode(' ', $request->name);
-
-            $lead->firstname     = $nm[0];
-            $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
-            $lead->phone         = $phone;
-            $lead->email         = $request->email;
-            $lead->status        = 0;
-            $lead->lng = 'heb';
-            $lead->password      = Hash::make(Str::random(20));
-            $lead->passcode      = $phone;
-            $lead->geo_address   = $request->has('address') ? $request->address : '';
-            $lead->save();
-
-            if (!$lead_exists) {
-                $lead->lead_status()->updateOrCreate(
-                    [],
-                    ['lead_status' => LeadStatusEnum::PENDING]
-                );
-            }
-            $m = $this->botMessages['main-menu']['heb'];
-
-            $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
-
-            WhatsAppBotClientState::updateOrCreate([
-                'client_id' => $lead->id,
-            ], [
-                'menu_option' => 'main_menu',
-                'language' => 'he',
-            ]);
-
-            $response = WebhookResponse::create([
-                'status'        => 1,
-                'name'          => 'whatsapp',
-                'message'       => $m,
-                'number'        => $request->phone,
-                'read'          => 1,
-                'flex'          => 'A',
-            ]);
-        }
-
-        return response()->json([
-            'message' => $lead,
-        ]);
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
-
-    public function contain_phone($str)
-    {
-        $nums  = "";
-        for ($i = 0; $i < strlen($str); $i++) {
-            if (ctype_digit($str[$i])) {
-                $nums .= $str[$i];
-            }
-        }
-        return ($nums != "" && strlen($nums) > 8) ? true : false;
-    }
-
 
 
     public function fbWebhookCurrentLive(Request $request)
     {
-        $get_data = $request->getContent();
-        $responseClientState = [];
-        $data_returned = json_decode($get_data, true);
+        $data = $request->all();
+        \Log::info($data);
+        $messageId = $data['SmsMessageSid'] ?? null;
         $message = null;
-
-        $messageId = $data_returned['messages'][0]['id'] ?? null;
 
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
@@ -306,130 +215,42 @@ Broom Service Team 🌹",
         Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
 
 
-        if (
-            isset($data_returned['messages']) &&
-            isset($data_returned['messages'][0]['from_me']) &&
-            $data_returned['messages'][0]['from_me'] == false
-        ) {
-            $message_data = $data_returned['messages'];
-            $from = $message_data[0]['from'];
-            Log::info($from);
+        if ($data['SmsStatus'] == 'received') {
+            $message = $data['Body'] ?? null;
+            $listId = $data['ListId'] ?? $message;
+            $ButtonPayload = $data['ButtonPayload'] ?? null;
+            \Log::info($ButtonPayload);
+
+            \Log::info($listId);
+            $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
             $lng = 'heb';
-
-            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-
-                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
-
-                    $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
-
-                    // Split the message body into lines
-                    $lines = explode("\n", trim($messageBody));
-
-                    $new = trim($lines[0] ?? '');
-                    $fullName = trim($lines[1] ?? '');
-                    $phone = trim($lines[2] ?? '');
-                    $email = trim($lines[3] ?? '');
-
-                    if (stripos($new, 'חדש') !== false) {
-                        $lng = 'heb';
-                    } elseif (stripos($new, 'New') !== false) {
-                        $lng = 'en';
-                    } else {
-                        $lng = 'heb';
-                    }
-
-                    if (empty($phone)) {
-                        return response()->json(['status' => 'Invalid message data'], 400);
-                    }
-
-                    // Validate name and split into first and last name
-                    if ($fullName) {
-                        $nameParts = explode(' ', $fullName);
-                        $firstName = $nameParts[0] ?? '';
-                        $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
-                    }
-
-                    // Validate and format the phone number
-                    if ($phone) {
-                        // Remove all special characters from the phone number
-                        $phone = preg_replace('/[^0-9+]/', '', $phone);
-
-                        // Adjust phone number formatting
-                        if (strpos($phone, '0') === 0) {
-                            $phone = '972' . substr($phone, 1);
-                        }
-                        if (strpos($phone, '+') === 0) {
-                            $phone = substr($phone, 1);
-                        }
-
-                        // Ensure phone starts with '972'
-                        if (strlen($phone) === 9 || strlen($phone) === 10) {
-                            $phone = '972' . $phone;
-                        }
-
-                        // Check if the client already exists
-                        $client = Client::where('phone', $phone)->first();
-
-                        if (!$client) {
-                            $client = new Client;
-                            $client->phone = $phone;
-                            $client->firstname = $firstName ?? '';
-                            $client->lastname = $lastName ?? '';
-                            $client->email = null;
-                            $client->status = 0;
-                            $client->password = Hash::make(Str::random(20));
-                            $client->passcode = $phone;
-                            $client->geo_address = '';
-                            $client->lng = ($lng);
-                            $client->save();
-
-                            $m = $lng == 'heb'
-                                ? "ליד חדש נוצר בהצלחה\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
-                                : "New lead created successfully\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
-                        } else {
-
-                            if ($client->status != 2) {
-                                $client->status = 0;
-                                $client->lead_status->update([
-                                    'lead_status' => LeadStatusEnum::PENDING,
-                                ]);
-                                $client->created_at = Carbon::now();
-                                $client->save();
-                            }
-
-                            $m = $lng == 'heb'
-                                ? "עופרת כבר קיימת\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
-                                : "Lead already exists\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
-                        }
-
-                        // Send WhatsApp message
-                        $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
-                    }
-                }
-
-                return response()->json(['status' => 'Already processed'], 200);
-            }
-
-            return response()->json(['status' => "message sent"], 200);
 
             $response = WebhookResponse::create([
                 'status'        => 1,
                 'name'          => 'whatsapp',
-                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                'message'       => $data_returned['messages'][0]['text']['body'] ?? '',
+                'entry_id'      => $messageId,
+                'message'       => $data['body'] ?? '',
+                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                 'number'        => $from,
                 'read'          => 0,
                 'flex'          => 'C',
-                'data'          => json_encode($get_data)
+                'data'          => json_encode($data)
             ]);
 
             $client = null;
+            $verifyClient = null;
+            $menus = null;
+            $responseClientState = null;
             if (strlen($from) > 10) {
-                $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')
+                ->orWhereJsonContains('extra', [['phone' => $from]])
+                ->first();
                 $user = User::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
                 $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
             } else {
-                $client = Client::where('phone', 'like', '%' . $from . '%')->first();
+                $client = Client::where('phone', 'like', '%' . $from . '%')
+                ->orWhereJsonContains('extra', [['phone' => $from]])
+                ->first();
                 $user = User::where('phone', 'like', '%' . $from . '%')->first();
                 $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
             }
@@ -445,71 +266,402 @@ Broom Service Team 🌹",
             }
 
             if (!$client && !$user && !$workerLead) {
-                $m = $this->botMessages['main-menu']['heb'];
-                $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+                $lng = $this->detectLanguage($message);
+                $responseActiveClientState = WhatsAppBotActiveClientState::where('from', $from)->first();
+                if ($responseActiveClientState) {
+                    $menuParts = explode('->', $responseActiveClientState->menu_option);
+                    $menus = end($menuParts);
+                } else {
+                    $menus = 'not_recognized';
+                }
+            
+                if ($listId == "1") {
+                    $menus = 'enter_phone';
+                } else if ($listId == "2") {
+                    $menus = 'new_lead';
+                } elseif ($menus == 'enter_phone' && !empty($message)) {
+                    $phone = $message;
+            
+                    // 1. Remove all special characters from the phone number
+                    $phone = preg_replace('/[^0-9+]/', '', $phone);
+            
+                    // 2. If there's any string or invalid characters in the phone, extract the digits
+                    if (preg_match('/\d+/', $phone, $matches)) {
+                        $phone = $matches[0]; // Extract the digits
+            
+                        // Reapply rules on extracted phone number
+                        // If the phone number starts with 0, add 972 and remove the first 0
+                        if (strpos($phone, '0') === 0) {
+                            $phone = '972' . substr($phone, 1);
+                        }
+            
+                        // If the phone number starts with +, remove the +
+                        if (strpos($phone, '+') === 0) {
+                            $phone = substr($phone, 1);
+                        }
+                    }
+            
+                    $phoneLength = strlen($phone);
+                    if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+                        $phone = '972' . $phone;
+                    }
+            
+                    $verifyClient = Client::where('phone', $phone)
+                        ->orWhereJsonContains('extra', [['phone' => $phone]])
+                        ->first();
+            
+                    if ($verifyClient && !empty($phone)) {
+                        $menus = 'email_sent';
+                    } else {
+                        $menus = 'not_recognized';
+                    }
+                } else if ($menus == 'email_sent' && $ButtonPayload == '0') {
+                    $verifyClient = Client::where('phone', $responseActiveClientState->client_phone)
+                        ->orWhereJsonContains('extra', [['phone' => $responseActiveClientState->client_phone]])
+                        ->first();
+                    $menus = 'email_sent';
+                } else if ($menus == 'email_sent' && !empty($message)) {
+                    $verifyClient = Client::where('phone', $responseActiveClientState->client_phone)
+                        ->orWhereJsonContains('extra', [['phone' => $responseActiveClientState->client_phone]])
+                        ->first();
+                
+                    if ($verifyClient && $verifyClient->otp == $message && $verifyClient->otp_expiry >= now()) {
+                        $menus = 'verified';
+                    } else {
+                        if ($verifyClient) {
+                            $verifyClient->attempts += 1;
+                            $verifyClient->save();
+                            $menus = $verifyClient->attempts >= 4 ? 'failed_attempts' : 'incorect_otp';
+                        } else {
+                            $menus = 'not_recognized'; // fallback if somehow verifyClient is still null
+                        }
+                    }
+                } else if ($menus == 'failed_attempts') {
+                    $menus = 'failed_attempts';
+                }
+            
+                \Log::info("Final menu: $menus");
+            
+                // Now handle final menu logic
+                switch ($menus) {
+                    case 'not_recognized':
+                        $sid = $lng == "heb" ? "HXceaab9272d0a2e5f605ad6365262f229" : "HX2abe416449326aec10de9c4e956591f7";
+                        $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
+                            ]
+                        );
+            
+                        WhatsAppBotActiveClientState::updateOrCreate(
+                            ["from" => $from],
+                            [
+                                'menu_option' => 'not_recognized->enter_phone',
+                                'lng' => $lng,
+                                "from" => $from,
+                            ]
+                        );
+            
+                        WebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $this->activeClientBotMessages['not_recognized'][$lng],
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+                        break;
+            
+                    case 'enter_phone':
+            
+                        $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
+                        $sid = $lng == "heb" ? "HXed45297ce585bd31b49119c8788edfb4" : "HX741b8e40f723e2ca14474a54f6d82ec2";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                            ]
+                        );
+                        \Log::info($twi);
+            
+                        WhatsAppBotActiveClientState::updateOrCreate(
+                            ["from" => $from],
+                            [
+                                'menu_option' => 'enter_phone',
+                                'lng' => $lng,
+                                "from" => $from,
+                            ]
+                        );
+                        WebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $nextMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+                        break;
+                    
+                    case 'email_sent':
+                        $this->ClientOtpSend($verifyClient, $from, $lng);
+                        WhatsAppBotActiveClientState::updateOrCreate(
+                            ["from" => $from],
+                            [
+                                'menu_option' => 'email_sent',
+                                'lng' => $lng,
+                                "from" => $from,
+                            ]
+                        );
+                        break;
+            
+                    case 'verified':
+                        // Decode the `extra` field (or initialize it as an empty array if null or invalid)
+                        $extra = $verifyClient->extra ? json_decode($verifyClient->extra, true) : [];
+            
+                        if (!is_array($extra)) {
+                            $extra = [];
+                        }
+            
+                        // Add or update the `from` phone in the `extra` field
+                        $found = false;
+                        foreach ($extra as &$entry) {
+                            if ($entry['phone'] == $from) {
+                                $found = true; // `from` already exists in the `extra` array
+                                break;
+                            }
+                        }
+                        unset($entry); // Unset reference to prevent side effects
+            
+                        if (!$found) {
+                            // Add a new object with the `from` value
+                            $extra[] = [
+                                "email" => "",
+                                "name"  => "",
+                                "phone" => $from,
+                            ];
+                        }
+                        // Encode the updated `extra` array back to JSON
+                        $verifyClient->extra = json_encode($extra);
+                        $verifyClient->otp = null;
+                        $verifyClient->otp_expiry = null;
+                        $verifyClient->save();
+            
+                        // Send verified message
+                        $nextMessage = $this->activeClientBotMessages['verified'][$lng];
+            
+                        $sid = $lng == "heb" ? "HX0d6d41473fae763d728c1f9a56a427f5" : "HXebdc48bc1b7e5ca4e8b32d868d778932";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    '1' => ($verifyClient->firstname ?? ''. ' ' . $verifyClient->lastname ?? '')
+                                ]),
+                            ]
+                        );
+                        \Log::info($twi);
+            
+                        $personalizedMessage = str_replace(':client_name', $verifyClient->firstname . ' ' . $verifyClient->lastname, $nextMessage);
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+            
+                        // Create webhook response
+                        WebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $nextMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+            
+                        $this->sendMainMenu($verifyClient, $from);
+                        break;
+            
+                    case 'incorect_otp':
+            
+                        $sid = $lng == "heb" ? "HX0e54f862ae4a74d0b29cd16f31c3289d" : "HXf11fa257dbd265ccb6ac155ef186016d";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                            ]
+                        );
+                        \Log::info($twi);
+            
+                        $nextMessage = $this->activeClientBotMessages['incorect_otp'][$lng];
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
-                $response = WebhookResponse::create([
-                    'status'        => 1,
-                    'name'          => 'whatsapp',
-                    'message'       =>  $m,
-                    'number'        =>  $from,
-                    'read'          => 1,
-                    'flex'          => 'A'
-                ]);
+                        WhatsAppBotActiveClientState::updateOrCreate(
+                            ["from" => $from],
+                            [
+                                'menu_option' => 'not_recognized->enter_phone->email_sent',
+                                'lng' => $lng,
+                                "from" => $from,
+                            ]
+                        );
+            
+                        // Create webhook response
+                        WebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $nextMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+                        break;
+            
+                    case 'failed_attempts':
+                        $sid = $lng == "heb" ? "HX7031ef0aca470c5c91cb8990d00c3533" : "HX5d496b41e236760e3532f84b6b620298";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                            ]
+                        );
+                        \Log::info($twi);
+            
+                        $nextMessage = $this->activeClientBotMessages['failed_attempts'][$lng];
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+            
+                        WhatsAppBotActiveClientState::updateOrCreate(
+                            ["from" => $from],
+                            [
+                                "from" => $from,
+                                'menu_option' => 'failed_attempts'
+                            ]
+                        );
+            
+                        WebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $nextMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+            
+                        break;
+            
+                    case 'new_lead':
+            
+                        $sid = $lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
+            
+                        $message = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid, 
+                            ]
+                        );
+                        \Log::info($message->sid);
+            
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'message'       =>  $this->botMessages['main-menu']['heb'],
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number'        =>  $from,
+                            'read'          => 1,
+                            'flex'          => 'A'
+                        ]);
+            
+                        $lead                = new Client;
+                        $lead->firstname     = '';
+                        $lead->lastname      = '';
+                        $lead->phone         = $from;
+                        $lead->email         = "";
+                        $lead->status        = 0;
+                        $lead->password      = Hash::make(Str::random(20));
+                        $lead->passcode      = $from;
+                        $lead->geo_address   = '';
+                        $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
+                        $lead->save();
+            
+                        WhatsAppBotClientState::updateOrCreate([
+                            'client_id' => $lead->id,
+                        ], [
+                            'menu_option' => 'main_menu',
+                            'language' => $lng == 'heb' ? 'he' : 'en',
+                        ]);
+            
+                        WhatsAppBotActiveClientState::updateOrCreate(
+                            ["from" => $from],
+                            [
+                                'menu_option' => 'main_menu',
+                                'lng' => $lng,
+                                "from" => $from,
+                            ]
+                        );
+            
+                        break;
 
-                $lead                = new Client;
-                $lead->firstname     = 'lead';
-                $lead->lastname      = '';
-                $lead->phone         = $from;
-                $lead->email         = "";
-                $lead->status        = 0;
-                $lead->password      = Hash::make(Str::random(20));
-                $lead->passcode      = $from;
-                $lead->geo_address   = '';
-                $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
-                $lead->save();
-
-                $responseClientState = WhatsAppBotClientState::updateOrCreate([
-                    'client_id' => $lead->id,
-                ], [
-                    'menu_option' => 'main_menu',
-                    'language' => $lng == 'heb' ? 'he' : 'en',
-                ]);
-
-                die('Template send to new client');
-            } else if ($client && $client->disable_notification == 1) {
+                    
+                }
+            }else if ($client && $client->disable_notification == 1) {
                 \Log::info('notification disabled');
                 die('notification disabled');
+            }else if ($client->lead_status && $client->lead_status->lead_status === 'active client') {
+                \Log::info('active client');
+                $this->fbActiveClientsWebhookCurrentLive($request);
+            }
+            
+            if($client){
+                $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
             }
 
-            $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
             if ($responseClientState && $responseClientState->final) {
                 \Log::info('final');
+                $this->fbActiveClientsWebhookCurrentLive($request);
                 die('final');
             };
 
-            if ($client && $data_returned['channel_id'] == 'GAMORA-MDYNP' && isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
-                $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
-                // \Log::info($message);
+            if ($client ) {
                 $result = WhatsappLastReply::where('phone', $from)
                     ->where('updated_at', '>=', Carbon::now()->subMinutes(15))
                     ->first();
 
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
-                if ($message == 0) {
-                    $m = $this->botMessages['main-menu'][$client->lng];
-                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+                if ($listId == 0) {
+                    $sid = null;
+
+                    if ($client->lng == 'heb') {
+                        $m = $this->botMessages['main-menu']['heb'];
+                        $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                    } else {
+                        $m = $this->botMessages['main-menu']['en'];
+                        $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                    }
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
 
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                        'message'       => $m,
+                        'entry_id'      => $messageId,
+                        'message'       => $this->botMessages['main-menu'][$client->lng],
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
                     WhatsAppBotClientState::updateOrCreate([
@@ -549,18 +701,30 @@ Broom Service Team 🌹",
                 }
 
                 // Send main menu is last menu state not found
-                if (!$client_menus || $message == '9') {
+                if (!$client_menus || $listId == '9') {
+                    $sid = null;
+
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                        $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
+                        $sid = "HX3732b37820ac96e08bfbd8bacf752541";
                     }
-                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
 
                     $response = WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'message'       => $m,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'read'          => 1,
                         'flex'          => 'A',
@@ -586,20 +750,32 @@ Broom Service Team 🌹",
 
                 // Need more help
                 if (
-                    (in_array($last_menu, ['need_more_help']) && (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))) ||
-                    (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')
+                    (in_array($last_menu, ['need_more_help']) && ($ButtonPayload == "yes_1")) ||
+                    (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $listId == '0')
                 ) {
+                    $sid = null;
+
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                        $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
+                        $sid = "HX3732b37820ac96e08bfbd8bacf752541";
                     }
-                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
 
                     $response = WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'message'       => $m,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'read'          => 1,
                         'flex'          => 'A',
@@ -622,20 +798,31 @@ Broom Service Team 🌹",
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
                     $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber,
+                            "body" => $msg 
+                        ]
+                    );
+
+                    \Log::info($twi->sid);
+
                     die("Final message");
                 }
 
                 // Send english menu
-                if ($last_menu == 'main_menu' && $message == '6') {
+                if ($last_menu == 'main_menu' && $listId == '6') {
                     if (strlen($from) > 10) {
                         Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'en']);
                     } else {
@@ -643,12 +830,22 @@ Broom Service Team 🌹",
                     }
                     $m = $this->botMessages['main-menu']['en'];
 
-                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+                    $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
+                    \Log::info($twi->sid);
 
                     $response = WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'message'       => $m,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'read'          => 1,
                         'flex'          => 'A',
@@ -664,19 +861,31 @@ Broom Service Team 🌹",
                 }
 
                 // Send hebrew menu
-                if ($last_menu == 'main_menu' && $message == '7') {
+                if ($last_menu == 'main_menu' && $listId == '7') {
+                    \Log::info('Language switched to hebrew');
                     if (strlen($from) > 10) {
                         Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'heb']);
                     } else {
                         Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'heb']);
                     }
                     $m = $this->botMessages['main-menu']['heb'];
-                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+
+                    $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
+                    \Log::info($twi->sid);
 
                     $response = WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'message'       => $m,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'read'          => 1,
                         'flex'          => 'A',
@@ -698,54 +907,43 @@ Broom Service Team 🌹",
                             'title' => "About the Service",
                             'content' => [
                                 'en' => 'Broom Service - Room service for your 🏠.
-Broom Service is a professional cleaning company that offers ✨ high-quality cleaning services for homes or apartments, on a regular or one-time basis, without any unnecessary 🤯 hassle.
-We offer a variety of 🧹 customized cleaning packages, from regular cleaning packages to additional services such as post-construction cleaning or pre-move cleaning, window cleaning at any height, and more.
-You can find all of our services and packages on our website at 🌐 www.broomservice.co.il.
-Our prices are fixed per visit, based on the selected package, and they include all the necessary services, including ☕️ social benefits and travel.
-We work with a permanent and skilled team of employees supervised by a work manager.
-Payment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.
-To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
-Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
-To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
-                                'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
-ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
-אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
-את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
-המחירים שלנו קבועים לביקור, בהתאם לחבילה הנבחרת, והם כוללים את כל השירותים הנדרשים, לרבות תנאים סוציאליים ונסיעות 🍵.
-אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה 👨🏻‍💼.
-התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר 💳.
-לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת 📝.
-נציין כי שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00 🕓.
-לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
+                                    We’re a professional cleaning company offering ✨ top-notch services for homes or apartments, available regularly or one-time, with no 🤯 hassle. Choose from 🧹 tailored packages like routine cleaning, or extras such as post-construction, pre-move, or window cleaning at any height.
+                                    Visit 🌐 www.broomservice.co.il for all services and details.
+                                    Our fixed prices per visit include everything—☕️ social benefits and travel—based on your package. We employ a skilled, permanent team led by a work manager. Pay by 💳 credit card monthly or post-visit, depending on your plan.
+                                    To get a quote, book a free, no-obligation visit from a supervisor who’ll assess your needs and provide a detailed estimate. Office hours: 🕖 Monday-Thursday, 8:00-14:00',
+                                'he' => 'ברום סרוויס - שירות חדרים לביתכם 🏠.
+                                    חברת ניקיון מקצועית המספקת שירותי ניקיון ברמה גבוהה לבתים ודירות, קבוע או חד-פעמי, ללא התעסקות מיותרת 🧹. אנו מציעים חבילות מותאמות: ניקיון קבוע, ניקיון לאחר שיפוץ, לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨.
+                                    רטים באתר 🌐 www.broomservice.co.il. המחירים קבועים לביקור, כוללים הכל—תנאים סוציאליים ונסיעות 🍵—לפי החבילה. צוות קבוע ומיומן בפיקוח מנהל עבודה 👨🏻‍💼. תשלום בכרטיס אשראי בסוף החודש או לאחר ביקור 💳.
+                                    להצעת מחיר, תאמו פגישה חינם וללא התחייבות עם מפקח שיסייע בבחירת חבילה וישלח הצעה מפורטת 📝. שעות משרד: א-ה, 8:00-14:00 🕓. '
                             ]
                         ],
                         '2' => [
                             'title' => "Service Areas",
                             'content' => [
                                 'en' => 'We provide service in the following areas: 🗺️
-- Tel Aviv
-- Ramat Gan
-- Givatayim
-- Kiryat Ono
-- Ganei Tikva
-- Ramat HaSharon
-- Kfar Shmaryahu
-- Rishpon
-- Herzliya
+                                - Tel Aviv
+                                - Ramat Gan
+                                - Givatayim
+                                - Kiryat Ono
+                                - Ganei Tikva
+                                - Ramat HaSharon
+                                - Kfar Shmaryahu
+                                - Rishpon
+                                - Herzliya
 
-To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+                                To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
                                 'he' => 'אנו מספקים שירות באזור 🗺️:
-- תל אביב
-- רמת גן
-- גבעתיים
-- קריית אונו
-- גני תקווה
-- רמת השרון
-- כפר שמריהו
-- רשפון
-- הרצליה
+                                - תל אביב
+                                - רמת גן
+                                - גבעתיים
+                                - קריית אונו
+                                - גני תקווה
+                                - רמת השרון
+                                - כפר שמריהו
+                                - רשפון
+                                - הרצליה
 
-לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
+                                לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '3' => [
@@ -759,39 +957,40 @@ To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a repre
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
-You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
-Enter your phone number or email address with which you registered for the service 📝',
+                                You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
+                                Enter your phone number or email address with which you registered for the service 📝',
                                 'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
-תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
-הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
+                                תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
+                                הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
                             ]
                         ],
                         '5' => [
                             'title' => "Switch to a Human Representative - During Business Hours",
                             'content' => [
                                 'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
-If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
-If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
+                                    If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
+                                    If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
                                 'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
-במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
-אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
+                                במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
+                                אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
                             ]
                         ]
                     ]
                 ];
 
                 // Greeting message
-                if (in_array($last_menu, ['need_more_help', 'cancel_one_time']) && (str_contains(strtolower($message), 'no') || str_contains($message, 'לא'))) {
+                if (in_array($last_menu, ['need_more_help', 'cancel_one_time']) && ($ButtonPayload == "no_1")) {
                     $msg = ($client->lng == 'heb' ? `מקווה שעזרתי! 🤗` : 'I hope I helped! 🤗');
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
                     $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
@@ -800,13 +999,23 @@ If you would like to speak to a human representative, please send a message with
                         $responseClientState->final = true;
                         $responseClientState->save();
                     }
+                    
                     // $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber,
+                            "body" => $msg 
+                        ]
+                    );
+
+                    \Log::info($twi->sid);
                     die("Final message");
                 }
 
                 // Send appointment message
-                if (($last_menu == 'about_the_service' || $last_menu == 'service_areas') && $message == '3') {
+                if (($last_menu == 'about_the_service' || $last_menu == 'service_areas') && in_array($listId, ['3', '5'])) {
+                    \Log::info('Send appointment message');
                     $last_menu = 'main_menu';
                 }
 
@@ -828,6 +1037,17 @@ If you would like to speak to a human representative, please send a message with
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
 
+                        $sid = $client->lng == "heb" ? "HX33f1cb820e3155015ff72760fdf3040d" : "HXa9f56483168070a8dfdcc0bc227a0206";
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid, 
+                            ]
+                        );
+                        \Log::info($twi->sid);
+
                         $state = "main_menu->human_representative->need_more_help";
                     } else {
                         if ($client->lng == 'heb') {
@@ -836,20 +1056,29 @@ If you would like to speak to a human representative, please send a message with
                             $msg = 'It looks like you\'ve entered an incorrect input. Please check and try again.';
                         }
 
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                        );
+                        \Log::info($twi->sid);
+
                         $state = "main_menu->human_representative";
                     }
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
 
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
                     $responseClientState = WhatsAppBotClientState::updateOrCreate([
@@ -862,46 +1091,6 @@ If you would like to speak to a human representative, please send a message with
                     $message = null;
                     die("Human representative");
                 }
-
-                // // Store lead full name
-                // if ($last_menu == 'full_name') {
-                //     $names = explode(' ', $message);
-                //     if (isset($names[0])) {
-                //         $client->firstname = trim($names[0]);
-                //     }
-                //     if (isset($names[1])) {
-                //         $client->lastname = trim($names[1]);
-                //     }
-                //     $client->save();
-                //     // $client->refresh();
-                //     $msg = null;
-                //     if ($client->lng == 'heb') {
-                //         $msg = 'כתובת מלאה (רחוב, מספר ועיר בלבד)';
-                //     } else {
-                //         $msg = "Please send your full address (Only street, number, and city)";
-                //     }
-                //     WebhookResponse::create([
-                //         'status'        => 1,
-                //         'name'          => 'whatsapp',
-                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //         'message'       => $msg,
-                //         'number'        => $from,
-                //         'flex'          => 'A',
-                //         'read'          => 1,
-                //         'data'          => json_encode($get_data)
-                //     ]);
-
-                //     $result = sendWhatsappMessage($from, array('message' => $msg));
-
-                //     $responseClientState = WhatsAppBotClientState::updateOrCreate([
-                //         'client_id' => $client->id,
-                //     ], [
-                //         'menu_option' => 'main_menu->appointment->full_address',
-                //         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                //     ]);
-
-                //     die("Store full name");
-                // }
 
                 // Check the current menu state
                 if ($last_menu == 'first_name') {
@@ -917,15 +1106,23 @@ If you would like to speak to a human representative, please send a message with
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "body" => $msg
+                        ]
+                    );
+                    \Log::info($twi->sid);
 
                     // Update client state to expect the last name
                     WhatsAppBotClientState::updateOrCreate([
@@ -951,15 +1148,23 @@ If you would like to speak to a human representative, please send a message with
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "body" => $msg
+                        ]
+                    );
+                    \Log::info($twi->sid);
 
                     // Update client state to expect the full address
                     WhatsAppBotClientState::updateOrCreate([
@@ -1021,12 +1226,13 @@ If you would like to speak to a human representative, please send a message with
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                'entry_id'      => $messageId,
                                 'message'       => $msg,
+                                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data)
+                                'data'          => json_encode($data)
                             ]);
                             $responseClientState = WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
@@ -1034,7 +1240,21 @@ If you would like to speak to a human representative, please send a message with
                                 'menu_option' => 'main_menu->appointment->full_address->verify_address',
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
-                            $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                            $sid = $client->lng == 'heb' ? 'HX8137ef73ff405cd78aa49f05960654c6' : 'HX115bf3451f48b68cb0edfdb9be6b481e';
+
+                            $twi = $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber, 
+                                    "contentSid" => $sid,
+                                    "contentVariables" => json_encode([
+                                        "1" => $result->formatted_address
+                                    ]),
+                                    // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                                ]
+                            );
+                            \Log::info($twi->sid);
 
                             die("Verify address");
                         } else {
@@ -1050,10 +1270,8 @@ If you would like to speak to a human representative, please send a message with
                 }
 
                 if ($last_menu == 'verify_address') {
-                    if (
-                        ($client->lng == 'heb' && $message == 'כן') ||
-                        ($client->lng == 'en' && strtolower($message) == 'yes')
-                    ) {
+                    if ($ButtonPayload == "yes_1")
+                    {
                         $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
 
                         $propertyAddress = $client->property_addresses()
@@ -1093,15 +1311,23 @@ If you would like to speak to a human representative, please send a message with
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
 
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                        );
+                        \Log::info($twi->sid);
 
                         $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
@@ -1126,15 +1352,23 @@ If you would like to speak to a human representative, please send a message with
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
 
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                        );
+                        \Log::info($twi->sid);
 
                         $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
@@ -1178,15 +1412,23 @@ If you would like to speak to a human representative, please send a message with
                     $responseClientState = WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "body" => $msg
+                        ]
+                    );
+                    \Log::info($twi->sid);
 
                     $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
@@ -1229,15 +1471,23 @@ If you would like to speak to a human representative, please send a message with
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "body" => $msg
+                        ]
+                    );
+                    \Log::info($twi->sid);
 
                     $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
@@ -1276,15 +1526,23 @@ If you would like to speak to a human representative, please send a message with
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
 
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                        );
+                        \Log::info($twi->sid);
 
                         $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
@@ -1309,15 +1567,23 @@ If you would like to speak to a human representative, please send a message with
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
 
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                        );
+                        \Log::info($twi->sid);
 
                         $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
@@ -1333,10 +1599,14 @@ If you would like to speak to a human representative, please send a message with
                 // Store lead email
                 if ($last_menu == 'email') {
                     $msg = null;
+                    $sid = null;
+                    $num = null;
+                    $link = null;
                     if (filter_var($message, FILTER_VALIDATE_EMAIL)) {
                         $email_exists = Client::where('email', $message)->where('id', '!=', $client->id)->exists();
                         if ($email_exists) {
                             $msg = ($client->lng == 'heb' ? `הכתובת '` . $message . `' כבר קיימת. נא הזן כתובת דוא"ל אחרת.` : '\'' . $message . '\' is already taken. Please enter a different email address.');
+                            $num = 1;
                         } else {
                             $client->email = trim($message);
                             $client->save();
@@ -1366,6 +1636,8 @@ If you would like to speak to a human representative, please send a message with
                                     [],
                                     ['lead_status' => LeadStatusEnum::POTENTIAL]
                                 );
+                                $client->status = 1;
+                                $client->save();
 
                                 event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
 
@@ -1403,6 +1675,7 @@ If you would like to speak to a human representative, please send a message with
                                 } else {
                                     $msg = "Please choose a time slot for your appointment using the link below. Is there anything else I can help you with today? (Yes or No) 👋\n\n$link";
                                 }
+                                $num = 2;
                             } else {
                                 if ($client->lng == 'heb') {
                                     $msg = "נציג מטעמנו ייצור עמכם קשר בהקדם. \n\nהאם יש משהו נוסף שאני יכול לעזור לך בו היום? (כן או לא) 👋";
@@ -1416,6 +1689,7 @@ If you would like to speak to a human representative, please send a message with
                                         'client' => $client->toArray()
                                     ]
                                 ]));
+                                $num = 3;
                             }
 
                             $responseClientState =  WhatsAppBotClientState::updateOrCreate([
@@ -1427,21 +1701,55 @@ If you would like to speak to a human representative, please send a message with
                         }
                     } else {
                         $msg = ($client->lng == 'heb' ? `כתובת הדוא"ל '` . $message . `' לא תקינה. בבקשה נסה שוב.` : 'The email address \'' . $message . '\' is considered invalid. Please try again.');
+                        $num = 4;
+                    }
+                    
+                    if($num == 1 || $num == 4){
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                            );
+                        \Log::info($twi->sid);
+                    }elseif($num == 2){
+                        $sid = $client->lng == "heb" ? "HX7a8812e85098315c1e44abc64805249d" : "HXf60927d6328af65091685aa6676979e5";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    "1" => $link
+                                ]),
+                                // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                            ]
+                        );
+                    }elseif($num == 3){
+                        $sid = $client->lng == "heb" ? "HXb943dfc068d9fae11b69867feb8cb0a5" : "HX80d69d464f2895c3cab8906912bebe04";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                                // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                            ]
+                        );
                     }
 
                     if (!empty($msg)) {
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
-
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
                     }
 
                     die("Store email");
@@ -1457,12 +1765,22 @@ If you would like to speak to a human representative, please send a message with
                         $auth = Client::where('phone', 'like', '%' . $message . '%')->first();
                     }
                     if ($auth) {
+                        $sid = $client->lng == "heb" ? "HX90d80df402e641eebd486b389dc4d86a" : "HXda14841da190911de833a37a121fb5cb";
 
                         $msg = $auth->lng == 'heb' ? "היי! שמנו לב שהמספר שלך כבר רשום במערכת שלנו.\nאיך נוכל לעזור לך היום? נא לבחור אחת מהאפשרויות הבאות:\n\n1 - שלחו לי שוב את פרטי ההתחברות\n2 - אני מעוניין שיצרו איתי קשר לגבי שירות חדש או חידוש"
                             : "Hello! We noticed that your number is already registered in our system.\nHow can we assist you today? Please choose one of the following options:\n\n1 - Send me my login details again\n2 - I’d like to be contacted about a new service or renewal";
 
                         // $auth->makeVisible('passcode');
                         // event(new SendClientLogin($auth->toArray()));
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                                // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                            ]
+                        );
 
                         $responseClientState =  WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
@@ -1478,28 +1796,34 @@ If you would like to speak to a human representative, please send a message with
                         if ($client->lng == 'heb') {
                             $msg = 'לא הצלחתי למצוא את הפרטים שלך על סמך מה ששלחת. בבקשה נסה שוב.';
                         }
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "body" => $msg
+                            ]
+                        );
                     }
 
                     if (!empty($msg)) {
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
                     }
-
-                    // \Log::info(['message' => $message, 'last_menu' => $last_menu]);
 
                     die("Send service menu");
                 }
 
-                if ($last_menu == 'need_more_help' && $message == '1') {
+                if ($last_menu == 'need_more_help' && $listId == '1') {
 
                     $client->makeVisible('passcode');
                     event(new SendClientLogin($client->toArray()));
@@ -1509,53 +1833,111 @@ If you would like to speak to a human representative, please send a message with
                         $msg = "תודה! אנחנו שולחים כעת את פרטי ההתחברות שלך למייל הרשום אצלנו. נא לבדוק את תיבת הדואר שלך בקרוב. 📧\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋";
                     }
 
+                    $sid = $client->lng == "heb" ? "HX7d9093ebdd01f1272475313e5f951e88" : "HX95020dd3e7519a1c26e3309367cc548a";
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
+
                     if (!empty($msg)) {
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'entry_id'      => $messageId,
                             'message'       => $msg,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($get_data)
+                            'data'          => json_encode($data)
                         ]);
-                        $result = sendWhatsappMessage($from, array('message' => $msg));
                     }
 
                     die("Send login details");
-                } elseif ($last_menu == 'need_more_help' && $message == '2') {
+                } elseif ($last_menu == 'need_more_help' && $listId == '2') {
+
+                    $sid = $client->lng == "heb" ? "HX73a583fb6f9682d11c2612ca36543f87" : "HX45fb8bd75c3f3a148bf190a57b289fac";
 
                     $msg = $client->lng == 'heb' ? "הבנתי! אנחנו מעבירים אותך כעת לתפריט שירותים חדשים או חידוש\nשירותים. נא לבחור באפשרות המתאימה לך ביותר. 🛠️\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋"
                         : "Got it! We will redirect you to the menu for new services or renewals.\nPlease select the option that best suits your needs. 🛠️\n\nIs there anything else I can help you with today? (Yes or No) 👋";
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid, 
+                        ]
+                    );
 
                     die('main_menu');
                 }
 
 
-
+                \Log::info(['message' => $message, 'last_menu' => $last_menu]);
                 // Send about service message
                 if ($last_menu == 'main_menu' && isset($menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'])) {
                     $msg = $menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'];
+                    $title = $menus[$last_menu][$message]['title'];
+
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'entry_id'      => $messageId,
                         'message'       => $msg,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        => $from,
                         'flex'          => 'A',
                         'read'          => 1,
-                        'data'          => json_encode($get_data)
+                        'data'          => json_encode($data)
                     ]);
 
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    if($title == "Schedule an appointment for a quote" || $title == "Schedule an appointment for a quote"){
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $msg
+                            ]
+                        );
+                    }elseif($title == "Service Areas"){
+                        $sid = $client->lng == "heb" ? "HXecc0eb8c4f810a84b1fc4f4d8642913c" : "HXc66fbd72c126251154ea831d3267ad31";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid, 
+                            ]
+                        );
 
-                    // \Log::info($message);
+                    }elseif($title == "Switch to a Human Representative - During Business Hours"){
+                        $sid = $client->lng == "heb" ? "HXde3695b7813b6bddc7a55c670a6b307c" : "HX37bcec3a6de4ed76d4200937cb4f7e6d";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid, 
+                            ]
+                        );
+                        \Log::info('Switch to a Human Representative - During Business Hours');
+                    }else{
+                        $sid = $client->lng == "heb" ? "HX4f09c1b1981aee0e6390ab76e8d107ef" : "HX01b88b3dfdd95d205b6659aa214ae94c";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid, 
+                            ]
+                        );
+                    }
+                    \Log::info($twi->sid);
 
                     switch ($message) {
                         case '1':
+                            \Log::info('about_the_service');
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -1565,6 +1947,8 @@ If you would like to speak to a human representative, please send a message with
                             break;
 
                         case '2':
+                            \Log::info('service_areas');
+                            
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -1574,6 +1958,7 @@ If you would like to speak to a human representative, please send a message with
                             break;
 
                         case '3':
+                            \Log::info('first_name');
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -1640,7 +2025,7 @@ If you would like to speak to a human representative, please send a message with
             $phone = '972' . $phone;
         }
 
-        $lead_exists = Client::where('phone', $phone)->orWhere('email', $request->email)->exists();
+        $lead_exists = Client::with('property_addresses')->where('phone', $phone)->orWhere('email', $request->email)->exists();
         if (!$lead_exists) {
             $lead = new Client;
 
@@ -1661,9 +2046,17 @@ If you would like to speak to a human representative, please send a message with
                 ['lead_status' => LeadStatusEnum::PENDING]
             );
 
-            // $m = $this->botMessages['main-menu']['heb'];
 
-            // $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
+            $m = $this->botMessages['main-menu']['heb'];
+            $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+$lead->phone",
+                [
+                    "from" => $this->twilioWhatsappNumber, 
+                    "contentSid" => $sid, 
+                ]
+            );
 
             WhatsAppBotClientState::updateOrCreate([
                 'client_id' => $lead->id,
@@ -1676,6 +2069,7 @@ If you would like to speak to a human representative, please send a message with
                 'status'        => 1,
                 'name'          => 'whatsapp',
                 'message'       => $m,
+                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                 'number'        => $phone,
                 'read'          => 1,
                 'flex'          => 'A',
@@ -1720,7 +2114,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
             
                     $lead->load('property_addresses');
-                    
+
                     // Trigger WhatsApp notification
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
@@ -1737,10 +2131,9 @@ If you would like to speak to a human representative, please send a message with
 
     public function fbActiveClientsWebhookCurrentLive(Request $request)
     {
-        $get_data = $request->getContent();
-        $data_returned = json_decode($get_data, true);
-        $messageId = $data_returned['messages'][0]['id'] ?? null;
-
+        \Log::info('Webhook received');
+        $data = $request->all();
+        $messageId = $data['SmsMessageSid'] ?? null;
 
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
@@ -1755,17 +2148,8 @@ If you would like to speak to a human representative, please send a message with
         // Store the messageId in the cache for 1 hour
         Cache::put('active_client_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
-        if (
-            isset($data_returned['messages']) &&
-            isset($data_returned['messages'][0]['from_me']) &&
-            $data_returned['messages'][0]['from_me'] == false
-        ) {
-            $message_data = $data_returned['messages'];
-            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-                die("Group message");
-            }
-            $from = $message_data[0]['from'];
-            $input = trim($data_returned['messages'][0]['text']['body']);
+        if ($data['SmsStatus'] == 'received') {
+            $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
             $isMonday = now()->isMonday();
 
@@ -1785,26 +2169,36 @@ If you would like to speak to a human representative, please send a message with
                 ->first();
 
             $msgStatus = null;
+            $input = null;
 
             if($client){
                 $msgStatus = Cache::get('client_review' . $client->id);
                 \Log::info($msgStatus . ' ' . $client->id);
-                $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
-                if (!empty($msgStatus) && ($input == '7' || $input == '8')) {
+
+                $input = $data['Body'] ? trim($data['Body']) : $data['Body'];
+                $listId = $data['ListId'] ?? $input;
+                $ButtonPayload = $data['ButtonPayload'] ?? null;
+
+                if (!empty($msgStatus) && ($ButtonPayload == '7' || $ButtonPayload == '8')) {
                     \Log::info('Client already reviewed');
+                    $this->clientReview($request);
                     die('Client already reviewed');
                 }
 
                 $msgStatus = Cache::get('client_review_input2' . $client->id);
                 if (!empty($msgStatus)) {
                     \Log::info('Client already reviewed');
+                    $this->clientReview($request);
                     die('Client already reviewed');
                 }
 
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
-                if ((!empty($msgStatus) && $input == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
+                if ((!empty($msgStatus) && ($listId || $ButtonPayload) == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
+                    \Log::info('Client already in (monday / wednesday) message');
+                    $this->activeClientsWednesday($request);
                     die('Client confirm job');
                 }
+
             }
 
             if($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT){
@@ -1827,6 +2221,7 @@ If you would like to speak to a human representative, please send a message with
                     $client->save();
                 } else {
                     \Log::info('Monday msg reply is pending');
+                    $this->activeClientsMonday($request);
                     die('Monday msg reply is pending.');
                 }
             }
@@ -1843,13 +2238,19 @@ If you would like to speak to a human representative, please send a message with
             WebhookResponse::create([
                 'status' => 1,
                 'name' => 'whatsapp',
-                'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                'message' => $data_returned['messages'][0]['text']['body'],
+                'entry_id' => $messageId,
+                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                'message' => $input,
                 'number' => $from,
                 'read' => 0,
                 'flex' => 'C',
-                'data' => json_encode($get_data)
+                'data' => json_encode($data)
             ]);
+
+            \Log::info('Received message: ' . $input);
+            \Log::info('Last menu: ' . $last_menu);
+            \Log::info('List ID: ' . $listId);
+            \Log::info('Button Payload: ' . $ButtonPayload);
 
 
             if (in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
@@ -1860,103 +2261,110 @@ If you would like to speak to a human representative, please send a message with
                 if (!$client && !$user && !$workerLead) {
                     $send_menu = 'not_recognized';
                 } else {
+                    \Log::info('Client menu');
                     $send_menu = 'main_menu';
                 }
-            } else if ($last_menu == 'main_menu' && $input == '1') {
+            } else if ($last_menu == 'main_menu' && $listId == '1') {
                 $send_menu = 'urgent_contact';
-            } else if ($last_menu == 'main_menu' && $input == '2') {
+            } else if ($last_menu == 'main_menu' && $listId == '2') {
                 $send_menu = 'service_schedule';
-            } else if ($last_menu == 'main_menu' && $input == '3') {
+            } else if ($last_menu == 'main_menu' && $listId == '3') {
                 $send_menu = 'request_new_qoute';
-            } else if ($last_menu == 'main_menu' && $input == '4') {
+            } else if ($last_menu == 'main_menu' && $listId == '4') {
                 $send_menu = 'invoice_account';
-            } else if ($last_menu == 'main_menu' && $input == '5') {
+            } else if ($last_menu == 'main_menu' && $listId == '5') {
                 $send_menu = 'change_update_schedule';
-            } else if ($last_menu == 'main_menu' && $input == '6') {
+            } else if ($last_menu == 'main_menu' && $listId == '6') {
                 $send_menu = 'access_portal';
-            } else if ($last_menu == 'not_recognized' && $input == '1') {
-                $send_menu = 'enter_phone';
-            } else if ($last_menu == 'not_recognized' && $input == '2') {
-                $send_menu = 'new_lead';
-            } else if ($last_menu == 'urgent_contact' && !empty($input)) {
+            }
+            //  else if ($last_menu == 'not_recognized' && $listId == '1') {
+            //     $send_menu = 'enter_phone';
+            // } else if ($last_menu == 'not_recognized' && $listId == '2') {
+            //     $send_menu = 'new_lead';
+            // }
+            else if ($last_menu == 'urgent_contact' && !empty($input)) {
                 $send_menu = 'thankyou';
-            } else if ($last_menu == 'service_schedule' && $input == '5') {
+            } else if ($last_menu == 'service_schedule' && $ButtonPayload == '5') {
                 $send_menu = 'change_update_schedule';
             } else if ($last_menu == 'invoice_account' && !empty($input)) {
                 $send_menu = 'thank_you_invoice_account';
             } else if ($last_menu == 'change_update_schedule' && !empty($input)) {
                 $send_menu = 'thank_you_change_update_schedule';
-            } else if ($last_menu == 'team_send_message' && $input == '1') {
+            } else if ($last_menu == 'team_send_message' && $listId == '1') {
                 $send_menu = 'team_send_message_1';
             } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
                 $send_menu = 'client_add_request';
-            } else if ($last_menu == 'enter_phone' && !empty($input)) {
-                $phone = $input;
+            }
+            // else if ($last_menu == 'enter_phone' && !empty($input)) {
+            //     $phone = $input;
 
-                // 1. Remove all special characters from the phone number
-                $phone = preg_replace('/[^0-9+]/', '', $phone);
+            //     // 1. Remove all special characters from the phone number
+            //     $phone = preg_replace('/[^0-9+]/', '', $phone);
 
-                // 2. If there's any string or invalid characters in the phone, extract the digits
-                if (preg_match('/\d+/', $phone, $matches)) {
-                    $phone = $matches[0]; // Extract the digits
+            //     // 2. If there's any string or invalid characters in the phone, extract the digits
+            //     if (preg_match('/\d+/', $phone, $matches)) {
+            //         $phone = $matches[0]; // Extract the digits
 
-                    // Reapply rules on extracted phone number
-                    // If the phone number starts with 0, add 972 and remove the first 0
-                    if (strpos($phone, '0') === 0) {
-                        $phone = '972' . substr($phone, 1);
-                    }
+            //         // Reapply rules on extracted phone number
+            //         // If the phone number starts with 0, add 972 and remove the first 0
+            //         if (strpos($phone, '0') === 0) {
+            //             $phone = '972' . substr($phone, 1);
+            //         }
 
-                    // If the phone number starts with +, remove the +
-                    if (strpos($phone, '+') === 0) {
-                        $phone = substr($phone, 1);
-                    }
-                }
+            //         // If the phone number starts with +, remove the +
+            //         if (strpos($phone, '+') === 0) {
+            //             $phone = substr($phone, 1);
+            //         }
+            //     }
 
-                $phoneLength = strlen($phone);
-                if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
-                    $phone = '972' . $phone;
-                }
+            //     $phoneLength = strlen($phone);
+            //     if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+            //         $phone = '972' . $phone;
+            //     }
 
-                $client = Client::where('phone', $phone)
-                    ->orWhereJsonContains('extra', [['phone' => $phone]])
-                    ->first();
-                // $lng = $client->lng ?? "heb";
-                if ($client && !empty($phone)) {
-                    $send_menu = 'email_sent';
-                } else {
-                    $send_menu = 'not_recognized';
-                }
-            } else if ($last_menu == 'email_sent' && $input == '0') {
-                $client = Client::where('phone', $clientMessageStatus->client_phone)
-                    ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
-                    ->first();
-                $send_menu = 'email_sent';
-            } else if ($last_menu == 'email_sent' && !empty($input)) {
-                $client = Client::where('phone', $clientMessageStatus->client_phone)
-                    ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
-                    ->first();
-                // $lng = $client->lng ?? "heb";
-                if ($client->otp == $input && $client->otp_expiry >= now()) {
-                    $send_menu = 'verified';
-                } else {
-                    $client->attempts = $client->attempts + 1;
-                    $client->save();
-                    if ($client->attempts >= 4) {
-                        $send_menu = 'failed_attempts';
-                    } else {
-                        $send_menu = 'incorect_otp';
-                    }
-                }
-            } else if ($last_menu == 'failed_attempts') {
-                $client = Client::where('phone', $clientMessageStatus->client_phone)
-                    ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
-                    ->first();
-                $send_menu = 'failed_attempts';
-            } else {
+            //     $client = Client::where('phone', $phone)
+            //         ->orWhereJsonContains('extra', [['phone' => $phone]])
+            //         ->first();
+            //     // $lng = $client->lng ?? "heb";
+            //     if ($client && !empty($phone)) {
+            //         $send_menu = 'email_sent';
+            //     } else {
+            //         $send_menu = 'not_recognized';
+            //     }
+            // } else if ($last_menu == 'email_sent' && $input == '0') {
+            //     $client = Client::where('phone', $clientMessageStatus->client_phone)
+            //         ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
+            //         ->first();
+            //     $send_menu = 'email_sent';
+            // } else if ($last_menu == 'email_sent' && !empty($input)) {
+            //     $client = Client::where('phone', $clientMessageStatus->client_phone)
+            //         ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
+            //         ->first();
+            //     // $lng = $client->lng ?? "heb";
+            //     if ($client->otp == $input && $client->otp_expiry >= now()) {
+            //         $send_menu = 'verified';
+            //     } else {
+            //         $client->attempts = $client->attempts + 1;
+            //         $client->save();
+            //         if ($client->attempts >= 4) {
+            //             $send_menu = 'failed_attempts';
+            //         } else {
+            //             $send_menu = 'incorect_otp';
+            //         }
+            //     }
+            // } else if ($last_menu == 'failed_attempts') {
+            //     $client = Client::where('phone', $clientMessageStatus->client_phone)
+            //         ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
+            //         ->first();
+            //     $send_menu = 'failed_attempts';
+            // } 
+            else {
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
                 $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
 
                 if(!empty($msgStatus) || !empty($MondaymsgStatus)) {
+                    \Log::info('Client already in (monday / wednesday) message');
+                    $this->activeClientsWednesday($request);
                     die("already client in (monday / wednesday) message");
                 }
                 $send_menu = 'sorry';
@@ -1966,9 +2374,18 @@ If you would like to speak to a human representative, please send a message with
                 case 'main_menu':
                     $this->sendMainMenu($client, $from);
                     break;
-                case 'not_recognized':
+                // case 'not_recognized':
+                    $sid = $lng == "heb" ? "HXceaab9272d0a2e5f605ad6365262f229" : "HX2abe416449326aec10de9c4e956591f7";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+
                     $nextMessage = $this->activeClientBotMessages['not_recognized'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
                         ["from" => $from],
@@ -1983,17 +2400,30 @@ If you would like to speak to a human representative, please send a message with
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
                     ]);
                     break;
                 case 'urgent_contact':
-                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $clientName = ($client->firstname ?? '' . ' ' . $client->lastname ?? '');
+
+                    $sid = $lng == "heb" ? "HXc09d5e17ab1745632532697feb91f6e9" : "HXb7328df44612acd61ed1215635bce56a";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => $clientName
+                            ]),
+                        ]
+                    );
 
                     $nextMessage = $this->activeClientBotMessages['urgent_contact'][$lng];
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->update([
                         'menu_option' => 'main_menu->urgent_contact',
                     ]);
@@ -2001,19 +2431,31 @@ If you would like to speak to a human representative, please send a message with
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $personalizedMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
                     ]);
                     break;
                 case 'thankyou':
+                    \Log::info('Thank you message');
+                    $sid = $lng == "heb" ? "HX09026a761c1d1d37c3b5d2ea74ab6614" : "HXde01756f197908237fc2d15bd2737035";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid
+                        ]
+                    );
+
                     $nextMessage = $this->activeClientBotMessages['thankyou'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2036,7 +2478,7 @@ If you would like to speak to a human representative, please send a message with
                     ], [
                         $clientName, '*' . trim($input) . '*', $client->phone, $scheduleLink, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);                                   
 
                     $clientMessageStatus->delete();
                     break;
@@ -2219,14 +2661,28 @@ If you would like to speak to a human representative, please send a message with
                         foreach ($currentWeeks as $job) {
                             $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
+
+                        $sid = $lng == "heb" ? "HX47d489975d6f2b95fa81c42437a37a85" : "HX3e08db5a79b7a1f9375d8cafa432703e";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    '1' => $dateTime
+                                ]),
+                            ]
+                        );
+                        \Log::info($twi);
                     
                         $nextMessage = $this->activeClientBotMessages['service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
                             'message' => $personalizedMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number' => $from,
                             'read' => 1,
                             'flex' => 'A',
@@ -2241,13 +2697,27 @@ If you would like to speak to a human representative, please send a message with
                             $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
                     
+                        $sid = $lng == "heb" ? "HXbc829731145350c2dda3af6de8b50488" : "HXa773c0faed2a441077d042cddfbf14b3";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    '1' => $dateTime
+                                ]),
+                            ]
+                        );
+                        \Log::info($twi);
+
                         $nextMessage = $this->activeClientBotMessages['next_week_service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
                             'message' => $personalizedMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number' => $from,
                             'read' => 1,
                             'flex' => 'A',
@@ -2258,8 +2728,18 @@ If you would like to speak to a human representative, please send a message with
                     
                     // If no jobs are found for both weeks
                     if (empty($currentWeeks) && empty($nextWeeks)) {
+                        $sid = $lng == "heb" ? "HX8b07b34049a4878f44a545cd4ad8c748" : "HXdfd2ebedef00e55ff6724a5e6a00a7e4";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid,
+                            ]
+                        );
+                        \Log::info($twi);
+                        
                         $nextMessage = $this->activeClientBotMessages['no_service_avail'][$lng];
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                         $clientMessageStatus->update([
                             'menu_option' => 'main_menu->service_schedule',
                         ]);
@@ -2267,6 +2747,7 @@ If you would like to speak to a human representative, please send a message with
                             'status' => 1,
                             'name' => 'whatsapp',
                             'message' => $nextMessage,
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                             'number' => $from,
                             'read' => 1,
                             'flex' => 'A',
@@ -2275,13 +2756,24 @@ If you would like to speak to a human representative, please send a message with
                     
                     break;
                 case 'request_new_qoute':
+                    $sid = $lng == "heb" ? "HX5eee4fa86731de528664063ca196579a" : "HXa048b9c4fa7b871965927cc2084fee26";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $nextMessage = $this->activeClientBotMessages['request_new_qoute'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2295,13 +2787,24 @@ If you would like to speak to a human representative, please send a message with
                         $clientName, $client->phone, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
+                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
 
                     break;
                 case 'invoice_account':
                     $nextMessage = $this->activeClientBotMessages['invoice_account'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+
+                    $sid = $lng == "heb" ? "HXeaa8fd076b3686d890dde678ee5a59a8" : "HXe8a7b7299dfab77591a97e6b6a250f06";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                     $clientMessageStatus->update([
                         'menu_option' => 'main_menu->invoice_account',
                     ]);
@@ -2310,6 +2813,7 @@ If you would like to speak to a human representative, please send a message with
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2318,13 +2822,28 @@ If you would like to speak to a human representative, please send a message with
                 case 'thank_you_invoice_account':
                     $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
                     $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+
+                    $sid = $lng == "heb" ? "HX64e67fb1965d72599c71d67c123255fc" : "HX82d5bb589792ad278a11fe6d47fc9dba";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => $clientName
+                            ]),
+                        ]
+                    );
+                    \Log::info($twi);
+                    
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $personalizedMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2345,11 +2864,12 @@ If you would like to speak to a human representative, please send a message with
                         $clientName, $client->phone, '*' . trim($input) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
+                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $personalizedMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2359,8 +2879,20 @@ If you would like to speak to a human representative, please send a message with
                     break;
 
                 case 'change_update_schedule':
+                    \Log::info('Change update schedule');
+
+                    $sid = $lng == "heb" ? "HX6c714fe370fc5fd5b954e84073bd771a" : "HX5afe66dbf4c622d4cb5fd280e04c4c5f";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $nextMessage = $this->activeClientBotMessages['change_update_schedule'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                     $clientMessageStatus->update([
                         'menu_option' => 'main_menu->change_update_schedule',
@@ -2370,6 +2902,7 @@ If you would like to speak to a human representative, please send a message with
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2377,12 +2910,24 @@ If you would like to speak to a human representative, please send a message with
                     break;
 
                 case 'thank_you_change_update_schedule':
+
+                    $sid = $lng == "heb" ? "HXfa84f3cb1b20c9dfb1a6449bdd07bbd0" : "HXe5375dcae347167f8e727a5c382d6f30";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $nextMessage = $this->activeClientBotMessages['thank_you_change_update_schedule'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2402,12 +2947,13 @@ If you would like to speak to a human representative, please send a message with
                         [$clientName, $client->phone, trim($input), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $personalizedMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2416,112 +2962,164 @@ If you would like to speak to a human representative, please send a message with
                     $clientMessageStatus->delete();
                     break;
                 case 'access_portal':
+
+                    $sid = $lng == "heb" ? "HX5e779ec20c76d32529a2e094c0c9e72e" : "HX009816f83d7d283f8c732515c5a978e4";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => "client/login"
+                            ]),
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $nextMessage = $this->activeClientBotMessages['access_portal'][$lng];
                     $personalizedMessage = str_replace(':client_portal_link', generateShortUrl(url("client/login"), 'admin'), $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
 
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $personalizedMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
                     ]);
                     break;
-                case 'enter_phone':
-                    $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                    $clientMessageStatus->update([
-                        'menu_option' => 'not_recognized->enter_phone',
-                    ]);
+                // case 'enter_phone':
 
-                    WebhookResponse::create([
-                        'status' => 1,
-                        'name' => 'whatsapp',
-                        'message' => $nextMessage,
-                        'number' => $from,
-                        'read' => 1,
-                        'flex' => 'A',
-                    ]);
-                    break;
+                //     $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
+                //     $sid = $lng == "heb" ? "HXed45297ce585bd31b49119c8788edfb4" : "HX741b8e40f723e2ca14474a54f6d82ec2";
+                //     $twi = $this->twilio->messages->create(
+                //         "whatsapp:+$from",
+                //         [
+                //             "from" => $this->twilioWhatsappNumber, 
+                //             "contentSid" => $sid,
+                //         ]
+                //     );
+                //     \Log::info($twi);
 
-                case 'email_sent':
-                    $this->ClientOtpSend($client, $from, $lng);
-                    break;
+                //     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                //     $clientMessageStatus->update([
+                //         'menu_option' => 'not_recognized->enter_phone',
+                //     ]);
 
-                case 'verified':
-                    // Decode the `extra` field (or initialize it as an empty array if null or invalid)
-                    $extra = $client->extra ? json_decode($client->extra, true) : [];
+                //     WebhookResponse::create([
+                //         'status' => 1,
+                //         'name' => 'whatsapp',
+                //         'message' => $nextMessage,
+                //         'number' => $from,
+                //         'read' => 1,
+                //         'flex' => 'A',
+                //     ]);
+                //     break;
 
-                    if (!is_array($extra)) {
-                        $extra = [];
-                    }
+                // case 'email_sent':
+                //     $this->ClientOtpSend($client, $from, $lng);
+                //     break;
 
-                    // Add or update the `from` phone in the `extra` field
-                    $found = false;
-                    foreach ($extra as &$entry) {
-                        if ($entry['phone'] == $from) {
-                            $found = true; // `from` already exists in the `extra` array
-                            break;
-                        }
-                    }
-                    unset($entry); // Unset reference to prevent side effects
+                // case 'verified':
+                //     // Decode the `extra` field (or initialize it as an empty array if null or invalid)
+                //     $extra = $client->extra ? json_decode($client->extra, true) : [];
 
-                    if (!$found) {
-                        // Add a new object with the `from` value
-                        $extra[] = [
-                            "email" => "",
-                            "name"  => "",
-                            "phone" => $from,
-                        ];
-                    }
-                    // Encode the updated `extra` array back to JSON
-                    $client->extra = json_encode($extra);
-                    $client->otp = null;
-                    $client->otp_expiry = null;
-                    $client->save();
+                //     if (!is_array($extra)) {
+                //         $extra = [];
+                //     }
 
-                    // Send verified message
-                    $nextMessage = $this->activeClientBotMessages['verified'][$lng];
-                    $personalizedMessage = str_replace(':client_name', $client->firstname . ' ' . $client->lastname, $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                //     // Add or update the `from` phone in the `extra` field
+                //     $found = false;
+                //     foreach ($extra as &$entry) {
+                //         if ($entry['phone'] == $from) {
+                //             $found = true; // `from` already exists in the `extra` array
+                //             break;
+                //         }
+                //     }
+                //     unset($entry); // Unset reference to prevent side effects
 
-                    $clientMessageStatus->update([
-                        'menu_option' => 'main_menu',
-                    ]);
+                //     if (!$found) {
+                //         // Add a new object with the `from` value
+                //         $extra[] = [
+                //             "email" => "",
+                //             "name"  => "",
+                //             "phone" => $from,
+                //         ];
+                //     }
+                //     // Encode the updated `extra` array back to JSON
+                //     $client->extra = json_encode($extra);
+                //     $client->otp = null;
+                //     $client->otp_expiry = null;
+                //     $client->save();
 
-                    // Create webhook response
-                    WebhookResponse::create([
-                        'status' => 1,
-                        'name' => 'whatsapp',
-                        'message' => $nextMessage,
-                        'number' => $from,
-                        'read' => 1,
-                        'flex' => 'A',
-                    ]);
+                //     // Send verified message
+                //     $nextMessage = $this->activeClientBotMessages['verified'][$lng];
 
-                    $this->sendMainMenu($client, $from);
-                    break;
-                case 'incorect_otp':
-                    $nextMessage = $this->activeClientBotMessages['incorect_otp'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                    $clientMessageStatus->update([
-                        'menu_option' => 'not_recognized->enter_phone->email_sent',
-                    ]);
+                //     $sid = $lng == "heb" ? "HX0d6d41473fae763d728c1f9a56a427f5" : "HXebdc48bc1b7e5ca4e8b32d868d778932";
+                //     $twi = $this->twilio->messages->create(
+                //         "whatsapp:+$from",
+                //         [
+                //             "from" => $this->twilioWhatsappNumber, 
+                //             "contentSid" => $sid,
+                //             "contentVariables" => json_encode([
+                //                 '1' => ($client->firstname ?? ''. ' ' . $client->lastname ?? '')
+                //             ]),
+                //         ]
+                //     );
+                //     \Log::info($twi);
 
-                    // Create webhook response
-                    WebhookResponse::create([
-                        'status' => 1,
-                        'name' => 'whatsapp',
-                        'message' => $nextMessage,
-                        'number' => $from,
-                        'read' => 1,
-                        'flex' => 'A',
-                    ]);
-                    break;
-                case 'new_lead':
+                //     $personalizedMessage = str_replace(':client_name', $client->firstname . ' ' . $client->lastname, $nextMessage);
+                //     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                //     $clientMessageStatus->update([
+                //         'menu_option' => 'main_menu',
+                //     ]);
+
+                //     // Create webhook response
+                //     WebhookResponse::create([
+                //         'status' => 1,
+                //         'name' => 'whatsapp',
+                //         'message' => $nextMessage,
+                //         'number' => $from,
+                //         'read' => 1,
+                //         'flex' => 'A',
+                //     ]);
+
+                //     $this->sendMainMenu($client, $from);
+                //     break;
+
+                // case 'incorect_otp':
+
+                //     $sid = $lng == "heb" ? "HX0e54f862ae4a74d0b29cd16f31c3289d" : "HXf11fa257dbd265ccb6ac155ef186016d";
+                //     $twi = $this->twilio->messages->create(
+                //         "whatsapp:+$from",
+                //         [
+                //             "from" => $this->twilioWhatsappNumber, 
+                //             "contentSid" => $sid,
+                //         ]
+                //     );
+                //     \Log::info($twi);
+
+                //     $nextMessage = $this->activeClientBotMessages['incorect_otp'][$lng];
+                //     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                //     $clientMessageStatus->update([
+                //         'menu_option' => 'not_recognized->enter_phone->email_sent',
+                //     ]);
+
+                //     // Create webhook response
+                //     WebhookResponse::create([
+                //         'status' => 1,
+                //         'name' => 'whatsapp',
+                //         'message' => $nextMessage,
+                //         'number' => $from,
+                //         'read' => 1,
+                //         'flex' => 'A',
+                //     ]);
+                //     break;
+                // case 'new_lead':
                     $nextMessage = $this->activeClientBotMessages['after_new_lead'][$lng];
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
@@ -2532,6 +3130,7 @@ If you would like to speak to a human representative, please send a message with
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'message'       =>  $m,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number'        =>  $from,
                         'read'          => 1,
                         'flex'          => 'A'
@@ -2557,21 +3156,21 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     break;
-                case 'sorry':
-                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                    WebhookResponse::create([
-                        'status' => 1,
-                        'name' => 'whatsapp',
-                        'message' => $nextMessage,
-                        'number' => $from,
-                        'read' => 1,
-                        'flex' => 'A',
-                    ]);
-                    break;
-                case 'failed_attempts':
+
+                // case 'failed_attempts':
+
+                    $sid = $lng == "heb" ? "HX7031ef0aca470c5c91cb8990d00c3533" : "HX5d496b41e236760e3532f84b6b620298";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $nextMessage = $this->activeClientBotMessages['failed_attempts'][$lng];
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
                         ["from" => $from],
@@ -2585,25 +3184,65 @@ If you would like to speak to a human representative, please send a message with
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
                     ]);
                     break;
 
+                case 'sorry':
+                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
+                    
+                    $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                        ]
+                    );
+                    \Log::info($twi);
+
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
+            
                 case 'team_send_message_1':
                     \Log::info('team_send_message_1');
                     $text = [
                         "en" => "Hello :client_name,
-Please let us know what additional information or request you would like to add.",
-                        "heb" => "שלום :client_name,
-אנא עדכן אותנו מה ברצונך להוסיף או לבקש."
+        Please let us know what additional information or request you would like to add.",
+                                "heb" => "שלום :client_name,
+        אנא עדכן אותנו מה ברצונך להוסיף או לבקש."
                     ];
 
                     $nextMessage = $text[$lng];
                     $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+
+                    $sid = $lng == "heb" ? "HXbbef39df21e6476838e197c7b62ebddc" : "HXb1ec5e70b6c52fa089c9589d5eb3fcf8";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => $clientName
+                            ]),
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
                         ["from" => $from],
@@ -2617,6 +3256,7 @@ Please let us know what additional information or request you would like to add.
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2624,22 +3264,36 @@ Please let us know what additional information or request you would like to add.
                     break;
 
                 case "client_add_request":
-
                     $text = [
                         "en" => "Hello :client_name,
-We’ve received your updated request:
-':client_message'
-Your message has been forwarded to the team for further handling. Thank you for your patience!",
-                        "heb" => "שלום :client_name,
-קיבלנו את עדכון הבקשה שלך:
-':client_message'
-ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+        We’ve received your updated request:
+        ':client_message'
+        Your message has been forwarded to the team for further handling. Thank you for your patience!",
+                                "heb" => "שלום :client_name,
+        קיבלנו את עדכון הבקשה שלך:
+        ':client_message'
+        ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
                     ];
 
                     $nextMessage = $text[$lng];
                     $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+
+                    $sid = $lng == "heb" ? "HX0f0cfcddd27d013b226b01115c87064f" : "HX95355ef547f10d901520bc5b1bfb8d09";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => $clientName,
+                                '2' =>  trim($input)
+                            ]),
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $personalizedMessage = str_replace([':client_name', ':client_message'], [$clientName, '*' . trim($input) . '*'], $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     $scheduleChange = new ScheduleChange();
                     $scheduleChange->user_type = get_class($client);
@@ -2655,8 +3309,22 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     \Log::info("edfedf");
                     $nextMessage = $this->activeClientBotMessages['stop'][$lng];
                     $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+
+                    $sid = $lng == "heb" ? "HX00e7bc01708b33616e1bae87d30b5f73" : "HXe9949fa1498d8835db84ed37fe7a95ec";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => $clientName,
+                            ]),
+                        ]
+                    );
+                    \Log::info($twi);
+
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
-                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
                         ["from" => $from],
@@ -2670,6 +3338,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $personalizedMessage,
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',
@@ -2706,13 +3375,27 @@ Your message has been forwarded to the team for further handling. Thank you for 
             ]
         );
 
+        $sid = $lng == "heb" ? "HX13aaa325b2112a68d1bc572ffb949dd2" : "HX3732d02398b5af4f8a481f14771c5f43";
+        $twi = $this->twilio->messages->create(
+            "whatsapp:+$from",
+            [
+                "from" => $this->twilioWhatsappNumber, 
+                "contentSid" => $sid,
+                "contentVariables" => json_encode([
+                    '1' => substr($client->email, 0, 2)
+                ]), // Pass the OTP as a variable
+            ]
+        );
+        \Log::info($twi);
+
         $nextMessage = $this->activeClientBotMessages['email_sent'][$lng];
         $personalizedMessage = str_replace(':email', substr($client->email, 0, 2), $nextMessage);
-        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
         WebhookResponse::create([
             'status' => 1,
             'name' => 'whatsapp',
+            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
             'message' => $personalizedMessage,
             'number' => $from,
             'read' => 1,
@@ -2734,29 +3417,53 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
     public function sendMainMenu($client, $from)
     {
+        // Check if the client is active
         $lng = $client->lng;
+        $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+        $sid = $lng == "heb" ? "HX6ee1d6e8f5daa427b78917db34bfd05c" : "HX46684b2aee6eca7848bd9a36d7a86e78";
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+$from",
+                [
+                    "from" => $this->twilioWhatsappNumber, 
+                    "contentSid" => $sid,
+                    "contentVariables" => json_encode([
+                        '1' => $clientName
+                    ]),
+                ]
+            );
+            \Log::info("twilio response". $twi->sid);
 
         // Fetch the initial message based on the selected language
         $initialMessage = $this->activeClientBotMessages['main_menu'][$lng];
 
         // Replace :client_name with the client's firstname and lastname
-        $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
         $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
-        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        // $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
         WhatsAppBotActiveClientState::updateOrCreate(
-            ['client_id' => $client->id],
+            ['from' => $from],
             [
-                'from' => $from,
+                'client_id' => $client->id,
                 'menu_option' => 'main_menu',
                 'lng' => $lng
             ]
         );
 
+        // WhatsAppBotActiveClientState::where('from', $from)->delete();
+
+        WhatsAppBotClientState::updateOrCreate([
+            'client_id' => $client->id,
+        ], [
+            'menu_option' => 'main_menu',
+            'language' => $lng == 'heb' ? 'he' : 'en',
+            'final' => 1,
+        ]);
+
         WebhookResponse::create([
             'status' => 1,
             'name' => 'whatsapp',
             'message' => $personalizedMessage,
+            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
             'number' => $from,
             'read' => 1,
             'flex' => 'A',
@@ -2768,12 +3475,10 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
     public function clientReview(Request $request){
         try {
-            $get_data = $request->getContent();
+            $data = $request->all();
             $responseClientState = [];
-            $data_returned = json_decode($get_data, true);
             $message = null;
-
-            $messageId = $data_returned['messages'][0]['id'] ?? null;
+            $messageId = $data['SmsMessageSid'] ?? null;
 
             if (!$messageId) {
                 return response()->json(['status' => 'Invalid message data'], 400);
@@ -2788,17 +3493,14 @@ Your message has been forwarded to the team for further handling. Thank you for 
             // Store the messageId in the cache for 1 hour
             Cache::put('client_review_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
+            if ($data['SmsStatus'] == 'received') {
+                $input = $data['Body'] ?? null;
+                // $message_data = $data_returned['messages'];
+                // if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                //     die("Group message");
+                // }
+                $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
-            if (
-                isset($data_returned['messages']) &&
-                isset($data_returned['messages'][0]['from_me']) &&
-                $data_returned['messages'][0]['from_me'] == false
-            ) {
-                $message_data = $data_returned['messages'];
-                if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-                    die("Group message");
-                }
-                $from = $message_data[0]['from'];
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
@@ -2810,7 +3512,8 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                 if(!empty($msgStatus)){
 
-                    $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                    $messageBody = trim($input);
+                    $ButtonPayload = $data['ButtonPayload'] ?? null;
                     $last_input2 = Cache::get('client_review_input2' . $client->id) ?? null;
 
                     // $last_input1 = Cache::get('client_review_input1' . $client->id);
@@ -2822,21 +3525,38 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                     }
 
-                    if($messageBody == '7'){
+                    if($ButtonPayload == '7'){
 
                         $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟\nThank you for your positive feedback. We’re here if you need anything else."
                         : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟\nתודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
-
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+                        
+                        $sid = $client->lng == "heb" ? "HX914d9256db5d3b77c86c83355f32eeb4" : "HX7fd96fd6f2130767f3c3c800caa59ba6";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid
+                            ]
+                        );
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
                         sleep(2);
                         Cache::forget('client_review' . $client->id);
 
-                    }else if ($messageBody == '8'){
+                    }else if ($ButtonPayload == '8'){
 
                         $message = $client->lng == "en" ? "Thank you for your feedback!\nPlease write your comment or request here."
                         : "תודה על הפידבק שלכם!\nאנא כתבו את ההערה או הבקשה שלכם.";
 
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+                        $sid = $client->lng == "heb" ? "HXa82657df48b6c9e6bc46e5d2642ef840" : "HXefd00a5e52e8d62ee3068e5ef379f56d";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid
+                            ]
+                        );
+
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
 
@@ -2852,7 +3572,15 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         $message = $client->lng == "en" ? "Thank you for your feedback! Your message has been received and will be forwarded to the supervisor for further handling.\nWe’re here for anything else you might need and will get back to you if necessary."
                         : "תודה על הפידבק שלכם! ההודעה שלכם התקבלה ותועבר למפקח להמשך טיפול.\nאנחנו כאן לכל דבר נוסף ונחזור אליכם במידת הצורך.";
 
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+                        $sid = $client->lng == "heb" ? "HX75abb0051f1f53d91ed0511a2a596857" : "HXbb2620ee9155ac68e0d88b6b7caf5c67";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber, 
+                                "contentSid" => $sid
+                            ]
+                        );
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
                         $teammsg = "שלום צוות,\n\n *:client_name* שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:\n' *:message* \n\nאנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.\n:comment_link";
                         $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
@@ -2861,7 +3589,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                 $clientName, trim($scheduleChange->comments), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin')
                             ], $teammsg);
 
-                        sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
+                        // sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
                         sleep(2);
                         Cache::forget('client_review_input2' . $client->id);
                         Cache::forget('client_review_sorry' . $client->id);
@@ -2880,12 +3608,11 @@ Your message has been forwarded to the team for further handling. Thank you for 
     public function activeClientsMonday(Request $request)
     {
         try {
-            $get_data = $request->getContent();
+            $data = $request->all();
+            \Log::info($data);
+            $messageId = $data['SmsMessageSid'] ?? null;
             $responseClientState = [];
-            $data_returned = json_decode($get_data, true);
             $message = null;
-
-            $messageId = $data_returned['messages'][0]['id'] ?? null;
 
             if (!$messageId) {
                 return response()->json(['status' => 'Invalid message data'], 400);
@@ -2901,16 +3628,14 @@ Your message has been forwarded to the team for further handling. Thank you for 
             Cache::put('client_monday_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
 
-            if (
-                isset($data_returned['messages']) &&
-                isset($data_returned['messages'][0]['from_me']) &&
-                $data_returned['messages'][0]['from_me'] == false
-            ) {
-                $message_data = $data_returned['messages'];
-                if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-                    die("Group message");
-                }
-                $from = $message_data[0]['from'];
+            if ($data['SmsStatus'] == 'received') {
+                // if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                //     die("Group message");
+                // }
+                $message = $data['Body'] ?? null;
+                $listId = $data['ListId'] ?? $message;
+                $ButtonPayload = $data['ButtonPayload'] ?? null;
+                $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
@@ -2918,14 +3643,13 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                 if($client){
                     $msgStatus = Cache::get('client_review' . $client->id);
-                    $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                    $input = trim($message ?? '');
                     if (!empty($msgStatus) && ($input == '7' || $input == '8')) {
                         \Log::info('Client already reviewed');
                         die('Client already reviewed');
                     }
 
                     $msgStatus = Cache::get('client_review_input2' . $client->id);
-                    $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
                     if (!empty($msgStatus)) {
                         \Log::info('Client already reviewed');
                         die('Client already reviewed');
@@ -2938,25 +3662,35 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     $msgStatus = Cache::get('client_monday_msg_status_' . $client->id);
                     if(!empty($msgStatus)) {
                         $menu_option = explode('->', $msgStatus);
-                        $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                        $messageBody = trim($message ?? '');
+                        $ButtonPayload = $data['ButtonPayload'] ?? null;
                         $last_menu = end($menu_option);
 
-                        if($last_menu == 'main_monday_msg' && $messageBody == '1') {
+                        if($last_menu == 'main_monday_msg' && $listId == '1') {
+
                             $m = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change for next week?";
 
-                            sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "body" => $m,
+                                ]
+                            );
+
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change', now()->addDay(1));
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'entry_id'      => $messageId,
                                 'message'       => $m,
+                                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data),
+                                'data'          => json_encode($data),
                             ]);
                         } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
                             $scheduleChange = ScheduleChange::create([
@@ -2973,7 +3707,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
-                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes', now()->addDay(1));
 
@@ -2981,62 +3715,94 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             if ($client->lng == 'heb') {
                                 $message = 'שלום ' . $client->firstname . " " . $client->lastname . ',
 
-ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול.
+                                    ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול.
 
-להלן ההודעה ששלחת:
-"' . $scheduleChange->comments . '"
+                                    להלן ההודעה ששלחת:
+                                    "' . $scheduleChange->comments . '"
 
-האם תרצה לשנות את ההודעה או לבקש משהו נוסף?
+                                    האם תרצה לשנות את ההודעה או לבקש משהו נוסף?
 
-השב 1 כדי לשנות את ההודעה.
-השב 2 כדי להוסיף מידע נוסף.
-במידה ואין שינויים או מידע נוסף, אין צורך בפעולה נוספת.
+                                    השב 1 כדי לשנות את ההודעה.
+                                    השב 2 כדי להוסיף מידע נוסף.
+                                    במידה ואין שינויים או מידע נוסף, אין צורך בפעולה נוספת.
 
-המשך יום נפלא! 🌸
-בברכה,
-צוות ברום סרוויס 🌹
-www.broomservice.co.il
-טלפון: 03-525-70-60
-office@broomservice.co.il';
+                                    המשך יום נפלא! 🌸
+                                    בברכה,
+                                    צוות ברום סרוויס 🌹
+                                    www.broomservice.co.il
+                                    טלפון: 03-525-70-60
+                                    office@broomservice.co.il';
                             } else {
                                 $message = 'Hello '  . $client->firstname . " " . $client->lastname . ',
 
-Your message has been received and will be forwarded to our team for further handling.
+                                    Your message has been received and will be forwarded to our team for further handling.
 
-Here is the message you sent:
-"' . $scheduleChange->comments . '"
+                                    Here is the message you sent:
+                                    "' . $scheduleChange->comments . '"
 
-Would you like to edit your message or add anything else?
+                                    Would you like to edit your message or add anything else?
 
-Reply 1 to edit your message.
-Reply 2 to add additional information.
-If there are no changes or additional information, no further action is needed.
+                                    Reply 1 to edit your message.
+                                    Reply 2 to add additional information.
+                                    If there are no changes or additional information, no further action is needed.
 
-Have a wonderful day! 🌸
-Best Regards,
-The Broom Service Team 🌹
-www.broomservice.co.il
-Phone: 03-525-70-60
-office@broomservice.co.il';
+                                    Have a wonderful day! 🌸
+                                    Best Regards,
+                                    The Broom Service Team 🌹
+                                    www.broomservice.co.il
+                                    Phone: 03-525-70-60
+                                    office@broomservice.co.il';
                             }
+                            
+                            
+                            $sid = $client->lng == "heb" ? "HXb44309cfdec973dc0fa8709509c4b718" : "HX059442ac501424d65f6c225e19711d11";
 
-                            sendClientWhatsappMessage($from, ['message' => $message]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '1') {
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "contentSid" => $sid,
+                                    "contentVariables" => json_encode([
+                                        '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
+                                        '2' => $scheduleChange->comments,
+                                    ]),
+                                ]
+                            );
+
+                            // sendClientWhatsappMessage($from, ['message' => $message]);
+                        } else if ($last_menu == 'review_changes' && ($listId == '1' || $ButtonPayload == '1')) {
                             // Cache the user's intention to edit
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes->changes', now()->addDay(1));
 
                             $promptMessage = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change or request for next week?";
-                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '2') {
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $promptMessage,
+                                    ]
+                                );
+                            // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                        } else if ($last_menu == 'review_changes' && $listId == '2') {
                             // Cache the user's intention to edit
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes->additional', now()->addDay(1));
 
                             $promptMessage = $client->lng == 'heb'
                                 ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
                                 : "Please enter a message to add additional information.";
-                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $promptMessage,
+                                    ]
+                                );
+
+                            // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
                         } else if ($last_menu == 'changes' && !empty($messageBody)) {
                             // Process editing the existing message
                             $scheduleChange = ScheduleChange::where('user_type', get_class($client))
@@ -3052,12 +3818,21 @@ office@broomservice.co.il';
                                 $teammsg = "שלום צוות, הלקוח " . "*" .$clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                                 $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
-                                sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                                // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                     : "Your message has been received and will be forwarded to our team for further handling.";
-                                sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                                    $this->twilio->messages->create(
+                                        "whatsapp:+$from",
+                                        [
+                                            "from" => $this->twilioWhatsappNumber,
+                                            "body" => $confirmationMessage,
+                                        ]
+                                    );
+
+                                // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
                             }
                             $client->stop_last_message = 1;
                             $client->save();
@@ -3076,12 +3851,21 @@ office@broomservice.co.il';
                             $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" ." ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
-                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                 : "Your message has been received and will be forwarded to our team for further handling.";
-                            sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $confirmationMessage,
+                                    ]
+                                );
+
+                            // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
                             $client->stop_last_message = 1 ;
                             $client->save();
                             // Clear the cache after the action is complete
@@ -3091,18 +3875,29 @@ office@broomservice.co.il';
                                 ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
                                 : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
 
+                            $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "contentSid" => $sid,
+                                ]
+                            );
+
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'entry_id'      => $messageId,
                                 'message'       => $follow_up_msg,
+                                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data),
+                                'data'          => json_encode($data),
                             ]);
 
-                            sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
+                            // sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
                         }
                     }
                 }
@@ -3115,13 +3910,13 @@ office@broomservice.co.il';
 
     public function activeClientsWednesday(Request $request)
     {
+        \Log::info('activeClientsWednesday');
         try {
-            $get_data = $request->getContent();
+            $data = $request->all();
             $responseClientState = [];
-            $data_returned = json_decode($get_data, true);
             $message = null;
 
-            $messageId = $data_returned['messages'][0]['id'] ?? null;
+            $messageId = $data['SmsMessageSid'] ?? null;
 
             if (!$messageId) {
                 return response()->json(['status' => 'Invalid message data'], 400);
@@ -3137,30 +3932,29 @@ office@broomservice.co.il';
             Cache::put('client_wednesday_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
 
-            if (
-                isset($data_returned['messages']) &&
-                isset($data_returned['messages'][0]['from_me']) &&
-                $data_returned['messages'][0]['from_me'] == false
-            ) {
-                $message_data = $data_returned['messages'];
-                if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-                    die("Group message");
-                }
-                $from = $message_data[0]['from'];
+            if ($data['SmsStatus'] == 'received') {
+                $input = trim($data['Body'] ?? '');
+                $listId = $data['ListId'] ?? $message;
+                $ButtonPayload = $data['ButtonPayload'] ?? null;
+
+                // $message_data = $data_returned['messages'];
+                // if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                //     die("Group message");
+                // }
+                $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
+
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
-                if($client){
 
+                if($client){
                     $msgStatus = Cache::get('client_review' . $client->id);
-                    $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
-                    if (!empty($msgStatus) && ($input == '7' || $input == '8')) {
+                    if (!empty($msgStatus) && ($listId == '7' || $listId == '8')) {
                         \Log::info('Client already reviewed');
                         die('Client already reviewed');
                     }
 
                     $msgStatus = Cache::get('client_review_input2' . $client->id);
-                    $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
                     if (!empty($msgStatus)) {
                         \Log::info('Client already reviewed');
                         die('Client already reviewed');
@@ -3168,31 +3962,41 @@ office@broomservice.co.il';
                 }
 
                 $isWednesday = now()->isWednesday();
+
                 if ($isWednesday && $client) {
 
                     $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
                     \Log::info('$msgStatus', [$msgStatus]);
+
                     if(!empty($msgStatus)) {
                         $menu_option = explode('->', $msgStatus);
-                        $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                        $messageBody = trim($data['Body'] ?? '');
                         $last_menu = end($menu_option);
 
-                        if($last_menu == 'main_msg' && $messageBody == '1') {
+                        if($last_menu == 'main_msg' && ($listId == '1' || $ButtonPayload == '1')) {
                             $m = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change for next week?";
 
-                            sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "body" => $m,
+                                ]
+                            );
+                            // sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change', now()->addDay(1));
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'entry_id'      => $messageId,
                                 'message'       => $m,
+                                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data),
+                                'data'          => json_encode($data),
                             ]);
                         } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
                             $scheduleChange = ScheduleChange::create([
@@ -3206,7 +4010,7 @@ office@broomservice.co.il';
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName . "*". "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes', now()->addDay(1));
 
@@ -3253,23 +4057,55 @@ Phone: 03-525-70-60
 office@broomservice.co.il';
                             }
 
-                            sendClientWhatsappMessage($from, ['message' => $message]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '1') {
+                            $sid = $client->lng == "heb" ? "HXb44309cfdec973dc0fa8709509c4b718" : "HX059442ac501424d65f6c225e19711d11";
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "contentSid" => $sid,
+                                    "contentVariables" => json_encode([
+                                        '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
+                                        '2' => $scheduleChange->comments,
+                                    ]),
+                                ]
+                            );
+
+                            // sendClientWhatsappMessage($from, ['message' => $message]);
+                        } else if ($last_menu == 'review_changes' && ($listId == '1' || $ButtonPayload == '1')) {
                             // Cache the user's intention to edit
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes->changes', now()->addDay(1));
 
                             $promptMessage = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
                                 : "What is your change or request for next week?";
-                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                        } else if ($last_menu == 'review_changes' && $messageBody == '2') {
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $promptMessage,
+                                    ]
+                                );
+
+                            // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                        } else if ($last_menu == 'review_changes' && $listId == '2') {
                             // Cache the user's intention to edit
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes->additional', now()->addDay(1));
 
                             $promptMessage = $client->lng == 'heb'
                                 ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
                                 : "Please enter a message to add additional information.";
-                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+
+                                $this->twilio->messages->create(
+                                    "whatsapp:+$from",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "body" => $promptMessage,
+                                    ]
+                                );
+
+                            // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
                         } else if ($last_menu == 'changes' && !empty($messageBody)) {
                             // Process editing the existing message
                             $scheduleChange = ScheduleChange::where('user_type', get_class($client))
@@ -3287,12 +4123,21 @@ office@broomservice.co.il';
                                 $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . trim($messageBody). '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                                 $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                                sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                                // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                     : "Your message has been received and will be forwarded to our team for further handling.";
-                                sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                                   
+                                    $this->twilio->messages->create(
+                                        "whatsapp:+$from",
+                                        [
+                                            "from" => $this->twilioWhatsappNumber,
+                                            "body" => $confirmationMessage,
+                                        ]
+                                    );
+                                   
+                                    // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
                             }
                             sleep(2);
                             // Clear the cache after the action is complete
@@ -3311,12 +4156,21 @@ office@broomservice.co.il';
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName. "*". " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                 : "Your message has been received and will be forwarded to our team for further handling.";
-                            sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                            // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "body" => $confirmationMessage,
+                                ]
+                            );
+
                             $client->stop_last_message = 1 ;
                             $client->save();
                             // Clear the cache after the action is complete
@@ -3329,15 +4183,26 @@ office@broomservice.co.il';
                             WebhookResponse::create([
                                 'status'        => 1,
                                 'name'          => 'whatsapp',
-                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'entry_id'      => $messageId,
                                 'message'       => $follow_up_msg,
+                                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                                 'number'        => $from,
                                 'flex'          => 'A',
                                 'read'          => 1,
-                                'data'          => json_encode($get_data),
+                                'data'          => json_encode($data),
                             ]);
 
-                            sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
+                            $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
+
+                            $this->twilio->messages->create(
+                                "whatsapp:+$from",
+                                [
+                                    "from" => $this->twilioWhatsappNumber,
+                                    "contentSid" => $sid,
+                                ]
+                            );
+
+                            // sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
                         }
                     }
                 }
@@ -3464,4 +4329,109 @@ office@broomservice.co.il';
         // Return formatted date
         return "$year-$month-$day";
     }
+
+    public function saveLead(Request $request)
+    {
+        $challenge = $request->hub_challenge;
+        if (!empty($challenge)) {
+            $verify_token = $request->hub_verify_token;
+            if ($verify_token === config('services.facebook.webhook_token')) {
+                Fblead::create(["challenge" => $challenge]);
+                return $challenge;
+            }
+        } else {
+            $validator = Validator::make($request->all(), [
+                'name' => ['required', 'string', 'max:255'],
+                'phone'     => ['required'],
+                'email'     => ['required'],
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->messages()]);
+            }
+
+            // Remove all special characters from the phone number
+            $phone = preg_replace('/[^0-9+]/', '', $request->phone);
+
+            // Adjust phone number formatting
+            if (strpos($phone, '0') === 0) {
+                $phone = '972' . substr($phone, 1);
+            }
+            if (strpos($phone, '+') === 0) {
+                $phone = substr($phone, 1);
+            }
+
+            // Ensure phone starts with '972'
+            if (strlen($phone) === 9 || strlen($phone) === 10) {
+                $phone = '972' . $phone;
+            }
+
+
+            $lead_exists = Client::where('phone', $phone)->orWhere('email', $request->email)->exists();
+            if (!$lead_exists) {
+                $lead = new Client;
+            } else {
+                $lead = Client::where('phone', 'like', '%' . $phone . '%')->first();
+                if (empty($lead)) {
+                    $lead = Client::where('email', $request->email)->first();
+                }
+            }
+            $nm = explode(' ', $request->name);
+
+            $lead->firstname     = $nm[0];
+            $lead->lastname     = (isset($nm[1])) ? $nm[1] : '';
+            $lead->phone         = $phone;
+            $lead->email         = $request->email;
+            $lead->status        = 0;
+            $lead->lng = 'heb';
+            $lead->password      = Hash::make(Str::random(20));
+            $lead->passcode      = $phone;
+            $lead->geo_address   = $request->has('address') ? $request->address : '';
+            $lead->save();
+
+            if (!$lead_exists) {
+                $lead->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => LeadStatusEnum::PENDING]
+                );
+            }
+            $m = $this->botMessages['main-menu']['heb'];
+
+            $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
+
+            WhatsAppBotClientState::updateOrCreate([
+                'client_id' => $lead->id,
+            ], [
+                'menu_option' => 'main_menu',
+                'language' => 'he',
+            ]);
+
+            $response = WebhookResponse::create([
+                'status'        => 1,
+                'name'          => 'whatsapp',
+                'message'       => $m,
+                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                'number'        => $request->phone,
+                'read'          => 1,
+                'flex'          => 'A',
+                'data'          => json_encode($request->all()),
+            ]);
+        }
+
+        return response()->json([
+            'message' => $lead,
+        ]);
+    }
+
+    public function contain_phone($str)
+    {
+        $nums  = "";
+        for ($i = 0; $i < strlen($str); $i++) {
+            if (ctype_digit($str[$i])) {
+                $nums .= $str[$i];
+            }
+        }
+        return ($nums != "" && strlen($nums) > 8) ? true : false;
+    }
+
 }

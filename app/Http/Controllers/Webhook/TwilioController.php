@@ -50,4 +50,10 @@ class TwilioController extends Controller
         );
         echo $response;
     }
+
+    public function twiliowebhook(Request $request)
+    {
+        $request_data = $request->all();
+        Log::info($request_data);
+    }
 }

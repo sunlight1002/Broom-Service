@@ -132,7 +132,13 @@ function AllForms() {
             .then((res) => {
                 const { worker: workData, forms: formData } = res.data;
                 if (!page) {
-                    setNextStep(res.data.worker.step)
+                    console.log(res.data.worker.step);
+
+                    if (workData.company_type == "manpower") {
+                        setNextStep(res.data.worker.step <= 2 ? res.data.worker.step : 2);
+                    } else {
+                        setNextStep(res.data.worker.step)
+                    }
                 }
                 setIsManpower(workData.company_type == "manpower" ? true : false)
                 setWorker(workData);
@@ -1343,7 +1349,13 @@ function AllForms() {
                     setIsManpower(_worker.company_type == "manpower" ? true : false)
 
                     if (!page) {
-                        setNextStep(_worker.step)
+                        console.log(_worker);
+
+                        if (_worker.company_type == "manpower") {
+                            setNextStep(_worker.step <= 2 ? _worker.step : 2);
+                        } else {
+                            setNextStep(_worker.step)
+                        }
                     }
                     if (_worker?.firstName !== null) {
                         setFieldValue("employeeFirstName", _worker.firstname);
@@ -1456,7 +1468,11 @@ function AllForms() {
                 const _worker = res.data.worker;
 
                 if (!page) {
-                    setNextStep(res.data.worker.step)
+                    if (_worker.company_type == "manpower") {
+                        setNextStep(_worker.step <= 2 ? _worker.step : 2);
+                    } else {
+                        setNextStep(_worker.step)
+                    }
                 }
 
                 if (_worker?.firstName !== null) {

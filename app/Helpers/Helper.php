@@ -211,6 +211,8 @@ if (!function_exists('sendWhatsappMediaMessage')) {
             return ['error' => 'An error occurred while uploading the media.'];
         }
 
+        \Log::info($caption);
+
         // Send the video message using the media ID
         try {
             $messageResponse = Http::withHeaders([
@@ -219,7 +221,7 @@ if (!function_exists('sendWhatsappMediaMessage')) {
                 ])->post(config('services.whapi.url') . 'messages/video', [
                     'to' => $mobile_no,
                     'media' => $mediaId,
-                    'caption' => $caption,
+                    'caption' => $caption ?? '',
                     'mime_type' => 'video/mp4'
                 ]);
 
@@ -308,7 +310,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
                 'to' => $mobile_no,
                 'media' => $mediaId, // Encode the image as base64
                 'mime_type' => $fileMimeType,
-                'caption' => $caption,
+                'caption' => $caption ?? '',
                 'qouted' => $replyId ? $replyId : null,
                 'no_encode' => true, // Specify if encoding should be disabled
             ]);
