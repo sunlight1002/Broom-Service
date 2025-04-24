@@ -452,6 +452,7 @@ class WhatsappNotification
             $eventType = $eventData->type;
             $eventData = $eventData->notificationData;
             $isTwilio = false;
+            $data = null;
 
             $headers = array();
             $url = "https://graph.facebook.com/v18.0/" . config('services.whatsapp_api.from_id') . "/messages";
@@ -513,7 +514,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
-
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -559,6 +560,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -603,6 +605,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -640,6 +643,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -720,13 +724,14 @@ class WhatsappNotification
                                     "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                                 ]
                             );
-                        
+
+                            $data = $twi->toArray();
+                            $isTwilio = true;
                             \Log::info("Twilio message sent successfully!");
                         } catch (\Exception $e) {
                             \Log::error("Twilio API Error: " . $e->getMessage());
+
                         }
-                        
-                        $isTwilio = true;
 
                         break;
                              
@@ -762,9 +767,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
-
                         break;
 
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB:
@@ -806,6 +810,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -838,6 +843,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -881,6 +887,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -916,6 +923,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -952,6 +960,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -989,7 +998,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
-
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -1035,6 +1044,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -1076,9 +1086,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
-
                         break;
                                    
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
@@ -1108,9 +1117,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
-
                         break;
                               
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
@@ -1141,9 +1149,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
-
                         break;
                               
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
@@ -1177,6 +1184,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -1207,6 +1215,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -1235,8 +1244,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
 
                         break;
                         
@@ -1263,9 +1272,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
-
                         break;
                         
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
@@ -1298,9 +1306,8 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
-
-
                         break;
                               
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_TEAM:
@@ -1347,9 +1354,10 @@ class WhatsappNotification
                                 "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                             ]
                         );
-                        $isTwilio = true;
 
-                        
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
+                        $isTwilio = true;
                         break;
                              
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT:
@@ -1423,6 +1431,8 @@ class WhatsappNotification
                             ]
                         );
 
+
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         
@@ -1469,13 +1479,14 @@ class WhatsappNotification
                                     "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                                 ]
                             );
+
+                            $data = $twi->toArray();
+                            $isTwilio = true;
                         
                             \Log::info("Twilio message sent successfully!");
                         } catch (\Exception $e) {
                             \Log::error("Twilio API Error: " . $e->getMessage());
                         }
-                        
-                        $isTwilio = true;
 
                         break;
                              
@@ -1509,6 +1520,8 @@ class WhatsappNotification
                                 "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                             ]
                         );
+
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -1537,6 +1550,8 @@ class WhatsappNotification
                                 "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                             ]
                         );
+                        $data = $twi->toArray();
+
                         $isTwilio = true;
                         
                         break;
@@ -1565,6 +1580,7 @@ class WhatsappNotification
                                 "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                             ]
                         );
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -1606,6 +1622,7 @@ class WhatsappNotification
                                 "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
                             ]
                         );
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -1857,6 +1874,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -1881,6 +1899,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -1938,6 +1957,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -1967,6 +1987,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -2001,6 +2022,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -2030,6 +2052,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -2058,6 +2081,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
 
@@ -2086,6 +2110,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2142,6 +2167,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2169,6 +2195,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2182,7 +2209,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX01ecfcad5626bbc1ab1e9651f0e8ff88" :"HX5c7480b0b4599caeef1b48fb43e5c29a";
+                        $sid = $lng == "heb" ? "HXbf7b57c3d82b5a448e378d75c48bd03e" :"HX92b3db078d6037ba945f0698c08daed5";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2196,6 +2223,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2223,6 +2251,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2258,6 +2287,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2303,6 +2333,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2329,6 +2360,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2355,6 +2387,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2383,6 +2416,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2411,6 +2445,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2438,7 +2473,7 @@ class WhatsappNotification
                             ]
                         );
                         $isTwilio = true;
-
+                        $data = $twi->toArray();
                         \Log::info($twi->sid);
 
                         break;
@@ -2469,6 +2504,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2497,6 +2533,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2530,6 +2567,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2560,6 +2598,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2592,6 +2631,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2636,6 +2676,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2692,6 +2733,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2737,6 +2779,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2778,6 +2821,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2820,6 +2864,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
                         
                         break;
@@ -2871,6 +2916,7 @@ class WhatsappNotification
                         );
 
                         \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2911,6 +2957,9 @@ class WhatsappNotification
                                 ])
                             ]
                         );
+
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -2979,6 +3028,9 @@ class WhatsappNotification
                                 ])
                             ]
                         );
+
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -3015,6 +3067,9 @@ class WhatsappNotification
                                 ])
                             ]
                         );
+
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -3052,6 +3107,8 @@ class WhatsappNotification
                             ]
                         );
 
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
                         $isTwilio = true;
 
                         break;
@@ -3551,17 +3608,8 @@ class WhatsappNotification
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
                 Log::info($eventType);
-                // Log::info($lng);
 
-               $res = WebhookResponse::create([
-                    'status'        => 1,
-                    'name'          => 'whatsapp',
-                    'message'       => $text,
-                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                    'number'        => $receiverNumber,
-                    'flex'          => 'A',
-                    'read'          => 1,
-                ]);
+                StoreWebhookResponse($text, $receiverNumber, $data);
 
                 $token = $this->whapiApiToken;
 
@@ -3591,15 +3639,19 @@ class WhatsappNotification
                 }else {
                     $token = $this->whapiApiToken;
                 }
-
+                
                 if(!$isTwilio){
+                    \Log::info("Sending message $isTwilio");
+
                     $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text
                     ]);
 
-                Log::info($response->json());
+                    Log::info($response->json());
+                }else{
+                    \Log::info("twilio message $isTwilio");
                 }
             }
         } catch (\Throwable $th) {

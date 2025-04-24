@@ -10,6 +10,8 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Models\WebhookResponse;
+
 
 if (!function_exists('sendInvoicePayToClient')) {
     function sendInvoicePayToClient($id, $docurl, $docnum, $inv_id)
@@ -56,6 +58,23 @@ if(!function_exists('generateShortUrl')) {
         // } else {
         //     return config("services.short_url.domain")."/". $token;
         // }
+    }
+}
+
+if(!function_exists('StoreWebhookResponse')) {
+    function StoreWebhookResponse($text, $receiverNumber, $data = null)
+    {
+
+        WebhookResponse::create([
+            'status'        => 1,
+            'name'          => 'whatsapp',
+            'message'       => $text,
+            'from'          => str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')),
+            'number'        => $receiverNumber,
+            'flex'          => 'A',
+            'read'          => 1,
+            'data'          => $data ? json_encode($data) : null
+        ]);
     }
 }
 
