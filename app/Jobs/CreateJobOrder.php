@@ -219,7 +219,9 @@ class CreateJobOrder implements ShouldQueue
                 event(new ClientOrderWithDiscount($client, $order));
             }
 
-            if(in_array($job->client->id, [0]) || config('services.enable_new_contract')) {
+            $isEnableNewContract = (config('services.enable_new_contract') ? true : false);
+            \Log::info("isEnableNewContract: " . $isEnableNewContract);
+            if(in_array($job->client->id, [0]) || $isEnableNewContract) {
                 if ($service->freq_name == 'One Time' && isset($order)) {
                     \Log::info("GenerateJobInvoice one time job");
                     GenerateJobInvoice::dispatch($order->id, $client->id);

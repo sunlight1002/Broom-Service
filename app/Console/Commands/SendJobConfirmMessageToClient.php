@@ -292,7 +292,7 @@ www.broomservice.co.il
                 
                 $sid = $client->lng == "heb" ? "HX24ce33a6a7f5ba297f6756127e3d80e0" : "HXe77a7ad3eb2c4394e74c52307c89c8a7";
 
-                $res = $this->twilio->messages->create(
+                $twi = $this->twilio->messages->create(
                     "whatsapp:+$client->phone",
                     [
                         "from" => $this->twilioWhatsappNumber,
@@ -304,6 +304,8 @@ www.broomservice.co.il
                         "statusCallback" => "https://65e5-2405-201-2022-10c3-d0f4-b071-727e-165e.ngrok-free.app/twilio/webhook",
                     ]
                 );
+                
+                StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
 
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
                 // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);

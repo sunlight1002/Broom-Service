@@ -60,6 +60,8 @@ class CloseActiveClientBot extends Command
                     );
                     \Log::info($twi);
 
+                    StoreWebhookResponse($nextMessage, $client->phone, $twi->toArray());
+
                     // sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
                     $client->delete();
                 }

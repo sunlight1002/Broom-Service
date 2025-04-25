@@ -466,7 +466,7 @@ export default function Lead() {
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}
-                                className="display table table-bordered"
+                                className="display table table-bordered custom-datatable"
                             />
                         </div>
                     </div>

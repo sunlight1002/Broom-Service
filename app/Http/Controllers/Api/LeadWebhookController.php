@@ -1037,7 +1037,7 @@ Broom Service Team 🌹",
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
 
-                        $sid = $client->lng == "heb" ? "HX33f1cb820e3155015ff72760fdf3040d" : "HXa9f56483168070a8dfdcc0bc227a0206";
+                        $sid = $client->lng == "heb" ? "HXb8458527407d8b6e374e3bde0f10eb6a" : "HXea3c25fb7dcab69db546ad6e26922f57";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
@@ -2728,7 +2728,7 @@ Broom Service Team 🌹",
                     
                     // If no jobs are found for both weeks
                     if (empty($currentWeeks) && empty($nextWeeks)) {
-                        $sid = $lng == "heb" ? "HX8b07b34049a4878f44a545cd4ad8c748" : "HXdfd2ebedef00e55ff6724a5e6a00a7e4";
+                        $sid = $lng == "heb" ? "HX09c8d68ed27cb84001868810a214fcf4" : "HX00c5308778ee90d34e8f26d8468ed418";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
@@ -2963,7 +2963,7 @@ Broom Service Team 🌹",
                     break;
                 case 'access_portal':
 
-                    $sid = $lng == "heb" ? "HX5e779ec20c76d32529a2e094c0c9e72e" : "HX009816f83d7d283f8c732515c5a978e4";
+                    $sid = $lng == "heb" ? "HX5019bc93134e89d71f5be55daf143281" : "HX009816f83d7d283f8c732515c5a978e4";
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
@@ -3228,7 +3228,7 @@ Broom Service Team 🌹",
                     $nextMessage = $text[$lng];
                     $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
 
-                    $sid = $lng == "heb" ? "HXbbef39df21e6476838e197c7b62ebddc" : "HXb1ec5e70b6c52fa089c9589d5eb3fcf8";
+                    $sid = $lng == "heb" ? "HXc46b10d21adc445c1fa02dc0ed4c8a56" : "HXb1ec5e70b6c52fa089c9589d5eb3fcf8";
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [

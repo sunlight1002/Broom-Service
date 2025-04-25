@@ -2190,7 +2190,8 @@ class WhatsappNotification
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                                ])
+                                ]),
+                                "statusCallback" => "https://2e18-2405-201-2022-10c3-f8e0-b2f4-f0a9-cd01.ngrok-free.app/twilio/webhook"
                             ]
                         );
 
@@ -2237,7 +2238,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXbd480e4791ebd24e5c61537dbf1be153" :"HX69263d20e94260a670181fd4d6a01bc7";
+                        $sid = $lng == "heb" ? "HXbd480e4791ebd24e5c61537dbf1be153" :"HXc34a5efcb2594ccf527d7127fb7479c4";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2246,7 +2247,9 @@ class WhatsappNotification
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                                ])
+                                ]),
+                                "statusCallback" => "https://0c4c-2405-201-2022-10c3-f734-3028-2a3e-4203.ngrok-free.app/twilio/webhook"
+
                             ]
                         );
 

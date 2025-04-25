@@ -37,7 +37,7 @@ export default function TotalJobs() {
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
-    const [selectedDateRange, setSelectedDateRange] = useState("Week");
+    const [selectedDateRange, setSelectedDateRange] = useState("Day");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
     const [probbtn, setProbbtn] = useState(false)
     const [problems, setProblems] = useState([])
@@ -51,6 +51,7 @@ export default function TotalJobs() {
     const endDateRef = useRef(null);
     const actualTimeExceedFilterRef = useRef(null);
     const hasNoWorkerFilterRef = useRef(null);
+    const showAllWorkerFilterRef = useRef(null);
     const [AllWorkers, setAllWorkers] = useState([]);
 
     const alert = useAlert();
@@ -197,6 +198,9 @@ export default function TotalJobs() {
                         d.has_no_worker = hasNoWorkerFilterRef.current.checked
                             ? 1
                             : 0;
+                        d.show_all_worker = showAllWorkerFilterRef.current.checked
+                        ? 1
+                        : 0;
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                     },
@@ -836,8 +840,8 @@ export default function TotalJobs() {
     }, [selectedDateRange, selectedDateStep]);
 
     useEffect(() => {
-        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Week") {
-            localStorage.setItem("selectedDateRange", "Week");
+        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Day") {
+            localStorage.setItem("selectedDateRange", "Day");
         }
         if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
             localStorage.setItem("selectedDateStep", "Current");
@@ -1305,6 +1309,26 @@ export default function TotalJobs() {
                                         htmlFor="inlineCheckbox2"
                                     >
                                         {t("global.hasNoWorker")}
+                                    </label>
+                                </div>
+
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="inlineCheckbox3"
+                                        onChange={() => {
+                                            $(tableRef.current)
+                                                .DataTable()
+                                                .draw();
+                                        }}
+                                        ref={showAllWorkerFilterRef}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="inlineCheckbox3"
+                                    >
+                                        Show all workers
                                     </label>
                                 </div>
                             </div>

@@ -72,8 +72,10 @@ class JobController extends Controller
         $start_time_filter = $request->get('start_time_filter');
         $actual_time_exceed_filter = $request->get('actual_time_exceed_filter');
         $has_no_worker = $request->get('has_no_worker');
+        $show_all_worker = $request->get('show_all_worker');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
+        $worker_ids = ['209','185', '67'];
 
         $query = Job::query()
         ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
@@ -81,6 +83,9 @@ class JobController extends Controller
         ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
         ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
         ->leftJoin('order', 'order.id', '=', 'jobs.order_id')
+        ->when(!$show_all_worker && is_array($worker_ids) && count($worker_ids), function ($q) use ($worker_ids) {
+            return $q->whereIn('jobs.worker_id', $worker_ids);
+        })
         ->when($start_date, fn($q) => $q->whereDate('jobs.start_date', '>=', $start_date))
         ->when($end_date, fn($q) => $q->whereDate('jobs.start_date', '<=', $end_date))
         ->when($done_filter == 'done', fn($q) => $q->where('jobs.is_job_done', 1))
@@ -125,8 +130,8 @@ class JobController extends Controller
             )
         )
         ->groupBy('jobs.id')
+        ->orderBy('jobs.start_date')  
         ->orderBy('users.id')           // group by worker
-        ->orderBy('jobs.start_date')    // group by day
         ->orderBy('jobs.start_time')    // sort within day (existing jobs come first)
         ->orderBy('jobs.id');           // stable fallback sort
     
@@ -2054,6 +2059,7 @@ class JobController extends Controller
                 'cancelled_for' => $repeatancy,
                 'cancel_until_date' => $until_date,
             ]);
+            $job->workerShifts()->delete();
     
             // Add the cancelled job ID to the array
             $cancelledJobIds[] = $job->id;
@@ -3133,6 +3139,8 @@ class JobController extends Controller
                     'cancelled_at' => now(),
                     'cancelled_for' => 'forever',
                 ]);
+
+                $job->workerShifts()->delete();
     
                 CreateJobOrder::dispatch($job->id);
                 ScheduleNextJobOccurring::dispatch($job->id,null);

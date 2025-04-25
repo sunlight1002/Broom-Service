@@ -532,6 +532,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'cancelled_by_role' => 'admin',
                             'cancelled_at' => now(),
                         ]);
+                        $job->workerShifts()->delete();
                 
                         // Cancel related order if exists
                         if (isset($job->order)) {
@@ -575,6 +576,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'cancelled_by_role' => 'admin',
                             'cancelled_at' => now(),
                         ]);
+
+                        $job->workerShifts()->delete();
+
 
                     }
                 }
@@ -815,6 +819,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 if ($row[5] === "FALSE" && $row[6] === "FALSE") {
                     $jobData->status = JobStatusEnum::CANCEL;
                     $jobData->save();
+                    $jobData->workerShifts()->delete();
+                    
                     if(isset($jobData->order)) {
                         $order = $jobData->order;
                         if ($order->status == 'Closed') {

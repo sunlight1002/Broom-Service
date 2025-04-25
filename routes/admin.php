@@ -77,6 +77,7 @@ Route::get('workers/import/sample', [WorkerController::class, 'sampleFileExport'
 
 Route::post('password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset.password.update');
+// Route::get('get-marketing-template', [DashboardController::class, 'getMarketingTemplate']);
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {

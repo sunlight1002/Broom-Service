@@ -77,7 +77,7 @@ class SendPriceOffer extends Command
                             צוות ברום סרוויס";
             }
 
-            $this->sendWhatsAppMessage($client, $isExist);
+            $this->sendWhatsAppMessage($client, $isExist, $message);
         }
 
         return 0;
@@ -90,13 +90,13 @@ class SendPriceOffer extends Command
      * @param string $message
      * @return void
      */
-    protected function sendWhatsAppMessage($client, $isExist)
+    protected function sendWhatsAppMessage($client, $isExist, $personalizedMessage)
     {
 
 
         $sid = $isExist ? "HXdc842110cb02e087fcd10b0fc98dab50" : "HX82175832e5151a2169610546bce06a5b";
 
-        $this->twilio->messages->create(
+        $twi = $this->twilio->messages->create(
             "whatsapp:+$client->phone",
             [
                 "from" => $this->twilioWhatsappNumber,
@@ -106,6 +106,8 @@ class SendPriceOffer extends Command
                 ]),
             ]
         );
+        
+        StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
   
         // $response = Http::withToken($this->whapiApiToken)
         //                 ->post($this->whapiApiEndpoint . 'messages/text', [

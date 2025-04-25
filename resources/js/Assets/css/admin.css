@@ -3121,7 +3121,7 @@ button.time-counter, span.time-counter {
 }
 
 
-#content .paging_full_numbers button {
+#content .dt-paging button {
   background-color: #1E1E1E;
   color: white !important;
   border-radius: 5px;
@@ -3130,7 +3130,7 @@ button.time-counter, span.time-counter {
   margin-right: 5px;
 }
 
-#content .paging_full_numbers .dt-paging-button.current {
+#content .dt-paging .dt-paging-button.current {
   background-color: #ffffff; 
   color: rgb(0, 0, 0) !important;
   padding: 5px 18px;
@@ -3153,7 +3153,7 @@ button.time-counter, span.time-counter {
 
 #content .dt-layout-row:nth-child(1){
   display: flex !important;
-  flex-direction: row-reverse;
+  /* flex-direction: row-reverse; */
   justify-content: space-between;
 }
 

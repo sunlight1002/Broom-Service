@@ -103,16 +103,8 @@ Please reply with the appropriate number.",
             );
             $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
 
-            WebhookResponse::create([
-                'status' => 1,
-                'name' => 'whatsapp',
-                'message' => $personalizedMessage,
-                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                'number' => $client->phone,
-                'read' => 1,
-                'flex' => 'A',
-            ]);
-            
+            StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
+           
             // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
             Cache::put('client_review' . $client->id, true, now()->addDay(1));
         }
