@@ -555,7 +555,7 @@ Broom Service Team 🌹",
             
                     case 'new_lead':
             
-                        $sid = $lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
+                        $sid = $lng == "heb" ? "HX648077d9fa0a17989bad3140b23b8b0b" : "HX866eb5d2d224815a2823eb7260746aee";
             
                         $message = $this->twilio->messages->create(
                             "whatsapp:+$from",
@@ -638,10 +638,10 @@ Broom Service Team 🌹",
 
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                        $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                        $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
-                        $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                        $sid = "HX866eb5d2d224815a2823eb7260746aee";
                     }
 
                     $twi = $this->twilio->messages->create(
@@ -706,10 +706,10 @@ Broom Service Team 🌹",
 
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                        $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                        $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
-                        $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                        $sid = "HX866eb5d2d224815a2823eb7260746aee";
                     }
 
                     $twi = $this->twilio->messages->create(
@@ -757,10 +757,10 @@ Broom Service Team 🌹",
 
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                        $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                        $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
-                        $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                        $sid = "HX866eb5d2d224815a2823eb7260746aee";
                     }
 
                     $twi = $this->twilio->messages->create(
@@ -830,7 +830,7 @@ Broom Service Team 🌹",
                     }
                     $m = $this->botMessages['main-menu']['en'];
 
-                    $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                    $sid = "HX866eb5d2d224815a2823eb7260746aee";
 
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
@@ -870,7 +870,7 @@ Broom Service Team 🌹",
                     }
                     $m = $this->botMessages['main-menu']['heb'];
 
-                    $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                    $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
 
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
@@ -1914,7 +1914,7 @@ Broom Service Team 🌹",
                         );
 
                     }elseif($title == "Switch to a Human Representative - During Business Hours"){
-                        $sid = $client->lng == "heb" ? "HXde3695b7813b6bddc7a55c670a6b307c" : "HX37bcec3a6de4ed76d4200937cb4f7e6d";
+                        $sid = $client->lng == "heb" ? "HX8ff855dc2d82288d5efdb46d3d4e004c" : "HX13483f5a762ab0293e36e6b97f3d0aa5";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
@@ -1924,7 +1924,7 @@ Broom Service Team 🌹",
                         );
                         \Log::info('Switch to a Human Representative - During Business Hours');
                     }else{
-                        $sid = $client->lng == "heb" ? "HX4f09c1b1981aee0e6390ab76e8d107ef" : "HX01b88b3dfdd95d205b6659aa214ae94c";
+                        $sid = $client->lng == "heb" ? "HXaf78ce05e0a28970f94b21ea5278d139" : "HX01b88b3dfdd95d205b6659aa214ae94c";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
@@ -2048,7 +2048,7 @@ Broom Service Team 🌹",
 
 
             $m = $this->botMessages['main-menu']['heb'];
-            $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+            $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
 
             $twi = $this->twilio->messages->create(
                 "whatsapp:+$lead->phone",
@@ -3530,7 +3530,7 @@ Broom Service Team 🌹",
                         $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟\nThank you for your positive feedback. We’re here if you need anything else."
                         : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟\nתודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
                         
-                        $sid = $client->lng == "heb" ? "HX914d9256db5d3b77c86c83355f32eeb4" : "HX7fd96fd6f2130767f3c3c800caa59ba6";
+                        $sid = $client->lng == "heb" ? "HXc461f80819de9133a2f1e433c7f57acf" : "HXfbdae09ff346735b82dfe4a148053c58";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [

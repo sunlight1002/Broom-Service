@@ -22,6 +22,7 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import Sidebar from "../../Layouts/Sidebar";
+import { ChangeShiftModal } from "../../Components/Modals/ChangeShiftModal";
 
 export default function TotalJobs() {
     const { t, i18n } = useTranslation();
@@ -37,6 +38,7 @@ export default function TotalJobs() {
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
+    const [isChangeShiftModal, setIsChangeShiftModal] = useState(false)
     const [selectedDateRange, setSelectedDateRange] = useState("Day");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
     const [probbtn, setProbbtn] = useState(false)
@@ -53,7 +55,8 @@ export default function TotalJobs() {
     const hasNoWorkerFilterRef = useRef(null);
     const showAllWorkerFilterRef = useRef(null);
     const [AllWorkers, setAllWorkers] = useState([]);
-
+    const [allClients, setAllClients] = useState([]);
+    const [selectedJobDate, setSelectedJobDate] = useState(null);   
     const alert = useAlert();
     const navigate = useNavigate();
 
@@ -199,8 +202,8 @@ export default function TotalJobs() {
                             ? 1
                             : 0;
                         d.show_all_worker = showAllWorkerFilterRef.current.checked
-                        ? 1
-                        : 0;
+                            ? 1
+                            : 0;
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                     },
@@ -434,7 +437,7 @@ export default function TotalJobs() {
 
                                 _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
 
-                                // _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-id="${row.id}">Change Shift</button>`;
+                                // _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">Change Shift</button>`;
 
                                 _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
                             }
@@ -586,6 +589,13 @@ export default function TotalJobs() {
             navigate(`/admin/jobs/${_id}/change-worker`);
         });
 
+        // $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
+        //     const _id = $(this).data("id");
+        //     const date = $(this).data("date");
+        //     handleChangeShift({_id, date});
+        //     // navigate(`/admin/jobs/${_id}/change-shift`);
+        // });
+
         $(tableRef.current).on("click", ".dt-cancel-btn", function () {
             const _id = $(this).data("id");
             const _groupID = $(this).data("group-id");
@@ -596,7 +606,7 @@ export default function TotalJobs() {
             const _id = $(this).find("span").data("id"); // or more specific like `.find("span.dt-comment-text")`
             handleComent(_id);
         });
-        
+
 
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy();
@@ -771,6 +781,14 @@ export default function TotalJobs() {
         getWorkerToSwitch(_job.id);
         setSelectedJob(_job);
         setIsOpenSwitchWorker(true);
+    };
+
+    const handleChangeShift = (_job) => {
+        setSelectedJob(_job._id);
+        setSelectedJobDate(_job.date);
+        console.log(_job);
+        
+        setIsChangeShiftModal(true);
     };
 
     const getWorkerToSwitch = (id) => {
@@ -1524,6 +1542,15 @@ export default function TotalJobs() {
                     isOpen={isOpenSwitchWorker}
                     job={selectedJob}
                     AllWorkers={AllWorkers}
+                    onSuccess={() => $(tableRef.current).DataTable().draw()}
+                />
+            )}
+            {isChangeShiftModal && (
+                <ChangeShiftModal
+                    setIsOpen={setIsChangeShiftModal}
+                    isOpen={isChangeShiftModal}
+                    job={selectedJob}
+                    selectedDate={selectedJobDate}
                     onSuccess={() => $(tableRef.current).DataTable().draw()}
                 />
             )}

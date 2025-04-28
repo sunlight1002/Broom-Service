@@ -23,14 +23,14 @@ class WhatsappTemplatesSeeder extends Seeder
 
 Please confirm that you have seen the address for tomorrow’s job:
 
-*Client Name:* :client_name
-*Address:* :job_full_address
-*Google Map Address:* :google_address
-*Job Hours:* :job_hours
-*Date/Time:* :job_start_date_time
+Client Name: *:client_name*
+Address: *:job_full_address*
+Google Map Address: :google_address
+Job Hours: :job_hours
+Date/Time: :job_start_date_time
 
-- *Accept Address* :job_accept_url
-- *Contact Manager* :job_contact_manager_link if you have any questions.
+- Accept Address :job_accept_url
+- Contact Manager :job_contact_manager_link if you have any questions.
 
 Best Regards,
 Broom Service Team',
@@ -38,14 +38,14 @@ Broom Service Team',
 
 אנא אשר שראית את הכתובת לעבודה מחר:
 
-*שם הלקוח:* :client_name
-*כתובת:* :job_full_address
-*כתובת מפת גוגל:* :google_address
-*שעות עבודה:* :job_hours
-*תאריך/שעה:* :job_start_date_time
+שם הלקוח: *:client_name*
+כתובת: *:job_full_address*
+כתובת מפת גוגל: :google_address
+שעות עבודה: :job_hours
+תאריך/שעה: :job_start_date_time
 
-- *[אשר כתובת]* :job_accept_url
-- *צור קשר עם המנהל* :job_contact_manager_link במידה ויש לך שאלות או בעיות.
+- [אשר כתובת] :job_accept_url
+- צור קשר עם המנהל :job_contact_manager_link ב`מידה ויש לך שאלות או בעיות.
 
 בברכה,
 צוות ברום סרוויס  ',
@@ -53,14 +53,14 @@ Broom Service Team',
 
 Por favor confirma que has visto la dirección para el trabajo de mañana:
 
-*Nombre del cliente:* :client_name
-*Dirección:* :job_full_address
-*Dirección de Google Maps:* :google_address
-*Horas de trabajo:* :job_hours
-*Fecha/Hora:* :job_start_date_time
+Nombre del cliente: *:client_name*
+Dirección: *:job_full_address*
+Dirección de Google Maps: :google_address
+Horas de trabajo: :job_hours
+Fecha/Hora: :job_start_date_time
 
-- *Aceptar Dirección* :job_accept_url
-- *Contactar al Gerente* :job_contact_manager_link si tienes alguna pregunta.
+- Aceptar Dirección* :job_accept_url
+- Contactar al Gerente :job_contact_manager_link si tienes alguna pregunta.
 
 Saludos cordiales,
 Equipo de Broom Service',
@@ -68,14 +68,14 @@ Equipo de Broom Service',
 
 Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
 
-*Имя клиента:* :client_name
-*Адрес:* :job_full_address
-*Адрес на карте Google:* :google_address
-*Часы работы:* :job_hours
-*Дата/время:* :job_start_date_time
+Имя клиента: *:client_name*
+Адрес: *:job_full_address*
+Адрес на карте Google: :google_address
+Часы работы: :job_hours
+Дата/время: :job_start_date_time
 
-- *Подтвердить адрес* :job_accept_url
-- *Связаться с менеджером* :job_contact_manager_link если у вас есть вопросы.
+- Подтвердить адрес :job_accept_url
+- Связаться с менеджером :job_contact_manager_link если у вас есть вопросы.
 
 С уважением,
 Команда Broom Service',
@@ -96,14 +96,14 @@ Equipo de Broom Service',
 
 This is a reminder to confirm the address for tomorrow’s job as soon as possible:
 
-*Client Name:* :client_name
-*Address:* :job_full_address
-*Google Map Address:* :google_address
-*Job Hours:* :job_hours
-*Date/Time:* :job_start_date_time
+Client Name: *:client_name*
+Address: *:job_full_address*
+Google Map Address: :google_address
+Job Hours: :job_hours
+Date/Time: :job_start_date_time
 
-- *Accept Address* :job_accept_url
-- *Contact Manager* :job_contact_manager_link if you have any questions.
+- Accept Address :job_accept_url
+- Contact Manager :job_contact_manager_link if you have any questions.
 
 Best Regards,
 Broom Service Team
@@ -112,14 +112,14 @@ Broom Service Team
 
 תזכורת לאשר בהקדם האפשרי את הכתובת לעבודה מחר:
 
-*שם הלקוח:* :client_name
-*כתובת:* :job_full_address
-*כתובת מפת גוגל:* :google_address
-*שעות עבודה:* :job_hours
-*תאריך/שעה:* :job_start_date_time
+שם הלקוח: *:client_name*
+כתובת: *:job_full_address*
+כתובת מפת גוגל: :google_address
+שעות עבודה: :job_hours
+תאריך/שעה: :job_start_date_time
 
-- *[אשר כתובת]* :job_accept_url
-- *צור קשר עם המנהל* :job_contact_manager_link במידה ויש לך שאלות או בעיות.
+- [אשר כתובת] :job_accept_url
+- צור קשר עם המנהל :job_contact_manager_link במידה ויש לך שאלות או בעיות.
 
 בברכה,
 צוות ברום סרוויס  ',
@@ -127,14 +127,14 @@ Broom Service Team
 
 Este es un recordatorio para confirmar la dirección para el trabajo de mañana lo antes posible:
 
-*Nombre del cliente:* :client_name
-*Dirección:* :job_full_address
-*Dirección de Google Maps:* :google_address
-*Horas de trabajo:* :job_hours
-*Fecha/Hora:* :job_start_date_time
+Nombre del cliente: *:client_name*
+Dirección: *:job_full_address*
+Dirección de Google Maps: :google_address
+Horas de trabajo: :job_hours
+Fecha/Hora: :job_start_date_time
 
-- *Aceptar Dirección* :job_accept_url
-- *Contactar al Gerente* :job_contact_manager_link si tienes alguna pregunta.
+- Aceptar Dirección :job_accept_url
+- Contactar al Gerente :job_contact_manager_link si tienes alguna pregunta.
 
 Saludos cordiales,
 Equipo de Broom Service
@@ -143,14 +143,14 @@ Equipo de Broom Service
 
 Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
 
-*Имя клиента:* :client_name
-*Адрес:* :job_full_address
-*Адрес на карте Google:* :google_address
-*Часы работы:* :job_hours
-*Дата/время:* :job_start_date_time
+Имя клиента: *:client_name*
+Адрес: *:job_full_address*
+Адрес на карте Google: :google_address
+Часы работы: :job_hours
+Дата/время: :job_start_date_time
 
-- *Подтвердить адрес* :job_accept_url
-- *Связаться с менеджером* :job_contact_manager_link если у вас есть вопросы.
+- Подтвердить адрес :job_accept_url
+- Связаться с менеджером :job_contact_manager_link если у вас есть вопросы.
 
 С уважением,
 Команда Broom Service',
@@ -205,11 +205,11 @@ Equipo de Broom Service
 
 You have a job scheduled at *:job_start_time* at the following location:
 
-*Address:* :job_full_address
-*Client:* :client_name
+Address: *:job_full_address*
+Client: *:client_name*
 
-- *I’m On My Way* :leave_for_work
-- *Contact Manager* :job_contact_manager_link if you need assistance.
+- I’m On My Way :leave_for_work
+- Contact Manager :job_contact_manager_link if you need assistance.
 
 Best Regards,
 Broom Service Team',
@@ -217,11 +217,11 @@ Broom Service Team',
 
 יש לך עבודה המתוכננת לשעה *:job_start_time* בכתובת הבאה:
 
-*כתובת:* :job_full_address
-*לקוח:* :client_name
+כתובת: *:job_full_address*
+לקוח:  *:client_name*
 
-- *אני בדרכי* :leave_for_work
-- *צור קשר עם המנה* :job_contact_manager_link במידה ואתה זקוק לעזרה.
+- אני בדרכי :leave_for_work
+- צור קשר עם המנה :job_contact_manager_link במידה ואתה זקוק לעזרה.
 
 בברכה,
 צוות ברום סרוויס',
@@ -229,11 +229,11 @@ Broom Service Team',
 
 Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
-*Dirección:* :job_full_address
-*Cliente:* :client_name
+Dirección: *:job_full_address*
+Cliente: *:client_name*
 
-- *Estoy en camino* :leave_for_work
-- *Contactar al gerente* :job_contact_manager_link si necesitas ayuda.
+- Estoy en camino :leave_for_work
+- Contactar al gerente :job_contact_manager_link si necesitas ayuda.
 
 Saludos cordiales,
 Equipo de Broom Service',
@@ -241,11 +241,11 @@ Equipo de Broom Service',
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
-*Адрес:* :job_full_address
-*Клиент:* :client_name
+Адрес: *:job_full_address*
+Клиент: *:client_name*
 
-- *Я в пути* :leave_for_work
-- *Связаться с менеджером* :job_contact_manager_link если вам нужна помощь.
+- Я в пути :leave_for_work
+- Связаться с менеджером :job_contact_manager_link если вам нужна помощь.
 
 С уважением,
 Команда Broom Service',

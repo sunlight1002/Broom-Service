@@ -28,8 +28,8 @@ class Kernel extends ConsoleKernel
 
         // Worker reminder
         // $schedule->command('worker:send_invitation')->onOneServer()->dailyAt('09:00');
-        $schedule->command('worker:notify-next-day-job-at-5-pm')->onOneServer()->dailyAt('17:00');
-        $schedule->command('worker:notify-next-day-job-at-6-pm')->onOneServer()->dailyAt('18:00');
+        $schedule->command('worker:notify-next-day-job-at-5-pm')->onOneServer()->dailyAt('20:00');
+        $schedule->command('worker:notify-next-day-job-at-6-pm')->onOneServer()->dailyAt('21:00');
         $schedule->command('worker:notify-worker-confirm-on-your-way-before-1-hour')->onOneServer()->everyMinute();
         $schedule->command('worker:job-not-finished-on-time')->onOneServer()->everyMinute();
 

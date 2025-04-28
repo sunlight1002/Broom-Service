@@ -299,9 +299,9 @@ class FetchFacebookLeads extends Command
                                         $sid = null;
 
                                         if ($client->lng == 'heb') {
-                                            $sid = "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9";
+                                            $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
                                         } else {
-                                            $sid = "HX3732b37820ac96e08bfbd8bacf752541";
+                                            $sid = "HX866eb5d2d224815a2823eb7260746aee";
                                         }
 
                                         $twi = $this->twilio->messages->create(

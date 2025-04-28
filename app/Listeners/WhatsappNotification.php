@@ -575,9 +575,9 @@ class WhatsappNotification
                         }elseif($lng == "spa"){
                             $sid = "HX6c77c17eaa74ae63b7be720dc92a1437";
                         }elseif($lng == "ru"){
-                            $sid = "HX8332e8e7fd6a952ba37c8836a062acfb";
+                            $sid = "HX036c7b1ac952fc6cae74c0bffa00f959";
                         }else{
-                            $sid = "HX1a1e4ed508b85630608f09f957f3c78e";
+                            $sid = "HX936e87d929ebfeb60353023160e9a4be";
                         }
 
                         $address = trim($jobData['property_address']['geo_address'] ?? '');
@@ -616,13 +616,13 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         if($lng == "heb"){
-                            $sid = "HX1d046d7026af1a3503e014a8b6a666dd";
+                            $sid = "HXea6defca05c0a344e5f7631750268faa";
                         }elseif($lng == "spa"){
                             $sid = "HX09160733422044b146ec7b7e983a2c20";
                         }elseif($lng == "ru"){
-                            $sid = "HX41c4236e972c57966a62678a5ba97145";
+                            $sid = "HXa261df15b21b2d46adf68cf5c1440da3";
                         }else{
-                            $sid = "HX7c3b0902a21d7fdc076a2fedf2342bc4";
+                            $sid = "HX6ecf04405ebc100c8221158b3d4db89d";
                         }
 
                         $variables = [
@@ -684,13 +684,13 @@ class WhatsappNotification
                         $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
 
                         if($lng == "heb"){
-                            $sid = "HX47d6750f537aead0e99773e6a6b428f1";
+                            $sid = "HX1cc4f8bfec22f2a71cb23071838b9799";
                         }elseif($lng == "spa"){
                             $sid = "HXf889705a6e3dad76e0d521fcf41660b3";
                         }elseif($lng == "ru"){
-                            $sid = "HXa50fa914144e29e9a38b8aa3fb840d44";
+                            $sid = "HX4042d35f763308e61c04660b2f02861a";
                         }else{
-                            $sid = "HX46a0a18e70945ce1aeb7a6cf842c4e68";
+                            $sid = "HXee912fda54b92b8a99523eda74b2ebb0";
                         }
 
                         $specialInstruction = $instructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
@@ -740,13 +740,13 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         if($lng == "heb"){
-                            $sid = "HXa3c50cf13602bc7716cdb7563d37b634";
+                            $sid = "HXd222d3357b0b612cc1ff525e6ff6629a";
                         }elseif($lng == "spa"){
                             $sid = "HX478a2737303b0dff4db377a8a1fe09a3";
                         }elseif($lng == "ru"){
-                            $sid = "HXa6641688c7c8c33ec0966033d41254c9";
+                            $sid = "HXf1e97c07a1fb7a16fe04d82b8eefc991";
                         }else{
-                            $sid = "HX64e5545c5c73a29913a99b1a17659063";
+                            $sid = "HXd3d13c1e209af3ece911061db1d211f5";
                         }
 
                         $variables = [
@@ -1008,13 +1008,13 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         if($lng == "heb"){
-                            $sid = "HXd48d809175ac7f3faade0105d1337c4c";
+                            $sid = "HXa21f75242dad793cda764d2b56e65f6a";
                         }elseif($lng == "spa"){
                             $sid = "HX8354d3ed3e7912ca8d832623759f61cf";
                         }elseif($lng == "ru"){
                             $sid = "HX10a8c45cf2302b028323375e0d8cab69";
                         }else{
-                            $sid = "HX4d7ae0796e24eb46a5ae2572e0075c76";
+                            $sid = "HX2dcae427f9cf5ae3377b0a8fa62b49f4";
                         }
 
                         $address = trim($jobData['property_address']['geo_address'] ?? '');
@@ -1226,11 +1226,11 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         if($lng == "heb"){
-                            $sid = "HX13e65cfd94e4e0aa7473471742699555";
+                            $sid = "HX1a3d85d04e28486f060019999b5152a6";
                         }elseif($lng == "ru"){
-                            $sid = "HX2f99b43d02ab5675c12b01ac983b2573";
+                            $sid = "HX238d3c1465b25574acc462421fac5c92";
                         }else{
-                            $sid = "HX85eb9417469bb2ab555225740c720200";
+                            $sid = "HX03827c371075fe94b840c9adfc66b0fa";
                         }
 
                         
@@ -1531,13 +1531,13 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         if($lng == "heb"){
-                            $sid = "HX2d37cc3607abb8be6c89758e0a658f04";
+                            $sid = "HXd08482f0b51c466cf4620a07fd63c863";
                         }elseif($lng == "spa"){
                             $sid = "HX37c26e0fbf3e4c6e7db0cb26d4f0141f";
                         }elseif($lng == "ru"){
-                            $sid = "HX717978587980a29e7ec4443030da6749";
+                            $sid = "HX47b7ff605aaf54bcb2081119e865258c";
                         }else{
-                            $sid = "HX36cd452fdedaf0f571ed3ca141656cef";
+                            $sid = "HXa378ee35b317a4650073663895786900";
                         }
                         
                         
@@ -1561,13 +1561,13 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         if($lng == "heb"){
-                            $sid = "HXad8dfbb6ad7d3863ec4cb0f72b9385d8";
+                            $sid = "HX97f8e43c66e05be83b1542de31e98b73";
                         }elseif($lng == "spa"){
-                            $sid = "HXa436ba9e918f4e4912c8a5baf7080259";
+                            $sid = "HX28f81c7e432890076bc0aa302d5afbb9";
                         }elseif($lng == "ru"){
-                            $sid = "HXf2e3b6d77aa1ede1203d55f6fefc3790";
+                            $sid = "HX91920b97a285a7dc9de4c45d94b522e4";
                         }else{
-                            $sid = "HX4f35506ce44f595ba7b88323eae293b3";
+                            $sid = "HXe7eb20fbbe66441964829cdcab68a468";
                         }
                         
                         
@@ -1888,7 +1888,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXe9dc0be6dc99ff02a5e2adc7bf30a735" : "HX64bbd2bf02700b53a8a688e08eba0375";
+                        $sid = $lng == "heb" ? "HX52833dee24b95ac2a6e6a6c408ec26bc" : "HXdb86c20c01c07f4572677175da75154c";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$receiverNumber",
@@ -2037,7 +2037,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX094040aca987f6ac573e08d3c4ea5e64" :"HXc483bf4d5368b797cb1348e771453460";
+                        $sid = $lng == "heb" ? "HXcd415330409802536916a5a0d7d7c64c" :"HXc483bf4d5368b797cb1348e771453460";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2096,7 +2096,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXd03dbe74963b36f616d28afe42ceb26f" :"HX7135c5e1bc6da6773f99b3e2efe224db";
+                        $sid = $lng == "heb" ? "HXfad16bdb4d3824122222f6ec0d554392" :"HX7bb23b6f6a7a05ada325608f0d61ef97";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2137,7 +2137,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXd5487f7a7ec1c3a316bf8a5bdccce3fd" :"HXbfeccd34bbb9f37bba5690de0e0e9b8f";
+                        $sid = $lng == "heb" ? "HXc426082cce146b5a3fcabbfbbc71b7d6" :"HX0f435a73787206064bbd017964c0aff6";
 
                         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
@@ -2210,7 +2210,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXbf7b57c3d82b5a448e378d75c48bd03e" :"HX92b3db078d6037ba945f0698c08daed5";
+                        $sid = $lng == "heb" ? "HXf7156d7ae827e519d663be86048c46fe" :"HX704c95d691f1fc99e269a35c0d81c05d";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2238,7 +2238,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXbd480e4791ebd24e5c61537dbf1be153" :"HXc34a5efcb2594ccf527d7127fb7479c4";
+                        $sid = $lng == "heb" ? "HXbd480e4791ebd24e5c61537dbf1be153" :"HX579c271765c269bd53b23a918b3aaab3";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2268,7 +2268,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXef823fe7472ae0011da2f429bc6239ae" :"HX8c016b14713907f2a8d24111b2fab63d";
+                        $sid = $lng == "heb" ? "HX9ca3ce938fb8e84c6444208fed4e6cc1" :"HXe4b7a2b9fbe06fbd8cee946c5034e312";
 
                         $variables = [
                             "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2404,7 +2404,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX277201b6c5489e79309dd1882e69c647" :"HX8bbbcd4cf3f8e96f44ca8477c2302398";
+                        $sid = $lng == "heb" ? "HX8a685c980a510a7b278fc265f0288cbe" :"HXdc2ab379e4b93829fba65c4d2ed16fec";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2433,7 +2433,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX8619a2955dba05875e6d0469309e727e" :"HX0d1766ed98ef0d04de8652d78f9f8495";
+                        $sid = $lng == "heb" ? "HX32f076e8f30f12cea3821b4d1c76a6a8" :"HX8f1f514ac4f6223ebe16ef22ebd66ad9";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2462,7 +2462,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX44807e05c04d5e9028a576b006c4dfb2" :"HX5f7121ebc2e96d3b97095c9c18b1b37a";
+                        $sid = $lng == "heb" ? "HXd63618ac0eabed00076b272556f14b2f" :"HX4856598b33204fc97b32520d2d0c54d7";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2490,7 +2490,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX2b0109ddce6eb84778226b9ca7b06a5a" :"HX2f2a4d4e86d66202cf981395a18338d9";
+                        $sid = $lng == "heb" ? "HX978ef13036d03abbd6b5d4d70112a417" :"HX890f9dfd1337d2704e82fc744cb5d3f0";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2520,7 +2520,7 @@ class WhatsappNotification
                         $receiverNumber = $clientData['phone'] ?? null;
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXb8968c5efd4a94ba9bc8c718993c9bcc" :"HXca5ecd51118c6222d0443dbf4d6038c3";
+                        $sid = $lng == "heb" ? "HXb8968c5efd4a94ba9bc8c718993c9bcc" :"HXfa48c8ec496c6d187686515ccd50da26";
 
                         
                         $twi = $this->twilio->messages->create(
@@ -2553,7 +2553,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX3fe032cc7fa68e6e95b5fea5dfd0300d" :"HX0b2f5c1ddc53f455835a96e3ef7abe67";
+                        $sid = $lng == "heb" ? "HX0f881391f84de7e6f7e6ecefb7d39b79" :"HX6c29549b8ef911fa12e24b5e564c5e94";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2585,7 +2585,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXec70a491f299dc4dc28fa0bedd7c173b" :"HXafe82297e085462e4c9f5357eb966a21";
+                        $sid = $lng == "heb" ? "HXa6e44032033c312788542917ae418814" :"HX0a72361a6fab0f2638e1f356185956e9";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2616,7 +2616,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXb82a7cca9e5af48cdc86d0ae2e408359" :"HX70833a91ef1060ca3d9e9c134957e834";
+                        $sid = $lng == "heb" ? "HXaa24f00d053af3783dfa0b909c011024" :"HXc8daa6f607d4272d67b29c541e32fe20";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2662,7 +2662,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXddec37bb3da456c00acf52a069896971" :"HX9a919e0b306dfb615a13ceffeef5e5e5";
+                        $sid = $lng == "heb" ? "HXb6e5cc838db80bceb45fdd82cf40e554" :"HX145bf177046bc6a61737f70371de196d";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2810,7 +2810,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXf0d1d917ed012e3edbdcaec03e45fbaa" : "HX102f841955a48204ccb6de7ac9d57008";
+                        $sid = $lng == "heb" ? "HX473ceaea93af7896f9f1cb87d1ce9cd3" : "HX28deed9e746319b527f11298ac237ef3";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2852,7 +2852,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXa2c5325320ad094ae219a925df42e9f7" :"HX85857ebadb6d65144e4b82a933ebb0fa";
+                        $sid = $lng == "heb" ? "HXb8dff2af0a3ce8865aad47eb42c0af98" :"HX54ac451fd6b06dd87498a7e937533208";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,

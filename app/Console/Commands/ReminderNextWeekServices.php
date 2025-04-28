@@ -72,10 +72,11 @@ class ReminderNextWeekServices extends Command
                     continue;
                 }
 
-                $response = event(new WhatsappNotificationEvent([
+                event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION,
                     "notificationData" => [
                         'client' => $client->toArray(),
+                        'job' => $job->toArray(),
                         'property' => $propertyAddress->toArray(),
                     ]
                 ]));

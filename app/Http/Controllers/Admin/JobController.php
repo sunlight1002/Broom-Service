@@ -75,7 +75,7 @@ class JobController extends Controller
         $show_all_worker = $request->get('show_all_worker');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
-        $worker_ids = ['209','185', '67'];
+        $worker_ids = ['209','185', '67'];  
 
         $query = Job::query()
         ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
@@ -2284,6 +2284,40 @@ class JobController extends Controller
         return response()->json([
             'workers' => $workers,
         ]);
+    }
+
+    public function getJobShiftClient($id, $date)
+    {
+        $job = Job::find($id);
+
+        $jobHoursThreshold = 0;
+        if (isset($job->offer_service['workers'][0]['jobHours'])) {
+            $jobHoursThreshold = $job->offer_service['workers'][0]['jobHours'];
+        }
+
+        $dateJobs = Job::with("client")->whereDate('start_date', $date)
+            ->where('client_id', '!=', $job->client_id)
+            ->where('status', '!=', JobStatusEnum::CANCEL)
+            ->where(function ($q) use ($jobHoursThreshold) {
+                $q->whereRaw("JSON_EXTRACT(offer_service, '$.workers[0].jobHours') >= ?", [$jobHoursThreshold]);
+            })
+            ->whereHas('worker', function ($query) use ($date) {
+                $query->where('status', 1)
+                    ->whereHas('availabilities', function ($query) use ($date) {
+                        $query->where('date', $date);
+                    });
+            })
+            ->get();
+
+        return response()->json([
+            'clients' => $dateJobs   
+        ]);
+    }
+
+
+    public function changeShift(Request $request, $id)
+    {
+        $job = Job::find($id);
     }
     
 

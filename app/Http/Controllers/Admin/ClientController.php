@@ -291,7 +291,7 @@ class ClientController extends Controller
 
         if($request->send_bot_message) {
             try {
-                $sid = $client->lng == "heb" ? "HX405f3ff4aa4ed8fd86a48f5ac0a1fbe9" : "HX3732b37820ac96e08bfbd8bacf752541";
+                $sid = $client->lng == "heb" ? "HX648077d9fa0a17989bad3140b23b8b0b" : "HX866eb5d2d224815a2823eb7260746aee";
 
                 $message = $twilio->messages->create(
                     "whatsapp:+$client->phone",

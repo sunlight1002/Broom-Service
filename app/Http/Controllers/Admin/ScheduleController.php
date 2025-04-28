@@ -313,7 +313,6 @@ class ScheduleController extends Controller
         $events = [];
         $eventArr = [];
         foreach ($schedules as $schedule) {
-            \Log::info($schedule);
             $date = Carbon::parse($schedule['start_date'])->format('Y-m-d');
             $startAt = $date . ' ' . $schedule['start_time'];
             $endAt = $date . ' ' . $schedule['end_time'];
@@ -323,8 +322,8 @@ class ScheduleController extends Controller
             $eventArr["start"]      = Carbon::createFromFormat('Y-m-d H:i A', $startAt)->toDateTimeString();
             $eventArr["end"]        = Carbon::createFromFormat('Y-m-d H:i A', $endAt)->toDateTimeString();
             $eventArr["start_time"] = $schedule['start_time'];
-            $eventArr["backgroundColor"] = $statusColors[$schedule['booking_status'] ?? 'pending'];
-            $eventArr["borderColor"] = $statusColors[$schedule['booking_status'] ?? 'pending'];
+            $eventArr["backgroundColor"] = $statusColors[$schedule['booking_status'] ?? 'rescheduled'] ?? '#ff0000';
+            $eventArr["borderColor"] = $statusColors[$schedule['booking_status'] ?? 'rescheduled'] ?? '#ff0000';
 
             array_push($events, $eventArr);
         }

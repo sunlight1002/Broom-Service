@@ -335,7 +335,10 @@
         "shift": "Shift",
         "job_id": "Job ID",
         "hours": "Hours",
-        "sub_filter": "Sub Filter"
+        "sub_filter": "Sub Filter",
+        "select_date_to_change": "Select Date To Change",
+        "select_client": "Select Client",
+        "change_shift": "Change Shift"
     },
     "modal": {
         "title": "Modal",

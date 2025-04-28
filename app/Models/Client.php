@@ -68,6 +68,8 @@ class Client extends Authenticatable
         'monday_notification',
         'wednesday_notification',
         's_bot_notification',
+        'full_name',
+
     ];
 
     /**
@@ -80,6 +82,12 @@ class Client extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function getFullnameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+    
 
     /**
      * The attributes that should be cast.

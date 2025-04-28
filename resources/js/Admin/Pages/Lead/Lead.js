@@ -107,6 +107,7 @@ export default function Lead() {
                         title: t("admin.global.Status"),
                         data: "lead_status",
                         orderable: false,
+                        width: "15%",
                         render: function (data, type, row) {
                             const _statusColor = leadStatusColor(data);
                             let _html = ``;
@@ -149,7 +150,7 @@ export default function Lead() {
                         data: "action",
                         orderable: false,
                         responsivePriority: 4,
-                        // width: "5%",
+                        width: "12%",
                         render: function (data, type, row) {
                             return `
                                 <div class="action-dropdown dropdown">
