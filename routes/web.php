@@ -43,7 +43,7 @@ Route::any('/webhook_client_review', [LeadWebhookController::class, 'clientRevie
 Route::any('/webhook_active_wednesday', [LeadWebhookController::class, 'activeClientsWednesday'])->name('webhook_active_wednesday');
 
 Route::any('/twilio/webhook', [LeadWebhookController::class, 'fbWebhookCurrentLive']);
-Route::any('/twilio/whapi-group', [LeadWebhookController::class, 'whapiGroup']);
+Route::any('/whapi-group', [LeadWebhookController::class, 'whapiGroup']);
 Route::any('/twilio/status-callback', [LeadWebhookController::class, 'statusCallback']);
 
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
