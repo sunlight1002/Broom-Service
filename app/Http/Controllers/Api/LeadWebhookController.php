@@ -275,6 +275,7 @@ Broom Service Team 🌹",
                 $lng = $this->detectLanguage($message);
                 $responseActiveClientState = WhatsAppBotActiveClientState::where('from', $from)->first();
                 if ($responseActiveClientState) {
+                    $lng = $responseActiveClientState->lng;
                     $menuParts = explode('->', $responseActiveClientState->menu_option);
                     $menus = end($menuParts);
                 } else {
