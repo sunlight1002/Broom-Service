@@ -45,27 +45,33 @@ class sendWishes extends Command
 
         // $clientMsg = "לקוחות יקרים,\nאנו מאחלים לכם חג פסח שמח, מלא באור, בריאות, רוגע והתחדשות\n.בברכה,\nצוות ברום סרוויס 🌷";
         $userMsg = [
-            "en" => "Hello,
-Tomorrow, on Thursday at 10:00 AM, a siren will sound in honor of Holocaust Remembrance Day.
-In Israel, it is customary to stand in silence during the siren as a sign of respect for the victims of the Holocaust.
-Please note – this is a planned siren, not an emergency, and there is no need to enter a shelter.
+            "en" => "Hello everyone,
  
-Thank you for your attention and respect,
-Broom Service Team 🌹",
-            "ru" => "Здравствуйте,
-Завтра, в четверг в 10:00 утра, прозвучит сирена в честь Дня памяти Катастрофы и героизма (Йом а-Шоа).
-В Израиле во время сирены принято стоять в молчании в память о жертвах Холокоста.
-Пожалуйста, обратите внимание — это запланированная сирена, это не тревога, и не нужно заходить в бомбоубежище.
+Today is Israel’s Memorial Day for Fallen Soldiers.
+There will be a two-minute siren today at 8:00 PM and again tomorrow morning at 11:00 AM to honor and remember the fallen.
  
-Спасибо за ваше внимание и уважение,
-Команда Broom Service 🌹",
-            "heb" => 'שלום,
-מחר, ביום חמישי בשעה 10:00 בבוקר, תישמע צפירה לזכר יום השואה.
-בישראל נהוג לעמוד דום במהלך הצפירה לזכר קורבנות השואה.
-שימו לב – מדובר בצפירה מתוכננת מראש, לא מדובר במצב חירום, ואין צורך להיכנס לממ"ד.
+Please note:
+This is not an emergency alert, and there is no need to go to shelters.
+In Israel, it is customary to stand still during the siren as a sign of respect and remembrance.
  
-תודה על תשומת הלב והכבוד,
-צוות Broom Service 🌹'
+Thank you for your attention.",
+            "ru" => "Здравствуйте всем,
+ 
+Сегодня в Израиле отмечают День памяти павших солдат.
+Сегодня в 20:00 и завтра утром в 11:00 будет звучать двухминутная сирена в память о павших.
+ 
+Обратите внимание:
+Это не тревога и нет необходимости спускаться в укрытия.
+В Израиле принято стоять во время сирены в знак уважения и памяти.
+ 
+Спасибо за ваше внимание.",
+//             "heb" => 'שלום,
+// מחר, ביום חמישי בשעה 10:00 בבוקר, תישמע צפירה לזכר יום השואה.
+// בישראל נהוג לעמוד דום במהלך הצפירה לזכר קורבנות השואה.
+// שימו לב – מדובר בצפירה מתוכננת מראש, לא מדובר במצב חירום, ואין צורך להיכנס לממ"ד.
+ 
+// תודה על תשומת הלב והכבוד,
+// צוות Broom Service 🌹'
         ];
 
         // $clients = Client::where('status', 2)

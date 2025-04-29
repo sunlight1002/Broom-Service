@@ -193,6 +193,12 @@ Broom Service Team 🌹",
         $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
+    public function statusCallback(Request $request)
+    {
+        $data = $request->all();
+        \Log::info($data);
+        return response()->json(['status' => 'success'], 200);
+    }
 
     public function fbWebhookCurrentLive(Request $request)
     {
@@ -1251,7 +1257,7 @@ Broom Service Team 🌹",
                                     "contentVariables" => json_encode([
                                         "1" => $result->formatted_address
                                     ]),
-                                    // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                                    // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                                 ]
                             );
                             \Log::info($twi->sid);
@@ -1723,7 +1729,7 @@ Broom Service Team 🌹",
                                 "contentVariables" => json_encode([
                                     "1" => $link
                                 ]),
-                                // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
                     }elseif($num == 3){
@@ -1733,7 +1739,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
                     }
@@ -1778,7 +1784,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 

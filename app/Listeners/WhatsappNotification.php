@@ -15,11 +15,15 @@ use App\Models\WhatsappTemplate;
 use App\Models\ShortUrl;
 use App\Models\WebhookResponse;
 use Twilio\Rest\Client as TwilioClient;
+use Google\Cloud\Translate\V2\TranslateClient;
+use Illuminate\Support\Str;
+
+
 
 class WhatsappNotification
 {
     protected $twilioAccountSid ,$twilioAuthToken, $twilioPhoneNumber, $twilio;
-    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken, $whapiWorkerJobApiToken;
+    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken, $whapiWorkerJobApiToken, $translateClient;
 
     /**
      * Create the event listener.
@@ -37,6 +41,10 @@ class WhatsappNotification
         $this->twilioAccountSid = config('services.twilio.twilio_id');
         $this->twilioAuthToken = config('services.twilio.twilio_token');
         $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        $this->translateClient = new TranslateClient([
+            'key' => config('services.google.translate_key'),
+        ]);
 
         // Initialize the Twilio client
         $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
@@ -139,6 +147,24 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
+    private function getStreetNameFromAddressComponents($addressComponents)
+    {
+        $street = null;
+        $number = null;
+
+        foreach ($addressComponents as $component) {
+            if (in_array('route', $component['types'])) {
+                $street = $component['long_name'];
+            }
+
+            if (in_array('street_number', $component['types'])) {
+                $number = $component['long_name'];
+            }
+        }
+
+        return trim(($number ? $number . ' ' : '') . $street);
+    }
+
     private function replaceJobFields($text, $jobData, $workerData = null, $commentData = null)
     {
         $placeholders = [];
@@ -193,9 +219,45 @@ class WhatsappNotification
 
             $specialInstruction = $instructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
             $commentLinkText = $commentInstructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
+            $lng = ((isset($workerData['lng']) ? $workerData['lng'] : $jobData['worker']['lng']) == 'heb' ? 'he' : 'en');
+
+            $addressParts = [];
+
+            if (!empty($jobData['property_address']['geo_address'])) {
+                $addressParts[] = $jobData['property_address']['geo_address'];
+            }
+            
+            if (!empty($jobData['property_address']['apt_no'])) {
+                $addressParts[] = 'Apt ' . $jobData['property_address']['apt_no'];
+            }
+            
+            if (!empty($jobData['property_address']['floor'])) {
+                $addressParts[] = 'Floor ' . $jobData['property_address']['floor'];
+            }
+            
+            if (!empty($jobData['property_address']['city'])) {
+                $addressParts[] = $jobData['property_address']['city'];
+            }
+            
+            if (!empty($jobData['property_address']['zipcode'])) {
+                $addressParts[] = $jobData['property_address']['zipcode'];
+            }
+            
+            $fullAddress = implode(', ', $addressParts);
+
+            $decodedAddress = html_entity_decode($fullAddress, ENT_QUOTES, 'UTF-8');
+
+            // Remove duplicate words (optional)
+            $decodedAddress = collect(explode(', ', $decodedAddress))
+                ->unique()
+                ->implode(', ');
+
+            $translation = $this->translateClient->translate($decodedAddress, [
+                'target' => $lng,
+            ]);
 
             $placeholders = [
-                ':job_full_address' => $jobData['property_address']['geo_address'] ?? '',
+                ':job_full_address' => $translation['text'],
                 ':google_address' => $googleAddress ?? '',
                 ':job_start_date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
                 ':job_start_date' => Carbon::parse($jobData['start_date'] ?? "00-00-0000")->format('M d Y'),
@@ -220,7 +282,9 @@ class WhatsappNotification
                 ':review' => $jobData['review'] ?? "",
                 ':job_accept_url' => $workerApproveJob ?? '',
                 ':job_contact_manager_link' => $contactManager ?? '',
-                ':job_hours' => $jobData['jobservice']['job_hour'] ?? '',
+                ':job_hours' => isset($jobData['jobservice']['duration_minutes']) 
+                    ? ($jobData['jobservice']['duration_minutes'] / 60) 
+                    : '',
             ];
 
         }
@@ -509,7 +573,7 @@ class WhatsappNotification
                         //         "from" => $this->twilioWhatsappNumber, 
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                         //     ]
                         // );
 
@@ -555,7 +619,7 @@ class WhatsappNotification
                         //         "from" => $this->twilioWhatsappNumber, 
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                         //     ]
                         // );
 
@@ -600,7 +664,7 @@ class WhatsappNotification
                         //         "from" => $this->twilioWhatsappNumber, 
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                         //     ]
                         // );
 
@@ -638,7 +702,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -720,7 +784,7 @@ class WhatsappNotification
                                     "from" => $this->twilioWhatsappNumber, 
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                    "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                                 ]
                             );
 
@@ -761,7 +825,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -804,7 +868,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -837,7 +901,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                                 ]),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -881,7 +945,7 @@ class WhatsappNotification
                         //         "from" => $this->twilioWhatsappNumber, 
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                         //     ]
                         // );
 
@@ -917,7 +981,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -954,7 +1018,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -992,7 +1056,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1038,7 +1102,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1080,7 +1144,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1111,7 +1175,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1143,7 +1207,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1178,7 +1242,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1300,7 +1364,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1350,7 +1414,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1426,7 +1490,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1475,7 +1539,7 @@ class WhatsappNotification
                                     "from" => $this->twilioWhatsappNumber, 
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                    "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                                 ]
                             );
 
@@ -1516,7 +1580,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
 
@@ -1546,7 +1610,7 @@ class WhatsappNotification
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
                         $data = $twi->toArray();
@@ -1576,7 +1640,7 @@ class WhatsappNotification
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
                         $data = $twi->toArray();
@@ -1618,7 +1682,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
                         );
                         $data = $twi->toArray();
@@ -1951,7 +2015,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2161,7 +2225,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2190,7 +2254,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                                 ]),
-                                "statusCallback" => "https://2e18-2405-201-2022-10c3-f8e0-b2f4-f0a9-cd01.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => "https://2e18-2405-201-2022-10c3-f8e0-b2f4-f0a9-cd01.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2247,7 +2311,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                                 ]),
-                                "statusCallback" => "https://0c4c-2405-201-2022-10c3-f734-3028-2a3e-4203.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => "https://0c4c-2405-201-2022-10c3-f734-3028-2a3e-4203.ngrok-free.app/twilio/status-callback"
 
                             ]
                         );
@@ -2284,7 +2348,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2330,7 +2394,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2357,7 +2421,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2384,7 +2448,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2413,7 +2477,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2442,7 +2506,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2471,7 +2535,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
                         $isTwilio = true;
@@ -2501,7 +2565,7 @@ class WhatsappNotification
                                     "2" => $eventData['activity']['reschedule_date'] ?? '',
                                     "3" => $eventData['activity']['reschedule_time'] ?? '',
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2530,7 +2594,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2564,7 +2628,7 @@ class WhatsappNotification
                                     "2" => $eventData['card']['card_number'] ?? '',
                                     "3" => "client/settings"
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2595,7 +2659,7 @@ class WhatsappNotification
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                     "2" => "client/jobs"
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2628,7 +2692,7 @@ class WhatsappNotification
                                     "3" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
                                     "4" => "client/jobs/view/" . base64_encode($jobData['id'])
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2673,7 +2737,7 @@ class WhatsappNotification
                                     "2" => $offerData['service_names'] ?? '',
                                     "3" => "price-offer/" . base64_encode($offerData['id'])
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/webhook"
+                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2912,7 +2976,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
 
                             ]
                         );
@@ -3532,7 +3596,7 @@ class WhatsappNotification
                         //         "from" => "$this->twilioWhatsappNumber",
                         //         "contentSid" => "HX6966c131706592080d5e1c00acd394c0",
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/webhook"
+                        //         // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/status-callback"
                         //     ]
                         // );
 

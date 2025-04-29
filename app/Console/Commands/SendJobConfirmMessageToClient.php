@@ -301,7 +301,7 @@ www.broomservice.co.il
                             '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
                             '2' => preg_replace("/[\n\r\t]+/", " ", $msg)
                         ]),
-                        "statusCallback" => "https://65e5-2405-201-2022-10c3-d0f4-b071-727e-165e.ngrok-free.app/twilio/webhook",
+                        "statusCallback" => config("services.twilio.webhook") . "/twilio/status-callback",
                     ]
                 );
                 
