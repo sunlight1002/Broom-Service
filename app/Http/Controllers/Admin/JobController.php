@@ -2302,9 +2302,14 @@ class JobController extends Controller
                 $q->whereRaw("JSON_EXTRACT(offer_service, '$.workers[0].jobHours') >= ?", [$jobHoursThreshold]);
             })
             ->whereHas('worker', function ($query) use ($date) {
-                $query->where('status', 1)
-                    ->whereHas('availabilities', function ($query) use ($date) {
-                        $query->where('date', $date);
+                $query
+                // ->where('status', 1)
+                //     ->whereHas('availabilities', function ($query) use ($date) {
+                //         $query->where('date', $date);
+                //     });
+                    ->whereHas('availabilities', function ($query) use ($date, $jobHoursThreshold) {
+                        $query->where('date', $date)
+                              ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) >= ?', [$jobHoursThreshold]);
                     });
             })
             ->get();

@@ -477,45 +477,45 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
-                            $sid = "HX284d159218aad8b3b04de5ff06238f18";
-                        }elseif($lng == "spa"){
-                            $sid = "HX38c7043fb5eea7a16534866075c64c90";
-                        }elseif($lng == "ru"){
-                            $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
-                        }else{
-                            $sid = "HX517f18e3ae6de354515fcdc52becfb28";
-                        }
+                        // if($lng == "heb"){
+                        //     $sid = "HX284d159218aad8b3b04de5ff06238f18";
+                        // }elseif($lng == "spa"){
+                        //     $sid = "HX38c7043fb5eea7a16534866075c64c90";
+                        // }elseif($lng == "ru"){
+                        //     $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
+                        // }else{
+                        //     $sid = "HX517f18e3ae6de354515fcdc52becfb28";
+                        // }
 
-                        $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        $address = str_replace(['"', "'"], ' ', $address);
+                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
+                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
+                        // $address = str_replace(['"', "'"], ' ', $address);
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                            "3" => $address,
-                            "4" => "https://maps.google.com?q=" . ($jobData['property_address']['geo_address'] ?? ''),
-                            "5" => $jobData['jobservice']['job_hour'] ?? '',
-                            "6" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
-                            "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
-                            "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                        //     "3" => $address,
+                        //     "4" => "https://maps.google.com?q=" . ($jobData['property_address']['geo_address'] ?? ''),
+                        //     "5" => $jobData['jobservice']['job_hour'] ?? '',
+                        //     "6" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
+                        //     "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
+                        //     "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
+                        // ];
                         
 
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
-                            ]
-                        );
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+". $receiverNumber,
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //     ]
+                        // );
 
-                        \Log::info($twi->sid);
-                        $data = $twi->toArray();
-                        $isTwilio = true;
+                        // \Log::info($twi->sid);
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
 
                         break;
                                
@@ -523,45 +523,45 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
-                            $sid = "HX2dcd349e3a809d7a1b556eefdfd453a1";
-                        }elseif($lng == "spa"){
-                            $sid = "HX51a3e067adb77ea32fb998c384334a8f";
-                        }elseif($lng == "ru"){
-                            $sid = "HX83c19b8510fbafd6a5b030a92f881f3e";
-                        }else{
-                            $sid = "HXcf6dfdff92e307c16933672410aa8a7a";
-                        }
+                        // if($lng == "heb"){
+                        //     $sid = "HX2dcd349e3a809d7a1b556eefdfd453a1";
+                        // }elseif($lng == "spa"){
+                        //     $sid = "HX51a3e067adb77ea32fb998c384334a8f";
+                        // }elseif($lng == "ru"){
+                        //     $sid = "HX83c19b8510fbafd6a5b030a92f881f3e";
+                        // }else{
+                        //     $sid = "HXcf6dfdff92e307c16933672410aa8a7a";
+                        // }
 
-                        $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        $address = str_replace(['"', "'"], ' ', $address);
+                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
+                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
+                        // $address = str_replace(['"', "'"], ' ', $address);
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                            "3" => $address,
-                            "4" => "https://maps.google.com?q=" . ($jobData['property_address']['geo_address'] ?? ''),
-                            "5" => $jobData['jobservice']['job_hour'] ?? '',
-                            "6" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
-                            "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
-                            "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                        //     "3" => $address,
+                        //     "4" => "https://maps.google.com?q=" . ($jobData['property_address']['geo_address'] ?? ''),
+                        //     "5" => $jobData['jobservice']['job_hour'] ?? '',
+                        //     "6" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
+                        //     "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
+                        //     "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
+                        // ];
                         
 
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
-                            ]
-                        );
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+". $receiverNumber,
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //     ]
+                        // );
 
-                        \Log::info($twi->sid);
-                        $data = $twi->toArray();
-                        $isTwilio = true;
+                        // \Log::info($twi->sid);
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
 
 
                         break;
@@ -570,43 +570,43 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
-                            $sid = "HX59e8a79f8d128b7b01b33d0acc76ec27";
-                        }elseif($lng == "spa"){
-                            $sid = "HX6c77c17eaa74ae63b7be720dc92a1437";
-                        }elseif($lng == "ru"){
-                            $sid = "HX036c7b1ac952fc6cae74c0bffa00f959";
-                        }else{
-                            $sid = "HX936e87d929ebfeb60353023160e9a4be";
-                        }
+                        // if($lng == "heb"){
+                        //     $sid = "HX59e8a79f8d128b7b01b33d0acc76ec27";
+                        // }elseif($lng == "spa"){
+                        //     $sid = "HX6c77c17eaa74ae63b7be720dc92a1437";
+                        // }elseif($lng == "ru"){
+                        //     $sid = "HX036c7b1ac952fc6cae74c0bffa00f959";
+                        // }else{
+                        //     $sid = "HX936e87d929ebfeb60353023160e9a4be";
+                        // }
 
-                        $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        $address = str_replace(['"', "'"], ' ', $address);
+                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
+                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
+                        // $address = str_replace(['"', "'"], ' ', $address);
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
-                            "3" => $address,
-                            "4" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                            "5" => "worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
-                            "6" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
+                        //     "3" => $address,
+                        //     "4" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                        //     "5" => "worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
+                        //     "6" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
+                        // ];
                         
 
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
-                            ]
-                        );
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+". $receiverNumber,
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //     ]
+                        // );
 
-                        \Log::info($twi->sid);
-                        $data = $twi->toArray();
-                        $isTwilio = true;
+                        // \Log::info($twi->sid);
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
 
 
                         break;
@@ -650,7 +650,6 @@ class WhatsappNotification
                         break;
                                                 
                     case WhatsappMessageTemplateEnum::WORKER_START_THE_JOB:
-                        \Log::info("WORKER_START_THE_JOB");
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
@@ -853,42 +852,42 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
-                            $sid = "HX55b9c36581faa344d780902936739c95";
-                        }elseif($lng == "spa"){
-                            $sid = "HXa7cd78cdc0f3d14afb6910c87292f425";
-                        }elseif($lng == "ru"){
-                            $sid = "HX34dfc36515ab7dacaed9a32d1a858eb1";
-                        }else{
-                            $sid = "HXf05482816e080a968b31ea6a287a4252";
-                        }
+                        // if($lng == "heb"){
+                        //     $sid = "HX55b9c36581faa344d780902936739c95";
+                        // }elseif($lng == "spa"){
+                        //     $sid = "HXa7cd78cdc0f3d14afb6910c87292f425";
+                        // }elseif($lng == "ru"){
+                        //     $sid = "HX34dfc36515ab7dacaed9a32d1a858eb1";
+                        // }else{
+                        //     $sid = "HXf05482816e080a968b31ea6a287a4252";
+                        // }
 
-                        $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        $address = str_replace(['"', "'"], ' ', $address);
+                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
+                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
+                        // $address = str_replace(['"', "'"], ' ', $address);
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => $address,
-                            "3" => Carbon::today()->setTimeFromTimeString($jobData['end_time'] ?? '00:00:00')->format('H:i'),
-                            "4" => "worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
-                            "5" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => $address,
+                        //     "3" => Carbon::today()->setTimeFromTimeString($jobData['end_time'] ?? '00:00:00')->format('H:i'),
+                        //     "4" => "worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
+                        //     "5" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
+                        // ];
                         
 
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
-                            ]
-                        );
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+". $receiverNumber,
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //         "statusCallback" => "https://eb4d-2405-201-2022-10c3-80f3-1c63-af73-7d69.ngrok-free.app/twilio/webhook"
+                        //     ]
+                        // );
 
-                        \Log::info($twi->sid);
-                        $data = $twi->toArray();
-                        $isTwilio = true;
+                        // \Log::info($twi->sid);
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
 
 
                         break;
