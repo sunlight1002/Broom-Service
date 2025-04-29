@@ -702,7 +702,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -784,7 +784,7 @@ class WhatsappNotification
                                     "from" => $this->twilioWhatsappNumber, 
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+    
                                 ]
                             );
 
@@ -825,7 +825,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -868,7 +868,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -901,7 +901,7 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                                 ]),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -981,7 +981,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1018,7 +1018,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1056,7 +1056,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1102,7 +1102,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1144,7 +1144,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1175,7 +1175,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1207,7 +1207,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1242,7 +1242,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1364,7 +1364,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1414,7 +1414,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1490,7 +1490,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1539,7 +1539,7 @@ class WhatsappNotification
                                     "from" => $this->twilioWhatsappNumber, 
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+    
                                 ]
                             );
 
@@ -1580,7 +1580,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
 
@@ -1610,7 +1610,7 @@ class WhatsappNotification
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
                         $data = $twi->toArray();
@@ -1640,7 +1640,7 @@ class WhatsappNotification
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
                         $data = $twi->toArray();
@@ -1682,7 +1682,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+
                             ]
                         );
                         $data = $twi->toArray();
@@ -1694,35 +1694,6 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::TEAM_JOB_NOT_CONFIRM_BEFORE_30_MINS:
                     case WhatsappMessageTemplateEnum::TEAM_JOB_NOT_CONFIRM_AFTER_30_MINS:
                     case WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER:
-                        // $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                        // $lng = 'heb';
-                        
-                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        // $address = str_replace(['"', "'"], ' ', $address);
-
-                        // $variables = [
-                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                        //     "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //     "3" => $address,
-                        //     "4" => $clientData['phone'] ?? '',
-                        //     "5" => $workerData['phone'] ?? "",
-                        //     "6" => "team-btn/" . base64_encode($jobData['id']),
-                        //     "7" => "admin/jobs/view/" . $jobData['id']
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX2f62453a08104be3bbffa783c7c96b4a",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
                         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
@@ -1738,36 +1709,6 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS:
-                        // $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                        // $lng = 'heb';
-                        
-                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        // $address = str_replace(['"', "'"], ' ', $address);
-
-                        // $variables = [
-                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                        //     "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //     "3" => $address,
-                        //     "4" => $clientData['phone'] ?? '',
-                        //     "5" => $workerData['phone'] ?? "",
-                        //     "6" => "action-comment/" . ($commentData['id'] ?? ''),
-                        //     "7" => "admin/jobs/view/" . $jobData['id']
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX5dbcfff00a790a14f06eb7d8b62f75da",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::WORKER_LEAVES_JOB:
                     case WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB:
                     case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
@@ -1782,122 +1723,18 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::ADMIN_COMMENTED:
                         $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                         App::setLocale('heb');
+                        break;
 
                     case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT:
-                        // $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        // App::setLocale('heb');
-
-                        // $variables = [
-                        //     "1" => $eventData['order_id'] ?? '',
-                        //     "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //     "3" => $eventData['discount'] ?? '',
-                        //     "4" => $eventData['total_amount'] ?? '',
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXe178190e2f9ea539bf3587da7b8be4ed",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-                        
                     case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA:
-                        // $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        // App::setLocale('heb');
-
-                        // $variables = [
-                        //     "1" => $eventData['order_id'] ?? '',
-                        //     "2" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //     "3" => $eventData['discount'] ?? '',
-                        //     "4" => $eventData['total_amount'] ?? '',
-                        //     "5" => $eventData['extra'] ?? '',
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXbb85ad956b47940a238748ed22e05896",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-                        
                     case WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT:
                     case WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY:
                     case WhatsappMessageTemplateEnum::PAYMENT_PAID:
                     case WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID:
-                        // $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        // App::setLocale('heb');
-
-                        // $variables = [
-                        //     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX07e08a98812eee36069a041264db8acd",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        break;
-
                     case WhatsappMessageTemplateEnum::ORDER_CANCELLED:
-                        // $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        // App::setLocale('heb');
-
-                        // $variables = [
-                        //     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //     "2" => $eventData['order_id'] ?? '',
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX1d3d5b18776f2ec9ced0fb94c4371a57",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED:
                         $receiverNumber = config('services.whatsapp_groups.payment_status');
                         App::setLocale('heb');
-
-                        // $variables = [
-                        //     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //     "2" => $eventData['card']['card_number'] ?? '',
-                        //     "3" => "admin/clients/view/" .$clientData['id'] ."?=card"
-                        // ];
-                        // 
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXd74549d2abd1ee55ebe5220f8cb8b4d4",
-                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
 
                         break;
 
@@ -2000,14 +1837,11 @@ class WhatsappNotification
                             "2" => isset($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
                             "3" => isset($eventData['start_time']) ? date("H:i", strtotime($eventData['start_time'])) : '',
                             "4" => isset($eventData['end_time']) ? date("H:i", strtotime($eventData['end_time'])) : '',
-                            "5" => $address,
+                            "5" => trim($address),                 
                             "6" => $purpose ? $purpose : '',
                             "7" => isset($eventData['id']) ? "meeting-schedule/" . base64_encode($eventData['id']) : '',
                             "8" => isset($eventData['id']) ? "meeting-files/" . base64_encode($eventData['id']) : ''
                         ];
-                        Log::info($receiverNumber);
-
-                        
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2015,7 +1849,6 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2225,7 +2058,6 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2254,7 +2086,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                                 ]),
-                                "statusCallback" => "https://2e18-2405-201-2022-10c3-f8e0-b2f4-f0a9-cd01.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2311,7 +2142,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                                 ]),
-                                "statusCallback" => "https://0c4c-2405-201-2022-10c3-f734-3028-2a3e-4203.ngrok-free.app/twilio/status-callback"
 
                             ]
                         );
@@ -2348,7 +2178,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
+                                
                             ]
                         );
 
@@ -2394,7 +2224,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
+                                
                             ]
                         );
 
@@ -2421,7 +2251,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2448,7 +2277,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2477,7 +2305,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2506,7 +2333,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2535,7 +2361,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
                         $isTwilio = true;
@@ -2565,7 +2390,6 @@ class WhatsappNotification
                                     "2" => $eventData['activity']['reschedule_date'] ?? '',
                                     "3" => $eventData['activity']['reschedule_time'] ?? '',
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2594,7 +2418,6 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2628,7 +2451,6 @@ class WhatsappNotification
                                     "2" => $eventData['card']['card_number'] ?? '',
                                     "3" => "client/settings"
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2659,7 +2481,6 @@ class WhatsappNotification
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
                                     "2" => "client/jobs"
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2692,7 +2513,6 @@ class WhatsappNotification
                                     "3" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
                                     "4" => "client/jobs/view/" . base64_encode($jobData['id'])
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2737,7 +2557,6 @@ class WhatsappNotification
                                     "2" => $offerData['service_names'] ?? '',
                                     "3" => "price-offer/" . base64_encode($offerData['id'])
                                 ]),
-                                // "statusCallback" => "https://5231-2405-201-2022-10c3-c0f5-9685-c6e2-519b.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 
@@ -2976,8 +2795,6 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
-
                             ]
                         );
 
@@ -3183,451 +3000,33 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED:
                     case WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED:
                     case WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $teamtwi = $this->twilio->messages->create(
-                        //     "whatsapp:+". $receiverNumber,
-                        //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
-                        //         "contentSid" => "HX5460411c8361a287d406816d6e6f40a7",
-                        //         "contentVariables" => json_encode([
-                        //             "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //             "2" => $clientData['phone'] ?? '',
-                        //             "3" => "admin/view-contract/" . $contractData['id']
-                        //         ])
-                        //     ]
-                        // );
-
-                        // \Log::info($teamtwi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER:
                     case WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        //     $teamtwi = $this->twilio->messages->create(
-                        //         "whatsapp:+". $receiverNumber,
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXb163e54b192baae940fa5d92f2297ac3",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => "admin/leads/view/" . $clientData['id']
-                        //             ])
-                        //         ]
-                        //     );
-
-                        //     \Log::info($teamtwi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER:
                     case WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+". $receiverNumber,
-                        //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
-                        //         "contentSid" => "HXde08101daa59eb083d4b0e7fcf8912a0",
-                        //         "contentVariables" => json_encode([
-                        //             "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //             "2" =>  $clientData['reason'] ?? __('mail.wa-message.lead_declined_contract.no_reason_provided'),
-                        //             "3" => "admin/leads/view/" . $clientData['id']
-                        //         ])
-                        //     ]
-                        // );
-
-                        // \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED:
                     case WhatsappMessageTemplateEnum::PENDING:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXd6dcedcb86da5afd516c6f14ebdbc228",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::POTENTIAL:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX3eea58013c8e52c1372c54e642540c35",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::IRRELEVANT:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX54f9a67f82dd64597655c66c1453856a",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::UNINTERESTED:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX64e04d98cc547be1ea0f8837dbaf27bb",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::UNANSWERED:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX96c7875ae926091d20bd2d6ab5b9e351",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::POTENTIAL_CLIENT:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXfe583369f0a6664b227d17b76a10aa47",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::PENDING_CLIENT:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX34c387255c30e724ee7ae9a12adc56ac",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::WAITING:
                     case WhatsappMessageTemplateEnum::ACTIVE_CLIENT:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXc256e028829006e698c92011be484393",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::FREEZE_CLIENT:
                     case WhatsappMessageTemplateEnum::UNHAPPY:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX62022d943828cef76bbf9a42073eeec5",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::PRICE_ISSUE:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HXca1e3d0daf8a228322ea8013361a4237",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::MOVED:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX8fb343da35e9de3dce65940da134baa9",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::ONETIME:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX2dd4e659142a446430aa3a91400bf098",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => $clientData['phone'] ?? '',
-                        //                 "3" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //         [
-                        //             "from" => $this->twilioWhatsappNumber, 
-                        //             "contentSid" => "HX1787c34118768c54858246d8c21ff8de",
-                        //             "contentVariables" => json_encode([
-                        //                 "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //                 "2" => "admin/leads/view/" . $clientData['id']
-                        //                 ])
-                        //         ]);
-
-                        //     \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $sid = "HX5c7480b0b4599caeef1b48fb43e5c29a";
-
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
-                        //         "contentSid" => $sid,
-                        //         "contentVariables" => json_encode([
-                        //             "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //             "2" => "admin/leads/view/" . $clientData['id']
-                        //         ])
-                        //     ]
-                        // );
-
-                        // \Log::info($twi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-
-                        // if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
-                        //     \Log::info("airbnb");
-                        //     $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
-                        // } elseif (isset($propertyData['contact_person_phone'])) {
-                        //     \Log::info("property");
-                        //     $property_person_name = $propertyData['contact_person_name'] ?? null;
-                        // } else {
-                        //     \Log::info("client");
-                        //     $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
-                        // }
-
-                        // $teamTwi = $this->twilio->messages->create(
-                        //     "whatsapp:+". $receiverNumber,
-                        //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
-                        //         "contentSid" => "HX3a84d21ba2a34591fc32686897537535",
-                        //         "contentVariables" => json_encode([
-                        //             "1" => $property_person_name,
-                        //             "2" => "admin/create-job/" . $contractData['id'],
-                        //         ])
-                        //     ]
-                        // );
-
-                        // \Log::info($teamTwi->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $addresses = [];
-
-                        // // Add all property addresses if they exist
-                        // if (!empty($clientData['property_addresses']) && is_array($clientData['property_addresses'])) {
-                        //     foreach ($clientData['property_addresses'] as $propertyAddress) {
-                        //         if (!empty($propertyAddress['geo_address'])) {
-                        //             $addresses[] = $propertyAddress['geo_address'];
-                        //         }
-                        //     }
-                        // }
-
-                        // $fullAddress = implode(', ', $addresses);
-
-
-                        // $variables = [
-                        //     "1" => trim(($clientData['firstname'] ?? '') . ' ' . ($clientData['lastname'] ?? '')),
-                        //     "2" => $clientData['phone'] ?? "N/A",
-                        //     "3" => $clientData['email'] ?? "N/A",
-                        //     "4" => $fullAddress ?? "N/A",
-                        //     "5" => $eventData['type'] ?? "N/A",
-                        //     "6" => "admin/leads/view/" . ($clientData['id'] ?? "N/A"),
-                        // ];
-                        
-                        // $teamMsg = $this->twilio->messages->create(
-                        //     "whatsapp:",
-                        //     [
-                        //         "from" => "$this->twilioWhatsappNumber",
-                        //         "contentSid" => "HX6966c131706592080d5e1c00acd394c0",
-                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        //         // "statusCallback" => "https://612a-2405-201-2022-10c3-1484-7d36-5a49-eef1.ngrok-free.app/twilio/status-callback"
-                        //     ]
-                        // );
-
-                        //     \Log::info($teamMsg->sid);
-
-                        // break;
-
                     case WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::STOP:
-                        // $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        // $lng = 'heb';
-
-                        // $teamSid = "HX551ad01347f1b11225044a4503bd0803";
-                        // $twi = $this->twilio->messages->create(
-                        //     "whatsapp:+$receiverNumber",
-                        //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
-                        //         "contentSid" => $teamSid,
-                        //         "contentVariables" => json_encode([
-                        //             "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                        //             "2" => $clientData['phone'],
-                        //             "3" => $clientData['email'],
-                        //             "2" => "admin/clients/view/" . $clientData['id']
-                        //         ])
-                        //     ]
-                        // );
-
-                        // \Log::info($twi->sid);
-                        // break;
-
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE:

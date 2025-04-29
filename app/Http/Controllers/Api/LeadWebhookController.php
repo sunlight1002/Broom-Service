@@ -200,6 +200,138 @@ Broom Service Team 🌹",
         return response()->json(['status' => 'success'], 200);
     }
 
+
+    public function whapiGroup(Request $request)
+    {
+        $get_data = $request->getContent();
+        $responseClientState = [];
+        $data_returned = json_decode($get_data, true);
+        $message = null;
+
+        $messageId = $data_returned['messages'][0]['id'] ?? null;
+
+        if (!$messageId) {
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+            \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+
+        // Store the messageId in the cache for 1 hour
+        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+
+
+        if (
+            isset($data_returned['messages']) &&
+            isset($data_returned['messages'][0]['from_me']) &&
+            $data_returned['messages'][0]['from_me'] == false
+        ) {
+            $message_data = $data_returned['messages'];
+            $from = $message_data[0]['from'];
+            Log::info($from);
+            $lng = 'heb';
+
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+
+                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
+
+                    $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
+
+                    // Split the message body into lines
+                    $lines = explode("\n", trim($messageBody));
+
+                    $new = trim($lines[0] ?? '');
+                    $fullName = trim($lines[1] ?? '');
+                    $phone = trim($lines[2] ?? '');
+                    $email = trim($lines[3] ?? '');
+
+                    if (stripos($new, 'חדש') !== false) {
+                        $lng = 'heb';
+                    } elseif (stripos($new, 'New') !== false) {
+                        $lng = 'en';
+                    } else {
+                        $lng = 'heb';
+                    }
+
+                    if (empty($phone)) {
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    // Validate name and split into first and last name
+                    if ($fullName) {
+                        $nameParts = explode(' ', $fullName);
+                        $firstName = $nameParts[0] ?? '';
+                        $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
+                    }
+
+                    // Validate and format the phone number
+                    if ($phone) {
+                        // Remove all special characters from the phone number
+                        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+                        // Adjust phone number formatting
+                        if (strpos($phone, '0') === 0) {
+                            $phone = '972' . substr($phone, 1);
+                        }
+                        if (strpos($phone, '+') === 0) {
+                            $phone = substr($phone, 1);
+                        }
+
+                        // Ensure phone starts with '972'
+                        if (strlen($phone) === 9 || strlen($phone) === 10) {
+                            $phone = '972' . $phone;
+                        }
+
+                        // Check if the client already exists
+                        $client = Client::where('phone', $phone)->first();
+
+                        if (!$client) {
+                            $client = new Client;
+                            $client->phone = $phone;
+                            $client->firstname = $firstName ?? '';
+                            $client->lastname = $lastName ?? '';
+                            $client->email = null;
+                            $client->status = 0;
+                            $client->password = Hash::make(Str::random(20));
+                            $client->passcode = $phone;
+                            $client->geo_address = '';
+                            $client->lng = ($lng);
+                            $client->save();
+
+                            $m = $lng == 'heb'
+                                ? "ליד חדש נוצר בהצלחה\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
+                                : "New lead created successfully\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
+                        } else {
+
+                            if ($client->status != 2) {
+                                $client->status = 0;
+                                $client->lead_status->update([
+                                    'lead_status' => LeadStatusEnum::PENDING,
+                                ]);
+                                $client->created_at = Carbon::now();
+                                $client->save();
+                            }
+
+                            $m = $lng == 'heb'
+                                ? "עופרת כבר קיימת\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
+                                : "Lead already exists\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
+                        }
+
+                        // Send WhatsApp message
+                        $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
+                    }
+                }
+
+                return response()->json(['status' => 'Already processed'], 200);
+            }
+        }
+
+        return response()->json(['status' => 'Invalid message data'], 200);
+    }
+
     public function fbWebhookCurrentLive(Request $request)
     {
         $data = $request->all();
@@ -219,7 +351,6 @@ Broom Service Team 🌹",
 
         // Store the messageId in the cache for 1 hour
         Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
-
 
         if ($data['SmsStatus'] == 'received') {
             $message = $data['Body'] ?? null;
@@ -358,7 +489,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
 
@@ -391,7 +522,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -471,7 +602,7 @@ Broom Service Team 🌹",
                                 "contentVariables" => json_encode([
                                     '1' => ($verifyClient->firstname ?? ''. ' ' . $verifyClient->lastname ?? '')
                                 ]),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -501,7 +632,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -537,7 +668,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -574,7 +705,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid, 
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($message->sid);
@@ -662,7 +793,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -731,7 +862,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -783,7 +914,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -829,7 +960,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "body" => $msg ,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -854,7 +985,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi->sid);
@@ -895,7 +1026,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi->sid);
@@ -1025,7 +1156,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "body" => $msg ,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -1064,7 +1195,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid, 
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1082,7 +1213,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1142,7 +1273,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "body" => $msg,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi->sid);
@@ -1185,7 +1316,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "body" => $msg,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi->sid);
@@ -1275,7 +1406,7 @@ Broom Service Team 🌹",
                                     "contentVariables" => json_encode([
                                         "1" => $result->formatted_address
                                     ]),
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
                             \Log::info($twi->sid);
@@ -1349,7 +1480,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1391,7 +1522,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1452,7 +1583,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "body" => $msg,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi->sid);
@@ -1512,7 +1643,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "body" => $msg,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi->sid);
@@ -1568,7 +1699,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1610,7 +1741,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1740,7 +1871,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                             );
                         \Log::info($twi->sid);
@@ -1754,7 +1885,7 @@ Broom Service Team 🌹",
                                 "contentVariables" => json_encode([
                                     "1" => $link
                                 ]),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                     }elseif($num == 3){
@@ -1764,7 +1895,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                     }
@@ -1809,7 +1940,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
 
@@ -1833,7 +1964,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                     }
@@ -1872,7 +2003,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -1903,7 +2034,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid, 
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -1935,7 +2066,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                     }elseif($title == "Service Areas"){
@@ -1945,7 +2076,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid, 
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
 
@@ -1956,7 +2087,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid, 
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info('Switch to a Human Representative - During Business Hours');
@@ -1967,7 +2098,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid, 
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                     }
@@ -2093,7 +2224,7 @@ Broom Service Team 🌹",
                 [
                     "from" => $this->twilioWhatsappNumber, 
                     "contentSid" => $sid,
-                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback" 
+                     
                 ]
             );
 
@@ -2420,7 +2551,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -2458,7 +2589,7 @@ Broom Service Team 🌹",
                             "contentVariables" => json_encode([
                                 '1' => $clientName
                             ]),
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -2486,7 +2617,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
 
@@ -2520,7 +2651,7 @@ Broom Service Team 🌹",
                     ], [
                         $clientName, '*' . trim($input) . '*', $client->phone, $scheduleLink, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
-                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
                     $clientMessageStatus->delete();
                     break;
@@ -2713,7 +2844,7 @@ Broom Service Team 🌹",
                                 "contentVariables" => json_encode([
                                     '1' => $dateTime
                                 ]),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -2749,7 +2880,7 @@ Broom Service Team 🌹",
                                 "contentVariables" => json_encode([
                                     '1' => $dateTime
                                 ]),
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -2778,7 +2909,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         \Log::info($twi);
@@ -2807,7 +2938,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -2833,7 +2964,7 @@ Broom Service Team 🌹",
                         $clientName, $client->phone, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
-                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
 
                     break;
@@ -2846,7 +2977,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -2879,7 +3010,7 @@ Broom Service Team 🌹",
                             "contentVariables" => json_encode([
                                 '1' => $clientName
                             ]),
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -2912,7 +3043,7 @@ Broom Service Team 🌹",
                         $clientName, $client->phone, '*' . trim($input) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
-                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -2935,7 +3066,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -2966,7 +3097,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -2997,7 +3128,7 @@ Broom Service Team 🌹",
                         [$clientName, $client->phone, trim($input), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
-                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
@@ -3022,7 +3153,7 @@ Broom Service Team 🌹",
                             "contentVariables" => json_encode([
                                 '1' => "client/login"
                             ]),
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -3216,7 +3347,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -3252,7 +3383,7 @@ Broom Service Team 🌹",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -3290,7 +3421,7 @@ Broom Service Team 🌹",
                             "contentVariables" => json_encode([
                                 '1' => $clientName
                             ]),
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -3342,7 +3473,7 @@ Broom Service Team 🌹",
                                 '1' => $clientName,
                                 '2' =>  trim($input)
                             ]),
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -3374,7 +3505,7 @@ Broom Service Team 🌹",
                             "contentVariables" => json_encode([
                                 '1' => $clientName,
                             ]),
-                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                            
                         ]
                     );
                     \Log::info($twi);
@@ -3440,7 +3571,7 @@ Broom Service Team 🌹",
                 "contentVariables" => json_encode([
                     '1' => substr($client->email, 0, 2)
                 ]), // Pass the OTP as a variable
-                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                
             ]
         );
         \Log::info($twi);
@@ -3486,7 +3617,7 @@ Broom Service Team 🌹",
                     "contentVariables" => json_encode([
                         '1' => $clientName
                     ]),
-                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                    
                 ]
             );
             \Log::info("twilio response". $twi->sid);
@@ -3594,7 +3725,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
@@ -3612,7 +3743,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
 
@@ -3638,7 +3769,7 @@ Broom Service Team 🌹",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
-                                "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                
                             ]
                         );
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
@@ -3650,7 +3781,7 @@ Broom Service Team 🌹",
                                 $clientName, trim($scheduleChange->comments), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin')
                             ], $teammsg);
 
-                        // sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
                         sleep(2);
                         Cache::forget('client_review_input2' . $client->id);
                         Cache::forget('client_review_sorry' . $client->id);
@@ -3738,7 +3869,7 @@ Broom Service Team 🌹",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
                                     "body" => $m,
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
 
@@ -3769,7 +3900,7 @@ Broom Service Team 🌹",
 
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
-                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes', now()->addDay(1));
 
@@ -3828,7 +3959,7 @@ Broom Service Team 🌹",
                                         '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
                                         '2' => $scheduleChange->comments,
                                     ]),
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
 
@@ -3846,7 +3977,7 @@ Broom Service Team 🌹",
                                     [
                                         "from" => $this->twilioWhatsappNumber,
                                         "body" => $promptMessage,
-                                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                        
                                     ]
                                 );
                             // sendClientWhatsappMessage($from, ['message' => $promptMessage]);
@@ -3863,7 +3994,7 @@ Broom Service Team 🌹",
                                     [
                                         "from" => $this->twilioWhatsappNumber,
                                         "body" => $promptMessage,
-                                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                        
                                     ]
                                 );
 
@@ -3883,7 +4014,7 @@ Broom Service Team 🌹",
                                 $teammsg = "שלום צוות, הלקוח " . "*" .$clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                                 $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
-                                // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                                sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
@@ -3894,7 +4025,7 @@ Broom Service Team 🌹",
                                         [
                                             "from" => $this->twilioWhatsappNumber,
                                             "body" => $confirmationMessage,
-                                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                            
                                         ]
                                     );
 
@@ -3917,7 +4048,7 @@ Broom Service Team 🌹",
                             $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" ." ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
-                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
@@ -3928,7 +4059,7 @@ Broom Service Team 🌹",
                                     [
                                         "from" => $this->twilioWhatsappNumber,
                                         "body" => $confirmationMessage,
-                                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                        
                                     ]
                                 );
 
@@ -3949,7 +4080,7 @@ Broom Service Team 🌹",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
                                     "contentSid" => $sid,
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
 
@@ -4051,7 +4182,7 @@ Broom Service Team 🌹",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
                                     "body" => $m,
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
                             // sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
@@ -4079,7 +4210,7 @@ Broom Service Team 🌹",
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName . "*". "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             Cache::put('client_job_confirm_msg' . $client->id, 'main_msg->next_week_change->review_changes', now()->addDay(1));
 
@@ -4137,7 +4268,7 @@ office@broomservice.co.il';
                                         '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
                                         '2' => $scheduleChange->comments,
                                     ]),
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
 
@@ -4155,7 +4286,7 @@ office@broomservice.co.il';
                                     [
                                         "from" => $this->twilioWhatsappNumber,
                                         "body" => $promptMessage,
-                                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                        
                                     ]
                                 );
 
@@ -4173,7 +4304,7 @@ office@broomservice.co.il';
                                     [
                                         "from" => $this->twilioWhatsappNumber,
                                         "body" => $promptMessage,
-                                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                        
                                     ]
                                 );
 
@@ -4195,7 +4326,7 @@ office@broomservice.co.il';
                                 $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . trim($messageBody). '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                                 $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                                // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                                sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
@@ -4206,7 +4337,7 @@ office@broomservice.co.il';
                                         [
                                             "from" => $this->twilioWhatsappNumber,
                                             "body" => $confirmationMessage,
-                                            "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                            
                                         ]
                                     );
 
@@ -4229,7 +4360,7 @@ office@broomservice.co.il';
                             $teammsg = "שלום צוות, הלקוח " ."*" .$clientName. "*". " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                            // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
@@ -4241,7 +4372,7 @@ office@broomservice.co.il';
                                 [
                                     "from" => $this->twilioWhatsappNumber,
                                     "body" => $confirmationMessage,
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
 
@@ -4273,7 +4404,7 @@ office@broomservice.co.il';
                                 [
                                     "from" => $this->twilioWhatsappNumber,
                                     "contentSid" => $sid,
-                                    "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
+                                    
                                 ]
                             );
 

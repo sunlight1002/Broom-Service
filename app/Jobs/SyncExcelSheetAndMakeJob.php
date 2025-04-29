@@ -190,6 +190,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $grouped = [];
             $services = [];
             $client_ids = [];
+            $messages = [];
             $selectedType = null;
             foreach ($sheets as $key => $sheet) {
                 if ($sheet == "ינואר" || $sheet == "פברואר") {
@@ -266,6 +267,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
                                 if (!$offer) {
                                     echo "Row {$rowCount}: Sheet: {$sheet} Offer not found in CRM (Offer id in Sheet: {$offerId}, Client name: {$client->firstname} {$client->lastname})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row {$rowCount}: Sheet: {$sheet} Offer not found in CRM (Offer id in Sheet: {$offerId}, Client name: {$client->firstname} {$client->lastname})" . "\n\n";
                                     continue;
                                 }
 
@@ -341,6 +343,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
                                     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Frequency and service not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Frequency and service not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . "\n\n";
                                     continue;
                                 }
                                 $selectedOfferData = [];
@@ -378,6 +381,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
                                     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency}) ." . "\n\n";
                                     continue;
                                 }
 
@@ -385,6 +389,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $sheetService = trim($row[11] ?? null);
                                     $sheetFrequency = $selectedFrequency->name ?? null;
                                     echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . "\n\n";
                                     continue;
                                 }
 
@@ -489,7 +494,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 // continue;
                                 
                                 if (isset($selectedOfferData[0])) {
-                                    $res = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0]);
+                                    $res = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0], $messages);
                                 
                                     if (!isset($newJob['job_ids'][$currentDate])) {
                                         $newJob['job_ids'][$currentDate] = [];
@@ -518,8 +523,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
-                \Log::info([$newJob]);
-
                 foreach ($newJob['job_ids'] as $date => $jobIdsToKeep) {
                     // Cancel jobs NOT in the list of kept job_ids
                     $jobs = Job::whereDate('start_date', $date)
@@ -584,6 +587,10 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 }
                 
             }
+            // Join all messages with line breaks
+            $content = implode(PHP_EOL, $messages);
+            file_put_contents(storage_path('app/messages.txt'), $content);
+            
             dd(implode(',', array_unique($client_ids)));
         } catch (\Exception $e) {
             dd($e);
@@ -654,7 +661,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
     }
 
 
-    private function handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index = null, $sheet, $selectedOfferData)
+    private function handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index = null, $sheet, $selectedOfferData, &$messages)
     {
         try {
             // Early validations
@@ -664,11 +671,13 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $rowCount = $index + 1;
             if (!$selectedService || !$selectedFrequency) {
                 echo "Row: {$rowCount} No service or frequency selected for offer ID: {$offer->id} Client ID: {$client->id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                $messages[] = "Row: {$rowCount} No service or frequency selected for offer ID: {$offer->id} Client ID: {$client->id}";
                 return;
             }
             $contract = $offer->contract;
             if (!$contract) {
                 echo "Row: {$rowCount} No contract found for offer ID: {$offer->id} Client ID: {$client->id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                $messages[] = "Row: {$rowCount} No contract found for offer ID: {$offer->id} Client ID: {$client->id}";
                 return;
             }
 
