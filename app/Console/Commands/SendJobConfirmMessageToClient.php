@@ -35,6 +35,10 @@ class SendJobConfirmMessageToClient extends Command
     protected $spreadsheetId;
     protected $googleAccessToken;
     protected $googleRefreshToken;
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilio;
     protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
 
     protected $message = [
@@ -140,7 +144,7 @@ www.broomservice.co.il
                         } else if ($email) {
                             $client = Client::where('email', $email)->first();
                         }
-                        $shifts[] = trim($row[9] ?? '');
+                        $shifts[] = trim($row[10] ?? '');
                         if ($client) {
                             $currentDateObj = Carbon::parse($currentDate); // Current date
                             $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
@@ -150,7 +154,7 @@ www.broomservice.co.il
                                 $shift = "";
                                 $day = $currentDateObj->format('l');
                                 if($client->lng == 'en') {
-                                    switch (trim($row[9])) {
+                                    switch (trim($row[10])) {
                                         case 'יום':
                                         case 'בוקר':
                                         case '7 בבוקר':
@@ -173,11 +177,11 @@ www.broomservice.co.il
                                             break;
 
                                         default:
-                                            $shift = $row[9];
+                                            $shift = $row[10];
                                             break;
                                     }
                                 } else {
-                                    switch (trim($row[9])) {
+                                    switch (trim($row[10])) {
                                         case 'יום':
                                         case 'בוקר':
                                         case '7 בבוקר':
@@ -200,7 +204,7 @@ www.broomservice.co.il
                                             break;
 
                                         default:
-                                            $shift = $row[9];
+                                            $shift = $row[10];
                                             break;
                                     }
                                     switch ($day) {
@@ -289,7 +293,7 @@ www.broomservice.co.il
                     }
                     $personalizedMessage = str_replace(':next_week_schedule', $msg, $personalizedMessage);
                 }
-                
+
                 $sid = $client->lng == "heb" ? "HX24ce33a6a7f5ba297f6756127e3d80e0" : "HXe77a7ad3eb2c4394e74c52307c89c8a7";
 
                 $twi = $this->twilio->messages->create(
@@ -304,12 +308,13 @@ www.broomservice.co.il
                         "statusCallback" => config("services.twilio.webhook") . "/twilio/status-callback",
                     ]
                 );
-                
+
                 StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
 
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
                 // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
                 Cache::put('client_job_confirm_msg' . $client->id, 'main_msg', now()->addHours(20));
+                sleep(2);
             }
         }
 

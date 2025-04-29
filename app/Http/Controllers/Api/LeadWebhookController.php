@@ -171,7 +171,7 @@ If you have any further questions or requests, feel free to contact us.
 
 Best regards,
 Broom Service Team 🌹",
-            "heb" => "שלום :client_name, 
+            "heb" => "שלום :client_name,
 בקשתך להפסיק לקבל הודעות פרסומיות התקבלה.
 
 לתשומת ליבך, תזכורות והתראות חשובות הקשורות לשירותיך ימשיכו להישלח ממספר זה על מנת להבטיח תקשורת חלקה.
@@ -280,42 +280,42 @@ Broom Service Team 🌹",
                 } else {
                     $menus = 'not_recognized';
                 }
-            
+
                 if ($listId == "1") {
                     $menus = 'enter_phone';
                 } else if ($listId == "2") {
                     $menus = 'new_lead';
                 } elseif ($menus == 'enter_phone' && !empty($message)) {
                     $phone = $message;
-            
+
                     // 1. Remove all special characters from the phone number
                     $phone = preg_replace('/[^0-9+]/', '', $phone);
-            
+
                     // 2. If there's any string or invalid characters in the phone, extract the digits
                     if (preg_match('/\d+/', $phone, $matches)) {
                         $phone = $matches[0]; // Extract the digits
-            
+
                         // Reapply rules on extracted phone number
                         // If the phone number starts with 0, add 972 and remove the first 0
                         if (strpos($phone, '0') === 0) {
                             $phone = '972' . substr($phone, 1);
                         }
-            
+
                         // If the phone number starts with +, remove the +
                         if (strpos($phone, '+') === 0) {
                             $phone = substr($phone, 1);
                         }
                     }
-            
+
                     $phoneLength = strlen($phone);
                     if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
                         $phone = '972' . $phone;
                     }
-            
+
                     $verifyClient = Client::where('phone', $phone)
                         ->orWhereJsonContains('extra', [['phone' => $phone]])
                         ->first();
-            
+
                     if ($verifyClient && !empty($phone)) {
                         $menus = 'email_sent';
                     } else {
@@ -330,7 +330,7 @@ Broom Service Team 🌹",
                     $verifyClient = Client::where('phone', $responseActiveClientState->client_phone)
                         ->orWhereJsonContains('extra', [['phone' => $responseActiveClientState->client_phone]])
                         ->first();
-                
+
                     if ($verifyClient && $verifyClient->otp == $message && $verifyClient->otp_expiry >= now()) {
                         $menus = 'verified';
                     } else {
@@ -345,9 +345,9 @@ Broom Service Team 🌹",
                 } else if ($menus == 'failed_attempts') {
                     $menus = 'failed_attempts';
                 }
-            
+
                 \Log::info("Final menu: $menus");
-            
+
                 // Now handle final menu logic
                 switch ($menus) {
                     case 'not_recognized':
@@ -359,7 +359,7 @@ Broom Service Team 🌹",
                                 "contentSid" => $sid,
                             ]
                         );
-            
+
                         WhatsAppBotActiveClientState::updateOrCreate(
                             ["from" => $from],
                             [
@@ -368,7 +368,7 @@ Broom Service Team 🌹",
                                 "from" => $from,
                             ]
                         );
-            
+
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -379,20 +379,20 @@ Broom Service Team 🌹",
                             'flex' => 'A',
                         ]);
                         break;
-            
+
                     case 'enter_phone':
-            
+
                         $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
                         $sid = $lng == "heb" ? "HXed45297ce585bd31b49119c8788edfb4" : "HX741b8e40f723e2ca14474a54f6d82ec2";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                             ]
                         );
                         \Log::info($twi);
-            
+
                         WhatsAppBotActiveClientState::updateOrCreate(
                             ["from" => $from],
                             [
@@ -411,7 +411,7 @@ Broom Service Team 🌹",
                             'flex' => 'A',
                         ]);
                         break;
-                    
+
                     case 'email_sent':
                         $this->ClientOtpSend($verifyClient, $from, $lng);
                         WhatsAppBotActiveClientState::updateOrCreate(
@@ -423,15 +423,15 @@ Broom Service Team 🌹",
                             ]
                         );
                         break;
-            
+
                     case 'verified':
                         // Decode the `extra` field (or initialize it as an empty array if null or invalid)
                         $extra = $verifyClient->extra ? json_decode($verifyClient->extra, true) : [];
-            
+
                         if (!is_array($extra)) {
                             $extra = [];
                         }
-            
+
                         // Add or update the `from` phone in the `extra` field
                         $found = false;
                         foreach ($extra as &$entry) {
@@ -441,7 +441,7 @@ Broom Service Team 🌹",
                             }
                         }
                         unset($entry); // Unset reference to prevent side effects
-            
+
                         if (!$found) {
                             // Add a new object with the `from` value
                             $extra[] = [
@@ -455,15 +455,15 @@ Broom Service Team 🌹",
                         $verifyClient->otp = null;
                         $verifyClient->otp_expiry = null;
                         $verifyClient->save();
-            
+
                         // Send verified message
                         $nextMessage = $this->activeClientBotMessages['verified'][$lng];
-            
+
                         $sid = $lng == "heb" ? "HX0d6d41473fae763d728c1f9a56a427f5" : "HXebdc48bc1b7e5ca4e8b32d868d778932";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     '1' => ($verifyClient->firstname ?? ''. ' ' . $verifyClient->lastname ?? '')
@@ -471,10 +471,10 @@ Broom Service Team 🌹",
                             ]
                         );
                         \Log::info($twi);
-            
+
                         $personalizedMessage = str_replace(':client_name', $verifyClient->firstname . ' ' . $verifyClient->lastname, $nextMessage);
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-            
+
                         // Create webhook response
                         WebhookResponse::create([
                             'status' => 1,
@@ -485,22 +485,22 @@ Broom Service Team 🌹",
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-            
+
                         $this->sendMainMenu($verifyClient, $from);
                         break;
-            
+
                     case 'incorect_otp':
-            
+
                         $sid = $lng == "heb" ? "HX0e54f862ae4a74d0b29cd16f31c3289d" : "HXf11fa257dbd265ccb6ac155ef186016d";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                             ]
                         );
                         \Log::info($twi);
-            
+
                         $nextMessage = $this->activeClientBotMessages['incorect_otp'][$lng];
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
@@ -512,7 +512,7 @@ Broom Service Team 🌹",
                                 "from" => $from,
                             ]
                         );
-            
+
                         // Create webhook response
                         WebhookResponse::create([
                             'status' => 1,
@@ -524,21 +524,21 @@ Broom Service Team 🌹",
                             'flex' => 'A',
                         ]);
                         break;
-            
+
                     case 'failed_attempts':
                         $sid = $lng == "heb" ? "HX7031ef0aca470c5c91cb8990d00c3533" : "HX5d496b41e236760e3532f84b6b620298";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                             ]
                         );
                         \Log::info($twi);
-            
+
                         $nextMessage = $this->activeClientBotMessages['failed_attempts'][$lng];
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-            
+
                         WhatsAppBotActiveClientState::updateOrCreate(
                             ["from" => $from],
                             [
@@ -546,7 +546,7 @@ Broom Service Team 🌹",
                                 'menu_option' => 'failed_attempts'
                             ]
                         );
-            
+
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -556,22 +556,22 @@ Broom Service Team 🌹",
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-            
+
                         break;
-            
+
                     case 'new_lead':
-            
+
                         $sid = $lng == "heb" ? "HX648077d9fa0a17989bad3140b23b8b0b" : "HX866eb5d2d224815a2823eb7260746aee";
-            
+
                         $message = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                             ]
                         );
                         \Log::info($message->sid);
-            
+
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
@@ -581,7 +581,7 @@ Broom Service Team 🌹",
                             'read'          => 1,
                             'flex'          => 'A'
                         ]);
-            
+
                         $lead                = new Client;
                         $lead->firstname     = '';
                         $lead->lastname      = '';
@@ -593,14 +593,14 @@ Broom Service Team 🌹",
                         $lead->geo_address   = '';
                         $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
                         $lead->save();
-            
+
                         WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $lead->id,
                         ], [
                             'menu_option' => 'main_menu',
                             'language' => $lng == 'heb' ? 'he' : 'en',
                         ]);
-            
+
                         WhatsAppBotActiveClientState::updateOrCreate(
                             ["from" => $from],
                             [
@@ -609,19 +609,19 @@ Broom Service Team 🌹",
                                 "from" => $from,
                             ]
                         );
-            
+
                         break;
 
-                    
+
                 }
             }else if ($client && $client->disable_notification == 1) {
                 \Log::info('notification disabled');
                 die('notification disabled');
-            }else if ($client->lead_status && $client->lead_status->lead_status === 'active client') {
+            }else if ($client && $client->lead_status && $client->lead_status->lead_status === 'active client') {
                 \Log::info('active client');
                 $this->fbActiveClientsWebhookCurrentLive($request);
             }
-            
+
             if($client){
                 $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
             }
@@ -653,8 +653,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
 
@@ -721,8 +721,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
 
@@ -772,8 +772,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
 
@@ -818,7 +818,7 @@ Broom Service Team 🌹",
                         "whatsapp:+$from",
                         [
                             "from" => $this->twilioWhatsappNumber,
-                            "body" => $msg 
+                            "body" => $msg
                         ]
                     );
 
@@ -841,8 +841,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
                     \Log::info($twi->sid);
@@ -881,8 +881,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
                     \Log::info($twi->sid);
@@ -1005,13 +1005,13 @@ Broom Service Team 🌹",
                         $responseClientState->final = true;
                         $responseClientState->save();
                     }
-                    
+
                     // $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
                             "from" => $this->twilioWhatsappNumber,
-                            "body" => $msg 
+                            "body" => $msg
                         ]
                     );
 
@@ -1049,7 +1049,7 @@ Broom Service Team 🌹",
                             "whatsapp:+$from",
                             [
                                 "from" => $this->twilioWhatsappNumber,
-                                "contentSid" => $sid, 
+                                "contentSid" => $sid,
                             ]
                         );
                         \Log::info($twi->sid);
@@ -1065,7 +1065,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                         );
@@ -1124,7 +1124,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "body" => $msg
                         ]
                     );
@@ -1166,7 +1166,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "body" => $msg
                         ]
                     );
@@ -1252,7 +1252,7 @@ Broom Service Team 🌹",
                             $twi = $this->twilio->messages->create(
                                 "whatsapp:+$from",
                                 [
-                                    "from" => $this->twilioWhatsappNumber, 
+                                    "from" => $this->twilioWhatsappNumber,
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode([
                                         "1" => $result->formatted_address
@@ -1329,7 +1329,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                         );
@@ -1370,7 +1370,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                         );
@@ -1430,7 +1430,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "body" => $msg
                         ]
                     );
@@ -1489,7 +1489,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "body" => $msg
                         ]
                     );
@@ -1544,7 +1544,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                         );
@@ -1585,7 +1585,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                         );
@@ -1709,12 +1709,12 @@ Broom Service Team 🌹",
                         $msg = ($client->lng == 'heb' ? `כתובת הדוא"ל '` . $message . `' לא תקינה. בבקשה נסה שוב.` : 'The email address \'' . $message . '\' is considered invalid. Please try again.');
                         $num = 4;
                     }
-                    
+
                     if($num == 1 || $num == 4){
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                             );
@@ -1724,7 +1724,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $link
@@ -1737,7 +1737,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
@@ -1782,7 +1782,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
                             ]
@@ -1806,7 +1806,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "body" => $msg
                             ]
                         );
@@ -1844,8 +1844,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
 
@@ -1874,8 +1874,8 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid, 
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
                         ]
                     );
 
@@ -1914,8 +1914,8 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                             ]
                         );
 
@@ -1924,8 +1924,8 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                             ]
                         );
                         \Log::info('Switch to a Human Representative - During Business Hours');
@@ -1934,8 +1934,8 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                             ]
                         );
                     }
@@ -1954,7 +1954,7 @@ Broom Service Team 🌹",
 
                         case '2':
                             \Log::info('service_areas');
-                            
+
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
@@ -2059,8 +2059,8 @@ Broom Service Team 🌹",
             $twi = $this->twilio->messages->create(
                 "whatsapp:+$lead->phone",
                 [
-                    "from" => $this->twilioWhatsappNumber, 
-                    "contentSid" => $sid, 
+                    "from" => $this->twilioWhatsappNumber,
+                    "contentSid" => $sid,
                 ]
             );
 
@@ -2097,8 +2097,8 @@ Broom Service Team 🌹",
 
             if ($lead->lead_status) {
                 $leadStatus = $lead->lead_status;
-                $leadUpdatedAt = $leadStatus->updated_at; 
-                $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING 
+                $leadUpdatedAt = $leadStatus->updated_at;
+                $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING
                     && $leadUpdatedAt->diffInDays(now()) > 2;
                 $isNotPending = $leadStatus->lead_status !== LeadStatusEnum::PENDING;
 
@@ -2107,10 +2107,10 @@ Broom Service Team 🌹",
                         [],
                         ['lead_status' => LeadStatusEnum::PENDING]
                     );
-            
+
                     $lead->status = 0;
                     $lead->save();
-            
+
                     // Create a notification
                     Notification::create([
                         'user_id' => $lead->id,
@@ -2118,7 +2118,7 @@ Broom Service Team 🌹",
                         'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
                         'status' => 'created'
                     ]);
-            
+
                     $lead->load('property_addresses');
 
                     // Trigger WhatsApp notification
@@ -2132,7 +2132,7 @@ Broom Service Team 🌹",
                 }
             }
         }
-        
+
     }
 
     public function fbActiveClientsWebhookCurrentLive(Request $request)
@@ -2363,7 +2363,7 @@ Broom Service Team 🌹",
             //         ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
             //         ->first();
             //     $send_menu = 'failed_attempts';
-            // } 
+            // }
             else {
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
                 $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
@@ -2385,7 +2385,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -2419,7 +2419,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                             "contentVariables" => json_encode([
                                 '1' => $clientName
@@ -2449,7 +2449,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid
                         ]
                     );
@@ -2484,7 +2484,7 @@ Broom Service Team 🌹",
                     ], [
                         $clientName, '*' . trim($input) . '*', $client->phone, $scheduleLink, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
-                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);                                   
+                    // sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
                     $clientMessageStatus->delete();
                     break;
@@ -2672,7 +2672,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     '1' => $dateTime
@@ -2680,7 +2680,7 @@ Broom Service Team 🌹",
                             ]
                         );
                         \Log::info($twi);
-                    
+
                         $nextMessage = $this->activeClientBotMessages['service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
@@ -2693,21 +2693,21 @@ Broom Service Team 🌹",
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-                    
+
                         $clientMessageStatus->delete();
                     }
-                    
+
                     if ($nextWeeks && count($nextWeeks) > 0) {
                         $dateTime = "";
                         foreach ($nextWeeks as $job) {
                             $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
-                    
+
                         $sid = $lng == "heb" ? "HXbc829731145350c2dda3af6de8b50488" : "HXa773c0faed2a441077d042cddfbf14b3";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     '1' => $dateTime
@@ -2728,22 +2728,22 @@ Broom Service Team 🌹",
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-                    
+
                         $clientMessageStatus->delete();
                     }
-                    
+
                     // If no jobs are found for both weeks
                     if (empty($currentWeeks) && empty($nextWeeks)) {
                         $sid = $lng == "heb" ? "HX09c8d68ed27cb84001868810a214fcf4" : "HX00c5308778ee90d34e8f26d8468ed418";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                             ]
                         );
                         \Log::info($twi);
-                        
+
                         $nextMessage = $this->activeClientBotMessages['no_service_avail'][$lng];
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                         $clientMessageStatus->update([
@@ -2759,14 +2759,14 @@ Broom Service Team 🌹",
                             'flex' => 'A',
                         ]);
                     }
-                    
+
                     break;
                 case 'request_new_qoute':
                     $sid = $lng == "heb" ? "HX5eee4fa86731de528664063ca196579a" : "HXa048b9c4fa7b871965927cc2084fee26";
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -2804,7 +2804,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -2833,7 +2833,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                             "contentVariables" => json_encode([
                                 '1' => $clientName
@@ -2841,7 +2841,7 @@ Broom Service Team 🌹",
                         ]
                     );
                     \Log::info($twi);
-                    
+
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
@@ -2891,7 +2891,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -2921,7 +2921,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -2949,7 +2949,7 @@ Broom Service Team 🌹",
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
                     $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace(
-                        [':client_name', ":client_phone", ":message", ":comment_link",':client_link'], 
+                        [':client_name', ":client_phone", ":message", ":comment_link",':client_link'],
                         [$clientName, $client->phone, trim($input), generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
                     ], $nextMessage);
 
@@ -2973,7 +2973,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                             "contentVariables" => json_encode([
                                 '1' => "client/login"
@@ -3004,7 +3004,7 @@ Broom Service Team 🌹",
                 //     $twi = $this->twilio->messages->create(
                 //         "whatsapp:+$from",
                 //         [
-                //             "from" => $this->twilioWhatsappNumber, 
+                //             "from" => $this->twilioWhatsappNumber,
                 //             "contentSid" => $sid,
                 //         ]
                 //     );
@@ -3068,7 +3068,7 @@ Broom Service Team 🌹",
                 //     $twi = $this->twilio->messages->create(
                 //         "whatsapp:+$from",
                 //         [
-                //             "from" => $this->twilioWhatsappNumber, 
+                //             "from" => $this->twilioWhatsappNumber,
                 //             "contentSid" => $sid,
                 //             "contentVariables" => json_encode([
                 //                 '1' => ($client->firstname ?? ''. ' ' . $client->lastname ?? '')
@@ -3103,7 +3103,7 @@ Broom Service Team 🌹",
                 //     $twi = $this->twilio->messages->create(
                 //         "whatsapp:+$from",
                 //         [
-                //             "from" => $this->twilioWhatsappNumber, 
+                //             "from" => $this->twilioWhatsappNumber,
                 //             "contentSid" => $sid,
                 //         ]
                 //     );
@@ -3169,7 +3169,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -3199,12 +3199,12 @@ Broom Service Team 🌹",
 
                 case 'sorry':
                     $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
-                    
+
                     $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         ]
                     );
@@ -3221,7 +3221,7 @@ Broom Service Team 🌹",
                         'flex' => 'A',
                     ]);
                     break;
-            
+
                 case 'team_send_message_1':
                     \Log::info('team_send_message_1');
                     $text = [
@@ -3238,7 +3238,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                             "contentVariables" => json_encode([
                                 '1' => $clientName
@@ -3288,7 +3288,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                             "contentVariables" => json_encode([
                                 '1' => $clientName,
@@ -3320,7 +3320,7 @@ Broom Service Team 🌹",
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                             "contentVariables" => json_encode([
                                 '1' => $clientName,
@@ -3385,7 +3385,7 @@ Broom Service Team 🌹",
         $twi = $this->twilio->messages->create(
             "whatsapp:+$from",
             [
-                "from" => $this->twilioWhatsappNumber, 
+                "from" => $this->twilioWhatsappNumber,
                 "contentSid" => $sid,
                 "contentVariables" => json_encode([
                     '1' => substr($client->email, 0, 2)
@@ -3430,7 +3430,7 @@ Broom Service Team 🌹",
             $twi = $this->twilio->messages->create(
                 "whatsapp:+$from",
                 [
-                    "from" => $this->twilioWhatsappNumber, 
+                    "from" => $this->twilioWhatsappNumber,
                     "contentSid" => $sid,
                     "contentVariables" => json_encode([
                         '1' => $clientName
@@ -3535,12 +3535,12 @@ Broom Service Team 🌹",
 
                         $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟\nThank you for your positive feedback. We’re here if you need anything else."
                         : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟\nתודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
-                        
+
                         $sid = $client->lng == "heb" ? "HXc461f80819de9133a2f1e433c7f57acf" : "HXfbdae09ff346735b82dfe4a148053c58";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -3557,7 +3557,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -3582,7 +3582,7 @@ Broom Service Team 🌹",
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -3710,7 +3710,7 @@ Broom Service Team 🌹",
                             $msg = trim($messageBody);
 
                             $teammsg = "שלום צוות, הלקוח {$clientName} ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: *{$msg}* אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס \n :comment_link";
-                            
+
                             $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin') , $teammsg);
 
                             // sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
@@ -3759,8 +3759,8 @@ Broom Service Team 🌹",
                                     Phone: 03-525-70-60
                                     office@broomservice.co.il';
                             }
-                            
-                            
+
+
                             $sid = $client->lng == "heb" ? "HXb44309cfdec973dc0fa8709509c4b718" : "HX059442ac501424d65f6c225e19711d11";
 
                             $this->twilio->messages->create(
@@ -4134,7 +4134,7 @@ office@broomservice.co.il';
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                     : "Your message has been received and will be forwarded to our team for further handling.";
-                                   
+
                                     $this->twilio->messages->create(
                                         "whatsapp:+$from",
                                         [
@@ -4142,7 +4142,7 @@ office@broomservice.co.il';
                                             "body" => $confirmationMessage,
                                         ]
                                     );
-                                   
+
                                     // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
                             }
                             sleep(2);
