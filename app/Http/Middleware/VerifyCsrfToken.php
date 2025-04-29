@@ -28,6 +28,6 @@ class VerifyCsrfToken extends Middleware
         'twilio/*',
         'wallybox/callback',
         'twilio/webhook',
-        'status-callback'
+        'twilio/status-callback'
     ];
 }
