@@ -2294,36 +2294,58 @@ class JobController extends Controller
         if (isset($job->offer_service['workers'][0]['jobHours'])) {
             $jobHoursThreshold = $job->offer_service['workers'][0]['jobHours'];
         }
-
         $dateJobs = Job::with("client")->whereDate('start_date', $date)
             ->where('client_id', '!=', $job->client_id)
             ->where('status', '!=', JobStatusEnum::CANCEL)
             ->where(function ($q) use ($jobHoursThreshold) {
                 $q->whereRaw("JSON_EXTRACT(offer_service, '$.workers[0].jobHours') >= ?", [$jobHoursThreshold]);
             })
-            ->whereHas('worker', function ($query) use ($date) {
+            ->whereHas('worker', function ($query) use ($date, $jobHoursThreshold) {
                 $query
-                // ->where('status', 1)
-                //     ->whereHas('availabilities', function ($query) use ($date) {
-                //         $query->where('date', $date);
-                //     });
                     ->whereHas('availabilities', function ($query) use ($date, $jobHoursThreshold) {
                         $query->where('date', $date)
                               ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) >= ?', [$jobHoursThreshold]);
                     });
+
             })
             ->get();
 
         return response()->json([
-            'clients' => $dateJobs   
+            'jobs' => $dateJobs   
         ]);
     }
 
 
-    public function changeShift(Request $request, $id)
+    public function changeShift($id, $job_id)
     {
-        $job = Job::find($id);
+        $jobA = Job::find($id);
+        $jobB = Job::find($job_id);
+    
+        // Ensure both jobs exist
+        if (!$jobA || !$jobB) {
+            return response()->json([
+                'status' => false,
+                'message' => 'One or both jobs not found.',
+            ], 404);
+        }
+    
+        // Swap worker_id
+        $tempWorkerId = $jobA->worker_id;
+        $jobA->worker_id = $jobB->worker_id;
+        $jobA->original_worker_id = $jobB->worker_id;
+        $jobB->worker_id = $tempWorkerId;
+        $jobB->original_worker_id = $tempWorkerId;
+    
+        // Save both
+        $jobA->save();
+        $jobB->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Shift successfully swapped between workers.',
+        ]);
     }
+    
     
 
     // public function workersToSwitch(Request $request, $id)

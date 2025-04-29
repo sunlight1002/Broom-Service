@@ -20,9 +20,9 @@ export const ChangeShiftModal = ({
     const { t } = useTranslation();
     const alert = useAlert();
     const [isLoading, setIsLoading] = useState(false);
-    const [allClients, setAllClients] = useState([]);
+    const [allJobs, setAllJobs] = useState([]);
     const [formValues, setFormValues] = useState({
-        client_id: "",
+        job_id: "",
     });
 
     const parseDateString = (dateStr) => {
@@ -47,14 +47,41 @@ export const ChangeShiftModal = ({
 
     const getClients = async() => {
         const res = await axios.get(`/api/admin/jobs/get-shift-client/${job}/${moment(selectedDate).format("YYYY-MM-DD")}`, { headers });
-        console.log(res.data.clients);
-        
-        setAllClients(res.data?.clients);
+        setAllJobs(res.data?.jobs);
     }
 
     useEffect(() => {
       getClients();
     }, [selectedDate, selectedDateProp]);
+
+    const handleSubmit = () => {
+        setIsLoading(true);
+        axios
+            .post(
+                `/api/admin/jobs/${job}/change-client-shift/${formValues.job_id}`, 
+                null,
+                {
+                    headers,
+                }
+            )
+            .then((response) => {
+                Swal.fire(
+                    "Updated!",
+                    "Shift has been updated.",
+                    "success"
+                );
+                setIsOpen(false);
+                setIsLoading(false);
+            })
+            .catch((e) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response.data.message,
+                    icon: "error",
+                });
+                setIsLoading(false);
+            });
+    };
     
 
     return (
@@ -99,15 +126,15 @@ export const ChangeShiftModal = ({
                                         onChange={(e) => {
                                             setFormValues({
                                                 ...formValues,
-                                                client_id: e.target.value,
+                                                job_id: e.target.value,
                                             });
                                         }}
                                         value={formValues.client_id}
                                         className="form-control mb-3"
                                     >
-                                        <option value="">--- Select Client ---</option>
-                                        {allClients.map((client) => (
-                                            <option key={client.id} value={client.id}>{client.client?.firstname + " " + client?.client.lastname}</option>
+                                        <option value="">{t("admin.global.select_client")}</option>
+                                        {allJobs.map((job) => (
+                                            <option key={job.id} value={job.id}>{job.client?.firstname + " " + job?.client.lastname + " (" + job?.offer_service?.address?.address_name + ")"} </option>
                                         ))}
                                     </select>
                                 </div>
@@ -130,7 +157,7 @@ export const ChangeShiftModal = ({
                 <Button
                     type="button"
                     disabled={isLoading}
-                    // onClick={handleSubmit}
+                    onClick={handleSubmit}
                     className="btn btn-primary"
                 >
                     {t("modal.save")}

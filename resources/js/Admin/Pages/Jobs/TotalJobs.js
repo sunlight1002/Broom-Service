@@ -437,7 +437,7 @@ export default function TotalJobs() {
 
                                 _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
 
-                                // _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">Change Shift</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">Change Shift</button>`;
 
                                 _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
                             }
@@ -589,12 +589,12 @@ export default function TotalJobs() {
             navigate(`/admin/jobs/${_id}/change-worker`);
         });
 
-        // $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
-        //     const _id = $(this).data("id");
-        //     const date = $(this).data("date");
-        //     handleChangeShift({_id, date});
-        //     // navigate(`/admin/jobs/${_id}/change-shift`);
-        // });
+        $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
+            const _id = $(this).data("id");
+            const date = $(this).data("date");
+            handleChangeShift({_id, date});
+            // navigate(`/admin/jobs/${_id}/change-shift`);
+        });
 
         $(tableRef.current).on("click", ".dt-cancel-btn", function () {
             const _id = $(this).data("id");
