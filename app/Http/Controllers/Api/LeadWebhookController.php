@@ -208,6 +208,22 @@ Broom Service Team 🌹",
         $data_returned = json_decode($get_data, true);
         $message = null;
 
+        $messageId = $data_returned['messages'][0]['id'] ?? null;
+
+        if (!$messageId) {
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('whapi_group_processed_message_' . $messageId) === $messageId) {
+            \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+
+        // Store the messageId in the cache for 1 hour
+        Cache::put('whapi_group_processed_message_' . $messageId, $messageId, now()->addHours(1));
+
+
         if (
             isset($data_returned['messages']) &&
             isset($data_returned['messages'][0]['from_me']) &&
