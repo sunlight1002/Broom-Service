@@ -1456,6 +1456,8 @@
             "DeclinedPriceOffer": "Declined price offer",
             "AddNew": "Add New",
             "leave_request": "Leave Request",
+            "not_respond_to_bot": "Not respond to bot",
+            "not_respond_to_messages": "Not respond to messages",
             "Options": {
                 "sortBy": "-- Sort By--",
                 "ID": "ID",

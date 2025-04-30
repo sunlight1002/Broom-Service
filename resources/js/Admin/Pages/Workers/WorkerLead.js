@@ -43,6 +43,8 @@ export default function WorkerLead() {
         unanswered: t("admin.leads.Unanswered"),
         hiring: t("admin.leads.Hiring"),
         "not-hired": t("admin.leads.Not_hired"),
+        "Not respond to bot": t("admin.leads.not_respond_to_bot"),
+        "Not respond to messages": t("admin.leads.not_respond_to_messages"),
     };
     const statusArr = {
         pending: "pending",
@@ -52,6 +54,8 @@ export default function WorkerLead() {
         hiring: "hiring",
         "will-think": "will-think",
         "not-hired": "not-hired",
+        "Not respond to bot": "Not respond to bot",
+        "Not respond to messages": "Not respond to messages",
     };
 
     const notHiredSubStatus = {
@@ -372,10 +376,10 @@ export default function WorkerLead() {
                     </div>
                 </div>
                 <div
-                    className="dashBox pt-4 pb-4"
+                    className="dashBox pt-0 pb-4"
                     style={{ backgroundColor: "inherit", border: "none" }}
                 >
-                    <div className="row">
+                    <div className="row d-flex flex-column">
                         <div
                             style={{
                                 fontWeight: "bold",
@@ -385,10 +389,10 @@ export default function WorkerLead() {
                         >
                             {t("global.filter")}
                         </div>
-                        <div>
+                        <div className="pl-3 mt-1">
                             <FilterButtons
                                 text={t("admin.global.All")}
-                                className="px-3 mr-1 ml-4"
+                                className="px-3 mr-1"
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />

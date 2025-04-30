@@ -223,7 +223,6 @@ Broom Service Team 🌹",
         // Store the messageId in the cache for 1 hour
         Cache::put('whapi_group_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
-
         if (
             isset($data_returned['messages']) &&
             isset($data_returned['messages'][0]['from_me']) &&
@@ -231,7 +230,6 @@ Broom Service Team 🌹",
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            Log::info($from);
             $lng = 'heb';
 
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
@@ -329,7 +327,6 @@ Broom Service Team 🌹",
             }
         }
 
-        return response()->json(['status' => 'Invalid message data'], 200);
     }
 
     public function fbWebhookCurrentLive(Request $request)
@@ -366,7 +363,7 @@ Broom Service Team 🌹",
                 'status'        => 1,
                 'name'          => 'whatsapp',
                 'entry_id'      => $messageId,
-                'message'       => $data['body'] ?? '',
+                'message'       => $listId ?? $ButtonPayload,
                 'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
                 'number'        => $from,
                 'read'          => 0,
@@ -3562,7 +3559,7 @@ Broom Service Team 🌹",
             ]
         );
 
-        $sid = $lng == "heb" ? "HX13aaa325b2112a68d1bc572ffb949dd2" : "HX3732d02398b5af4f8a481f14771c5f43";
+        $sid = $lng == "heb" ? "HX3442c93620474fc3323f77783f80177a" : "HX60c74e6ee5a6faf3c777a263a789ffc7";
         $twi = $this->twilio->messages->create(
             "whatsapp:+$from",
             [

@@ -108,6 +108,14 @@ export const leadStatusColor = (_status) => {
             _color = "#a95a3cf2";
             break;
 
+        case "Not respond to bot":
+            _color = "#a6a99df2";
+            break;
+
+        case "Not respond to messages":
+            _color = "#a95a3cf2";
+            break;
+
         default:
             break;
     }

@@ -1255,7 +1255,7 @@ class WhatsappNotification
                               
                     case WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED:
                         $receiverNumber = $workerData['phone'] ?? null;
-                        $lng = $workerData['lng'] ?? 'heb';
+                        $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
                         if($lng == "heb"){
                             $sid = "HX0ea9239bbdf99de574c8626b61609590";
@@ -1341,16 +1341,16 @@ class WhatsappNotification
                         
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
                         $receiverNumber = $workerData['phone'] ?? null;
-                        $lng = $workerData['lng'] ?? 'heb';
+                        $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
                         if($lng == "heb"){
                             $sid = "HX7b45e614c0ad4dbe513a37a14b305d04";
                         }elseif($lng == "spa"){
                             $sid = "HX2010e79fde4a4800f28e90b4d9b5da7b";
                         }elseif($lng == "ru"){
-                            $sid = "HX4fdf1391b672bca5d7647d2187c8cbf4";
+                            $sid = "HXf866857bc100d0df044be54c9ca3fb31";
                         }else{
-                            $sid = "HXc0e17ef921dd28fed0da75051ab54f06";
+                            $sid = "HX61716a714052e9c45181435bb35f8064";
                         }
 
                         $variables = [
@@ -1591,7 +1591,7 @@ class WhatsappNotification
 
                     case WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD:
                         $receiverNumber = $workerData['phone'] ?? null;
-                        $lng = $workerData['lng'] ?? 'heb';
+                        $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
                         if($lng == "heb"){
                             $sid = "HXd08482f0b51c466cf4620a07fd63c863";
@@ -1621,7 +1621,7 @@ class WhatsappNotification
 
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM:
                         $receiverNumber = $workerData['phone'] ?? null;
-                        $lng = $workerData['lng'] ?? 'heb';
+                        $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
                         if($lng == "heb"){
                             $sid = "HX97f8e43c66e05be83b1542de31e98b73";
@@ -2132,7 +2132,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXbd480e4791ebd24e5c61537dbf1be153" :"HX579c271765c269bd53b23a918b3aaab3";
+                        $sid = $lng == "heb" ? "HXc38fe7044317f43f6329bd03340a584f" :"HX579c271765c269bd53b23a918b3aaab3";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,

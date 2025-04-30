@@ -22,6 +22,8 @@ import pendingOffer from "../../../public/images/pendingOffer.png";
 import pendingContract from "../../../public/images/pendingContract.png";
 import incomeIcon from "../../../public/images/income.png";
 import outcome from "../../../public/images/outcome.png";
+// import json from "./json.json";
+
 export default function Dashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);
     const [totalNewClients, setTotalNewClients] = useState([0]);
@@ -71,6 +73,20 @@ export default function Dashboard() {
     //         }
     //     });
     // };
+    // const getUtilityTemplates = () => {
+    //     try {
+    //       const allTemplates = json.contents;
+      
+    //       const utilityTemplates = allTemplates.filter(
+    //         (t) => t.approval_requests?.status === "rejected"
+    //       );
+      
+    //       console.log("UTILITY Templates:", utilityTemplates);
+    //     } catch (error) {
+    //       console.error("Error filtering templates:", error);
+    //     }
+    //   };
+
     const getCompletedJobs = (
         filter = "today",
         startDate = null,
@@ -154,6 +170,8 @@ export default function Dashboard() {
 
     useEffect(() => {
         getCompletedJobs();
+        // getUtilityTemplates();
+
         getIncome();
         // latestClients();
         getAdmin();

@@ -387,6 +387,7 @@ export default function ChangeStatusModal({
                                             value={status}
                                             className="form-control mb-3"
                                         >
+                                            <option value="">--- Select Sub Status ---</option>
                                             {Object.keys(PastStatusMap).map((s) => (
                                                 <option key={s} value={s}>
                                                     {PastStatusMap[s]}

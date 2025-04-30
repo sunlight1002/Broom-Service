@@ -4439,3 +4439,10 @@ tbody tr:hover {
       overflow-y: auto;
   } */
 }
+
+.replying-text {
+  white-space: pre-wrap;
+  font-family: inherit;
+  word-break: break-word; /* <-- Break long words/URLs */
+  max-width: 100%; /* <-- Ensure it stays within parent box */
+}

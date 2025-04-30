@@ -205,6 +205,11 @@ export default function chat() {
             });
     };
 
+    useEffect(() => {
+        getLead();
+        // addInChat()
+    }, [number, leadId, selectNumber]);
+
 
     const getMessages = (no) => {
         axios.get(`/api/admin/chat-message/${no}?from=${activeTab ?? localStorage.getItem("from")}`, { headers }).then((res) => {
@@ -224,25 +229,27 @@ export default function chat() {
         });
     };
 
-    const addInChat = async () => {
-        try {
-            const res = await axios.post(`/api/admin/chat-message`, { number }, { headers });
-            const r = res.data.data;
-            setSelectNumber(r.number);
-            setSelectedChat(r.number);
-            getMessages(r.number);
-            setShowChatList(false);
-            handleClose();
-            localStorage.setItem("number", r.number);
-            // Safely handle the removal of the element with escaped class name
-            const unreadElement = document.querySelector(escapedClassName);
-            if (unreadElement) {
-                unreadElement.remove();
-            }
-        } catch (error) {
-            // alert.info("you are already in a chat")
-        }
-    };
+    // const addInChat = async () => {
+    //     try {
+    //         const res = await axios.post(`/api/admin/chat-message`, { number }, { headers });
+    //         const r = res.data.data;
+    //         setSelectNumber(r.number);
+    //         setSelectedChat(r.number);
+    //         getMessages(r.number);
+    //         setShowChatList(false);
+    //         handleClose();
+    //         localStorage.setItem("number", r.number);
+    //         // Safely handle the removal of the element with escaped class name
+    //         const unreadElement = document.querySelector(escapedClassName);
+    //         if (unreadElement) {
+    //             unreadElement.remove();
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+            
+    //         // alert.info("you are already in a chat")
+    //     }
+    // };
 
     const groupMessagesByDate = (messages) => {
         if (!messages) return {};
@@ -443,17 +450,12 @@ export default function chat() {
             const response = await axios.get(`/api/admin/get-from-numbers`, { headers });
             setTabs(response.data);
             setActiveTab(response.data[0]);
-            // localStorage.setItem("from", response.data[0]);
+            localStorage.setItem("from", response.data[0]);
         } catch (error) {
             console.error(error);
         }
     };
 
-
-    useEffect(() => {
-        getLead();
-        addInChat()
-    }, [number, leadId, selectNumber])
 
     useEffect(() => {
         getLeads()

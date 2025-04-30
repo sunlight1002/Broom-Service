@@ -128,6 +128,7 @@ class WorkerLeadWebhookController extends Controller
     {
         $get_data = $request->getContent();
         $data_returned = json_decode($get_data, true);
+        \Log::info($data_returned);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
         $lng = "en";
         
@@ -152,7 +153,7 @@ class WorkerLeadWebhookController extends Controller
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            $input = $data_returned['messages'][0]['text']['body'];
+            $input = $data_returned['messages'][0]['text']['body'] ?? '';
             $lng = $this->detectLanguage($input);
             $currentStep = 0;
 
@@ -160,7 +161,7 @@ class WorkerLeadWebhookController extends Controller
                 'status' => 1,
                 'name' => 'whatsapp',
                 'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                'message' => $data_returned['messages'][0]['text']['body'],
+                'message' => $data_returned['messages'][0]['text']['body'] ?? '',
                 'number' => $from,
                 'read' => 0,
                 'flex' => 'W',
@@ -729,7 +730,7 @@ class WorkerLeadWebhookController extends Controller
                 'status' => 1,
                 'name' => 'whatsapp',
                 'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                'message' => $data_returned['messages'][0]['text']['body'],
+                'message' => $data_returned['messages'][0]['text']['body'] ?? '',
                 'number' => $from,
                 'read' => 0,
                 'flex' => 'W',
@@ -1462,7 +1463,7 @@ Broom Service Team 🌹 ';
                             'status' => 1,
                             'name' => 'whatsapp',
                             'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                            'message' => $data_returned['messages'][0]['text']['body'],
+                            'message' => $data_returned['messages'][0]['text']['body'] ?? '',
                             'number' => $from,
                             'read' => 1,
                             'flex' => 'A',
