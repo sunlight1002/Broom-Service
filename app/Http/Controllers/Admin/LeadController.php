@@ -180,6 +180,7 @@ class LeadController extends Controller
             : 'password';
         $input['password'] = Hash::make($password);
         $input['passcode'] = $password;
+        $input['two_factor_enabled'] = 1;
 
         // Create the client
         $client = Client::create($input);

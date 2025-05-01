@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\WhatsAppBotActiveClientState;
+use Twilio\Rest\Client as TwilioClient;
 
 class CloseActiveClientBot extends Command
 {
@@ -21,6 +22,11 @@ class CloseActiveClientBot extends Command
      */
     protected $description = 'Close active client bot after 10 mins';
 
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilio;
+
     /**
      * Create a new command instance.
      *
@@ -29,7 +35,15 @@ class CloseActiveClientBot extends Command
     public function __construct()
     {
         parent::__construct();
+
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
+
 
     /**
      * Execute the console command.
@@ -52,21 +66,21 @@ class CloseActiveClientBot extends Command
 
                     $sid = $lng == "heb" ? "HX2644430417b4d902fc511736b03ca652" : "HX60098186d1018c92154ac59afb8f92b4";
                     $twi = $this->twilio->messages->create(
-                        "whatsapp:+$client->phone",
+                        "whatsapp:+$client->from",
                         [
                             "from" => $this->twilioWhatsappNumber, 
                             "contentSid" => $sid,
+                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
                         ]
                     );
-                    \Log::info($twi);
 
-                    StoreWebhookResponse($nextMessage, $client->phone, $twi->toArray());
+                    StoreWebhookResponse($nextMessage, $client->from, $twi->toArray());
 
                     // sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
                     $client->delete();
                 }
             } catch (\Throwable $th) {
-                //throw $th;
+                \Log::info($th);
             }
         }
         return 0;

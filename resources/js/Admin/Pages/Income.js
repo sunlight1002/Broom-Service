@@ -492,7 +492,7 @@ export default function income() {
                         </div> */}
                     </div>
 
-                    <div className="card">
+                    <div className="card bg-white">
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-md-12">

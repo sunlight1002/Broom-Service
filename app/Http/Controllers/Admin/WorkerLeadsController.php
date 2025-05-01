@@ -375,6 +375,7 @@ class WorkerLeadsController extends Controller
             'latitude' => $workerLead->latitude ?? NULL,
             'longitude' => $workerLead->longitude ?? NULL,
             'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
+            'two_factor_enabled' => 1,
             'step' => $workerLead->step ?? 0
         ]);
 

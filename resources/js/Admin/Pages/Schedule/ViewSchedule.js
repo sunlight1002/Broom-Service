@@ -50,9 +50,6 @@ export default function ViewSchedule() {
     const [emailModal, setEmailModal] = useState(false);
     const [email, setEmail] = useState("");
 
-    console.log(startSlot, endSlot, interval);
-
-
     const params = useParams();
     const alert = useAlert();
     const navigate = useNavigate();
@@ -507,15 +504,15 @@ export default function ViewSchedule() {
 
     useEffect(() => {
         const handleResize = () => {
-          if (calendarRef.current) {
-            const calendarApi = calendarRef.current.getApi();
-            calendarApi.updateSize();
-          }
+            if (calendarRef.current) {
+                const calendarApi = calendarRef.current.getApi();
+                calendarApi.updateSize();
+            }
         };
-      
+
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-      }, []);
+    }, []);
 
     useEffect(() => {
         if (place?.getPlace() && isModalOpen && isAdd.current) {
@@ -918,9 +915,12 @@ export default function ViewSchedule() {
                                             <option
                                                 value={address.id}
                                                 key={address.id}
+                                                className="text-truncate d-inline-block w-100"
+                                                title={`${address.city} - ${address.address_name}`}
                                             >
-                                                {address.address_name}
+                                                {address.city} - {address.address_name}
                                             </option>
+
                                         ))}
                                     </select>
                                     <button

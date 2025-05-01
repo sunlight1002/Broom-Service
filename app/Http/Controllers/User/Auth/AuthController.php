@@ -358,6 +358,7 @@ class AuthController extends Controller
         $input['passcode']      = $input['password'];
         $input['password']      = bcrypt($input['password']);
         $user                   = User::create($input);
+        $user['two_factor_enabled'] = true;
         $user->token            = $user->createToken('User', ['user'])->accessToken;
 
         return response()->json($user);
@@ -668,6 +669,7 @@ class AuthController extends Controller
             'insurance'   => $workerInvitation->safety ?? 0,
             'is_imported' => 0,
             'is_existing_worker' => 1,
+            'two_factor_enabled' => 1,
             'first_date' => $workerInvitation->first_date ?? 0
         ];
 
@@ -1756,6 +1758,7 @@ class AuthController extends Controller
             'latitude' => $workerLead->latitude ?? NULL,
             'longitude' => $workerLead->longitude ?? NULL,
             'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
+            'two_factor_enabled' => 1,
             'step' => $workerLead->step ?? 1
         ]);
 

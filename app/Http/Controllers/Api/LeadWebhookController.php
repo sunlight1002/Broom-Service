@@ -42,6 +42,7 @@ use App\Events\WhatsappNotificationEvent;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Models\WhatsAppBotActiveClientState;
+use App\Http\Controllers\Api\WorkerLeadWebhookController;
 use Exception;
 
 class LeadWebhookController extends Controller
@@ -234,7 +235,8 @@ Broom Service Team 🌹",
 
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
 
-                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
+                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client'))
+                {
 
                     $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
 
@@ -323,6 +325,138 @@ Broom Service Team 🌹",
                     }
                 }
 
+                if($message_data[0]['chat_id'] == config('services.whatsapp_groups.relevant_with_workers'))
+                {
+                    $messageInput = strtolower($message_data[0]['text']['body'] ?? '');
+                    \Log::info($messageInput);
+    
+                    $pattern1 = '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(?(?=\2h)(\d+)|(\d+)?)$/i';
+                    // '/^(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})\s*([hnut])\s*(\d+)?$/i'
+                    $pattern2 = '/^(new|חדש)\s+([\s\S]+?)\s+(ours|mp)\s+(\+?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})$/is';
+                    $input = implode(' ', array_map('trim', explode("\n", $messageInput)));
+    
+                    $last_input = Cache::get('manpower');
+                    \Log::info($last_input);
+    
+                    if (preg_match($pattern1, $messageInput, $matches)) {
+    
+                        $phoneNumber = trim($matches[1]); // Extracts the phone number
+                        $statusInput = strtolower($matches[2]); // Extracts the status (h/n/u/t)
+                        $numericValue = intval($matches[3] ?? 0); // Extracts the numeric value (e.g., 55)
+                        // $numericValue = isset($matches[3]) ? intval($matches[3]) : null; // Extracts numeric value (if present)
+    
+                        \Log::info('Phone: ' . $phoneNumber . ' | Status: ' . $statusInput . ' | Value: ' . $numericValue);
+    
+                        // Find the workerLead based on the phone number
+                        $workerLead = WorkerLeads::where('phone', $phoneNumber)->first();
+    
+                        if ($workerLead) {
+                            // Determine the status
+                            switch ($statusInput) {
+                                case 'h':
+                                    $workerLead->status = "hiring";
+                                    $workerLead->hourly_rate = $numericValue;
+                                    break;
+                                case 'u':
+                                    $workerLead->status = "unanswered";
+                                    break;
+                                case 't':
+                                    $workerLead->status = "will-think";
+                                    break;
+                                case 'n':
+                                    $workerLead->status = "not-hired";
+                                    break;
+                            }
+    
+                            $workerLead->save();
+    
+                            // Send appropriate WhatsApp message
+                            match ($workerLead->status) {
+                                "hiring" => [
+                                    $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM),
+                                    $worker = $this->createUser($workerLead),
+                                    $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS)
+                                ],
+                                "not-hired" => $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM),
+                                "unanswered" => $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED),
+                                "will-think" => $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD),
+                                default => null
+                            };
+    
+                            return response()->json(['status' => 'Worker status updated', 'value' => $numericValue], 200);
+                        }
+    
+                        return response()->json(['status' => 'Worker not found'], 404);
+                    } else if((preg_match($pattern2, $input, $matches))
+                        && ($message_data[0]['chat_id'] == config('services.whatsapp_groups.relevant_with_workers'))) {
+                        // Log the matches to check
+                        $language = (strtolower(trim($matches[1])) == 'new') ? 'en' : 'heb';
+                        $workerName = trim($matches[2]);
+                        $nameParts = explode(' ', $workerName);
+                        // Extract the first name (first word)
+                        $firstName = $nameParts[0];
+                        // Combine the remaining parts as the last name
+                        $lastName = implode(' ', array_slice($nameParts, 1));
+    
+                        $companyType = ($matches[3] === 'ours') ? 'my-company' : 'manpower';
+                        $phoneNumber = trim($matches[4]);
+    
+                        // Check if the worker already exists
+                        $workerLead = WorkerLeads::where('phone', $phoneNumber)->first();
+    
+                        if (!$workerLead) {
+                            // Create new worker lead if not exists
+                            $workerLead = new WorkerLeads();
+                            $workerLead->firstname = $firstName;
+                            $workerLead->lastname = $lastName;
+                            $workerLead->lng = $language;
+                            $workerLead->role = 'Cleaner';
+                            $workerLead->company_type = $companyType;
+                            $workerLead->phone = $phoneNumber;
+                            $workerLead->status = "pending"; // Default status
+                            $workerLead->save();
+    
+                            if($workerLead->company_type == 'manpower'){
+                                $message = "select manpower company\n";
+                                $companies = ManpowerCompany::all();
+                                foreach($companies as $key => $company){
+                                    $message .= $company->id . ". " . $company->name . "\n";
+                                }
+                                sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $message]);
+                                Cache::put('manpower', $workerLead->id, now()->addDays(1));
+                            }else if($workerLead->company_type == 'my-company'){
+                                $worker = $this->createUser($workerLead);
+                                $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
+                            }
+    
+                            return response()->json([
+                                'status' => 'New worker added',
+                                'name' => $workerName,
+                                'language' => $language,
+                                'company_type' => $companyType
+                            ], 201);
+                        }
+                    }
+    
+                    if($last_input){
+                        $selectedCompanyId = intval($messageInput);
+                        // Update the worker's lead with the selected company ID
+                        $workerLead = WorkerLeads::where('id', $last_input)->first();
+                        if ($workerLead) {
+                            $workerLead->manpower_company_id = $selectedCompanyId;
+                            $workerLead->save();
+    
+                            $worker = $this->createUser($workerLead);
+                            $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
+    
+                            // // Send confirmation message to the user
+                            // $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING);
+                            Cache::forget('manpower', $last_input);
+                        }
+                    }
+                    return response()->json(['status' => 'Invalid message data'], 400);
+                }
+                
                 return response()->json(['status' => 'Already processed'], 200);
             }
         }
@@ -375,26 +509,22 @@ Broom Service Team 🌹",
             $verifyClient = null;
             $menus = null;
             $responseClientState = null;
-            if (strlen($from) > 10) {
-                $client = Client::with('lead_status')->where('phone', 'like', '%' . substr($from, 2) . '%')
-                ->orWhereJsonContains('extra', [['phone' => $from]])
-                ->first();
-                $user = User::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-                $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-            } else {
-                $client = Client::with('lead_status')->where('phone', 'like', '%' . $from . '%')
-                ->orWhereJsonContains('extra', [['phone' => $from]])
-                ->first();
-                $user = User::where('phone', 'like', '%' . $from . '%')->first();
-                $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
-            }
+
+            $client = Client::with('lead_status')->where('phone', $from)
+                    ->orWhereJsonContains('extra', [['phone' => $from]])
+                    ->first();
+            $user = User::where('phone',$from)->first();
+            $workerLead = WorkerLeads::where('phone', $from)->first();
 
             if ($client) {
                 \Log::info('Client: ' . $client->id);
             }
-            if ($user) {
+            if ($user && (!$client || $client->lead_status->lead_status !== "active client")) {
                 \Log::info('User: ' . $user->id);
+                $controller = app(WorkerLeadWebhookController::class);
+                return $controller->fbActiveWorkersWebhookCurrentLive($request);
             }
+            
             if ($workerLead) {
                 \Log::info('WorkerLead: ' . $workerLead->id);
             }
@@ -752,20 +882,43 @@ Broom Service Team 🌹",
             }else if ($client && $client->disable_notification == 1) {
                 \Log::info('notification disabled');
                 die('notification disabled');
-            }else if ($client && $client->lead_status && $client->lead_status->lead_status == 'active client') {
-                \Log::info('active client');
+            }else if ($client && $client->lead_status && in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])) {
+                \Log::info('active client ');
                 $this->fbActiveClientsWebhookCurrentLive($request);
             }            
             
             if($client){
+                if(!in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])){
+                    $client->lead_status->lead_status = "pending";
+                    $client->lead_status->updated_at = now();
+                    $client->lead_status->save();
+                    $client->created_at = now();
+                    $client->save();
+                }
                 $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
             }
 
-            if ($responseClientState && $responseClientState->final) {
+            if ($responseClientState && $responseClientState->final && in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])) {
                 \Log::info('final');
                 $this->fbActiveClientsWebhookCurrentLive($request);
                 die('final');
-            };
+            }else if($responseClientState && $responseClientState->final && !in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])){
+                \Log::info('final');
+                $responseClientState->final = 0;
+                $responseClientState->save();
+
+                $sid = $responseClientState->lng == "heb" ? "HX648077d9fa0a17989bad3140b23b8b0b" : "HX866eb5d2d224815a2823eb7260746aee";
+
+                $message = $this->twilio->messages->create(
+                    "whatsapp:+$from",
+                    [
+                        "from" => $this->twilioWhatsappNumber, 
+                        "contentSid" => $sid, 
+                        
+                    ]
+                );
+                \Log::info($message->sid);
+            }
 
             if ($client ) {
                 $result = WhatsappLastReply::where('phone', $from)
@@ -774,7 +927,7 @@ Broom Service Team 🌹",
 
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
-                if ($listId == 0) {
+                if ($listId == 0 || $ButtonPayload == '0') {
                     $sid = null;
 
                     if ($client->lng == 'heb') {
@@ -1104,8 +1257,8 @@ Broom Service Team 🌹",
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
-                                You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
-                                Enter your phone number or email address with which you registered for the service 📝',
+You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
+Enter your phone number or email address with which you registered for the service 📝',
                                 'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
                                 תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
                                 הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
@@ -1956,11 +2109,14 @@ Broom Service Team 🌹",
                             $msg = 'לא הצלחתי למצוא את הפרטים שלך על סמך מה ששלחת. בבקשה נסה שוב.';
                         }
 
+                        $sid = $client->lng == "heb" ? "HX7ad695557647ccb25f810649b071befb" : "HXefcca0aa3fdfb71266c31d1d23f58c90";
+
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
-                                "body" => $msg,
+                                // "body" => $msg,
+                                "contentSid" => $sid,
                                 
                             ]
                         );

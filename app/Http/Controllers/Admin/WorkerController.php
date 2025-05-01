@@ -504,6 +504,7 @@ class WorkerController extends Controller
             'driving_fees' => $request->driving_fees,
             'employment_type' => $request->employment_type,
             'salary' => $request->salary,
+            'two_factor_enabled' => 1,
             'step' => 0
         ]);
 

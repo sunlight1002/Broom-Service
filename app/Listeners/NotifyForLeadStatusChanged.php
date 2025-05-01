@@ -64,7 +64,6 @@ class NotifyForLeadStatusChanged implements ShouldQueue
        }
 
         if ($event->newStatus === 'uninterested') {
-
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
                 "notificationData" => [

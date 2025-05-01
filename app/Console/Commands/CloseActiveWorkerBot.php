@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\WhatsAppBotActiveWorkerState;
+use Twilio\Rest\Client as TwilioClient;
 
 class CloseActiveWorkerBot extends Command
 {
@@ -21,6 +22,11 @@ class CloseActiveWorkerBot extends Command
      */
     protected $description = 'Close active worker bot after 10 mins';
 
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilio;
+
     /**
      * Create a new command instance.
      *
@@ -29,6 +35,13 @@ class CloseActiveWorkerBot extends Command
     public function __construct()
     {
         parent::__construct();
+
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     /**
@@ -51,10 +64,32 @@ class CloseActiveWorkerBot extends Command
                 if($worker->worker) {
                     $lng = $worker->worker->lng ?? 'en';
                     $nextMessage = $message[$lng];
-                    sendClientWhatsappMessage($worker->worker->phone, ['name' => '', 'message' => $nextMessage]);
+                    
+                    if($lng == 'heb') {
+                        $sid = "HXb1b8dd0a46830a700b0e161579b9534a";
+                    }else if($lng == 'en') {
+                        $sid = "HX79bd5eb7e20421315b8f123b69c5fa6d";
+                    }else if($lng == 'ru') {
+                        $sid = "HX4dc7606ca6d5a9e43a65abeda077e618";
+                    }else if($lng == 'spa') {
+                        $sid = "HX01b0ebc538a841694df65a37f845dcbe";
+                    }
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+" . $worker->worker->phone,
+                        [
+                            "from" => $this->twilioWhatsappNumber, 
+                            "contentSid" => $sid,
+                            // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
+                        ]
+                    );
+
+                    StoreWebhookResponse($nextMessage, $worker->worker->phone, $twi->toArray());
+
                     $worker->delete();
                 }
             } catch (\Throwable $th) {
+                \Log::info($th);
                 //throw $th;
             }
         }

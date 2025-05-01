@@ -227,9 +227,10 @@ class FetchFacebookLeads extends Command
                                     $leadUpdatedAt = $leadStatus->updated_at; 
                                     $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING 
                                         && $leadUpdatedAt->diffInDays(now()) > 2;
-                                    $isNotPending = $leadStatus->lead_status !== LeadStatusEnum::PENDING;
+
+                                    $isLeadStatus = !in_array($leadStatus->lead_status, ['active client', 'freeze client', 'pending client']);
                                 
-                                    if ($isPendingForMoreThanTwoDays || $isNotPending) {
+                                    if ($isPendingForMoreThanTwoDays || $isLeadStatus) {
                                         $client->lead_status()->updateOrCreate(
                                             [],
                                             ['lead_status' => LeadStatusEnum::PENDING]

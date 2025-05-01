@@ -42,7 +42,9 @@ Route::any('/webhook_active_workers', [WorkerLeadWebhookController::class, 'fbAc
 Route::any('/webhook_worker_lead', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker_lead');
 Route::any('/webhook_active_worker_monday', [WorkerLeadWebhookController::class, 'activeWorkersMonday'])->name('webhook_active_worker_monday');
 
+Route::any('/twilio/worker-lead-webhook', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive']);
 Route::any('/twilio/webhook', [LeadWebhookController::class, 'fbWebhookCurrentLive']);
+
 Route::any('/whapi-group', [LeadWebhookController::class, 'whapiGroup']);
 Route::any('/twilio/status-callback', [LeadWebhookController::class, 'statusCallback']);
 

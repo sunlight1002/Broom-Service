@@ -93,7 +93,7 @@ class ScheduleChangeController extends Controller
             })
             ->when($reason, function ($q) use ($reason) {
                 if ($reason == "Contact me urgently") {
-                    return $q->whereIn('reason', ["Contact me urgently", "צרו איתי קשר דחוף"]);
+                    return $q->whereIn('reason', ["Contact me urgently", "צרו איתי קשר דחוף", "Свяжитесь со мной срочно", "Contáctame urgentemente"]);
                 } else if ($reason == "Change or update schedule") {
                     $q->whereIn('reason', ["Change or update schedule", "שינוי או עדכון שיבוץ", "Change Schedule", "שנה לוח זמנים", "Cambiar horario", "Изменить расписание"]);
                 } else if ($reason == "Invoice and accounting inquiry") {

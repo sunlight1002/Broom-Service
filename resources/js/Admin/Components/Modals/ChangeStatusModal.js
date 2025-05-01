@@ -253,7 +253,7 @@ export default function ChangeStatusModal({
                         {formValues.status === "reschedule call" && (
                             <>
                                 <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex flex-column">
                                         <label className="control-label">{t("global.reschedule_date")}</label>
                                         <DatePicker
                                             selected={formValues.reschedule_date}

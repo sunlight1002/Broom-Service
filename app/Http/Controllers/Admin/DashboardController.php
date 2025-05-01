@@ -103,15 +103,20 @@ class DashboardController extends Controller
   
       $total_new_workers = User::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
   
-      $total_active_clients = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-          return $query->whereBetween('created_at', [$startDate, $endDate])
-                       ->where('status', 2);
-      })->count();
+      $total_active_clients = Client::where('status', 2)
+          ->whereHas('lead_status', function ($query) {
+              $query->where('lead_status', "active client");
+          })
+          ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+            return $query->whereBetween('created_at', [$startDate, $endDate]);
+          })->count();
   
-      $total_leads = Client::when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-          return $query->whereBetween('created_at', [$startDate, $endDate])
-                       ->where('status', '!=', 2);
-      })->count();
+      $total_leads = Client::where('status', '!=', 2)
+          ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+              return $query->whereBetween('created_at', [$startDate, $endDate]);
+          })
+          ->count();
+  
   
       $total_workers = User::where(function ($q) use ($today) {
           $q->whereNull('last_work_date')
@@ -120,17 +125,17 @@ class DashboardController extends Controller
   
       $total_schedules = Schedule::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
   
-      $total_offers = Offer::when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
-          return $q->whereBetween('created_at', [$startDate, $endDate])
-                   ->where('status', 'sent');
-      })->count();
+      $total_offers = Offer::where('status', 'sent')
+          ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+            return $q->whereBetween('created_at', [$startDate, $endDate]);
+          })->count();
   
       $total_worker_leads = WorkerLeads::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
   
-      $total_contracts = Contract::when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
-          return $q->whereBetween('created_at', [$startDate, $endDate])
-                   ->where('status', '!=', ContractStatusEnum::VERIFIED);
-      })->count();
+      $total_contracts = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)
+          ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+            return $q->whereBetween('created_at', [$startDate, $endDate]);
+          })->count();
   
       $latest_jobs = Job::with(['client', 'service', 'worker', 'jobservice'])
           ->where('status', JobStatusEnum::COMPLETED)

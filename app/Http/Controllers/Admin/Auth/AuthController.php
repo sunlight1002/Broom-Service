@@ -343,6 +343,7 @@ class AuthController extends Controller
 
         $input                  = $request->all();
         $input['password']      = bcrypt($input['password']);
+        $input['two_factor_enabled'] = true;
         $admin                  = Admin::create($input);
         $admin->token           = $admin->createToken('Admin', ['admin'])->accessToken;
 

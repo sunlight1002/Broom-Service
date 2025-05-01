@@ -400,19 +400,20 @@ export default function AllWorkers() {
 
     useEffect(() => {
         const status = localStorage.getItem("worker-status");
-
+    
         if (localStorage.getItem("company") || status) {
-            const company = JSON.parse(localStorage.getItem("company"));
-            setFilters({
-                ...filters,
-                status: status ? status :"",
-                is_my_company: company.is_my_company ?? "",
-                is_manpower: company.is_manpower ?? "",
-                is_freelancer: company.is_freelancer ?? ""
-            })
+            const company = JSON.parse(localStorage.getItem("company") || "{}");
+    
+            setFilters(prev => ({
+                ...prev,
+                status: status || "",
+                is_my_company: company.is_my_company || "",
+                is_manpower: company.is_manpower || "",
+                is_freelancer: company.is_freelancer || "",
+            }));
         }
-
-    }, [filters.status, filters.is_my_company, filters.is_manpower, filters.is_freelancer]);
+    }, []);
+    
 
     return (
         <div id="container">
@@ -711,7 +712,7 @@ export default function AllWorkers() {
                             <button
                                 className={`btn border rounded px-3 mx-1`}
                                 style={
-                                    (filters.is_my_company !== true) && (filters.is_freelancer !== true) &&
+                                    (filters.is_my_company !== true) && (filters.is_freelancer !== true) && (filters.is_manpower !== true) &&
                                         filters.manpower_company_id === ""
                                         ? { background: "white" }
                                         : {
@@ -724,6 +725,7 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: false,
+                                        is_manpower: false,
                                         is_freelancer: false,
                                     });
                                     const company = {

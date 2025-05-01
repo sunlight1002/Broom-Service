@@ -29,6 +29,7 @@ class VerifyCsrfToken extends Middleware
         'wallybox/callback',
         'twilio/webhook',
         'twilio/status-callback',
-        'whapi-group'
+        'whapi-group',
+        'twilio/worker-lead-webhook'
     ];
 }

@@ -1262,9 +1262,9 @@ class WhatsappNotification
                         }elseif($lng == "spa"){
                             $sid = "HX1997a89a36d6f61c20f7fb9348f998a5";
                         }elseif($lng == "ru"){
-                            $sid = "HX7f492288767416911749151dee74a45e";
+                            $sid = "HXb49025961705979ca2fd1b26f6886fd0";
                         }else{
-                            $sid = "HX8be8446eb9a6a946945a728e77ac49a7";
+                            $sid = "HX0ecb9b0a4aa779fca29e227753d32297";
                         }
 
                         
@@ -2124,6 +2124,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
+                        \Log::info("FOLLOW_UP_ON_OUR_CONVERSATION");
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
@@ -2142,11 +2143,12 @@ class WhatsappNotification
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                                 ]),
+                                "statusCallback" => "https://2a3f-2405-201-2022-10c3-1bae-5bc7-9144-43e2.ngrok-free.app/status-callback"
 
                             ]
                         );
 
-                        \Log::info($twi->sid);
+                        \Log::info($twi);
                         $data = $twi->toArray();
                         $isTwilio = true;
 
