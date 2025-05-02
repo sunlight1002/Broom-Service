@@ -102,7 +102,9 @@ class ScheduleChangeController extends Controller
                     $q->whereIn('reason', ["additional information", "מידע נוסף"]);
                 } else if ($reason == "Client Feedback") {
                     $q->whereIn('reason', ["Client Feedback", "משוב לקוח"]);
-                } else if ($reason == "All") {
+                } else if($reason == "teleservice"){
+                    return $q->where('reason', 'teleservice');
+                }else if ($reason == "All") {
                     return $q;
                 }
             });

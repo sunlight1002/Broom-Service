@@ -38,6 +38,8 @@ export default function Lead() {
         id: 0,
     });
 
+    const role = localStorage.getItem("admin-role");
+
     const tableRef = useRef(null);
 
     const navigate = useNavigate();
@@ -161,7 +163,7 @@ export default function Lead() {
                                         <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t("admin.leads.Edit")}</button>
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
                                         <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>
+                                        ${role == "superadmin" ? `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>` : ""}
                                     </div>
                                 </div>`;
                         },

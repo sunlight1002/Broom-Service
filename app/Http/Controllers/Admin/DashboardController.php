@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Client;
-
+use App\Models\Order;
 use App\Models\WorkerLeads;
 use App\Models\Offer;
 use App\Models\Schedule;
@@ -116,8 +116,15 @@ class DashboardController extends Controller
               return $query->whereBetween('created_at', [$startDate, $endDate]);
           })
           ->count();
-  
-  
+
+        
+      $total_order_price = Order::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
+      $total_paid_order_price = Order::where('paid_status', 'paid')->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
+      $total_unpaid_order_price = Order::where('paid_status', 'unpaid')->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
+          \Log::info($total_order_price);
+          \Log::info($total_paid_order_price);
+          \Log::info($total_unpaid_order_price);
+
       $total_workers = User::where(function ($q) use ($today) {
           $q->whereNull('last_work_date')
             ->orWhereDate('last_work_date', '>=', $today);

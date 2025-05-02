@@ -11,10 +11,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Twilio\Rest\Client as TwilioClient;
+
 
 class ChatController extends Controller
 {
-
+    
     public function index(Request $request)
     {
         // Fetch all webhook responses from the database
@@ -135,12 +137,7 @@ class ChatController extends Controller
     
                 $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
                 $data[$k]['unread'] = count($_unreads);
-    
-                if (strlen($no) > 10) {
-                    $cl = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
-                } else {
-                    $cl = Client::where('phone', 'like', '%' . $no . '%')->first();
-                }
+                $cl = Client::where('phone', $no)->first();
     
                 if ($cl) {
                     $clients[] = [
@@ -203,6 +200,7 @@ class ChatController extends Controller
 
     public function chatsMessages($no, Request $request)
     {
+        $offical = false;
         $from = $request->input('from'); 
         $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
 
@@ -213,18 +211,22 @@ class ChatController extends Controller
         $lastMsg = WebhookResponse::where('number', $no)->get()->last();
         $expired = ($lastMsg && $lastMsg->created_at < Carbon::now()->subHours(24)) ? 1 : 0;
 
-        if (strlen($no) > 10) {
-            $client = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
-        } else {
-            $client = Client::where('phone', 'like', '%' . $no . '%')->first();
+        if(in_array($from, [str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')), str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))])) {
+            $offical = true;
         }
 
+        $client = Client::where('phone', $no)->first();
+
+        \Log::info($client ? 1 : 0);
+        \Log::info($no);
         $clientName = $client ? $client->firstname . " " . $client->lastname : 'Unknown';
 
         return response()->json([
             'chat' => $chat,
             'expired' => $expired,
+            'offical' => $offical == true ? 1 : 0,
             'clientName' => $clientName,
+            'isExist' => $client ? 1 : 0
         ]);
     }
 
@@ -232,48 +234,75 @@ class ChatController extends Controller
     public function chatReply(Request $request)
     {
         $replyId = $request->input('replyId'); // Get replyId from request
+        $from = $request->input('from');
         $mediaPath = null;
         $result = null;
         $mimeType = null;
+        $offical = false;
 
-        // Check if a media file is included in the request
-        if ($request->hasFile('media')) {
-            // Handle media upload
-            $mediaFile = $request->file('media');
-            $mediaPath = $mediaFile->store('public/uploads/media'); // Store the media file and get the path
-            $fullMediaPath = storage_path('app/' . $mediaPath); // Get the full path of the uploaded file
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
 
-            // Determine the file MIME type
-            $mimeType = $mediaFile->getMimeType();
+        // Initialize the Twilio client
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
 
-            // Check if the media is an image
-            if (strpos($mimeType, 'image') !== false) {
-                \Log::info($request->message);
-                // Send image message
-                $result = sendWhatsappImageMessage(
-                    $request->number,
-                    $fullMediaPath, // Path to the uploaded image
-                    $request->message, // Caption for the image
-                    $mimeType, // MIME type (e.g., image/jpeg)
-                    $replyId ? $replyId : null
-                );
+        if(in_array($from, [str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')), str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))])) {
+            $offical = true;
+        }
+
+        if($offical == true) {
+            
+            $twi = $twilio->messages->create(
+                "whatsapp:+$request->number",
+                [
+                    "from" => "whatsapp:+$from", 
+                    "body" => $request->message, 
+                    
+                ]
+            );
+            \Log::info("twilio response". $twi->sid);
+
+        }else{
+            // Check if a media file is included in the request
+            if ($request->hasFile('media')) {
+                // Handle media upload
+                $mediaFile = $request->file('media');
+                $mediaPath = $mediaFile->store('public/uploads/media'); // Store the media file and get the path
+                $fullMediaPath = storage_path('app/' . $mediaPath); // Get the full path of the uploaded file
+
+                // Determine the file MIME type
+                $mimeType = $mediaFile->getMimeType();
+
+                // Check if the media is an image
+                if (strpos($mimeType, 'image') !== false) {
+                    \Log::info($request->message);
+                    // Send image message
+                    $result = sendWhatsappImageMessage(
+                        $request->number,
+                        $fullMediaPath, // Path to the uploaded image
+                        $request->message, // Caption for the image
+                        $mimeType, // MIME type (e.g., image/jpeg)
+                        $replyId ? $replyId : null
+                    );
+                } else {
+                    // Send video message
+                    $result = sendWhatsappMediaMessage(
+                        $request->number,
+                        $fullMediaPath, // Full path of the uploaded video file
+                        $request->message,
+                        $replyId ? $replyId : null
+                    );
+                }
             } else {
-                // Send video message
-                $result = sendWhatsappMediaMessage(
+                \Log::info("wdwdwd");
+                // Send regular message (text only)
+                $result = sendWhatsappMessage(
                     $request->number,
-                    $fullMediaPath, // Full path of the uploaded video file
-                    $request->message,
+                    array('message' => $request->message),
                     $replyId ? $replyId : null
                 );
             }
-        } else {
-            \Log::info("wdwdwd");
-            // Send regular message (text only)
-            $result = sendWhatsappMessage(
-                $request->number,
-                array('message' => $request->message),
-                $replyId ? $replyId : null
-            );
         }
 
         // Accessing the result's message id properly, assuming it may be an object
@@ -287,6 +316,7 @@ class ChatController extends Controller
             'name' => 'whatsapp',
             'message' => $request->message,
             'number' => $request->number,
+            'from' => $from,
             'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
             'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
             'wa_id' => $replyId ? $replyId : null,

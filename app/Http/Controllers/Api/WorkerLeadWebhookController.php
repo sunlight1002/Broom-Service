@@ -41,6 +41,7 @@ class WorkerLeadWebhookController extends Controller
     protected $twilioAccountSid;
     protected $twilioAuthToken;
     protected $twilioWhatsappNumber;
+    protected $twilioWorkerLeadWhatsappNumber;
     protected $twilio;
 
     protected $botMessages = [
@@ -136,6 +137,7 @@ class WorkerLeadWebhookController extends Controller
         $this->twilioAccountSid = config('services.twilio.twilio_id');
         $this->twilioAuthToken = config('services.twilio.twilio_token');
         $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $this->twilioWorkerLeadWhatsappNumber = config('services.twilio.worker_lead_whatsapp_number');
 
         // Initialize the Twilio client
         $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
@@ -217,7 +219,7 @@ class WorkerLeadWebhookController extends Controller
                 $twi = $this->twilio->messages->create(
                     "whatsapp:+$from",
                     [
-                        "from" => $this->twilioWhatsappNumber, 
+                        "from" => $this->twilioWorkerLeadWhatsappNumber, 
                         "contentSid" => $sid, 
                         
                     ]
@@ -263,7 +265,7 @@ class WorkerLeadWebhookController extends Controller
                 $twi = $this->twilio->messages->create(
                     "whatsapp:+$from",
                     [
-                        "from" => $this->twilioWhatsappNumber, 
+                        "from" => $this->twilioWorkerLeadWhatsappNumber, 
                         "contentSid" => $sid, 
                         
                     ]
@@ -1367,7 +1369,7 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
                             "contentSid" => $sid, 
                             
                         ]
@@ -1386,7 +1388,7 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
                             "contentSid" => $sid, 
                             
                         ]
@@ -1403,7 +1405,7 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
                             "contentSid" => $sid, 
                             
                         ]
@@ -1428,7 +1430,7 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
                             "contentSid" => $sid, 
                             
                         ]

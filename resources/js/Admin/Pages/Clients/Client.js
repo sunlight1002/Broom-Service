@@ -32,6 +32,8 @@ export default function Clients() {
         id: 0,
     });
 
+    const role = localStorage.getItem("admin-role");
+
     const tableRef = useRef(null);
     const actionRef = useRef(null);
 
@@ -138,7 +140,9 @@ export default function Clients() {
 
                             _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                            if(role == "superadmin") {
+                                _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                            }
 
                             _html += "</div> </div>";
 

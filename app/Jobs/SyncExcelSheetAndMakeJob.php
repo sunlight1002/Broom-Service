@@ -221,7 +221,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                     
 
-                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-21'))) {
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-05-02'))) {
                        $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -589,7 +589,16 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             }
             // Join all messages with line breaks
             $content = implode(PHP_EOL, $messages);
-            file_put_contents(storage_path('app/messages.txt'), $content);
+
+            if (!empty(trim($content))) {
+                file_put_contents(storage_path('app/messages.txt'), $content);
+
+                sendWhatsappFileMessage(
+                    config('services.whatsapp_groups.payment_status'),
+                    storage_path('app/messages.txt'),
+                    'Sheet Conflicts/errors'
+                );
+            }
             
             dd(implode(',', array_unique($client_ids)));
         } catch (\Exception $e) {

@@ -230,8 +230,6 @@ if (!function_exists('sendWhatsappMediaMessage')) {
             return ['error' => 'An error occurred while uploading the media.'];
         }
 
-        \Log::info($caption);
-
         // Send the video message using the media ID
         try {
             $messageResponse = Http::withHeaders([
@@ -241,7 +239,7 @@ if (!function_exists('sendWhatsappMediaMessage')) {
                     'to' => $mobile_no,
                     'media' => $mediaId,
                     'caption' => $caption ?? '',
-                    'mime_type' => 'video/mp4'
+                    'mime_type' => $fileMimeType,
                 ]);
 
             // Log the message response for debugging
@@ -261,6 +259,81 @@ if (!function_exists('sendWhatsappMediaMessage')) {
     }
 }
 
+if (!function_exists('sendWhatsappFileMessage')) {
+    function sendWhatsappFileMessage(
+        $number, 
+        $mediaPath,
+         $caption = '', 
+         $lang = 'he', 
+         $replyId = null
+        )
+    {
+
+        if (!file_exists($mediaPath)) {
+            Log::error("File not found at path: $mediaPath");
+            return ['error' => 'File not found'];
+        }
+        $fileMimeType = mime_content_type($mediaPath); 
+        $fileName = basename($mediaPath); // Get the filename
+
+        try {
+
+            // Upload the file as binary using withBody() and correct content type
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.whapi.token'),
+                'accept' => 'application/json',
+                'Content-Type' => $fileMimeType,
+            ])->withBody(file_get_contents($mediaPath), $fileMimeType)
+              ->post(config('services.whapi.url') . 'media');
+
+            Log::info('WhatsApp media upload response: ', $response->json());
+
+            if (!$response->successful()) {
+                Log::error('Error uploading WhatsApp media: ', $response->json());
+                return ['error' => $response->json()];
+            }
+
+            $media = $response->json()['media'][0] ?? null;
+            if (!$media || !isset($media['id'])) {
+                Log::error('Media ID not found in response.');
+                return ['error' => 'Media ID not found'];
+            }
+
+            $mediaId = $media['id'];
+
+        } catch (\Exception $e) {
+            Log::error('Exception during WhatsApp media upload: ' . $e->getMessage());
+            return ['error' => 'An error occurred while uploading the media.'];
+        }
+
+        // Send the video message using the media ID
+        try {
+            $messageResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.whapi.token'),
+                    'Content-Type' => 'application/json',
+                ])->post(config('services.whapi.url') . 'messages/document', [
+                    'to' => $number,
+                    'media' => $mediaId,
+                    'caption' => $caption ?? '',
+                    'mime_type' => $fileMimeType
+                ]);
+
+            // Log the message response for debugging
+            Log::info('WhatsApp send message response: ', $messageResponse->json());
+
+            // Check the response status
+            if ($messageResponse->successful()) {
+                return $messageResponse->json();
+            } else {
+                Log::error('Error sending WhatsApp message: ', $messageResponse->json());
+                return ['error' => $messageResponse->json()];
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception during WhatsApp message send: ' . $e->getMessage());
+            return ['error' => 'An error occurred while sending the message.'];
+        }
+    }
+}
 
 if (!function_exists('sendWhatsappImageMessage')) {
     function sendWhatsappImageMessage(

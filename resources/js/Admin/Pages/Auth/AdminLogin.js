@@ -59,6 +59,7 @@ export default function AdminLogin() {
                     localStorage.setItem("admin-name", result.data.name);
                     localStorage.setItem("admin-id", result.data.id);
                     localStorage.setItem("admin-lng", result.data.lng);
+                    localStorage.setItem("admin-role", result.data.role);
                     const adminLng = localStorage.getItem("admin-lng")
                     i18next.changeLanguage(adminLng);
                     if (adminLng == "en") {
@@ -76,6 +77,7 @@ export default function AdminLogin() {
                         setLoading(false)
                         window.location = "/admin/login-otp";
                     } else {
+                        localStorage.setItem("admin-role", result.data.role);
                         localStorage.setItem("admin-token", result.data.token);
                         localStorage.setItem("admin-name", result.data.name);
                         localStorage.setItem("admin-id", result.data.id);

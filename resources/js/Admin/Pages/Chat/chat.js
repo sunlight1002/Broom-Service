@@ -22,7 +22,11 @@ export default function chat() {
     const [groupedMessages, setGroupedMessages] = useState({});
     const [selectNumber, setSelectNumber] = useState(null);
     const [clients, setClients] = useState([]);
-    const [expired, setExpired] = useState(0);
+    const [expired, setExpired] = useState({
+        expired: 0,
+        offical: 0,
+        isExist: 0
+    });
     const [isOpen, setIsOpen] = useState(false);
     const [chatName, setChatName] = useState("")
     const [selectedChat, setSelectedChat] = useState(null);
@@ -77,7 +81,7 @@ export default function chat() {
     const getAllChats = async () => {
         try {
             const response = await axios.get('/api/admin/get-all-chats', { headers });
-            console.log(response.data, "response.data");
+            // console.log(response.data, "response.data");
 
         } catch (error) {
             console.error(error);
@@ -87,7 +91,7 @@ export default function chat() {
     const getChatById = async (chatId) => {
         try {
             const response = await axios.get(`/api/admin/get-chat/${chatId}`, { headers });
-            console.log(response.data, "response.data");
+            // console.log(response.data, "response.data");
         } catch (error) {
             console.error(error);
         }
@@ -96,7 +100,7 @@ export default function chat() {
     const getConversationsByNumber = async (chatId) => {
         try {
             const response = await axios.get(`/api/admin/get-conversations/${chatId}`, { headers });
-            console.log(response.data, "conversations");
+            // console.log(response.data, "conversations");
         } catch (error) {
             console.error(error);
         }
@@ -213,6 +217,8 @@ export default function chat() {
 
     const getMessages = (no) => {
         axios.get(`/api/admin/chat-message/${no}?from=${activeTab ?? localStorage.getItem("from")}`, { headers }).then((res) => {
+            // console.log(res.data, "res.data");
+
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
             if (cl > c.length) {
@@ -221,7 +227,11 @@ export default function chat() {
             setChatName(res?.data?.clientName)
 
             localStorage.setItem("chatLen", c.length);
-            // setExpired(res.data.expired);
+            setExpired({
+                expired: res.data.expired,
+                offical: res.data.offical,
+                isExist: res.data.isExist
+            });
             setMessages(c);
 
             const grouped = groupMessagesByDate(c);
@@ -246,7 +256,7 @@ export default function chat() {
     //         }
     //     } catch (error) {
     //         console.log(error);
-            
+
     //         // alert.info("you are already in a chat")
     //     }
     // };
@@ -272,6 +282,7 @@ export default function chat() {
 
         const send = new FormData(); // Use FormData to handle file uploads
         send.append("number", selectNumber);
+        send.append("from", activeTab);
         send.append("message", messageToSend);
         if (replyId) {
             send.append("replyId", replyId);
@@ -281,9 +292,9 @@ export default function chat() {
         }
         setLoading(true);
 
-        send.forEach((value, key) => {
-            console.log(`${key}:`, value);
-        });
+        // send.forEach((value, key) => {
+        //     console.log(`${key}:`, value);
+        // });
 
         axios.post(`/api/admin/chat-reply`, send, {
             headers: {
@@ -381,7 +392,8 @@ export default function chat() {
     const scroller = () => {
         const objDiv = document.getElementById("ko");
         if (objDiv) {
-            objDiv.scrollTop = objDiv.scrollHeight;
+            scrollToBottom();
+            // objDiv.scrollTop = objDiv.scrollHeight;
         }
     };
 
@@ -425,7 +437,6 @@ export default function chat() {
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
         if (bottom) {
-            console.log("Loading more data...");
             setPage(prevPage => prevPage + 1);
             getData(); // Load more data when reaching the bottom
         }
@@ -852,7 +863,7 @@ export default function chat() {
                                                         setActiveTab(e.target.value)
                                                         localStorage.setItem("from", e.target.value)
                                                     }}
-                                                                                                    >
+                                                >
                                                     {tabs.map((tab) => (
                                                         <option key={tab} value={tab}>
                                                             {tab}
@@ -1081,6 +1092,7 @@ export default function chat() {
                                                                             overflowY: "scroll",
                                                                             width: "auto",
                                                                             height: "76vh",
+                                                                            overflowX: "hidden",
                                                                         }}
                                                                     >
                                                                         <div
@@ -1245,7 +1257,7 @@ export default function chat() {
                                                                                         })}
                                                                                     </div>
                                                                                 ))}
-                                                                                <div ref={chatEndRef} />
+                                                                                <div ref={chatEndRef} className="chat-end" />
                                                                             </ul>
 
                                                                             {/* Reply Message Display */}
@@ -1328,40 +1340,54 @@ export default function chat() {
                                                                     <div className="simplebar-scrollbar" style={{ transform: "translate3d(0px, 0px, 0px)", display: "block" }}></div>
                                                                 </div>
                                                             </div>
-
-                                                            {expired == 0 ? (
-                                                                <>
-                                                                    <div className="wa-input-bar">
-                                                                        {/* Attachments Button */}
+                                                            <div className="wa-input-bar">
+                                                                {/* Attachments Button */}
+                                                                {
+                                                                    expired.offical === 0 && (
                                                                         <button className="wa-input-icon"
                                                                             onClick={() => setWaMedia(true)}
                                                                         >
                                                                             <i className="fa fa-paperclip" aria-hidden="true"></i>
                                                                         </button>
+                                                                    )
+                                                                }
 
-                                                                        {/* Emoji Button */}
-                                                                        <button className="wa-input-icon"
-                                                                            onClick={() => setEmoji(prev => !prev)}
-                                                                        >
-                                                                            <i className="fa-regular fa-face-smile" aria-hidden="true"></i>
-                                                                        </button>
+                                                                {/* Emoji Button */}
+                                                                <button className="wa-input-icon"
+                                                                    onClick={() => setEmoji(prev => !prev)}
+                                                                >
+                                                                    <i className="fa-regular fa-face-smile" aria-hidden="true"></i>
+                                                                </button>
 
-                                                                        {/* Text Input */}
-                                                                        <input
-                                                                            type="text"
-                                                                            name="message"
-                                                                            id="message_typing"
-                                                                            className="wa-input-text"
-                                                                            chat-box=""
-                                                                            disabled={loading}
-                                                                            onKeyDown={(e) => e.key === "Enter" ? sendMessage() : ""}
-                                                                            placeholder={t("admin.global.chatPlaceholder")}
-                                                                            value={message}
-                                                                            onChange={(e) => handleInputChange(e)}
-                                                                        />
+                                                                {/* Text Input */}
+                                                                <textarea
+                                                                    name="message"
+                                                                    id="message_typing"
+                                                                    className="wa-input-text"
+                                                                    style={{ resize: 'none' }}
+                                                                    disabled={loading}
+                                                                    onKeyDown={(e) => {
+                                                                        if (!(
+                                                                            (expired.isExist === 0 && expired.offical === 1) ||
+                                                                            (expired.expired === 1 && expired.offical === 1)
+                                                                        )) {
+                                                                            e.key === "Enter" && !e.shiftKey ? (e.preventDefault(), sendMessage()) : null;
+                                                                        }
+                                                                    }}
+                                                                    placeholder={t("admin.global.chatPlaceholder")}
+                                                                    value={message}
+                                                                    onChange={handleInputChange}
+                                                                />
 
-                                                                        {/* Send Button */}
-                                                                        <button className="wa-input-icon wa-send-button mx-2"
+
+                                                                {/* Send Button */}
+                                                                {
+                                                                    !(
+                                                                        (expired.isExist === 0 && expired.offical === 1) ||
+                                                                        (expired.expired === 1 && expired.offical === 1)
+                                                                    ) && (
+                                                                        <button
+                                                                            className="wa-input-icon wa-send-button mx-2"
                                                                             onClick={(e) => sendMessage()}
                                                                             disabled={selectedFile && selectedFile?.name ? false : message == ''}
                                                                         >
@@ -1369,69 +1395,53 @@ export default function chat() {
                                                                                 loading ? (
                                                                                     <MiniLoader />
                                                                                 ) : (
-                                                                                    message.trim() ? (
-                                                                                        <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                                                                    ) : (
-                                                                                        // <i className="fa fa-microphone" aria-hidden="true"></i>
-                                                                                        <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                                                                    )
+                                                                                    <i className="fa fa-paper-plane" aria-hidden="true"></i>
                                                                                 )
                                                                             }
                                                                         </button>
-                                                                    </div>
+                                                                    )
+                                                                }
 
-                                                                    {/* Emoji Modal */}
-                                                                    <Modal
-                                                                        show={emoji} onHide={() => setEmoji(false)} centered>
-                                                                        <Modal.Header closeButton>
-                                                                            <Modal.Title>{t("admin.global.select_emoji")}</Modal.Title>
-                                                                        </Modal.Header>
-                                                                        <Modal.Body>
-                                                                            <div className="d-flex justify-content-center align-items-center">
-                                                                                <EmojiPicker onEmojiClick={onEmojiClick} />
-                                                                            </div>
-                                                                        </Modal.Body>
-                                                                        <Modal.Footer>
-                                                                            <Button variant="secondary" onClick={() => setEmoji(false)}>
-                                                                                {t("global.close")}
-                                                                            </Button>
-                                                                        </Modal.Footer>
-                                                                    </Modal>
-                                                                    <Modal show={waMedia} onHide={() => setWaMedia(false)} centered>
-                                                                        <Modal.Header closeButton>
-                                                                            <Modal.Title>{t("admin.global.upload_options")}</Modal.Title>
-                                                                        </Modal.Header>
-                                                                        <Modal.Body>
-                                                                            <div className="d-flex flex-column">
-                                                                                <Button variant="outline-primary" onClick={() => handleFileUpload('Image')}>
-                                                                                    📷 {t("admin.global.upload_image")}
-                                                                                </Button>
-                                                                                <Button variant="outline-primary" onClick={() => handleFileUpload('Video')}>
-                                                                                    🎥 {t("admin.global.upload_video")}
-                                                                                </Button>
-                                                                            </div>
-                                                                        </Modal.Body>
-                                                                        <Modal.Footer>
-                                                                            <Button variant="secondary" onClick={() => setWaMedia(false)}>
-                                                                                {t("global.close")}
-                                                                            </Button>
-                                                                        </Modal.Footer>
-                                                                    </Modal>
-                                                                </>
-                                                            ) : (
-                                                                <div className="input-group">
-                                                                    <div className="text-center">
-                                                                        <button
-                                                                            type="button"
-                                                                            className="btn btn-info text-white"
-                                                                            data-toggle="modal"
-                                                                            data-target="#exampleModalTemplate"
-                                                                        >
-                                                                            {t("admin.global.restartChat")} <i className="fas fa-refresh"></i>
-                                                                        </button>
+
+                                                            </div>
+
+                                                            {/* Emoji Modal */}
+                                                            <Modal
+                                                                show={emoji} onHide={() => setEmoji(false)} centered>
+                                                                <Modal.Header closeButton>
+                                                                    <Modal.Title>{t("admin.global.select_emoji")}</Modal.Title>
+                                                                </Modal.Header>
+                                                                <Modal.Body>
+                                                                    <div className="d-flex justify-content-center align-items-center">
+                                                                        <EmojiPicker onEmojiClick={onEmojiClick} />
                                                                     </div>
-                                                                </div>
-                                                            )}
+                                                                </Modal.Body>
+                                                                <Modal.Footer>
+                                                                    <Button variant="secondary" onClick={() => setEmoji(false)}>
+                                                                        {t("global.close")}
+                                                                    </Button>
+                                                                </Modal.Footer>
+                                                            </Modal>
+                                                            <Modal show={waMedia} onHide={() => setWaMedia(false)} centered>
+                                                                <Modal.Header closeButton>
+                                                                    <Modal.Title>{t("admin.global.upload_options")}</Modal.Title>
+                                                                </Modal.Header>
+                                                                <Modal.Body>
+                                                                    <div className="d-flex flex-column">
+                                                                        <Button variant="outline-primary" onClick={() => handleFileUpload('Image')}>
+                                                                            📷 {t("admin.global.upload_image")}
+                                                                        </Button>
+                                                                        <Button variant="outline-primary" onClick={() => handleFileUpload('Video')}>
+                                                                            🎥 {t("admin.global.upload_video")}
+                                                                        </Button>
+                                                                    </div>
+                                                                </Modal.Body>
+                                                                <Modal.Footer>
+                                                                    <Button variant="secondary" onClick={() => setWaMedia(false)}>
+                                                                        {t("global.close")}
+                                                                    </Button>
+                                                                </Modal.Footer>
+                                                            </Modal>
 
                                                         </div>
                                                     </>

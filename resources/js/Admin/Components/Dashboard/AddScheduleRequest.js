@@ -48,17 +48,17 @@ export default function AddScheduleRequest({ mode }) {
             comment: formValues.comment
         }
         try {
-           const res = await axios.post(`/api/admin/add-schedule-request`, data, { headers });
-           setFormValues({
-               worker_ids: [],
-               client_ids: [],
-               reason: "",
-               comment: ""
-           })
-           alert.success(res?.data?.message);
-           navigate("/admin/schedule-requests");
+            const res = await axios.post(`/api/admin/add-schedule-request`, data, { headers });
+            setFormValues({
+                worker_ids: [],
+                client_ids: [],
+                reason: "",
+                comment: ""
+            })
+            alert.success(res?.data?.message);
+            navigate("/admin/schedule-requests");
 
-           
+
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);
@@ -165,22 +165,43 @@ export default function AddScheduleRequest({ mode }) {
                                     </div>
                                 </div>
                                 <div className="col-sm-6 mt-3">
-                                    <div className="form-group">
-                                        <label className="control-label">{t("global.reason")}</label>
-
-                                        <input
-                                            name="reason"
-                                            type="text"
-                                            value={formValues.reason}
+                                    <div
+                                        className="mr-3 d-flex align-items-center"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.reason")}
+                                    </div>
+                                    <div className="d-flex">
+                                        <select
+                                            className="form-control"
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
-                                                    reason: e.target.value,
-                                                });
+                                                    reason: e.target.value
+                                                })
                                             }}
-                                            className="form-control"
-                                            required
-                                        />
+                                            value={formValues.reason}
+                                        >
+                                            <option value="All">All</option>
+                                            <option value="Contact me urgently">
+                                                Contact me urgently
+                                            </option>
+                                            <option value="Invoice and accounting inquiry">
+                                                Invoice and accounting inquiry
+                                            </option>
+                                            <option value="Change or update schedule">
+                                                Change or update schedule
+                                            </option>
+                                            <option value="additional information">
+                                                Additional information
+                                            </option>
+                                            <option value="Client Feedback">
+                                                Client Feedback
+                                            </option>
+                                            <option value="teleservice">
+                                                Teleservice
+                                            </option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>

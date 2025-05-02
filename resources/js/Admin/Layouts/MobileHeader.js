@@ -91,86 +91,92 @@ export default function MobileHeader() {
                                 <i className="fa-solid fa-gauge"></i>{t("admin.sidebar.dashboard")}
                             </a>
                         </li>
-                        <li className="nav-item">
-                            <a href="/admin/leads" onClick={(e) => handleClick(e, "/admin/leads")}>
-                                <i className="fa-solid fa-poll-h"></i>{t("admin.sidebar.leads")}
-                            </a>
-                        </li>
-                        {/* Client Dropdown */}
-                        <li className="nav-item">
-                            <div id="clientDropdown" className="fence commonDropdown">
-                                <div id="clientHead">
-                                    <a
-                                        href="#"
-                                        className="text-left btn btn-header-link"
-                                        data-toggle="collapse"
-                                        data-target="#clientDropdownMenu"
-                                        aria-expanded="true"
-                                        aria-controls="clientDropdownMenu"
-                                    >
-                                        <i className="fa-solid fa-user-tie"></i> {t("admin.sidebar.clients")}{" "}
-                                        <i className="fa-solid fa-angle-down"></i>
-                                    </a>
-                                </div>
-                                <div
-                                    id="clientDropdownMenu"
-                                    className={`collapse `}
-                                    aria-labelledby="clientHead"
-                                    data-parent="#clientDropdown"
-                                >
-                                    <div className="card-body">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">
+                        {
+                            role !== "hr" && (
+                                <>
+                                    <li className="nav-item">
+                                        <a href="/admin/leads" onClick={(e) => handleClick(e, "/admin/leads")}>
+                                            <i className="fa-solid fa-poll-h"></i>{t("admin.sidebar.leads")}
+                                        </a>
+                                    </li>
+                                    {/* Client Dropdown */}
+                                    <li className="nav-item">
+                                        <div id="clientDropdown" className="fence commonDropdown">
+                                            <div id="clientHead">
                                                 <a
-                                                    href="/admin/clients"
-                                                    onClick={(e) => handleClick(e, "/admin/clients")}
+                                                    href="#"
+                                                    className="text-left btn btn-header-link"
+                                                    data-toggle="collapse"
+                                                    data-target="#clientDropdownMenu"
+                                                    aria-expanded="true"
+                                                    aria-controls="clientDropdownMenu"
                                                 >
-                                                    <i className="fa fa-angle-right"></i> All Clients
+                                                    <i className="fa-solid fa-user-tie"></i> {t("admin.sidebar.clients")}{" "}
+                                                    <i className="fa-solid fa-angle-down"></i>
                                                 </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a
-                                                    href="/admin/clients?type=pending%20client"
-                                                    onClick={(e) =>
-                                                        handleClick(e, "/admin/clients?type=pending%20client")
-                                                    }
-                                                >
-                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a
-                                                    href="/admin/clients?type=active%20client"
-                                                    onClick={(e) =>
-                                                        handleClick(e, "/admin/clients?type=active%20client")
-                                                    }
-                                                >
-                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a
-                                                    href="/admin/clients?type=freeze%20client"
-                                                    onClick={(e) =>
-                                                        handleClick(e, "/admin/clients?type=freeze%20client")
-                                                    }
-                                                >
-                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a
-                                                    href="/admin/clients?type=past"
-                                                    onClick={(e) => handleClick(e, "/admin/clients?type=past")}
-                                                >
-                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
+                                            </div>
+                                            <div
+                                                id="clientDropdownMenu"
+                                                className={`collapse `}
+                                                aria-labelledby="clientHead"
+                                                data-parent="#clientDropdown"
+                                            >
+                                                <div className="card-body">
+                                                    <ul className="list-group">
+                                                        <li className="list-group-item">
+                                                            <a
+                                                                href="/admin/clients"
+                                                                onClick={(e) => handleClick(e, "/admin/clients")}
+                                                            >
+                                                                <i className="fa fa-angle-right"></i> All Clients
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a
+                                                                href="/admin/clients?type=pending%20client"
+                                                                onClick={(e) =>
+                                                                    handleClick(e, "/admin/clients?type=pending%20client")
+                                                                }
+                                                            >
+                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a
+                                                                href="/admin/clients?type=active%20client"
+                                                                onClick={(e) =>
+                                                                    handleClick(e, "/admin/clients?type=active%20client")
+                                                                }
+                                                            >
+                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a
+                                                                href="/admin/clients?type=freeze%20client"
+                                                                onClick={(e) =>
+                                                                    handleClick(e, "/admin/clients?type=freeze%20client")
+                                                                }
+                                                            >
+                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a
+                                                                href="/admin/clients?type=past"
+                                                                onClick={(e) => handleClick(e, "/admin/clients?type=past")}
+                                                            >
+                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </>
+                            )
+                        }
                         <li className="nav-item">
                             <a href="/admin/workers" onClick={(e) => handleClick(e, "/admin/workers")}>
                                 <i className="fa-solid fa-users"></i>{t("admin.sidebar.workers")}
@@ -179,11 +185,6 @@ export default function MobileHeader() {
                         <li className="nav-item">
                             <a href="/admin/workers-leaves" onClick={(e) => handleClick(e, "/admin/workers-leaves")}>
                                 <i className="fa-solid fa-calendar-minus"></i>{t("admin.sidebar.workerLeave")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/task" onClick={(e) => handleClick(e, "/admin/task")}>
-                                <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
                             </a>
                         </li>
                         <li className="nav-item">
@@ -197,181 +198,101 @@ export default function MobileHeader() {
                             </a>
                         </li>
                         <li className="nav-item">
-                            <a href="/admin/schedule" onClick={(e) => handleClick(e, "/admin/schedule")}>
-                                <i className="fa-solid fa-video"></i>{t("admin.sidebar.meetings")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/offered-price" onClick={(e) => handleClick(e, "/admin/offered-price")}>
-                                <i className="fa-solid fa-tags"></i>{t("admin.sidebar.offers")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/contracts" onClick={(e) => handleClick(e, "/admin/contracts")}>
-                                <i className="fa-solid fa-clipboard-list"></i>
-                                {t("admin.sidebar.contracts")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/jobs" onClick={(e) => handleClick(e, "/admin/jobs")}>
-                                <i className="fa-solid fa-briefcase"></i>
-                                {t("admin.sidebar.schedule_meet")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/conflicts" onClick={(e) => handleClick(e, "/admin/conflicts")}>
-                                <i class="fa-solid fa-shuffle"></i>
-                                {t("admin.sidebar.conflicts")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/schedule-requests" onClick={(e) => handleClick(e, "/admin/schedule-requests")}>
-                                <i className="fa-solid fa-hand"></i>
-                                {t("admin.sidebar.pending_request")}
+                            <a href="/admin/task" onClick={(e) => handleClick(e, "/admin/task")}>
+                                <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
                             </a>
                         </li>
 
-                        <li className="nav-item">
-                            <a href="/admin/facebook-insights" onClick={(e) => handleClick(e, "/admin/facebook-insights")}>
-                                <i className="fa-brands fa-facebook"></i>
-                                {t("admin.sidebar.fb_insights")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/custom-message" onClick={(e) => handleClick(e, "/admin/custom-message")}>
-                                <i className="fa-solid fa-paper-plane"></i>
-                                {t("admin.sidebar.custom_message")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/chat" onClick={(e) => handleClick(e, "/admin/chat")}>
-                                <i className="fa-solid fa-message"></i>
-                                {t("admin.sidebar.whatsapp")}
-                            </a>
-                        </li>
+                        {
+                            role !== "hr" && (
+                                <>
+                                    <li className="nav-item">
+                                        <a href="/admin/schedule" onClick={(e) => handleClick(e, "/admin/schedule")}>
+                                            <i className="fa-solid fa-video"></i>{t("admin.sidebar.meetings")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/offered-price" onClick={(e) => handleClick(e, "/admin/offered-price")}>
+                                            <i className="fa-solid fa-tags"></i>{t("admin.sidebar.offers")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/contracts" onClick={(e) => handleClick(e, "/admin/contracts")}>
+                                            <i className="fa-solid fa-clipboard-list"></i>
+                                            {t("admin.sidebar.contracts")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/jobs" onClick={(e) => handleClick(e, "/admin/jobs")}>
+                                            <i className="fa-solid fa-briefcase"></i>
+                                            {t("admin.sidebar.schedule_meet")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/conflicts" onClick={(e) => handleClick(e, "/admin/conflicts")}>
+                                            <i class="fa-solid fa-shuffle"></i>
+                                            {t("admin.sidebar.conflicts")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/schedule-requests" onClick={(e) => handleClick(e, "/admin/schedule-requests")}>
+                                            <i className="fa-solid fa-hand"></i>
+                                            {t("admin.sidebar.pending_request")}
+                                        </a>
+                                    </li>
 
-                        {/* <li className="nav-item">
-                            <div
-                                id="myFencewh"
-                                className="fence commonDropdown"
-                            >
-                                <div id="fencehead2wh">
-                                    <a
-                                        href="#"
-                                        className="text-left btn btn-header-link"
-                                        data-toggle="collapse"
-                                        data-target="#fence212"
-                                        aria-expanded="true"
-                                        aria-controls="fence212"
-                                    >
-                                        <i className="fa-solid fa-message"></i>{" "}
-                                        Whatsapp chat{" "}
-                                        <i className="fa-solid fa-angle-down"></i>
-                                    </a>
-                                </div>
-                                <div
-                                    id="fence212"
-                                    className="collapse"
-                                    aria-labelledby="fencehead2wh"
-                                    data-parent="#fence"
-                                >
-                                    <div className="card-body">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">
-                                                <a href="/admin/chat">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    Chat History{" "}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/responses">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    Whatsapp Responses{" "}
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </li> */}
+                                    <li className="nav-item">
+                                        <a href="/admin/facebook-insights" onClick={(e) => handleClick(e, "/admin/facebook-insights")}>
+                                            <i className="fa-brands fa-facebook"></i>
+                                            {t("admin.sidebar.fb_insights")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/custom-message" onClick={(e) => handleClick(e, "/admin/custom-message")}>
+                                            <i className="fa-solid fa-paper-plane"></i>
+                                            {t("admin.sidebar.custom_message")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/chat" onClick={(e) => handleClick(e, "/admin/chat")}>
+                                            <i className="fa-solid fa-message"></i>
+                                            {t("admin.sidebar.whatsapp")}
+                                        </a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/messenger" onClick={(e) => handleClick(e, "/admin/messenger")}>
+                                            <i className="fa-solid fa-comment"></i>
+                                            {t("admin.sidebar.messenger")}
+                                        </a>
+                                    </li>
 
-                        {/* <li className="nav-item">
-                            <div
-                                id="myFencePay"
-                                className="fence commonDropdown"
-                            >
-                                <div id="fenceheadpay">
-                                    <a
-                                        href="#"
-                                        className="text-left btn btn-header-link"
-                                        data-toggle="collapse"
-                                        data-target="#fencepay"
-                                        aria-expanded="true"
-                                        aria-controls="fencepay"
-                                    >
-                                        <i className="fas fa-file-invoice"></i>{" "}
-                                        Sales{" "}
-                                        <i className="fa-solid fa-angle-down"></i>
-                                    </a>
-                                </div>
-                                <div
-                                    id="fencepay"
-                                    className="collapse"
-                                    aria-labelledby="fenceheadpay"
-                                    data-parent="#fencepay"
-                                >
-                                    <div className="card-body">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">
-                                                <a href="/admin/orders">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    Orders{" "}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/invoices">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    Invoices{" "}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/payments">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    Payments{" "}
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </li> */}
-                        <li className="nav-item">
-                            <a href="/admin/messenger" onClick={(e) => handleClick(e, "/admin/messenger")}>
-                                <i className="fa-solid fa-comment"></i>
-                                {t("admin.sidebar.messenger")}
-                            </a>
-                        </li>
+                                    <li className="nav-item">
+                                        <a href="/admin/payments" onClick={(e) => handleClick(e, "/admin/payments")}>
+                                            <i className="fa-solid fa-cart-shopping"></i>
+                                            {t("admin.sidebar.payments")}
+                                        </a>
+                                    </li>
+                                </>
+                            )
+                        }
 
-                        <li className="nav-item">
-                            <a href="/admin/payments" onClick={(e) => handleClick(e, "/admin/payments")}>
-                                <i className="fa-solid fa-cart-shopping"></i>
-                                {t("admin.sidebar.payments")}
-                            </a>
-                        </li>
-
-                        {role !== "member" && (
+                        {role !== "member" && role !== "hr" && (
                             <li className="nav-item">
                                 <a href="/admin/income" onClick={(e) => handleClick(e, "/admin/income")}>
                                     <i className="fa-solid fa-ils"></i>{t("admin.sidebar.earnings")}
                                 </a>
                             </li>
                         )}
-                        <li className="nav-item">
-                            <a href="/admin/notifications" onClick={(e) => handleClick(e, "/admin/notifications")}>
-                                <i className="fa-solid fa-bullhorn"></i>
-                                {t("admin.sidebar.notification")}
-                            </a>
-                        </li>
+                        {
+                            role !== "hr" && (
+                                <li className="nav-item">
+                                    <a href="/admin/notifications" onClick={(e) => handleClick(e, "/admin/notifications")}>
+                                        <i className="fa-solid fa-bullhorn"></i>
+                                        {t("admin.sidebar.notification")}
+                                    </a>
+                                </li>
+                            )
+                        }
                         <li className="nav-item">
                             <div id="fence" className="fence commonDropdown">
                                 <div id="fencehead1">
@@ -396,7 +317,7 @@ export default function MobileHeader() {
                                 >
                                     <div className="card-body">
                                         <ul className="list-group">
-                                            {role !== "member" && (
+                                            {role !== "member" && role !== "hr" && (
                                                 <li className="list-group-item">
                                                     <a href="/admin/manage-team">
                                                         <i className="fa fa-angle-right"></i>{" "}
@@ -404,42 +325,59 @@ export default function MobileHeader() {
                                                     </a>
                                                 </li>
                                             )}
-                                            <li className="list-group-item">
-                                                <a href="/admin/services">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.settings.services")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/manpower-companies">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.settings.manpower")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/manage-time">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.settings.manageTime")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/holidays">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.settings.holidays")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/templates">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.templates.title")}
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item">
-                                                <a href="/admin/payslip-settings">
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.settings.payslip_settings")}
-                                                </a>
-                                            </li>
+                                            {
+                                                role !== "hr" && (
+                                                    <>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/services">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.settings.services")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/manpower-companies">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.settings.manpower")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/insurance-companies">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("global.insurance_companies")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/manage-time">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.settings.manageTime")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/holidays">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.settings.holidays")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/discount">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.settings.add_discount")}                                                </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/templates">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.templates.title")}
+                                                            </a>
+                                                        </li>
+                                                        <li className="list-group-item">
+                                                            <a href="/admin/payslip-settings">
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.settings.payslip_settings")}
+                                                            </a>
+                                                        </li>
+                                                    </>
+                                                )
+                                            }
                                             <li className="list-group-item">
                                                 <a href="/admin/settings">
                                                     <i className="fa fa-angle-right"></i>{" "}

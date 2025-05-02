@@ -209,7 +209,7 @@ class FetchGmailEmails extends Command
                             // Create the schedule change
                             $scheduleChange = ScheduleChange::create([
                                 'user_type'      => Client::class,
-                                'reason'         => 'urgent hiring',
+                                'reason'         => 'teleservice',
                                 'comments'       => $body,
                                 'user_id'        => $client->id,
                                 'status'         => 'pending',

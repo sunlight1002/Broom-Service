@@ -157,11 +157,6 @@ export default function Sidebar() {
                                     >
                                         <div className="card-body">
                                             <ul className="list-group">
-                                                {/* <li className={`list-group-item ${isActive(routes.clients) ? "active" : ""}`}>
-                                        <Link to={routes.clients} onClick={(e) => e.stopPropagation()} style={isActive(routes.clients) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> All Client
-                                        </Link>
-                                    </li> */}
                                                 <li className={`list-group-item ${isActive(routes.pendingClient) ? "active" : ""}`}>
                                                     <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}

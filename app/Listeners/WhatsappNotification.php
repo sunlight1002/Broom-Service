@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 
 class WhatsappNotification
 {
-    protected $twilioAccountSid ,$twilioAuthToken, $twilioPhoneNumber, $twilio;
+    protected $twilioAccountSid ,$twilioAuthToken, $twilioPhoneNumber, $twilioWorkerLeadWhatsappNumber, $twilio;
     protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken, $whapiWorkerJobApiToken, $translateClient;
 
     /**
@@ -41,6 +41,8 @@ class WhatsappNotification
         $this->twilioAccountSid = config('services.twilio.twilio_id');
         $this->twilioAuthToken = config('services.twilio.twilio_token');
         $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $this->twilioWorkerLeadWhatsappNumber = config('services.twilio.worker_lead_whatsapp_number');
+
 
         $this->translateClient = new TranslateClient([
             'key' => config('services.google.translate_key'),
@@ -1272,7 +1274,7 @@ class WhatsappNotification
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
                                 "contentSid" => $sid
                             ]
                         );
@@ -1361,7 +1363,7 @@ class WhatsappNotification
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1608,7 +1610,7 @@ class WhatsappNotification
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
                                 "contentSid" => $sid,
 
                             ]
@@ -1638,7 +1640,7 @@ class WhatsappNotification
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
                                 "contentSid" => $sid,
 
                             ]

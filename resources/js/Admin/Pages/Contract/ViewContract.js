@@ -36,7 +36,7 @@ export default function WorkContract() {
     return (
         <>
             {
-                ([0].includes(clientId) || isEnabled) ? <AdminNewContract/> : ((lng == 'heb') ? <ContractHeb />: <ContractEng />)
+                ([88, 21, 1660].includes(clientId) || isEnabled) ? <AdminNewContract/> : ((lng == 'heb') ? <ContractHeb />: <ContractEng />)
             }
         </>
         // <ContractEng/>

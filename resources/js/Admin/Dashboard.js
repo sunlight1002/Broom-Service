@@ -138,7 +138,7 @@ export default function Dashboard() {
                     return acc + val;
                 }, 0)
                 : 0;
-    
+
                 setIncome(totalProfit);
                 setExpense(totalExpense);
             })
@@ -596,7 +596,7 @@ export default function Dashboard() {
                                                 ></img>
                                             </div>
                                             <div className="dashText">
-                                                <h3>{income} ILS</h3>
+                                                <h3>{income.toFixed(2)} ILS</h3>
                                                 <p>
                                                     {" "}
                                                     {t(

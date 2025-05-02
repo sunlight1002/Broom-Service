@@ -839,10 +839,13 @@ function ScheduleChange() {
                                         Change or update schedule
                                     </option>
                                     <option value="additional information">
-                                        additional information
+                                        Additional information
                                     </option>
                                     <option value="Client Feedback">
                                         Client Feedback
+                                    </option>
+                                    <option value="teleservice">
+                                        Teleservice
                                     </option>
                                 </select>
                                 <input
