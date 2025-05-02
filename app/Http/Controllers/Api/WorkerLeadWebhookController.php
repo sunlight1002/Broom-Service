@@ -651,11 +651,11 @@ class WorkerLeadWebhookController extends Controller
             return response()->json(['status' => 'Invalid message data'], 400);
         }
 
-        // // Check if the messageId exists in cache and matches
-        // if (Cache::get('active_worker_processed_message_' . $messageId) === $messageId) {
-        //     \Log::info('Already processed');
-        //     return response()->json(['status' => 'Already processed'], 200);
-        // }
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('active_worker_processed_message_' . $messageId) === $messageId) {
+            \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
 
         // Store the messageId in the cache for 1 hour
         Cache::put('active_worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
