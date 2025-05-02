@@ -221,8 +221,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                     
 
-                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-05-02'))) {
-                       $grouped[$currentDate][] = $row;
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-21'))) {
+                        $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
                         if (strpos(trim($row[1]), '#') === 0) {
