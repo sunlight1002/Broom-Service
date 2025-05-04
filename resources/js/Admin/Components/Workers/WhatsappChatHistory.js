@@ -74,9 +74,9 @@ const WhatsappChatHistory = ({
     }
 
 
-    useEffect(() => {
-        getWebhook()
-    }, []);
+    // useEffect(() => {
+    //     getWebhook()
+    // }, []);
 
 
     useEffect(() => {
@@ -317,7 +317,7 @@ const WhatsappChatHistory = ({
     const callApi = () => {
         const interval = setInterval(() => {
             getMessages(localStorage.getItem("number"));
-        }, 2000);
+        }, 10000);
         return () => clearInterval(interval);
     };
 

@@ -385,7 +385,7 @@ export default function chat() {
     const callApi = () => {
         const interval = setInterval(() => {
             getMessages(localStorage.getItem("number"));
-        }, 2000);
+        }, 10000);
         return () => clearInterval(interval);
     };
 
@@ -744,6 +744,7 @@ export default function chat() {
                                                     </div>
                                                     <div
                                                         id="tab-client-details"
+                                                        style={{ overflowY: 'auto', maxHeight: '600px' }}
                                                         className="tab-pane fade"  // No 'active show' initially, only for inactive tab
                                                         role="tabpanel"
                                                         aria-labelledby="client-details"

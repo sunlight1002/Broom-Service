@@ -16,7 +16,7 @@ use Twilio\Rest\Client as TwilioClient;
 
 class ChatController extends Controller
 {
-    
+
     public function index(Request $request)
     {
         // Fetch all webhook responses from the database
@@ -113,32 +113,33 @@ class ChatController extends Controller
         $page = $request->input('page', 1);
         $from = $request->input('from');
         $perPage = 20;
-    
+
         // Build the base query
         $query = WebhookResponse::query()
             ->distinct()
             ->whereNotNull('number');
-    
+
         if ($from) {
             $query->where('from', $from);
         }
-    
+
         // Apply pagination
         $data = $query
+            ->orderBy('created_at', 'desc')
             ->skip(($page - 1) * $perPage)
             ->take($perPage)
             ->get(['number']);
-    
+
         $clients = [];
-    
+
         if ($data->count() > 0) {
             foreach ($data as $k => $_no) {
                 $no = $_no->number;
-    
+
                 $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
                 $data[$k]['unread'] = count($_unreads);
                 $cl = Client::where('phone', $no)->first();
-    
+
                 if ($cl) {
                     $clients[] = [
                         'name' => $cl->firstname . " " . $cl->lastname,
@@ -149,13 +150,13 @@ class ChatController extends Controller
                 }
             }
         }
-    
+
         return response()->json([
             'data' => $data,
             'clients' => $clients,
         ]);
     }
-    
+
 
     public function storeWebhookResponse(Request $request)
     {
@@ -201,7 +202,7 @@ class ChatController extends Controller
     public function chatsMessages($no, Request $request)
     {
         $offical = false;
-        $from = $request->input('from'); 
+        $from = $request->input('from');
         $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
 
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([
@@ -252,13 +253,13 @@ class ChatController extends Controller
         }
 
         if($offical == true) {
-            
+
             $twi = $twilio->messages->create(
                 "whatsapp:+$request->number",
                 [
-                    "from" => "whatsapp:+$from", 
-                    "body" => $request->message, 
-                    
+                    "from" => "whatsapp:+$from",
+                    "body" => $request->message,
+
                 ]
             );
             \Log::info("twilio response". $twi->sid);

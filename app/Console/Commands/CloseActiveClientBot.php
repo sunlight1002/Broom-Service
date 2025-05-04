@@ -61,14 +61,14 @@ class CloseActiveClientBot extends Command
         {
             try {
                 if($client->from) {
-                    $lng = $client->lng ?? 'en';
+                    $lng = ($client->lng == 'heb' ? 'heb' : 'en');
                     $nextMessage = $message[$lng];
 
                     $sid = $lng == "heb" ? "HX2644430417b4d902fc511736b03ca652" : "HX60098186d1018c92154ac59afb8f92b4";
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$client->from",
                         [
-                            "from" => $this->twilioWhatsappNumber, 
+                            "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
                         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
                         ]
