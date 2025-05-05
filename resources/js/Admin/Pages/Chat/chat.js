@@ -1,6 +1,6 @@
 import axios from "axios";
 import EmojiPicker from 'emoji-picker-react';
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useAlert } from "react-alert";
 import { Button, Modal } from 'react-bootstrap';
 import { useTranslation } from "react-i18next";
@@ -56,6 +56,11 @@ export default function chat() {
     const [tabs, setTabs] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
 
+    const [leadPage, setLeadPage] = useState(1);
+    const [leadHasMore, setLeadHasMore] = useState(true);
+    const [LeadLoading, setLeadLoading] = useState(false);
+    const observer = useRef();
+
     const windowWidth = useWindowWidth();
 
     const adminLng = localStorage.getItem("admin-lng")
@@ -67,60 +72,6 @@ export default function chat() {
             setShowChatList(false)
         }
     }, [windowWidth])
-
-    const getWebhook = () => {
-        axios.get('/api/admin/webhook-responses', { headers })
-            .then((response) => {
-                setWebhookResponses(response?.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching webhook responses:", error);
-            });
-    }
-
-    const getAllChats = async () => {
-        try {
-            const response = await axios.get('/api/admin/get-all-chats', { headers });
-            // console.log(response.data, "response.data");
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const getChatById = async (chatId) => {
-        try {
-            const response = await axios.get(`/api/admin/get-chat/${chatId}`, { headers });
-            // console.log(response.data, "response.data");
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const getConversationsByNumber = async (chatId) => {
-        try {
-            const response = await axios.get(`/api/admin/get-conversations/${chatId}`, { headers });
-            // console.log(response.data, "conversations");
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    // const deleteMessage = async (messageId) => {
-    //     console.log(messageId, "messageId");
-
-    //     try {
-    //         const response = await axios.delete(`/api/admin/delete-message/${messageId}`, { headers });
-    //         console.log(response.data, "response.data");
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
-
-
-    useEffect(() => {
-        getWebhook()
-    }, []);
 
 
     useEffect(() => {
@@ -190,16 +141,53 @@ export default function chat() {
             });
     };
 
-    const getLeads = async () => {
+    // const getLeads = async () => {
+    //     try {
+    //         const res = await axios.get(`/api/admin/leads`, { headers })
+    //         console.log(res?.data?.data);
+
+
+    //         setAllLeads(res?.data?.data);
+
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
+
+    const lastLeadRef = useCallback(
+        (node) => {
+            if (loading) return;
+            if (observer.current) observer.current.disconnect();
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && hasMore) {
+                    getLeads(page + 1);
+                }
+            });
+            if (node) observer.current.observe(node);
+        },
+        [loading, hasMore, page]
+    );
+
+
+    const getLeads = async (pageNumber = 1) => {
+        if (LeadLoading || !leadHasMore) return;
+
+        setLoading(true);
         try {
-            const res = await axios.get(`/api/admin/leads`, { headers })
-
-            setAllLeads(res?.data?.data);
-
-        } catch (error) {
-            console.log(error)
+            const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20`, { headers });
+            if (res.data.data.length > 0) {
+                setAllLeads((prev) => [...prev, ...res.data.data]);
+                setLeadPage(pageNumber);
+            } else {
+                setLeadHasMore(false);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
 
     const getLead = () => {
         axios
@@ -238,28 +226,6 @@ export default function chat() {
             setGroupedMessages(grouped);
         });
     };
-
-    // const addInChat = async () => {
-    //     try {
-    //         const res = await axios.post(`/api/admin/chat-message`, { number }, { headers });
-    //         const r = res.data.data;
-    //         setSelectNumber(r.number);
-    //         setSelectedChat(r.number);
-    //         getMessages(r.number);
-    //         setShowChatList(false);
-    //         handleClose();
-    //         localStorage.setItem("number", r.number);
-    //         // Safely handle the removal of the element with escaped class name
-    //         const unreadElement = document.querySelector(escapedClassName);
-    //         if (unreadElement) {
-    //             unreadElement.remove();
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-
-    //         // alert.info("you are already in a chat")
-    //     }
-    // };
 
     const groupMessagesByDate = (messages) => {
         if (!messages) return {};
@@ -398,27 +364,27 @@ export default function chat() {
     };
 
 
-    const restartChat = () => {
-        let template = document.getElementById("template").value;
-        let number = localStorage.getItem("number");
-        if (template == "") {
-            window.alert("Please select template");
-            return;
-        }
+    // const restartChat = () => {
+    //     let template = document.getElementById("template").value;
+    //     let number = localStorage.getItem("number");
+    //     if (template == "") {
+    //         window.alert("Please select template");
+    //         return;
+    //     }
 
-        const data = {
-            template: template,
-            number: number,
-        };
-        axios.post(`/api/admin/chat-restart`, data, { headers }).then((res) => {
-            $("#cbtn").click();
-            setExpired(0);
-            getMessages(number);
-            setTimeout(() => {
-                scroller();
-            }, 200);
-        });
-    };
+    //     const data = {
+    //         template: template,
+    //         number: number,
+    //     };
+    //     axios.post(`/api/admin/chat-restart`, data, { headers }).then((res) => {
+    //         $("#cbtn").click();
+    //         setExpired(0);
+    //         getMessages(number);
+    //         setTimeout(() => {
+    //             scroller();
+    //         }, 200);
+    //     });
+    // };
 
     const search = (s) => {
         axios.get(`/api/admin/chat-search?s=${s}&type=${lead ? 'lead' : 'client'}`, { headers }).then((res) => {
@@ -469,12 +435,18 @@ export default function chat() {
 
 
     useEffect(() => {
-        getLeads()
         getFromNumber();
         if (localStorage.getItem("number")) {
             callApi();
         }
     }, []);
+
+    useEffect(() => {
+        if (lead == true) {
+            getLeads(1)
+        }
+    }, [lead])
+
 
     useEffect(() => {
         if (activeTab) {
@@ -730,7 +702,7 @@ export default function chat() {
                                                     </ul>
                                                 </div>
 
-                                                <div className="tab-content">
+                                                <div className="tab-content" style={{ overflowY: 'auto', maxHeight: '600px' }}>
                                                     <div
                                                         id="tab-chat-details"
                                                         className="tab-pane fade active show"  // Corrected class for active tab
@@ -742,71 +714,54 @@ export default function chat() {
                                                         </div>
                                                         {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                     </div>
-                                                    <div
-                                                        id="tab-client-details"
-                                                        style={{ overflowY: 'auto', maxHeight: '600px' }}
-                                                        className="tab-pane fade"  // No 'active show' initially, only for inactive tab
-                                                        role="tabpanel"
-                                                        aria-labelledby="client-details"
-                                                    >
-                                                        {allLeads?.map((d, i) => (
-                                                            <div
-                                                                className={"card p-3 cardList"}
-                                                                onClick={(e) => {
-                                                                    getMessages(d.phone);
-                                                                    setSelectNumber(d.phone);
-                                                                    setSelectedChat(d.phone);  // Set the selected chat
-                                                                    setShowChatList(false);
-                                                                    handleClose();
-                                                                    setWaSvg(false);
-                                                                    localStorage.setItem("number", d.phone);
-                                                                    setTimeout(() => {
-                                                                        scroller();
-                                                                    }, 200);
-
-                                                                    // Safely handle the removal of the element with escaped class name
-                                                                    const unreadElement = document.querySelector(escapedClassName);
-                                                                    if (unreadElement) {
-                                                                        unreadElement.remove();
-                                                                    }
-                                                                }}
-                                                                key={i}
-                                                            >
-                                                                <div className="d-flex align-items-center">
-                                                                    <div className="user-icon2">
-                                                                        <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
-                                                                    </div>
-                                                                    <div className="ml-2">
-                                                                        <h5
-                                                                            className="mt-0 mb-2"
-                                                                            style={{
-                                                                                cursor: "pointer",
-                                                                            }}
-                                                                        >
-                                                                            <Link
-                                                                                to={`/admin/leads/view/${d.id}`}
-                                                                            >
-                                                                                {d.firstname + d.lastname}
-                                                                            </Link>
-                                                                        </h5>
-                                                                        <h6
-                                                                            className="mt-0 mb-1"
-                                                                            style={{
-                                                                                cursor: "pointer",
-                                                                                display: "flex",
-                                                                                alignItems: "center",
-                                                                            }}
-                                                                        >
-                                                                            <i className="fas fa-phone mr-2"></i>
-                                                                            {d.phone}
-                                                                        </h6>
+                                                    <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                        {allLeads.map((d, i) => {
+                                                            const isLastItem = i === allLeads.length - 1;
+                                                            return (
+                                                                <div
+                                                                    key={i}
+                                                                    ref={isLastItem ? lastLeadRef : null}
+                                                                    className="card p-3 cardList mb-0"
+                                                                    onClick={() => {
+                                                                        getMessages(d.phone);
+                                                                        setSelectNumber(d.phone);
+                                                                        setSelectedChat(d.phone);
+                                                                        setShowChatList(false);
+                                                                        handleClose();
+                                                                        setWaSvg(false);
+                                                                        localStorage.setItem("number", d.phone);
+                                                                        setTimeout(() => scroller(), 200);
+                                                                        const unreadElement = document.querySelector(escapedClassName);
+                                                                        if (unreadElement) unreadElement.remove();
+                                                                    }}
+                                                                >
+                                                                    <div className="d-flex align-items-center">
+                                                                        <div className="user-icon2">
+                                                                            <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
+                                                                        </div>
+                                                                        <div className="ml-2">
+                                                                            <h5 className="mt-0 mb-2">
+                                                                                <Link to={`/admin/leads/view/${d.id}`}>
+                                                                                    {d.firstname + d.lastname}
+                                                                                </Link>
+                                                                            </h5>
+                                                                            <h6 className="mt-0 mb-1 d-flex align-items-center">
+                                                                                <i className="fas fa-phone mr-2"></i>
+                                                                                {d.phone}
+                                                                            </h6>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            );
+                                                        })}
+
+                                                        {loading && (
+                                                            <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
+                                                        )}
                                                     </div>
+
                                                 </div>
-                                                {
+                                                {/* {
                                                     newChat && (
                                                         <div className="mb-3 d-lg-block position-relative">
 
@@ -824,7 +779,7 @@ export default function chat() {
                                                         </div>
                                                     )
                                                 }
-                                                {clientsCard}
+                                                {clientsCard} */}
                                             </div>
                                         </div>
                                     </div>
@@ -928,10 +883,9 @@ export default function chat() {
                                             </div>
 
                                             <div className="tab-content"
-                                            // style={{
-                                            //     height: "77.6vh",
-                                            //     overflowY: "auto",
-                                            // }}
+                                                style={{
+                                                    overflowY: "auto",
+                                                }}
                                             >
                                                 <div
                                                     id="tab-chat-details"
@@ -939,72 +893,55 @@ export default function chat() {
                                                     role="tabpanel"
                                                     aria-labelledby="chat-details"
                                                 >
-                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+                                                    <div id="scrollContainer" >
                                                         {clientsCard}
                                                     </div>
                                                     {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                 </div>
-                                                <div
-                                                    id="tab-client-details"
-                                                    className="tab-pane fade"  // No 'active show' initially, only for inactive tab
-                                                    role="tabpanel"
-                                                    aria-labelledby="client-details"
-                                                >
-                                                    {allLeads?.map((d, i) => (
-                                                        <div
-                                                            className={"card p-3 cardList"}
-                                                            onClick={(e) => {
-                                                                getMessages(d.phone);
-                                                                setSelectNumber(d.phone);
-                                                                setSelectedChat(d.phone);  // Set the selected chat
-                                                                setShowChatList(false);
-                                                                setWaSvg(false);
-                                                                handleClose();
-                                                                localStorage.setItem("number", d.phone);
-                                                                setTimeout(() => {
-                                                                    scroller();
-                                                                }, 200);
-
-                                                                // Safely handle the removal of the element with escaped class name
-                                                                const unreadElement = document.querySelector(escapedClassName);
-                                                                if (unreadElement) {
-                                                                    unreadElement.remove();
-                                                                }
-                                                            }}
-                                                            key={i}
-                                                        >
-                                                            <div className="d-flex align-items-center">
-                                                                <div className="user-icon2">
-                                                                    <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
-                                                                </div>
-                                                                <div className="ml-2">
-                                                                    <h5
-                                                                        className="mt-0 mb-2"
-                                                                        style={{
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    >
-                                                                        <Link
-                                                                            to={`/admin/leads/view/${d.id}`}
-                                                                        >
-                                                                            {d.firstname + d.lastname}
-                                                                        </Link>
-                                                                    </h5>
-                                                                    <h6
-                                                                        className="mt-0 mb-1"
-                                                                        style={{
-                                                                            cursor: "pointer",
-                                                                            display: "flex",
-                                                                            alignItems: "center",
-                                                                        }}
-                                                                    >
-                                                                        <i className="fas fa-phone mr-2"></i>
-                                                                        {d.phone}
-                                                                    </h6>
+                                                <div id="tab-client-details" className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                    {allLeads.map((d, i) => {
+                                                        const isLastItem = i === allLeads.length - 1;
+                                                        return (
+                                                            <div
+                                                                key={i}
+                                                                ref={isLastItem ? lastLeadRef : null}
+                                                                className="card p-3 cardList mb-0"
+                                                                onClick={() => {
+                                                                    getMessages(d.phone);
+                                                                    setSelectNumber(d.phone);
+                                                                    setSelectedChat(d.phone);
+                                                                    setShowChatList(false);
+                                                                    handleClose();
+                                                                    setWaSvg(false);
+                                                                    localStorage.setItem("number", d.phone);
+                                                                    setTimeout(() => scroller(), 200);
+                                                                    const unreadElement = document.querySelector(escapedClassName);
+                                                                    if (unreadElement) unreadElement.remove();
+                                                                }}
+                                                            >
+                                                                <div className="d-flex align-items-center">
+                                                                    <div className="user-icon2">
+                                                                        <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
+                                                                    </div>
+                                                                    <div className="ml-2">
+                                                                        <h5 className="mt-0 mb-2">
+                                                                            <Link to={`/admin/leads/view/${d.id}`}>
+                                                                                {d.firstname + d.lastname}
+                                                                            </Link>
+                                                                        </h5>
+                                                                        <h6 className="mt-0 mb-1 d-flex align-items-center">
+                                                                            <i className="fas fa-phone mr-2"></i>
+                                                                            {d.phone}
+                                                                        </h6>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
+
+                                                    {loading && (
+                                                        <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
+                                                    )}
                                                 </div>
                                             </div>
                                             {/* {loadingChats && <div className="d-flex justify-content-center"><MiniLoader /></div>} */}
@@ -1164,7 +1101,7 @@ export default function chat() {
 
                                                                                                                         {m?.message != null && m?.message?.startsWith("Replying to:") && (
                                                                                                                             <>
-                                                                                                                                {webhookResponses
+                                                                                                                                {groupedMessages[date]
                                                                                                                                     ?.filter((response) => response.id === m.wa_id)
                                                                                                                                     .map((response) => (
                                                                                                                                         <React.Fragment key={response.id}>
@@ -1458,7 +1395,7 @@ export default function chat() {
             </div >
 
 
-            <div
+            {/* <div
                 className="modal fade"
                 id="exampleModalTemplate"
                 tabIndex="-1"
@@ -1522,7 +1459,7 @@ export default function chat() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div >
     );
 }

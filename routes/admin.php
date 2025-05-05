@@ -378,6 +378,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('chat-search', [ChatController::class, 'search'])->name('chat-search');
     Route::post('delete-conversation', [ChatController::class, 'deleteConversation']);
 
+    Route::get('all-leads', [ChatController::class, 'allLeads']);
+
     Route::get('messenger-participants', [ChatController::class, 'participants']);
     Route::get('messenger-message/{id}', [ChatController::class, 'messengerMessage']);
     Route::post('messenger-reply', [ChatController::class, 'messengerReply']);

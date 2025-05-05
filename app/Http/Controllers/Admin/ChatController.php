@@ -158,6 +158,16 @@ class ChatController extends Controller
     }
 
 
+    public function allLeads(Request $request)
+    {
+        $perPage = $request->get('per_page', 20); // default 20
+        $clients = Client::paginate($perPage);
+    
+        return response()->json($clients);
+    }
+    
+
+
     public function storeWebhookResponse(Request $request)
     {
         $response = $request->all();
@@ -218,8 +228,6 @@ class ChatController extends Controller
 
         $client = Client::where('phone', $no)->first();
 
-        \Log::info($client ? 1 : 0);
-        \Log::info($no);
         $clientName = $client ? $client->firstname . " " . $client->lastname : 'Unknown';
 
         return response()->json([
@@ -296,7 +304,6 @@ class ChatController extends Controller
                     );
                 }
             } else {
-                \Log::info("wdwdwd");
                 // Send regular message (text only)
                 $result = sendWhatsappMessage(
                     $request->number,
