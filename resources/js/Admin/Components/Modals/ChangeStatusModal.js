@@ -250,11 +250,11 @@ export default function ChangeStatusModal({
                                 </select>
                             </div>
                         </div>
-                        {formValues.status === "reschedule call" && (
+                        {(formValues.status === "reschedule call" || formValues.status === "voice bot") && (
                             <>
                                 <div className="col-sm-12">
                                     <div className="form-group d-flex flex-column">
-                                        <label className="control-label">{t("global.reschedule_date")}</label>
+                                        <label className="control-label">{ formValues.status === "reschedule call" ? t("global.reschedule_date") : "Voice Call Date"}</label>
                                         <DatePicker
                                             selected={formValues.reschedule_date}
                                             onChange={(date) =>
@@ -290,7 +290,7 @@ export default function ChangeStatusModal({
                                 </div>
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label className="control-label">{t("global.reschedule_time")}</label>
+                                        <label className="control-label">{ formValues.status === "reschedule call" ? t("global.reschedule_time") : "Voice Call Time"}</label>
                                         <input
                                             type="time"
                                             className="form-control"

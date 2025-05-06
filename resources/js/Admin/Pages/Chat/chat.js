@@ -244,8 +244,10 @@ export default function chat() {
     const sendMessage = () => {
         let msg = document.getElementById("message_typing").value;
 
-        const messageToSend = replyId ? `Replying to: ${replyMessage == null ? '' : replyMessage}\n${msg}` : msg;
-
+        const messageToSend = replyId
+        ? `--- Replying to ---\n${replyMessage ?? ''}\n-------------------\n${msg}`
+        : msg;
+      
         const send = new FormData(); // Use FormData to handle file uploads
         send.append("number", selectNumber);
         send.append("from", activeTab);
@@ -778,8 +780,8 @@ export default function chat() {
                                                             />
                                                         </div>
                                                     )
-                                                }
-                                                {clientsCard} */}
+                                                } */}
+                                                {clientsCard}
                                             </div>
                                         </div>
                                     </div>

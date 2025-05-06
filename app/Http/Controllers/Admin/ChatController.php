@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Twilio\Rest\Client as TwilioClient;
+use Illuminate\Support\Str;
 
 
 class ChatController extends Controller
@@ -113,49 +114,63 @@ class ChatController extends Controller
         $page = $request->input('page', 1);
         $from = $request->input('from');
         $perPage = 20;
-
+    
         // Build the base query
         $query = WebhookResponse::query()
             ->distinct()
             ->whereNotNull('number');
-
+    
         if ($from) {
             $query->where('from', $from);
         }
-
+    
         // Apply pagination
-        $data = $query
+        $rawData = $query
             ->orderBy('created_at', 'desc')
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage)
+            ->skip(($page - 1) * $perPage * 2) // Double limit to allow filtering
+            ->take($perPage * 2)
             ->get(['number']);
-
+    
         $clients = [];
-
-        if ($data->count() > 0) {
-            foreach ($data as $k => $_no) {
-                $no = $_no->number;
-
-                $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
-                $data[$k]['unread'] = count($_unreads);
-                $cl = Client::where('phone', $no)->first();
-
-                if ($cl) {
-                    $clients[] = [
-                        'name' => $cl->firstname . " " . $cl->lastname,
-                        'id'   => $cl->id,
-                        'num'  => $no,
-                        'client' => $cl->status == 0 ? 0 : 1,
-                    ];
-                }
+        $data = collect();
+    
+        foreach ($rawData as $_no) {
+            $no = $_no->number;
+    
+            // Skip group chats (those with "@g.us" in the number)
+            if (strpos($no, '@g.us') !== false) {
+                continue;
+            }
+    
+            \Log::info($no);
+    
+            $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
+            $_no['unread'] = count($_unreads);
+            $data->push($_no);
+    
+            $cl = Client::where('phone', $no)->first();
+    
+            if ($cl) {
+                $clients[] = [
+                    'name' => $cl->firstname . " " . $cl->lastname,
+                    'id'   => $cl->id,
+                    'num'  => $no,
+                    'client' => $cl->status == 0 ? 0 : 1,
+                ];
+            }
+    
+            // Stop pushing once we have $perPage items
+            if ($data->count() >= $perPage) {
+                break;
             }
         }
-
+    
         return response()->json([
-            'data' => $data,
+            'data' => $data->values(),
             'clients' => $clients,
         ]);
     }
+    
 
 
     public function allLeads(Request $request)
@@ -415,12 +430,7 @@ class ChatController extends Controller
                 $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
 
                 $data[$k]['unread'] = count($_unreads);
-
-                if (strlen($no) > 10) {
-                    $cl = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
-                } else {
-                    $cl = Client::where('phone', 'like', '%' . $no . '%')->first();
-                }
+                $cl = Client::where('phone', $no)->first();
 
                 if (!is_null($cl)) {
                     $clients[] = [

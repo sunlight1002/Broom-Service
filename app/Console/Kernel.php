@@ -110,6 +110,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('add:jobs-in-google-sheet')->dailyAt('19:00');
 
+        // $schedule->command('voice:call-bot-initiated')->everyMinute();
+
         }
 
     /**

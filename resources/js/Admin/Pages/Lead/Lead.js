@@ -27,6 +27,7 @@ export default function Lead() {
         uninterested: t("admin.leads.Uninterested"),
         unanswered: t("admin.leads.Unanswered"),
         "reschedule call": t("admin.leads.Reschedule_call"),
+        "voice bot": t("admin.leads.Voice_bot"),
         // "potential client": t("admin.leads.Potential_client"),
         // "pending client": t("admin.leads.Pending_client"),
         // "freeze client": t("admin.leads.Freeze_client"),
@@ -51,6 +52,7 @@ export default function Lead() {
         t("admin.leads.Unanswered"),
         t("admin.leads.Potential_client"),
         t("admin.leads.Reschedule_call"),
+        t("admin.leads.Voice_bot")
     ];
 
     const headers = {

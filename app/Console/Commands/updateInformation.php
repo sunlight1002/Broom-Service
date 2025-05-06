@@ -200,7 +200,6 @@ class updateInformation extends Command
     }
 
     public function fixedPhoneNumber($phone){
-        // $phone = $client->phone;
 
         // 1. Remove all special characters from the phone number
         $phone = preg_replace('/[^0-9+]/', '', $phone);

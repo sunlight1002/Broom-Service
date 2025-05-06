@@ -116,6 +116,10 @@ export const leadStatusColor = (_status) => {
             _color = "#a95a3cf2";
             break;
 
+        case "voice bot":
+            _color = "#a95a3cf2";
+            break;
+
         default:
             break;
     }

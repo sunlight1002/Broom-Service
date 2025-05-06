@@ -69,6 +69,7 @@ class Client extends Authenticatable
         'wednesday_notification',
         's_bot_notification',
         'full_name',
+        'voice_bot',
 
     ];
 

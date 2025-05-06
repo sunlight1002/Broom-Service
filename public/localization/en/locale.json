@@ -1458,6 +1458,7 @@
             "leave_request": "Leave Request",
             "not_respond_to_bot": "Not respond to bot",
             "not_respond_to_messages": "Not respond to messages",
+            "Voice_bot": "Voice bot",
             "Options": {
                 "sortBy": "-- Sort By--",
                 "ID": "ID",

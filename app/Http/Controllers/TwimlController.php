@@ -673,6 +673,7 @@ class TwimlController extends Controller
         $client->passcode      = $phone;
         $client->geo_address   = '';
         $client->lng           = ($this->lang == 'heb' ? 'heb' : 'en');
+        $client->two_factor_enabled = 1;
         $client->save();
         return response()->json($client);
     }

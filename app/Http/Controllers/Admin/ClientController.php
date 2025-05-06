@@ -570,18 +570,18 @@ class ClientController extends Controller
 
         $input = $request->data;
 
-        if($client->status == 2){
-             // Create user in iCount
-            $iCountResponse = $this->createOrUpdateUser($input);
+        // if($client->status == 2){
+        //      // Create user in iCount
+        //     $iCountResponse = $this->createOrUpdateUser($input);
 
-            // Handle iCount response
-            $iCountData = $iCountResponse->json();
+        //     // Handle iCount response
+        //     $iCountData = $iCountResponse->json();
 
-            // Handle iCount response
-            if ($iCountResponse->status() != 200) {
-                return response()->json(['error' => 'Failed to create user in iCount'], 500);
-            }
-        }
+        //     // Handle iCount response
+        //     if ($iCountResponse->status() != 200) {
+        //         return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        //     }
+        // }
 
 
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
@@ -1151,6 +1151,7 @@ class ClientController extends Controller
             LeadStatusEnum::UNINTERESTED => 0,
             LeadStatusEnum::UNANSWERED => 0,
             LeadStatusEnum::RESCHEDULE_CALL => 0,
+            LeadStatusEnum::VOICE_BOT => 0,
             LeadStatusEnum::UNANSWERED_FINAL => 0,
             LeadStatusEnum::POTENTIAL_CLIENT => 1,
             LeadStatusEnum::FREEZE_CLIENT => 2,
@@ -1186,8 +1187,10 @@ class ClientController extends Controller
         $client->logs()->create([
             'status' => $statusArr[$data['status']],
             'reason' => $data['reason'],
-            'reschedule_date' => $data['reschedule_date'] ?? null,
-            'reschedule_time' => $data['reschedule_time'] ?? null,
+            // 'reschedule_date' => $data['reason'] == 'reschedule call' ? $data['reschedule_date'] :  null,
+            // 'reschedule_time' => $data['reason'] == 'reschedule call' ? $data['reschedule_time'] : null,
+            // 'voice_bot_call_date' => $data['reason'] == 'voice bot' ? $data['reschedule_date'] :  null,
+            // 'voice_bot_call_time' => $data['reason'] == 'voice bot' ? $data['reschedule_time'] : null
         ]);
     
         // Log the status change in LeadActivity
@@ -1197,8 +1200,10 @@ class ClientController extends Controller
             'status_changed_date' => now(),
             'changes_status' => $newLeadStatus,
             'reason' => $data['reason'],
-            'reschedule_date' => $data['reschedule_date'] ?? null,
-            'reschedule_time' => $data['reschedule_time'] ?? null,
+            'reschedule_date' => $data['status'] == 'reschedule call' ? $data['reschedule_date'] :  null,
+            'reschedule_time' => $data['status'] == 'reschedule call' ? $data['reschedule_time'] : null,
+            'voice_bot_call_date' => $data['status'] == 'voice bot' ? $data['reschedule_date'] :  null,
+            'voice_bot_call_time' => $data['status'] == 'voice bot' ? $data['reschedule_time'] : null
         ]);
     
         if ($data['status'] == LeadStatusEnum::RESCHEDULE_CALL) {
