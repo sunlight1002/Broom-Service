@@ -115,61 +115,62 @@ class ChatController extends Controller
         $from = $request->input('from');
         $perPage = 20;
     
-        // Build the base query
         $query = WebhookResponse::query()
-            ->distinct()
+            ->select('number')
+            ->groupBy('number')
             ->whereNotNull('number');
     
         if ($from) {
             $query->where('from', $from);
         }
     
-        // Apply pagination
         $rawData = $query
             ->orderBy('created_at', 'desc')
-            ->skip(($page - 1) * $perPage * 2) // Double limit to allow filtering
+            ->skip(($page - 1) * $perPage * 2)
             ->take($perPage * 2)
-            ->get(['number']);
+            ->get();
     
-        $clients = [];
         $data = collect();
+        $clients = [];
     
-        foreach ($rawData as $_no) {
-            $no = $_no->number;
+        foreach ($rawData as $entry) {
+            $number = $entry->number;
     
-            // Skip group chats (those with "@g.us" in the number)
-            if (strpos($no, '@g.us') !== false) {
+            // Skip group chats
+            if (strpos($number, '@g.us') !== false) {
                 continue;
             }
     
-            \Log::info($no);
+            $unreadCount = WebhookResponse::where('number', $number)
+                ->where('read', 0)
+                ->count();
     
-            $_unreads = WebhookResponse::where(['number' => $no, 'read' => 0])->pluck('read');
-            $_no['unread'] = count($_unreads);
-            $data->push($_no);
+            $entry->unread = $unreadCount;
+            $data->push($entry);
     
-            $cl = Client::where('phone', $no)->first();
+            // Add client info if exists
+            $client = Client::where('phone', $number)->first();
     
-            if ($cl) {
+            if ($client) {
                 $clients[] = [
-                    'name' => $cl->firstname . " " . $cl->lastname,
-                    'id'   => $cl->id,
-                    'num'  => $no,
-                    'client' => $cl->status == 0 ? 0 : 1,
+                    'name'   => trim("{$client->firstname} {$client->lastname}"),
+                    'id'     => $client->id,
+                    'num'    => $number,
+                    'client' => $client->status != 0 ? 1 : 0,
                 ];
             }
     
-            // Stop pushing once we have $perPage items
             if ($data->count() >= $perPage) {
                 break;
             }
         }
     
         return response()->json([
-            'data' => $data->values(),
+            'data'    => $data->values(),
             'clients' => $clients,
         ]);
     }
+    
     
 
 

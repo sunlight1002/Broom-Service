@@ -2491,8 +2491,9 @@ Broom Service Team 🌹",
                 }
 
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
+                \Log::info($msgStatus . ' ' . $client->id);
                 if ((!empty($msgStatus) && ($listId || $ButtonPayload) == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
-                    \Log::info('Client already in (monday / wednesday) message');
+                    \Log::info('Client already in (monday / wednesday) message first reply');
                     $this->activeClientsWednesday($request);
                     die('Client confirm job');
                 }
@@ -2533,17 +2534,17 @@ Broom Service Team 🌹",
                 $last_menu = end($menu_option);
             }
 
-            WebhookResponse::create([
-                'status' => 1,
-                'name' => 'whatsapp',
-                'entry_id' => $messageId,
-                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                'message' => $input,
-                'number' => $from,
-                'read' => 0,
-                'flex' => 'C',
-                'data' => json_encode($data)
-            ]);
+            // WebhookResponse::create([
+            //     'status' => 1,
+            //     'name' => 'whatsapp',
+            //     'entry_id' => $messageId,
+            //     'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+            //     'message' => $input,
+            //     'number' => $from,
+            //     'read' => 0,
+            //     'flex' => 'C',
+            //     'data' => json_encode($data)
+            // ]);
 
             if (in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
                 $client->disable_notification = 1;
@@ -2585,7 +2586,7 @@ Broom Service Team 🌹",
                 $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
 
                 if(!empty($msgStatus) || !empty($MondaymsgStatus)) {
-                    \Log::info('Client already in (monday / wednesday) message');
+                    \Log::info('Client already in (monday / wednesday) message second reply');
                     $this->activeClientsWednesday($request);
                     die("already client in (monday / wednesday) message");
                 }
@@ -4137,10 +4138,6 @@ Broom Service Team 🌹",
                 $listId = $data['ListId'] ?? $message;
                 $ButtonPayload = $data['ButtonPayload'] ?? null;
 
-                // $message_data = $data_returned['messages'];
-                // if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-                //     die("Group message");
-                // }
                 $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
