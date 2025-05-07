@@ -156,23 +156,23 @@ export default function chat() {
 
     const lastLeadRef = useCallback(
         (node) => {
-            if (loading) return;
+            if (LeadLoading) return;
             if (observer.current) observer.current.disconnect();
             observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && hasMore) {
-                    getLeads(page + 1);
+                if (entries[0].isIntersecting && leadHasMore) {
+                    getLeads(leadPage + 1);
                 }
             });
             if (node) observer.current.observe(node);
         },
-        [loading, hasMore, page]
+        [LeadLoading, leadHasMore, leadPage]
     );
 
 
     const getLeads = async (pageNumber = 1) => {
         if (LeadLoading || !leadHasMore) return;
 
-        setLoading(true);
+        setLeadLoading(true);
         try {
             const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20`, { headers });
             if (res.data.data.length > 0) {
@@ -184,7 +184,7 @@ export default function chat() {
         } catch (err) {
             console.error(err);
         } finally {
-            setLoading(false);
+            setLeadLoading(false);
         }
     };
 
@@ -405,6 +405,7 @@ export default function chat() {
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
         if (bottom) {
+            console.log("Loading more data...");
             setPage(prevPage => prevPage + 1);
             getData(); // Load more data when reaching the bottom
         }
@@ -415,6 +416,8 @@ export default function chat() {
     useEffect(() => {
         const scrollContainer = document.getElementById('scrollContainer');
         if (scrollContainer) {
+            console.log(scrollContainer);
+            
             scrollContainer.addEventListener('scroll', handleScroll);
         }
         return () => {
@@ -704,7 +707,12 @@ export default function chat() {
                                                     </ul>
                                                 </div>
 
-                                                <div className="tab-content" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+                                                <div className="tab-content"
+                                                style={{ 
+                                                    // overflowY: 'auto', 
+                                                    // maxHeight: '600px' 
+                                                    }}
+                                                >
                                                     <div
                                                         id="tab-chat-details"
                                                         className="tab-pane fade active show"  // Corrected class for active tab
@@ -757,31 +765,11 @@ export default function chat() {
                                                             );
                                                         })}
 
-                                                        {loading && (
+                                                        {LeadLoading && (
                                                             <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
                                                         )}
                                                     </div>
-
                                                 </div>
-                                                {/* {
-                                                    newChat && (
-                                                        <div className="mb-3 d-lg-block position-relative">
-
-                                                            <SelectPicker
-                                                                data={allLeads}
-                                                                value={leadId}
-                                                                onChange={(value, event) => {
-                                                                    setLeadId(value);
-                                                                    search(event.target.value);
-                                                                    setSelectNumber(value);
-                                                                }}
-                                                                size="lg"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    )
-                                                } */}
-                                                {clientsCard}
                                             </div>
                                         </div>
                                     </div>
@@ -886,7 +874,7 @@ export default function chat() {
 
                                             <div className="tab-content"
                                                 style={{
-                                                    overflowY: "auto",
+                                                    overflowY: lead ? "auto" : "hidden",
                                                 }}
                                             >
                                                 <div
@@ -895,7 +883,7 @@ export default function chat() {
                                                     role="tabpanel"
                                                     aria-labelledby="chat-details"
                                                 >
-                                                    <div id="scrollContainer" >
+                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
                                                         {clientsCard}
                                                     </div>
                                                     {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
@@ -941,7 +929,7 @@ export default function chat() {
                                                         );
                                                     })}
 
-                                                    {loading && (
+                                                    {LeadLoading && (
                                                         <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
                                                     )}
                                                 </div>
