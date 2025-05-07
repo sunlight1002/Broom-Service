@@ -4161,7 +4161,7 @@ Broom Service Team 🌹",
                     }
                 }
 
-                $isWednesday = now()->isTuesday();
+                $isWednesday = now()->isWedensday();
 
                 if ($isWednesday && $client) {
 
