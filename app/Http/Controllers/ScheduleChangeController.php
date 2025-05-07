@@ -12,6 +12,8 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Support\Facades\DB;
+use Twilio\Rest\Client as TwilioClient;
+
 
 class ScheduleChangeController extends Controller
 {
@@ -329,6 +331,13 @@ class ScheduleChangeController extends Controller
 
     public function sendMessageToUser(Request $request, $id)
     {
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+
         $request->validate([
             'message' => 'required|string',
             'reason' => 'required|string',
@@ -366,6 +375,7 @@ class ScheduleChangeController extends Controller
         $scheduleChange->save();
 
         $message = [
+            
             "en" => "Hello :client_name,
 Following your request regarding *:team_reason*, the team has reviewed it and provided the following response:
 ':team_message'
@@ -389,6 +399,7 @@ The Broom Service Team 🌹",
 
 בברכה,
 צוות ברום סרוויס 🌹"
+
         ];
         // \Log::info($scheduleChange);
 
@@ -401,9 +412,26 @@ The Broom Service Team 🌹",
 
         $nextMessage = $message[$lng];
         $personalizedMessage = str_replace([':client_name', ':team_reason', ':team_message'], [$clientName, $team_reason, $team_message], $nextMessage);
-        \Log::info($personalizedMessage);
-        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        // \Log::info($personalizedMessage);
+        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
+        $sid = $lng == "heb" ? "HXbac97d19ae31997868024e04057b1c9e" : "HX8b65fe4cfaf8858031df30829033f8a7";
+
+            $message = $twilio->messages->create(
+                "whatsapp:+$from",
+                [
+                    "from" => "$twilioWhatsappNumber", 
+                    "contentSid" => $sid,
+                    "contentVariables" => json_encode([
+                        "1" => $clientName,
+                        "2" => $team_reason,
+                        "3" => $team_message
+                    ]) 
+                ]
+            );
+            \Log::info($message->sid);
+        
+            StoreWebhookResponse($message->body ?? '', $from, $message->toArray());
 
         $clientState = WhatsAppBotActiveClientState::where('from', $from)->first();
         if ($clientState) {

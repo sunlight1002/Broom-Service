@@ -181,7 +181,7 @@ Please reply with the appropriate number.",
                 );
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
                 
-                StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
+                StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
 
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
                 // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);

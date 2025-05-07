@@ -74,7 +74,7 @@ class CloseActiveClientBot extends Command
                         ]
                     );
 
-                    StoreWebhookResponse($nextMessage, $client->from, $twi->toArray());
+                    StoreWebhookResponse($twi->body ?? "", $client->from, $twi->toArray());
 
                     // sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
                     $client->delete();

@@ -103,7 +103,7 @@ Please reply with the appropriate number.",
             );
             $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
 
-            StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
+            StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
            
             // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
             Cache::put('client_review' . $client->id, true, now()->addDay(1));

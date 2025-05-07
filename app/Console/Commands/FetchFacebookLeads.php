@@ -312,7 +312,7 @@ class FetchFacebookLeads extends Command
                                                 "contentSid" => $sid, 
                                             ]
                                         );
-                                        StoreWebhookResponse($m, $client->phone, $twi->toArray());
+                                        StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
                                         // sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
                                     }
                                 } catch (\Throwable $th) {

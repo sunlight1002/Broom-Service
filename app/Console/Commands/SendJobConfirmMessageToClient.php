@@ -310,7 +310,7 @@ www.broomservice.co.il
                     ]
                 );
 
-                StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
+                StoreWebhookResponse($twi->body ?? '', $client->phone, $twi->toArray());
 
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
                 // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);

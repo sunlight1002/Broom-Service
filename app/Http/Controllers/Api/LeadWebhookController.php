@@ -2577,7 +2577,7 @@ Broom Service Team 🌹",
                 $send_menu = 'thank_you_invoice_account';
             } else if ($last_menu == 'change_update_schedule' && !empty($input)) {
                 $send_menu = 'thank_you_change_update_schedule';
-            } else if ($last_menu == 'team_send_message' && $listId == '1') {
+            } else if ($last_menu == 'team_send_message' && ($listId == '1' || $ButtonPayload == '1')) {
                 $send_menu = 'team_send_message_1';
             } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
                 $send_menu = 'client_add_request';
@@ -2597,42 +2597,7 @@ Broom Service Team 🌹",
                 case 'main_menu':
                     $this->sendMainMenu($client, $from);
                     break;
-                // case 'not_recognized':
-                    $sid = $lng == "heb" ? "HXceaab9272d0a2e5f605ad6365262f229" : "HX2abe416449326aec10de9c4e956591f7";
-                    $twi = $this->twilio->messages->create(
-                        "whatsapp:+$from",
-                        [
-                            "from" => $this->twilioWhatsappNumber,
-                            "contentSid" => $sid,
-                            
-                        ]
-                    );
 
-                    $nextMessage = $this->activeClientBotMessages['not_recognized'][$lng];
-                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-
-                    WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
-                        [
-                            'menu_option' => 'not_recognized',
-                            'lng' => $lng,
-                            "from" => $from,
-                        ]
-                    );
-
-                    WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'entry_id'      => $messageId ?? '',
-                        'message'       => $twi->body ?? '',
-                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                        'number'        => $from,
-                        'flex'          => 'A',
-                        'read'          => 1,
-                        'data'          => json_encode($twi->toArray()),
-                    ]);
-
-                    break;
                 case 'urgent_contact':
                     $clientName = ($client->firstname ?? '' . ' ' . $client->lastname ?? '');
 

@@ -99,6 +99,8 @@ Route::post('add-meet', [ClientEmailController::class, 'addMeet']);
 Route::post('meeting', [ClientEmailController::class, 'ShowMeeting']);
 Route::post('accept-meeting', [ClientEmailController::class, 'acceptMeeting']);
 Route::post('reject-meeting', [ClientEmailController::class, 'rejectMeeting']);
+Route::post('change-call', [ClientEmailController::class, 'changeCall']);
+
 Route::post('meeting/{id}/reschedule', [ClientEmailController::class, 'rescheduleMeeting']);
 Route::post('meetings/{id}/slot-save', [ClientEmailController::class, 'saveMeetingSlot']);
 Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer']);

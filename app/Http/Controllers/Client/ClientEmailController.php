@@ -32,7 +32,7 @@ use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
 use App\Jobs\SendMeetingMailJob;
 use Twilio\Rest\Client as TwilioClient;
-
+use Illuminate\Support\Facades\Cache;
 
 class ClientEmailController extends Controller
 {
@@ -288,6 +288,39 @@ class ClientEmailController extends Controller
 
         return response()->json([
             'message' => 'Thanks, your meeting is confirmed'
+        ]);
+    }
+
+    public function changeCall(Request $request)
+    {
+        $client = Client::find($request->id);
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+    
+        $cacheKey = 'client_change_call_' . $client->id . '_' . Carbon::now()->toDateString();
+    
+        if (Cache::has($cacheKey)) {
+            return response()->json([
+                'message' => 'Call change already sent today'
+            ], 200);
+        }
+    
+        // Save to cache for the rest of the day
+        $expiresAt = Carbon::now()->endOfDay();
+        Cache::put($cacheKey, true, $expiresAt);
+    
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
+            "notificationData" => [
+                'client' => $client->toArray()
+            ]
+        ]));
+    
+        return response()->json([
+            'message' => 'Call changed'
         ]);
     }
 

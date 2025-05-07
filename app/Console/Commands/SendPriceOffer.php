@@ -107,7 +107,7 @@ class SendPriceOffer extends Command
             ]
         );
         
-        StoreWebhookResponse($personalizedMessage, $client->phone, $twi->toArray());
+        StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
   
         // $response = Http::withToken($this->whapiApiToken)
         //                 ->post($this->whapiApiEndpoint . 'messages/text', [

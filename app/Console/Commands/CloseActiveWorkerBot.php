@@ -84,7 +84,7 @@ class CloseActiveWorkerBot extends Command
                         ]
                     );
 
-                    StoreWebhookResponse($nextMessage, $worker->worker->phone, $twi->toArray());
+                    StoreWebhookResponse($twi->body ?? "", $worker->worker->phone, $twi->toArray());
 
                     $worker->delete();
                 }

@@ -13,11 +13,19 @@ export default function Thankyou() {
     const param = useParams();
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [callChange, setCallChange] = useState(false);
+
     const updateMeeting = () => {
-        let responseUrl =
-            param.response == "accept"
-                ? "/api/client/accept-meeting"
-                : "/api/client/reject-meeting";
+        let responseUrl = "";
+
+        if (param.response == "accept") {
+            responseUrl = "/api/client/accept-meeting";
+        } else if (param.response == "change_call") {
+            responseUrl = "/api/client/change-call";
+            setCallChange(true);
+        } else {
+            responseUrl = "/api/client/reject-meeting";
+        }
 
         axios
             .post(responseUrl, {
@@ -27,6 +35,7 @@ export default function Thankyou() {
 
             })
             .catch((e) => {
+                console.log(e);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -66,8 +75,13 @@ export default function Thankyou() {
     };
 
     useEffect(() => {
-        getMeeting();
-    }, []);
+        if (param?.response != "change_call") {
+            getMeeting();
+        } else {
+            updateMeeting();
+        }
+    }, [param?.response]);
+
 
     return (
         <div className="container">
@@ -80,49 +94,54 @@ export default function Thankyou() {
                 >
                     <image xlinkHref={logo} width="190" height="77"></image>
                 </svg>
-                {status == "pending" || instatus != status ? (
-                    <div>
-                        {param.response == "accept" ? (
-                            <>
-                                <h3>{t("res_txt")}</h3>
-                            </>
-                        ) : (
-                            <>
-                                <h3>{t("res_txt")}</h3>
-                                <p className="mb-3">{t("meet_reject.txt")}</p>
-                                <a
-                                    className="btn btn-pink"
-                                    href="mailto:office@broomservice.co.il"
-                                >
-                                    {t("meet_reject.btn_txt")}
-                                </a>
-                            </>
-                        )}
-                    </div>
-                ) : status == "confirmed" ? (
+                {!callChange ? (
+                    (status === "pending" || instatus !== status) ? (
+                        <div>
+                            {param.response === "accept" ? (
+                                <>
+                                    <h3>{t("res_txt")}</h3>
+                                </>
+                            ) : (
+                                <>
+                                    <h3>{t("res_txt")}</h3>
+                                    <p className="mb-3">{t("meet_reject.txt")}</p>
+                                    <a
+                                        className="btn btn-pink"
+                                        href="mailto:office@broomservice.co.il"
+                                    >
+                                        {t("meet_reject.btn_txt")}
+                                    </a>
+                                </>
+                            )}
+                        </div>
+                    ) : status === "confirmed" ? (
+                        <>
+                            <p>{t("meet_stat.accepted_text")}</p>
+                            <p className="mb-3">{t("meet_stat.write_email_text")}</p>
+                            <a
+                                className="btn btn-pink"
+                                href="mailto:office@broomservice.co.il"
+                            >
+                                {t("meet_reject.btn_txt")}
+                            </a>
+                        </>
+                    ) : (
+                        <>
+                            <p className="mb-3">{t("meet_reject.txt")}</p>
+                            <a
+                                className="btn btn-pink"
+                                href="mailto:office@broomservice.co.il"
+                            >
+                                {t("meet_reject.btn_txt")}
+                            </a>
+                        </>
+                    )
+                ): (
                     <>
-                        <p> {t("meet_stat.accepted_text")} </p>
-                        <p className="mb-3">
-                            {t("meet_stat.write_email_text")}
-                        </p>
-                        <a
-                            className="btn btn-pink"
-                            href="mailto:office@broomservice.co.il"
-                        >
-                            {t("meet_reject.btn_txt")}
-                        </a>
-                    </>
-                ) : (
-                    <>
-                        <p className="mb-3">{t("meet_reject.txt")}</p>
-                        <a
-                            className="btn btn-pink"
-                            href="mailto:office@broomservice.co.il"
-                        >
-                            {t("meet_reject.btn_txt")}
-                        </a>
+                       <h3>{t("res_txt")}</h3>
                     </>
                 )}
+
             </div>
         </div>
     );
