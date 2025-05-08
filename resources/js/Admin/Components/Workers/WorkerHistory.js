@@ -246,7 +246,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     role="tab-panel"
                     aria-labelledby="chat-history"
                 >
-                    <WhatsappChatHistory workerId={worker.id} worker={worker}/>
+                    <WhatsappChatHistory workerId={worker.id} worker={worker} />
                 </div>
             </div>
         </div>

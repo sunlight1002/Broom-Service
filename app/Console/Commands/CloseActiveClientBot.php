@@ -70,7 +70,7 @@ class CloseActiveClientBot extends Command
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
-                        "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
+                            // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
                         ]
                     );
 

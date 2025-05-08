@@ -113,19 +113,20 @@ class ChatController extends Controller
     {
         $page = $request->input('page', 1);
         $from = $request->input('from');
+        $filter = $request->input('filter') ?? null; 
         $perPage = 20;
     
         $query = WebhookResponse::query()
             ->select('number')
             ->groupBy('number')
-            ->whereNotNull('number');
-    
+            ->whereNotNull('number')
+            ->orderBy('created_at', 'desc');
+
         if ($from) {
             $query->where('from', $from);
         }
     
         $rawData = $query
-            ->orderBy('created_at', 'desc')
             ->skip(($page - 1) * $perPage * 2)
             ->take($perPage * 2)
             ->get();
@@ -141,15 +142,24 @@ class ChatController extends Controller
                 continue;
             }
     
+            // Load client with lead_status
+            $client = Client::with('lead_status')->where('phone', $number)->first();
+            // \Log::info($client);
+    
+           // Only apply filter if it's explicitly set
+            if (!empty($filter)) {
+                if ($client && $client->lead_status && $client->lead_status->lead_status != $filter) {
+                    continue;
+                }
+            }
+    
             $unreadCount = WebhookResponse::where('number', $number)
                 ->where('read', 0)
                 ->count();
     
             $entry->unread = $unreadCount;
             $data->push($entry);
-    
-            // Add client info if exists
-            $client = Client::where('phone', $number)->first();
+
     
             if ($client) {
                 $clients[] = [
@@ -172,12 +182,21 @@ class ChatController extends Controller
     }
     
     
+    
 
 
     public function allLeads(Request $request)
     {
         $perPage = $request->get('per_page', 20); // default 20
-        $clients = Client::paginate($perPage);
+        $filter = $request->get('filter');
+    
+        if (!empty($filter)) {
+            $clients = Client::whereHas('lead_status', function($query) use ($filter) {
+                $query->where('lead_status', $filter);
+            })->paginate($perPage);
+        }else{
+            $clients = Client::paginate($perPage);
+        }
     
         return response()->json($clients);
     }
@@ -229,6 +248,7 @@ class ChatController extends Controller
     {
         $offical = false;
         $from = $request->input('from');
+        \Log::info($from);
         $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
 
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([
@@ -283,6 +303,7 @@ class ChatController extends Controller
                 [
                     "from" => "whatsapp:+$from",
                     "body" => $request->message,
+                    // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
 
                 ]
             );
@@ -410,19 +431,24 @@ class ChatController extends Controller
         ]);
     }
 
+
     public function chatSearch($s, $type)
     {
-        if ($type == 'number')
-            $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')->get(['number']);
-        else
+        if ($type == 'number'){
+            $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')
+            ->get(['number']);
+            
+        }else {
             $data = WebhookResponse::distinct()
                 ->Where(function ($query) use ($s) {
                     for ($i = 0; $i < count($s); $i++) {
                         $r = str_replace('+', '', $s[$i]);
                         $query->orwhere('number', 'like',  '%' . $r . '%');
                     }
-                })->get(['number']);
-
+                })
+                ->get(['number']);
+        }
+            
         $clients = [];
 
         if (count($data) > 0) {
@@ -453,26 +479,30 @@ class ChatController extends Controller
     public function search(Request $request)
     {
         $s = $request->s;
-        $type = $request->type; // Get the type ('lead' or 'client')
-
+        \Log::info($s);
+        $type = $request->type; // 'lead' or 'client'
+    
         if (is_null($s)) {
             if ($type === 'lead') {
                 return Client::all(); // Return all leads
             } else {
-                return $this->chats(); // Existing behavior for clients
+                return $this->chats($request); // Existing behavior for clients
             }
         }
-
-        if ($type == 'client') {
+    
+        // If it's a numeric search, treat it as phone
+        if ($type === 'client') {
             if (is_numeric($s)) {
-
                 return $this->chatSearch($s, 'number');
-            } else {
-
+            }else{
+                // Search by name
                 $cx = explode(' ', $s);
-                $fn  = $cx[0];
-                $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
-                $clients = Client::where('firstname', 'like', '%' . $fn . '%')->orwhere('lastname', 'like', '%' . $ln . '%')->get('phone');
+                $fn = $cx[0];
+                $ln = $cx[1] ?? $cx[0];
+
+                $clients = Client::where('firstname', 'like', '%' . $fn . '%')
+                    ->orWhere('lastname', 'like', '%' . $ln . '%')
+                    ->get('phone');
 
                 if (count($clients) > 0) {
                     $nos = [];
@@ -482,18 +512,45 @@ class ChatController extends Controller
 
                     return $this->chatSearch($nos, 'name');
                 }
+
+                // 👇 Fallback: message search where number exists in Client
+                $numbersInMessages = WebhookResponse::where('message', 'like', '%' . $s . '%')
+                    ->pluck('number')
+                    ->unique();
+
+                $existingClientNumbers = Client::whereIn('phone', $numbersInMessages)->pluck('phone');
+
+                if (count($existingClientNumbers) > 0) {
+                    return $this->chatSearch($existingClientNumbers->toArray(), 'name');
+                }
             }
-        } else {
+        }else{
             $cx = explode(' ', $s);
-            $fn  = $cx[0];
-            $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
+            $fn = $cx[0];
+            $ln = $cx[1] ?? $cx[0];
+    
             $leads = Client::where('firstname', 'like', '%' . $fn . '%')
                 ->orWhere('lastname', 'like', '%' . $ln . '%')
-                ->orWhere('phone', 'like', '%' . $s . '%') // Search by phone number as well
+                ->orWhere('phone', 'like', '%' . $s . '%')
                 ->get(['phone', 'firstname', 'lastname']);
-            return $leads;
+    
+            if ($leads->count() > 0) {
+                return $leads;
+            }
+    
+            // 👇 Fallback: message search where number exists in leads
+            $numbersInMessages = WebhookResponse::where('message', 'like', '%' . $s . '%')
+                ->pluck('number')
+                ->unique();
+    
+            $matchingLeadNumbers = Client::whereIn('phone', $numbersInMessages)->get(['phone', 'firstname', 'lastname']);
+    
+            return $matchingLeadNumbers;
         }
+       
+        return response()->json(['data' => []]);
     }
+    
 
     public function responseImport()
     {

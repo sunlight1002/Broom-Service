@@ -28,6 +28,7 @@ export default function Sidebar() {
     const adminLng = localStorage.getItem("admin-lng");
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
     const [isClientDropdownOpen, setClientDropdownOpen] = useState(false); // Clients dropdown
+    const [chatDropdown, setChatDropdown] = useState(false);
 
     // Toggle the dropdown
     const toggleDropdown = () => {
@@ -39,9 +40,15 @@ export default function Sidebar() {
         setClientDropdownOpen(!isClientDropdownOpen);
     };
 
+    const toggleChatDropdown = () => {
+        setChatDropdown(!chatDropdown);
+    };
 
+    const fullUrl = location.pathname + location.search;
     // Check if the current path matches any of the routes in the dropdown
     const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings", "/admin/holidays", "/admin/templates"].includes(location.pathname);
+    const isChatDropdownActive = [`/admin/chat/${process.env.MIX_TWILIO_WHATSAPP_NUMBER}`, `/admin/chat/${process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER}`].includes(location.pathname);
+    const isClientDropdownActive = ["/admin/clients", "/admin/clients?type=pending%20client","/admin/clients?type=active%20client", "/admin/clients?type=freeze%20client", "/admin/clients?type=past"].includes(fullUrl);
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
@@ -77,6 +84,8 @@ export default function Sidebar() {
         discount: "/admin/discount",
         waTemplates: "/admin/templates",
         payslipSettings: "/admin/payslip-settings",
+        client_worker_chat: `/admin/chat/${process.env.MIX_TWILIO_WHATSAPP_NUMBER}`,
+        worker_lead_chat: `/admin/chat/${process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER}`,
         // Client routes
         clients: "/admin/clients",
         pendingClient: "/admin/clients?type=pending%20client",
@@ -86,6 +95,7 @@ export default function Sidebar() {
     };
 
     const isActive = (path) => location.pathname === path;
+    const isActiveClient = (path) => fullUrl === path;
 
     // Check if any of the children are active to apply the active class to the parent
     const isParentActive = () => {
@@ -98,6 +108,7 @@ export default function Sidebar() {
         // i18next.changeLanguage(adminLng);
         getAdmin();
     }, []);
+
 
     return (
         <div id="column-left">
@@ -134,16 +145,17 @@ export default function Sidebar() {
                                     <i className="fa-solid fa-poll-h font-28"></i>{t("admin.sidebar.leads")}
                                 </NavLink>
                             </li>
-                            <li className={`list-group-item ${isClientDropdownOpen ? "active" : ""}`}>
+                            <li className={`list-group-item ${isClientDropdownActive ? "active" : ""}`}>
                                 <div className="fence commonDropdown">
                                     <div>
                                         <a
                                             href="/admin/clients"
-                                            className={`text-left ${isClientDropdownOpen ? "active text-white" : ""}`}
+                                            className={`text-left ${isClientDropdownActive ? "active text-white" : ""}`}
                                             data-toggle="collapse"
                                             onClick={toggleClientDropdown}
                                             aria-expanded={isClientDropdownOpen}
                                             aria-controls="clientDropdown"
+                                            data-target="#clientDropdown"
                                         >
                                             <i className={`fa-solid fa-user-tie font-20 ${isClientDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.clients")}{" "}
                                             <i className={`fa-solid fa-angle-down ${isClientDropdownOpen ? "text-white rotate-180" : ""}`}
@@ -154,26 +166,27 @@ export default function Sidebar() {
                                         id="clientDropdown"
                                         className={`collapse ${isClientDropdownOpen ? "show" : ""}`}
                                         aria-labelledby="clientDropdown"
+                                        data-parent="#clientDropdown"
                                     >
                                         <div className="card-body">
                                             <ul className="list-group">
-                                                <li className={`list-group-item ${isActive(routes.pendingClient) ? "active" : ""}`}>
-                                                    <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
+                                                <li className={`list-group-item ${isActiveClient(routes.pendingClient) ? "active" : ""}`}>
+                                                    <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActiveClient(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
                                                     </Link>
                                                 </li>
-                                                <li className={`list-group-item ${isActive(routes.activeClient) ? "active" : ""}`}>
-                                                    <Link to={routes.activeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.activeClient) ? { color: "white" } : { color: "#757589" }}>
+                                                <li className={`list-group-item ${isActiveClient(routes.activeClient) ? "active" : ""}`}>
+                                                    <Link to={routes.activeClient} onClick={(e) => e.stopPropagation()} style={isActiveClient(routes.activeClient) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
                                                     </Link>
                                                 </li>
-                                                <li className={`list-group-item ${isActive(routes.freezeClient) ? "active" : ""}`}>
-                                                    <Link to={routes.freezeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.freezeClient) ? { color: "white" } : { color: "#757589" }}>
+                                                <li className={`list-group-item ${isActiveClient(routes.freezeClient) ? "active" : ""}`}>
+                                                    <Link to={routes.freezeClient} onClick={(e) => e.stopPropagation()} style={isActiveClient(routes.freezeClient) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
                                                     </Link>
                                                 </li>
-                                                <li className={`list-group-item ${isActive(routes.pastClient) ? "active" : ""}`}>
-                                                    <Link to={routes.pastClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pastClient) ? { color: "white" } : { color: "#757589" }}>
+                                                <li className={`list-group-item ${isActiveClient(routes.pastClient) ? "active" : ""}`}>
+                                                    <Link to={routes.pastClient} onClick={(e) => e.stopPropagation()} style={isActiveClient(routes.pastClient) ? { color: "white" } : { color: "#757589" }}>
                                                         <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
                                                     </Link>
                                                 </li>
@@ -287,13 +300,61 @@ export default function Sidebar() {
                                     <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2" />{t("admin.sidebar.fb_insights")}
                                 </NavLink>
                             </li>
-                            <li className="list-group-item">
+                            {/* <li className="list-group-item">
                                 <NavLink to="/admin/chat"
                                     className="d-flex align-items-center"
                                 >
                                     <i className="fa-solid fa-message font-20"></i>{t("admin.sidebar.whatsapp")}
                                 </NavLink>
+                            </li> */}
+
+                            <li className={`list-group-item ${isChatDropdownActive ? "active" : ""}`}>
+                                <div className="fence commonDropdown">
+                                    <div >
+                                        <a
+                                            href="#"
+                                            className={`text-left ${isChatDropdownActive ? "active" : ""} `}
+                                            data-toggle="collapse"
+                                            onClick={toggleChatDropdown}
+                                            aria-expanded={chatDropdown}
+                                            data-target="#chat"
+                                            aria-controls="chat"
+                                        >
+                                            <i className="fa-solid fa-message font-20"></i> {t("admin.sidebar.whatsapp")}{" "}
+                                            <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
+                                                style={{
+                                                    rotate: chatDropdown ? "180deg" : ""
+                                                }}
+                                            ></i>
+                                        </a>
+                                    </div>
+                                    <div
+                                        id="chat"
+                                        className={`collapse ${isParentActive() ? "show" : ""}`}
+                                        aria-labelledby="chat"
+                                         data-parent="#chat"
+                                    >
+                                        <div className="card-body">
+                                            <ul className="list-group">
+                                                <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
+                                                    <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        Clients/Workers Chat
+                                                    </Link>
+                                                </li>
+                                                <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
+                                                    <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                        <i className="fa fa-angle-right"></i>{" "}
+                                                        Worker Leads Chat
+                                                    </Link>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
+
+
 
                             <li className="list-group-item">
                                 <NavLink to="/admin/messenger">

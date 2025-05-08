@@ -5,6 +5,7 @@ import { useLocation, useParams } from "react-router-dom";
 import Contract from "./Contract";
 import OfferedPrice from "./offers";
 import ScheduledMeeting from "./schedules";
+import WhatsappChatHistory from "../Workers/WhatsappChatHistory";
 
 export default function LeadHistory({ client }) {
     const { t } = useTranslation();
@@ -135,6 +136,24 @@ export default function LeadHistory({ client }) {
                         {t("admin.schedule.contract")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="chat"
+                        className={
+                            `nav-link d-flex align-items-center ` +
+                            (activeTab === "#tab-chat" ? "active" : "")
+                        }
+                        style={{ padding: "21px"}}
+                        href="#tab-chat"
+                        role="tab"
+                        onClick={(e) => {
+                            e.preventDefault(); // Prevent default link behavior
+                            handleTabClick("#tab-chat");
+                        }}
+                    >
+                        Whatsapp Chat
+                    </a>
+                </li>
             </ul>
 
             <div className="tab-content border-0">
@@ -155,6 +174,11 @@ export default function LeadHistory({ client }) {
                             setContracts={setContracts}
                             fetchContract={getContract}
                         />
+                    </div>
+                )}
+                {activeTab === "#tab-chat" && (
+                    <div id="tab-chat" className="tab-panel">
+                        <WhatsappChatHistory worker={client}/>
                     </div>
                 )}
             </div>

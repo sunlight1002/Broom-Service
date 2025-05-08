@@ -12,6 +12,7 @@ import Payment from "./Payment";
 import Comments from "../common/Comments";
 import { useTranslation } from "react-i18next";
 import PendingRequest from "./PendingRequest";
+import WhatsappChatHistory from "../Workers/WhatsappChatHistory";
 
 export default function ClientHistory({
     contracts,
@@ -296,6 +297,23 @@ export default function ClientHistory({
                         {t("admin.schedule.pending Request")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="chat-tab"
+                        className={
+                            `nav-link ` +
+                            (hash === "#tab-chat" ? "active" : "")
+                        }
+                        data-toggle="tab"
+                        href="#tab-chat"
+                        aria-selected={
+                            hash === "#tab-chat" ? "true" : "false"
+                        }
+                        role="tab"
+                    >
+                        Client Chat history
+                    </a>
+                </li>
             </ul>
             <div className="tab-content border-0">
                 <div
@@ -416,6 +434,17 @@ export default function ClientHistory({
                     aria-labelledby="pending-tab"
                 >
                     <PendingRequest clientId={client.id} />
+                </div>
+                <div
+                    id="tab-chat"
+                    className={
+                        `tab-pane ` +
+                        (hash === "#tab-chat" ? "active show" : "")
+                    }
+                    role="tab-panel"
+                    aria-labelledby="chat-tab"
+                >
+                    <WhatsappChatHistory workerId={client.id} worker={client} />
                 </div>
             </div>
         </div>

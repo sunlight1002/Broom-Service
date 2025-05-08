@@ -1172,7 +1172,11 @@ export default function MyRoutes() {
                                 path="payments"
                                 element={<Payments />}
                             />
-                            <Route exact path="chat" element={<Chat />} />
+                            <Route
+                                exact
+                                path="chat/:number"
+                                element={<Chat />}
+                            />
                             <Route
                                 exact
                                 path="responses"

@@ -300,9 +300,9 @@ class FetchFacebookLeads extends Command
                                         $sid = null;
 
                                         if ($client->lng == 'heb') {
-                                            $sid = "HX648077d9fa0a17989bad3140b23b8b0b";
+                                            $sid = "HX386916d517b39fc62c3ac739b3797cc1";
                                         } else {
-                                            $sid = "HX866eb5d2d224815a2823eb7260746aee";
+                                            $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
                                         }
 
                                         $twi = $this->twilio->messages->create(
@@ -316,6 +316,7 @@ class FetchFacebookLeads extends Command
                                         // sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
                                     }
                                 } catch (\Throwable $th) {
+                                    \Log::error($th);
                                 }
                                 $client->lead_status()->updateOrCreate(
                                     [],

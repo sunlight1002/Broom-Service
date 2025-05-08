@@ -292,7 +292,7 @@ class ClientController extends Controller
 
         if($request->send_bot_message) {
             try {
-                $sid = $client->lng == "heb" ? "HX648077d9fa0a17989bad3140b23b8b0b" : "HX866eb5d2d224815a2823eb7260746aee";
+                $sid = $client->lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
 
                 $message = $twilio->messages->create(
                     "whatsapp:+$client->phone",
@@ -317,7 +317,7 @@ class ClientController extends Controller
                 $response = WebhookResponse::create([
                     'status'        => 1,
                     'name'          => 'whatsapp',
-                    'message'       => $m,
+                    'message'       => $message->body ?? '',
                     'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
                     'number'        => $client->phone,
                     'read'          => 1,

@@ -6,7 +6,7 @@ import { Button, Modal } from 'react-bootstrap';
 import { useTranslation } from "react-i18next";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { RiAccountCircleFill } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { SelectPicker } from "rsuite";
 import MiniLoader from "../../../Components/common/MiniLoader";
 import useWindowWidth from "../../../Hooks/useWindowWidth";
@@ -16,6 +16,8 @@ import './ChatFooter.css'; // Import the CSS
 
 export default function chat() {
 
+    const param = useParams();
+    const fromNumber = param?.number;
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
@@ -45,7 +47,7 @@ export default function chat() {
     const [newChat, setNewChat] = useState(false)
     const [loading, setLoading] = useState(false)
     const [lead, setLead] = useState(false)
-    const [client, setClient] = useState(false)
+    const [client, setClient] = useState(true)
     const [media, setMedia] = useState('')
     const [image, setImage] = useState('')
     const [webhookResponses, setWebhookResponses] = useState([]);
@@ -54,16 +56,28 @@ export default function chat() {
     const [page, setPage] = useState(1); // Page number to fetch
     const [hasMore, setHasMore] = useState(true); // To track if more records exist
     const [tabs, setTabs] = useState([]);
-    const [activeTab, setActiveTab] = useState(null);
+    const [filter, setFilter] = useState("");
+    const [searchInput, setSearchInput] = useState("");
 
     const [leadPage, setLeadPage] = useState(1);
     const [leadHasMore, setLeadHasMore] = useState(true);
     const [LeadLoading, setLeadLoading] = useState(false);
-    const observer = useRef();
 
+    const statusArr = {
+        pending: t("admin.leads.Pending"),
+        potential: t("admin.leads.Potential"),
+        irrelevant: t("admin.leads.Irrelevant"),
+        uninterested: t("admin.leads.Uninterested"),
+        unanswered: t("admin.leads.Unanswered"),
+        "reschedule call": t("admin.leads.Reschedule_call"),
+        "voice bot": t("admin.leads.Voice_bot"),
+        "potential client": t("admin.leads.Potential_client"),
+        "pending client": t("admin.leads.Pending_client"),
+        "freeze client": t("admin.leads.Freeze_client"),
+        "active client": t("admin.leads.Active_client"),
+        past: t("admin.client.past"),
+    };
     const windowWidth = useWindowWidth();
-
-    const adminLng = localStorage.getItem("admin-lng")
 
     useEffect(() => {
         if (windowWidth < 1199) {
@@ -72,7 +86,6 @@ export default function chat() {
             setShowChatList(false)
         }
     }, [windowWidth])
-
 
     useEffect(() => {
         if (!selectNumber && showChatList) {
@@ -104,82 +117,49 @@ export default function chat() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    // const getData = () => {
-    //     axios.get(`/api/admin/chats`, { headers }).then((res) => {
-    //         const r = res.data.data;
-    //         setClients(res.data.clients);
-    //         setData(r);
-    //     });
-    // };
-
-    const getData = () => {
-        if (loadingChats || !hasMore) return; // Prevent multiple requests
-
+    const getData = (pageToLoad = page) => {
+        console.log(loadingChats, hasMore);
+        if (loadingChats || !hasMore) return;
+        
+    
         setLoadingChats(true);
-        axios.get(`/api/admin/chats?page=${page}&from=${activeTab}`, { headers })
+        axios.get(`/api/admin/chats?page=${pageToLoad}&from=${fromNumber}&filter=${filter}`, { headers })
             .then((res) => {
                 const newData = res.data.data;
                 const newClients = res.data.clients;
-
-                // Update data and clients
-                setClients(prevClients => [...prevClients, ...newClients]);
-                setData(prevData => [...prevData, ...newData]);
-
-                // Update page number
-                // setPage(prevPage => prevPage + 1);
-
-                // If no more data to load, set hasMore to false
+    
+                setClients(prev => [...prev, ...newClients]);
+                setData(prev => [...prev, ...newData]);
+    
                 if (newData.length === 0) {
                     setHasMore(false);
+                } else {
+                    setPage(prev => prev + 1);
                 }
             })
-            .catch((error) => {
-                console.error("Error loading data:", error);
+            .catch((err) => {
+                console.error("Error loading data:", err);
             })
             .finally(() => {
                 setLoadingChats(false);
             });
     };
+    
 
-    // const getLeads = async () => {
-    //     try {
-    //         const res = await axios.get(`/api/admin/leads`, { headers })
-    //         console.log(res?.data?.data);
-
-
-    //         setAllLeads(res?.data?.data);
-
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
-    const lastLeadRef = useCallback(
-        (node) => {
-            if (LeadLoading) return;
-            if (observer.current) observer.current.disconnect();
-            observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && leadHasMore) {
-                    getLeads(leadPage + 1);
-                }
-            });
-            if (node) observer.current.observe(node);
-        },
-        [LeadLoading, leadHasMore, leadPage]
-    );
-
-
-    const getLeads = async (pageNumber = 1) => {
+    const getLeads = async (pageNumber = leadPage) => {
+        
         if (LeadLoading || !leadHasMore) return;
-
         setLeadLoading(true);
         try {
-            const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20`, { headers });
+            const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20&filter=${filter}`, { headers });
+            const newLeads = res.data.data;
             if (res.data.data.length > 0) {
-                setAllLeads((prev) => [...prev, ...res.data.data]);
-                setLeadPage(pageNumber);
-            } else {
+                setAllLeads((prev) => [...prev, ...newLeads]);
+            }
+            if (newLeads.length === 0) {
                 setLeadHasMore(false);
+            }else{
+                setLeadPage(prev => prev + 1);
             }
         } catch (err) {
             console.error(err);
@@ -187,6 +167,7 @@ export default function chat() {
             setLeadLoading(false);
         }
     };
+    
 
 
     const getLead = () => {
@@ -204,7 +185,7 @@ export default function chat() {
 
 
     const getMessages = (no) => {
-        axios.get(`/api/admin/chat-message/${no}?from=${activeTab ?? localStorage.getItem("from")}`, { headers }).then((res) => {
+        axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}`, { headers }).then((res) => {
             // console.log(res.data, "res.data");
 
             const c = res.data.chat;
@@ -245,12 +226,12 @@ export default function chat() {
         let msg = document.getElementById("message_typing").value;
 
         const messageToSend = replyId
-        ? `--- Replying to ---\n${replyMessage ?? ''}\n-------------------\n${msg}`
-        : msg;
-      
+            ? `--- Replying to ---\n${replyMessage ?? ''}\n-------------------\n${msg}`
+            : msg;
+
         const send = new FormData(); // Use FormData to handle file uploads
         send.append("number", selectNumber);
-        send.append("from", activeTab);
+        send.append("from", fromNumber);
         send.append("message", messageToSend);
         if (replyId) {
             send.append("replyId", replyId);
@@ -275,7 +256,7 @@ export default function chat() {
                 setSelectedFile({}) // Reset the file input
                 setReplyMessage(null); // Reset reply after sending
                 setMessage('');
-                getData();
+                getData(1);
                 setMedia('');
                 setImage('');
                 setReplyId(null);
@@ -334,13 +315,6 @@ export default function chat() {
     };
 
 
-
-    // const handleReply = (message) => {
-    //     setReplyMessage(message); // Set the message to be replied to
-    //     messageInputRef.current.value = `Replying to: ${message}`; // Set input value
-    //     scrollToBottom(); // Scroll to bottom when replying
-    // };
-
     const scrollToBottom = () => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -366,30 +340,8 @@ export default function chat() {
     };
 
 
-    // const restartChat = () => {
-    //     let template = document.getElementById("template").value;
-    //     let number = localStorage.getItem("number");
-    //     if (template == "") {
-    //         window.alert("Please select template");
-    //         return;
-    //     }
-
-    //     const data = {
-    //         template: template,
-    //         number: number,
-    //     };
-    //     axios.post(`/api/admin/chat-restart`, data, { headers }).then((res) => {
-    //         $("#cbtn").click();
-    //         setExpired(0);
-    //         getMessages(number);
-    //         setTimeout(() => {
-    //             scroller();
-    //         }, 200);
-    //     });
-    // };
-
     const search = (s) => {
-        axios.get(`/api/admin/chat-search?s=${s}&type=${lead ? 'lead' : 'client'}`, { headers }).then((res) => {
+        axios.get(`/api/admin/chat-search?s=${s || ''}&type=${lead ? 'lead' : 'client'}&from=${fromNumber}`, { headers }).then((res) => {
             const r = res.data.data;
 
             if (lead) {
@@ -401,13 +353,23 @@ export default function chat() {
         });
     };
 
+    useEffect(() => {
+      search(searchInput);
+    }, [searchInput])
+    
+
 
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
         if (bottom) {
-            console.log("Loading more data...");
-            setPage(prevPage => prevPage + 1);
             getData(); // Load more data when reaching the bottom
+        }
+    };
+
+    const LeadhandleScroll = (e) => {
+        const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
+        if (bottom) {
+            getLeads(); // Load more data when reaching the bottom
         }
     };
 
@@ -415,53 +377,55 @@ export default function chat() {
     // Add the scroll event listener to the container
     useEffect(() => {
         const scrollContainer = document.getElementById('scrollContainer');
-        if (scrollContainer) {
-            console.log(scrollContainer);
-            
+        const leadScrollContainer = document.getElementById('tab-client-details');
+
+        if (scrollContainer && client) {
             scrollContainer.addEventListener('scroll', handleScroll);
+        }else if (leadScrollContainer && lead) {
+            leadScrollContainer.addEventListener('scroll', LeadhandleScroll);
         }
         return () => {
-            if (scrollContainer) {
+            if (scrollContainer && client) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
+            }else if (leadScrollContainer && lead) {
+                leadScrollContainer.removeEventListener('scroll', LeadhandleScroll);
             }
         };
-    }, [data, loadingChats, hasMore]);
-
-    const getFromNumber = async () => {
-        try {
-            const response = await axios.get(`/api/admin/get-from-numbers`, { headers });
-            setTabs(response.data);
-            setActiveTab(response.data[0]);
-            localStorage.setItem("from", response.data[0]);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    }, [data, loadingChats, hasMore, LeadLoading, leadHasMore, lead, client]);
 
 
     useEffect(() => {
-        getFromNumber();
         if (localStorage.getItem("number")) {
-            callApi();
+            const interval = callApi();
+            return () => clearInterval(interval);
         }
     }, []);
 
     useEffect(() => {
-        if (lead == true) {
-            getLeads(1)
+        if (lead === true) {
+            setLeadHasMore(true);
+            setLeadLoading(false);
+            setAllLeads([]);
+            setLeadPage(1); // ✅ Reset page before calling getLeads
+            getLeads(1);
         }
-    }, [lead])
-
+    }, [lead, filter]);
 
     useEffect(() => {
-        if (activeTab) {
-            setPage(1); // optional: reset pagination if tab changed
+            setPage(1);
             setData([]);
             setClients([]);
             setHasMore(true);
-            getData();
-        }
-    }, [activeTab]);
+            setLoadingChats(false);
+
+    }, [fromNumber]);
+
+    useEffect(() => {
+        // Explicitly load page 1
+        getData(1);
+    }, [fromNumber, filter, hasMore]);
+    
+
 
     const handleDeleteConversation = (e) => {
         e.preventDefault();
@@ -642,29 +606,27 @@ export default function chat() {
                                         <div className="row">
                                             <div className="col-xl-8 col-12" style={{ backgroundColor: "white" }}>
                                                 <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
-                                                    {/* <div className="flex-grow-1 w-100 text-center"> */}
                                                     <select
                                                         className="form-select w-100 mx-auto"
-                                                        value={activeTab}
+                                                        value={filter}
                                                         onChange={(e) => {
-                                                            setActiveTab(e.target.value)
-                                                            localStorage.setItem("from", e.target.value)
+                                                            setFilter(e.target.value)
                                                         }}
                                                     >
-                                                        {tabs.map((tab) => (
-                                                            <option key={tab} value={tab}>
-                                                                {tab}
+                                                        <option value="">{(t("global.all"))}</option>
+                                                        {Object.keys(statusArr).map((s) => (
+                                                            <option key={s} value={s}>
+                                                                {statusArr[s]}
                                                             </option>
                                                         ))}
                                                     </select>
-                                                    {/* </div> */}
                                                 </header>
                                                 <div className=" mb-3 d-lg-block position-relative">
                                                     <input
                                                         type="text"
                                                         name="smsg"
                                                         className="form-control search-input"
-                                                        onChange={(e) => search(e.target.value)}
+                                                        onChange={(e) => setSearchInput(e.target.value)}
                                                         placeholder="Search name or number"
                                                     />
                                                     <i className="fas fa-search search-icon"></i>
@@ -708,9 +670,9 @@ export default function chat() {
                                                 </div>
 
                                                 <div className="tab-content"
-                                                style={{ 
-                                                    // overflowY: 'auto', 
-                                                    // maxHeight: '600px' 
+                                                    style={{
+                                                        // overflowY: 'auto', 
+                                                        // maxHeight: '600px' 
                                                     }}
                                                 >
                                                     <div
@@ -730,7 +692,6 @@ export default function chat() {
                                                             return (
                                                                 <div
                                                                     key={i}
-                                                                    ref={isLastItem ? lastLeadRef : null}
                                                                     className="card p-3 cardList mb-0"
                                                                     onClick={() => {
                                                                         getMessages(d.phone);
@@ -801,22 +762,20 @@ export default function chat() {
                                         >
 
                                             <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
-                                                {/* <div className="flex-grow-1 w-100 text-center"> */}
                                                 <select
                                                     className="form-select w-100 mx-auto"
-                                                    value={activeTab}
+                                                    value={filter}
                                                     onChange={(e) => {
-                                                        setActiveTab(e.target.value)
-                                                        localStorage.setItem("from", e.target.value)
+                                                        setFilter(e.target.value)
                                                     }}
                                                 >
-                                                    {tabs.map((tab) => (
-                                                        <option key={tab} value={tab}>
-                                                            {tab}
+                                                    <option value="">{(t("global.all"))}</option>
+                                                    {Object.keys(statusArr).map((s) => (
+                                                        <option key={s} value={s}>
+                                                            {statusArr[s]}
                                                         </option>
                                                     ))}
                                                 </select>
-                                                {/* </div> */}
                                             </header>
 
                                             <div className="d-none mb-3 mx-3 d-lg-block position-relative">
@@ -824,7 +783,7 @@ export default function chat() {
                                                     type="text"
                                                     name="smsg"
                                                     className="form-control search-input"
-                                                    onChange={(e) => search(e.target.value)}
+                                                    onChange={(e) => setSearchInput(e.target.value)}
                                                     placeholder="Search name or number"
                                                 />
                                                 <i className="fas fa-search search-icon"></i>
@@ -894,7 +853,6 @@ export default function chat() {
                                                         return (
                                                             <div
                                                                 key={i}
-                                                                ref={isLastItem ? lastLeadRef : null}
                                                                 className="card p-3 cardList mb-0"
                                                                 onClick={() => {
                                                                     getMessages(d.phone);
@@ -1084,7 +1042,7 @@ export default function chat() {
                                                                                                                     >
                                                                                                                         {m?.message != null && m?.message?.startsWith("Replying to:") && (
                                                                                                                             // <span className="replying-text" >{m.message}</span>
-                                                                                                                            <pre className="replying-text" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                                                                                                                            <pre className="replying-text" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', wordBreak: 'break-word' }}>
                                                                                                                                 {m.message}
                                                                                                                             </pre>
                                                                                                                         )}
@@ -1133,7 +1091,7 @@ export default function chat() {
                                                                                                                                     />
                                                                                                                                 )}
                                                                                                                                 <br />
-                                                                                                                                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                                                                                                                                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' ,wordBreak: 'break-word'}}>
                                                                                                                                     {m.message}
                                                                                                                                 </pre>                                                                                                                            </>
                                                                                                                         )}
