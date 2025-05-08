@@ -395,7 +395,7 @@ trait PaymentAPI
             "lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "user" => $iCountUsername,
             "pass" => $iCountPassword,
-            "email" => $client->email,
+            // "email" => $client->email,
             "doctype" => 'order',
             // "client_name" => $client->invoicename ? $client->invoicename : ($client->firstname . ' ' . $client->lastname),
             // "client_address" => $address ? $address->geo_address : '',
@@ -413,9 +413,9 @@ trait PaymentAPI
             // "email_to" => $client->email,
         ];
 
-        // if($client->icount_client_id) {
-        //     $postData['client_id'] = $client->icount_client_id;
-        // }
+        if($client->icount_client_id) {
+            $postData['client_id'] = $client->icount_client_id;
+        }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -507,7 +507,7 @@ trait PaymentAPI
                 ]);
         }
 
-        $client->update(['icount_client_id' => $json['client_id']]);
+        // $client->update(['icount_client_id' => $json['client_id']]);
 
         return $order;
     }

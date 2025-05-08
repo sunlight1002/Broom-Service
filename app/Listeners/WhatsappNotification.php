@@ -3120,7 +3120,7 @@ class WhatsappNotification
 
                     Log::info($response->json());
                 }else{
-                    StoreWebhookResponse($data['body'], $receiverNumber, $data);
+                    StoreWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
                     \Log::info("twilio message $isTwilio");
                 }
             }
