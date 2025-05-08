@@ -143,13 +143,31 @@ class WorkerLeadWebhookController extends Controller
         $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
+    private function isJson($string)
+    {
+        json_decode($string);
+        return (json_last_error() === JSON_ERROR_NONE);
+    }
+
 
     public function fbWebhookCurrentLive(Request $request)
     {
-        $data = $request->all();
-        \Log::info($data);
-        $messageId = $data['SmsMessageSid'] ?? null;
+        $data = [];
+        $isTwilio = false;
+        $messageId = null;
         $lng = "en";
+
+        // Check if request content is JSON (likely from Whapi)
+        $content = $request->getContent();
+        if ($this->isJson($content)) {
+            $data = json_decode($content, true);
+            $messageId = $data['messages'][0]['id'] ?? null;
+        } else {
+            // Otherwise it's form-data (likely from Twilio)
+            $data = $request->all();
+            $messageId = $data['SmsMessageSid'] ?? null;
+            $isTwilio = true;
+        }
         
         if (!$messageId) {
             \Log::info('Invalid message data');
@@ -165,7 +183,78 @@ class WorkerLeadWebhookController extends Controller
         // Store the messageId in the cache for 1 hour
         Cache::put('worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
-        if ($data['SmsStatus'] == 'received') {
+        if(!$isTwilio){
+            $message_data = $data['messages'];
+            $from = $message_data[0]['from'];
+            $input = $data['messages'][0]['text']['body'] ?? "";
+            $lng = $this->detectLanguage($input);
+
+            WorkerWebhookResponse::create([
+                'status' => 1,
+                'name' => 'whatsapp',
+                'entry_id' => $messageId,
+                'message' => $input,
+                'number' => $from,
+                'read' => 0,
+                'flex' => 'W',
+                'data' => json_encode($data)
+            ]);
+
+            $workerLead = WorkerLeads::where('phone', $from)->first();
+            $user = User::where('phone', $from)
+                    ->where('status', 1)
+                    ->first();
+            $client = Client::where('phone', $from)->first();
+
+            if($client){
+                \Log::info('client already exist ...'. $client->id);
+                die("client already exist");
+            }
+
+            if($user){
+                \Log::info('user already exist ...');
+                die("user already exist");
+            }
+
+            if (!$workerLead) {
+                $workerLead = WorkerLeads::create([
+                    'phone' => $from,
+                    'lng' => $lng
+                ]);
+                WhatsAppBotWorkerState::updateOrCreate(
+                    ['worker_lead_id' => $workerLead->id],
+                    ['step' => 0, 'language' => $lng]
+                );
+
+                $sid = $workerLead->lng == 'en' ? 'HX868e85a56d9f6af3fa9cb46c47370e49' : 'HXd0f88505bf55200b5b0db725e40a6331';
+
+                $twi = $this->twilio->messages->create(
+                    "whatsapp:+$from",
+                    [
+                        "from" => $this->twilioWorkerLeadWhatsappNumber, 
+                        "contentSid" => $sid, 
+                        
+                    ]
+                );
+                \Log::info("twilio response". $twi->sid);
+
+                // Send the step0 message
+                $initialMessage = $this->botMessages['step0'][$lng];
+                // Save the admin message for step0
+                WorkerWebhookResponse::create([
+                    'status' => 1,
+                    'name' => 'whatsapp',
+                    'message' => $initialMessage,
+                    'number' => $from,
+                    'read' => 1,
+                    'flex' => 'A',
+                ]);
+
+                return;
+            }
+        }
+
+        if ($isTwilio && $data['SmsStatus'] == 'received') {
 
             $from =  Str::replace('whatsapp:+', '', $data['From']) ?? null;
             $input = $data['Body'] ? trim($data['Body']) : "";
@@ -286,7 +375,7 @@ class WorkerLeadWebhookController extends Controller
                 return;
             }else{
                 // Process user response based on current step
-                $currentStep = $workerState->step;
+                $currentStep = $workerState->step ?? 0;
                 $nextMessage = $this->processWorkerResponse($workerLead, $ButtonPayload, $currentStep, $workerState);
 
                 if ($nextMessage) {

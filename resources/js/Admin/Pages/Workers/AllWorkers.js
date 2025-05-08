@@ -209,7 +209,7 @@ export default function AllWorkers() {
                 if (
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-address-link") && 
+                    !e.target.closest(".dt-address-link") &&
                     !e.target.closest(".dt-status")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
@@ -261,9 +261,9 @@ export default function AllWorkers() {
         $(tableRef.current).on("click", ".dt-status", function () {
             const _id = $(this).data("id");
             console.log("asdasd");
-            
+
             console.log(_id);
-            
+
             setSelectedWorkerId(_id);
             setIsOpen(true);
         });
@@ -299,13 +299,13 @@ export default function AllWorkers() {
             status: status
         }
         try {
-            const res = await axios.post(`/api/admin/workers/change-status`, data , { headers }); 
+            const res = await axios.post(`/api/admin/workers/change-status`, data, { headers });
             setIsOpen(false);
             setTimeout(() => {
                 $(tableRef.current).DataTable().draw();
             }, 1000);
             alert.success(res?.data?.message);
-            
+
         } catch (error) {
             console.error(error);
         }
@@ -400,10 +400,10 @@ export default function AllWorkers() {
 
     useEffect(() => {
         const status = localStorage.getItem("worker-status");
-    
+
         if (localStorage.getItem("company") || status) {
             const company = JSON.parse(localStorage.getItem("company") || "{}");
-    
+
             setFilters(prev => ({
                 ...prev,
                 status: status || "",
@@ -413,7 +413,7 @@ export default function AllWorkers() {
             }));
         }
     }, []);
-    
+
 
     return (
         <div id="container">
@@ -470,6 +470,11 @@ export default function AllWorkers() {
                                 >
                                     <i className="fa fa-filter"></i>
                                 </button>
+                                <span className="ml-2" style={{
+                                    padding: "6px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px"
+                                }}>{filters.status || t("admin.leads.All")}</span>
 
                                 <div className="dropdown-menu dropdown-menu-right">
                                     <button
@@ -508,6 +513,19 @@ export default function AllWorkers() {
                                         }}
                                     >
                                         {t("admin.global.past")}
+
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "",
+                                            });
+                                            localStorage.setItem("worker-status", "");
+                                        }}
+                                    >
+                                        {t("global.all")}
 
                                     </button>
                                 </div>
@@ -593,6 +611,26 @@ export default function AllWorkers() {
                         >
                             {t("admin.global.past")}
                         </button>
+                        <button
+                            className={`btn border rounded px-3 mr-1`}
+                            style={
+                                filters.status === ""
+                                    ? { background: "white" }
+                                    : {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }
+                            }
+                            onClick={() => {
+                                setFilters({
+                                    ...filters,
+                                    status: "",
+                                });
+                                localStorage.setItem("worker-status", "");
+                            }}
+                        >
+                            {t("global.all")}
+                        </button>
                     </div>
                     <div className="col-sm-12 d-flex mt-2">
                         <div
@@ -644,9 +682,9 @@ export default function AllWorkers() {
                                         is_my_company: true,
                                         is_manpower: false,
                                         is_freelancer: false
-                                      };
-                                      
-                                      localStorage.setItem("company", JSON.stringify(company));
+                                    };
+
+                                    localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.myCompany")}
@@ -673,9 +711,9 @@ export default function AllWorkers() {
                                         is_my_company: false,
                                         is_manpower: true,
                                         is_freelancer: false
-                                      };
-                                      
-                                      localStorage.setItem("company", JSON.stringify(company));
+                                    };
+
+                                    localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.manpower_company")}
@@ -702,9 +740,9 @@ export default function AllWorkers() {
                                         is_my_company: false,
                                         is_manpower: false,
                                         is_freelancer: true
-                                      };
-                                      
-                                      localStorage.setItem("company", JSON.stringify(company));
+                                    };
+
+                                    localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.freelancer")}
@@ -732,9 +770,9 @@ export default function AllWorkers() {
                                         is_my_company: false,
                                         is_manpower: false,
                                         is_freelancer: false
-                                      };
-                                      
-                                      localStorage.setItem("company", JSON.stringify(company));
+                                    };
+
+                                    localStorage.setItem("company", JSON.stringify(company));
                                 }}
                             >
                                 {t("admin.global.All")}
