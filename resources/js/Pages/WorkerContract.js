@@ -96,13 +96,14 @@ export default function WorkerContract({
                     .then((res) => {
                         if (worker.country === "Israel" && savingType === "submit") {
                             setIsSubmitted(true);
-                            swal(t('swal.forms_submitted'), "", "success");
+                            // swal(t('swal.forms_submitted'), "", "success");
+                            setNextStep(7);
                             if (type === "lead" && res?.data?.id) {
                                 navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
                             }
-                            setTimeout(() => {
-                                window.location.reload(true);
-                            }, 2000);
+                            // setTimeout(() => {
+                            //     window.location.reload(true);
+                            // }, 2000);
                         } else if (worker.country !== "Israel" && savingType === "submit") {
                             setIsSubmitted(true);
                             setNextStep(prev => prev + 1);
@@ -115,6 +116,7 @@ export default function WorkerContract({
                         console.error("Error submitting form:", e);
                         if (worker.country === "Israel") {
                             swal(t('swal.forms_submitted'), "", "success");
+                            setNextStep(7);
                         }
                         if (e.response?.data?.message === "Contract already signed") {
                             setNextStep(prev => prev + 1);

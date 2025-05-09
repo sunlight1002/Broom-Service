@@ -3210,7 +3210,8 @@
         "positive_finding": "Details of positive findings",
         "positive_finding_error": "Details are required because a field is marked 'yes'",
         "enter_required": "Enter if Required ...",
-        "Signature": "Signature"
+        "Signature": "Signature",
+        "yes_no_req": "yes/no required"
     },
     "formTxt": {
         "saftyAndGear": "Safety and Gear",

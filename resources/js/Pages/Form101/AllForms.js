@@ -35,6 +35,7 @@ import { GrFormNextLink } from "react-icons/gr";
 import ManpowerSaftyForm from "../ManpowerSaftyForm";
 import ManpowerDetailForm from "../ManpowerDetailForm";
 import useWindowWidth from "../../Hooks/useWindowWidth";
+import VideoGalleryPage from "./VideoGalleryPage";
 
 const currentDate = moment().format("YYYY-MM-DD");
 
@@ -1591,43 +1592,45 @@ function AllForms() {
     const handleFileChange = async (e, typ) => {
         const file = e.target.files[0];
         const data = new FormData();
-      
+
         data.append("id", id);
         data.append("type", type === "lead" ? "lead" : "worker");
-      
+
         if (file) {
-          const fileSizeInMB = file.size / (1024 * 1024);
-          if (fileSizeInMB > 10) {
-            alert.error(t("form101.step1.imageSize"));
-            return;
-          }
-      
-          let uploadFile = file;
-      
-          // Convert HEIC to JPEG
-          if (file.name.toLowerCase().endsWith(".heic")) {
-            try {
-              const outputBlob = await heic2any({
-                blob: file,
-                toType: "image/jpeg",
-                quality: 0.8,
-              });
-      
-              uploadFile = new File([outputBlob], file.name.replace(/\.heic$/, ".jpg"), {
-                type: "image/jpeg",
-              });
-            } catch (error) {
-              alert.error("Failed to convert HEIC image.");
-              return;
+            const fileSizeInMB = file.size / (1024 * 1024);
+            if (fileSizeInMB > 10) {
+                alert.error(t("form101.step1.imageSize"));
+                return;
             }
-          }
-      
-          console.log(uploadFile);
-          
-          data.append(`${typ}`, uploadFile);
-          handleDocSubmit(data);
+
+            let uploadFile = file;
+
+            // Convert HEIC to JPEG
+            if (file.name.toLowerCase().endsWith(".heic")) {
+                try {
+                    const outputBlob = await heic2any({
+                        blob: file,
+                        toType: "image/jpeg",
+                        quality: 0.8,
+                    });
+
+                    uploadFile = new File([outputBlob], file.name.replace(/\.heic$/, ".jpg"), {
+                        type: "image/jpeg",
+                    });
+                } catch (error) {
+                    alert.error("Failed to convert HEIC image.");
+                    return;
+                }
+            }
+
+            console.log(uploadFile);
+
+            data.append(`${typ}`, uploadFile);
+            handleDocSubmit(data);
         }
-      };
+    };
+
+    console.log(nextStep);
 
 
     return (
@@ -1640,7 +1643,7 @@ function AllForms() {
                     className="img-fluid broom-logo"
                     alt="Broom Services"
                 />
-                {nextStep != 0 && (
+                {!(nextStep === 0 || nextStep === 8 || (worker?.country === "Israel" && nextStep === 7)) && (
                     !isManpower ? (
                         <div className="d-flex flex-wrap align-items-center">
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
@@ -1986,6 +1989,12 @@ function AllForms() {
                         activeBubble={activeBubble}
                         type={type}
                     />
+                )
+            }
+
+            {
+                (nextStep === 8 || (worker?.country == "Israel" && nextStep == 7)) && (
+                    <VideoGalleryPage worker={worker} nextStep={nextStep} setNextStep={setNextStep} forms={true}/>
                 )
             }
 

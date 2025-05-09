@@ -599,6 +599,10 @@ table tr td .dropdown-item {
   font-size: 24px;
 }
 
+.font-22{
+  font-size: 22px;
+}
+
 .font-20{
   font-size: 20px;
 }
@@ -4450,4 +4454,36 @@ tbody tr:hover {
 .chat-end{
   overflow-y: auto;
   scroll-behavior: smooth;
+}
+
+
+
+video::-webkit-media-controls-panel {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+
+.video-player-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.video-screen {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.custom-controls {
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+}
+
+.volume-slider {
+  width: 100px;
 }

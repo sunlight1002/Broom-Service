@@ -155,6 +155,12 @@ export default function WorkerSidebar() {
                         {t("worker.my_account")}
                     </NavLink>
                 </li>
+                <li className="list-group-item">
+                    <NavLink to="/worker/tutorial">
+                        <i className="fa-solid fa-user"></i>
+                        Tutorials
+                    </NavLink>
+                </li>
             </ul>
             <div className="sideLogout">
                 <div className="logoutBtn">

@@ -808,31 +808,16 @@ export function IsrailContact({
                             </button>
                         )}
 
-                        {workerDetail?.country == "Israel" && nextStep == 6 ? (
-                            <button
-                                type="submit"
-                                className="navyblue py-2 px-4 mx-2"
-                                style={{
-                                    borderRadius: "5px",
-                                    display: isSubmitted ? "none" : "block"
-                                }}
-                            >
 
-                                {t("common.submit")}
+                        <button
+                            type="submit"
+                            className="navyblue py-2 px-4 mx-2"
+                            style={{ borderRadius: "5px" }}
+                        >
 
-                            </button>
-                        ) : (
-                            <button
-                                type="submit"
-                                className="navyblue py-2 px-4 mx-2"
-                                style={{ borderRadius: "5px" }}
-                            >
-
-                                {t("common.next")}
-                                <GrFormNextLink />
-                            </button>
-                        )
-                        }
+                            {t("common.next")}
+                            <GrFormNextLink />
+                        </button>
 
                     </div>
                 )

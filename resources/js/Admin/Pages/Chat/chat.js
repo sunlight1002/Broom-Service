@@ -730,7 +730,10 @@ export default function chat() {
                                                         type="text"
                                                         name="smsg"
                                                         className="form-control search-input"
-                                                        onChange={(e) => search(e.target.value)}
+                                                        onChange={(e) => {
+                                                            search(e.target.value)
+                                                            setSearchInput(e.target.value)
+                                                        }}
                                                         placeholder="Search name or number"
                                                     />
                                                     <i className="fas fa-search search-icon"></i>
@@ -941,7 +944,10 @@ export default function chat() {
                                                     type="text"
                                                     name="smsg"
                                                     className="form-control search-input"
-                                                    onChange={(e) => search(e.target.value)}
+                                                    onChange={(e) => {
+                                                        search(e.target.value)
+                                                        setSearchInput(e.target.value)
+                                                    }}
                                                     placeholder="Search name or number"
                                                 />
                                                 <i className="fas fa-search search-icon"></i>

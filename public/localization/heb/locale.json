@@ -3228,7 +3228,8 @@
         "positive_finding": "פרטים של ממצאים חיוביים",
         "positive_finding_error": "נדרשים פרטים מכיוון ששדה מסומן 'כן'",
         "enter_required": "הזן אם נדרש...",
-        "Signature": "חתימה"
+        "Signature": "חתימה",
+        "yes_no_req": "כן/לא נדרש"
     },
     "formTxt": {
         "saftyAndGear": "בטיחות וציוד",

@@ -453,20 +453,20 @@ const InsuranceForm = ({
                     if (type === "lead" && res?.data?.id) {
                         navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
                     }
+                    setNextStep(8);
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
                     setLoading(false);
                 })
                 .catch((e) => {
-                    console.log(e);
-
+                    setNextStep(8);
                     setLoading(false);
-                    Swal.fire({
-                        title: "Error!",
-                        text: e.response?.data?.message,
-                        icon: "error",
-                    });
+                    // Swal.fire({
+                    //     title: "Error!",
+                    //     text: e.response?.data?.message,
+                    //     icon: "error",
+                    // });
                 });
         }
     };
@@ -2437,16 +2437,16 @@ const InsuranceForm = ({
                                         >
                                             {t("insurance.Preview")}
                                         </button>
-                                        <div className="mx-2"></div>
-                                        <button
-                                            type="submit"
-                                            className="btn navyblue"
-                                        // disabled={isSubmitting}
-                                        >
-                                            {t("insurance.Submit")}
-                                        </button>
                                     </>
                                 )}
+                                <div className="mx-2"></div>
+                                <button
+                                    type="submit"
+                                    className="btn navyblue"
+                                // disabled={isSubmitting}
+                                >
+                                    {t("common.next")} <GrFormNextLink />
+                                </button>
                             </div>
                         </div>
 
