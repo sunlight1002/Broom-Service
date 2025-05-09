@@ -58,6 +58,10 @@ export default function chat() {
     const [tabs, setTabs] = useState([]);
     const [filter, setFilter] = useState("");
     const [searchInput, setSearchInput] = useState("");
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
 
     const [leadPage, setLeadPage] = useState(1);
     const [leadHasMore, setLeadHasMore] = useState(true);
@@ -117,24 +121,39 @@ export default function chat() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getData = (pageToLoad = page) => {
-        console.log(loadingChats, hasMore);
-        if (loadingChats || !hasMore) return;
-        
+    const getData = (pageToLoad = page, replace = false) => {
+        if (loadingChats || (!hasMore && !replace)) return;
     
         setLoadingChats(true);
-        axios.get(`/api/admin/chats?page=${pageToLoad}&from=${fromNumber}&filter=${filter}`, { headers })
+        axios.get(`/api/admin/chats?page=${pageToLoad}&from=${fromNumber}&filter=${filter}&start_date=${dateRange.start_date}&end_date=${dateRange.end_date}`, { headers })
             .then((res) => {
                 const newData = res.data.data;
                 const newClients = res.data.clients;
     
-                setClients(prev => [...prev, ...newClients]);
-                setData(prev => [...prev, ...newData]);
-    
-                if (newData.length === 0) {
-                    setHasMore(false);
+                if (replace) {
+                    setClients(newClients);
+                    setData(newData);
+                    setPage(2); // Ready for next manual scroll page
+                    setHasMore(true); // Reset in case more pages are available again
                 } else {
-                    setPage(prev => prev + 1);
+                    // Append only new/unique items (assuming each item has a unique `id`)
+                    setClients(prev => {
+                        const existingIds = new Set(prev.map(c => c.id));
+                        const filtered = newClients.filter(c => !existingIds.has(c.id));
+                        return [...prev, ...filtered];
+                    });
+    
+                    setData(prev => {
+                        const existingIds = new Set(prev.map(d => d.id));
+                        const filtered = newData.filter(d => !existingIds.has(d.id));
+                        return [...prev, ...filtered];
+                    });
+    
+                    if (newData.length === 0) {
+                        setHasMore(false);
+                    } else {
+                        setPage(prev => prev + 1);
+                    }
                 }
             })
             .catch((err) => {
@@ -146,19 +165,22 @@ export default function chat() {
     };
     
 
+
     const getLeads = async (pageNumber = leadPage) => {
-        
+
         if (LeadLoading || !leadHasMore) return;
         setLeadLoading(true);
         try {
             const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20&filter=${filter}`, { headers });
             const newLeads = res.data.data;
+            console.log(newLeads);
+            
             if (res.data.data.length > 0) {
                 setAllLeads((prev) => [...prev, ...newLeads]);
             }
             if (newLeads.length === 0) {
                 setLeadHasMore(false);
-            }else{
+            } else {
                 setLeadPage(prev => prev + 1);
             }
         } catch (err) {
@@ -167,7 +189,7 @@ export default function chat() {
             setLeadLoading(false);
         }
     };
-    
+
 
 
     const getLead = () => {
@@ -353,26 +375,23 @@ export default function chat() {
         });
     };
 
-    useEffect(() => {
-      search(searchInput);
-    }, [searchInput])
-    
-
 
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-        if (bottom) {
+        if (bottom) {            
             getData(); // Load more data when reaching the bottom
         }
     };
 
     const LeadhandleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
+        console.log(bottom);
+        
         if (bottom) {
+            console.log("Loading more data...");
             getLeads(); // Load more data when reaching the bottom
         }
     };
-
 
     // Add the scroll event listener to the container
     useEffect(() => {
@@ -381,13 +400,13 @@ export default function chat() {
 
         if (scrollContainer && client) {
             scrollContainer.addEventListener('scroll', handleScroll);
-        }else if (leadScrollContainer && lead) {
+        } else if (leadScrollContainer) {
             leadScrollContainer.addEventListener('scroll', LeadhandleScroll);
         }
         return () => {
             if (scrollContainer && client) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
-            }else if (leadScrollContainer && lead) {
+            } else if (leadScrollContainer) {
                 leadScrollContainer.removeEventListener('scroll', LeadhandleScroll);
             }
         };
@@ -402,28 +421,54 @@ export default function chat() {
     }, []);
 
     useEffect(() => {
-        if (lead === true) {
+        if (lead) {
             setLeadHasMore(true);
             setLeadLoading(false);
             setAllLeads([]);
-            setLeadPage(1); // ✅ Reset page before calling getLeads
+            setLeadPage(1);
             getLeads(1);
         }
-    }, [lead, filter]);
+    }, [lead, filter, dateRange]); // Filter can be shared if lead mode changes results
+    
 
     useEffect(() => {
+        if (!lead) { // Prevent conflict when in lead mode
             setPage(1);
             setData([]);
             setClients([]);
             setHasMore(true);
             setLoadingChats(false);
+        }
+    }, [fromNumber, dateRange, filter]);
 
-    }, [fromNumber]);
 
     useEffect(() => {
-        // Explicitly load page 1
-        getData(1);
-    }, [fromNumber, filter, hasMore]);
+        if (!lead) {
+            const { startDate, endDate } = dateRange || {};
+
+            // Skip if only one of them exists
+            if ((startDate && !endDate) || (!startDate && endDate)) return;
+
+            getData(1);
+        }
+    }, [fromNumber, filter, hasMore, dateRange, lead]); // Include `lead` to avoid loading data in lead mode
+
+
+    useEffect(() => {
+        setData([]);
+        setClients([]);
+    }, [filter])
+    
+
+    useEffect(() => {
+        
+        const interval = setInterval(() => {
+            getData(1, true); // Always refresh page 1 and replace data
+        }, 10000);
+    
+        return () => clearInterval(interval); // Cleanup
+    }, [dateRange, filter]);
+    
     
 
 
@@ -605,7 +650,65 @@ export default function chat() {
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-xl-8 col-12" style={{ backgroundColor: "white" }}>
-                                                <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        // overflowX: "scroll",
+                                                        alignItems: "center",
+                                                        justifyContent: "left",
+
+                                                        // scrollbarWidth: "none",
+                                                    }}
+                                                    className="hide-scrollbar mt-2"
+                                                >
+                                                    <p className="date">Date Period</p>
+
+                                                    <div className="d-flex align-items-center">
+                                                        <input
+                                                            className="form-control calender"
+                                                            type="date"
+                                                            placeholder="From date"
+                                                            name="from filter"
+                                                            style={{ width: "fit-content" }}
+                                                            value={dateRange.start_date}
+                                                            onChange={(e) => {
+                                                                const updatedDateRange = {
+                                                                    start_date: e.target.value,
+                                                                    end_date: dateRange.end_date,
+                                                                };
+
+                                                                setDateRange(updatedDateRange);
+                                                                localStorage.setItem(
+                                                                    "dateRange",
+                                                                    JSON.stringify(updatedDateRange)
+                                                                );
+                                                            }}
+                                                        />
+                                                        <div className="mx-2">-</div>
+                                                        <input
+                                                            className="form-control calender"
+                                                            type="date"
+                                                            placeholder="To date"
+                                                            name="to_filter"
+                                                            style={{ width: "fit-content" }}
+                                                            value={dateRange.end_date}
+                                                            onChange={(e) => {
+                                                                const updatedDateRange = {
+                                                                    start_date: dateRange.start_date,
+                                                                    end_date: e.target.value,
+                                                                };
+
+                                                                setDateRange(updatedDateRange);
+                                                                // Corrected: JSON.stringify instead of json.stringify
+                                                                localStorage.setItem(
+                                                                    "dateRange",
+                                                                    JSON.stringify(updatedDateRange)
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <header className="d-flex align-items-center justify-content-center py-2 bg-white shadow rounded">
                                                     <select
                                                         className="form-select w-100 mx-auto"
                                                         value={filter}
@@ -621,12 +724,13 @@ export default function chat() {
                                                         ))}
                                                     </select>
                                                 </header>
+
                                                 <div className=" mb-3 d-lg-block position-relative">
                                                     <input
                                                         type="text"
                                                         name="smsg"
                                                         className="form-control search-input"
-                                                        onChange={(e) => setSearchInput(e.target.value)}
+                                                        onChange={(e) => search(e.target.value)}
                                                         placeholder="Search name or number"
                                                     />
                                                     <i className="fas fa-search search-icon"></i>
@@ -686,7 +790,7 @@ export default function chat() {
                                                         </div>
                                                         {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                     </div>
-                                                    <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                    <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade leadTab" role="tabpanel" aria-labelledby="client-details">
                                                         {allLeads.map((d, i) => {
                                                             const isLastItem = i === allLeads.length - 1;
                                                             return (
@@ -751,7 +855,7 @@ export default function chat() {
                                         }}
                                     >
                                         <div
-                                            className="card col-sm-4 card-body sidemsg mb-0 p-0 d-none d-xl-flex"
+                                            className="card col-sm-4 card-body sidemsg mt-0 p-0 d-none d-xl-flex"
                                             style={{
                                                 borderRadius: "0",
                                                 boxShadow: "none",
@@ -760,8 +864,63 @@ export default function chat() {
                                                 // paddingBottom: "0"
                                             }}
                                         >
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    // overflowX: "scroll",
+                                                    alignItems: "center",
+                                                    justifyContent: "left",
+                                                    // scrollbarWidth: "none",
+                                                }}
+                                                className="hide-scrollbar mt-2 px-3"
+                                            >
+                                                <p className="date">Date Period</p>
+                                                <div className="d-flex align-items-center">
+                                                    <input
+                                                        className="form-control calender"
+                                                        type="date"
+                                                        placeholder="From date"
+                                                        name="from filter"
+                                                        style={{ width: "fit-content" }}
+                                                        value={dateRange.start_date}
+                                                        onChange={(e) => {
+                                                            const updatedDateRange = {
+                                                                start_date: e.target.value,
+                                                                end_date: dateRange.end_date,
+                                                            };
 
-                                            <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
+                                                            setDateRange(updatedDateRange);
+                                                            localStorage.setItem(
+                                                                "dateRange",
+                                                                JSON.stringify(updatedDateRange)
+                                                            );
+                                                        }}
+                                                    />
+                                                    <div className="mx-2">-</div>
+                                                    <input
+                                                        className="form-control calender"
+                                                        type="date"
+                                                        placeholder="To date"
+                                                        name="to_filter"
+                                                        style={{ width: "fit-content" }}
+                                                        value={dateRange.end_date}
+                                                        onChange={(e) => {
+                                                            const updatedDateRange = {
+                                                                start_date: dateRange.start_date,
+                                                                end_date: e.target.value,
+                                                            };
+
+                                                            setDateRange(updatedDateRange);
+                                                            // Corrected: JSON.stringify instead of json.stringify
+                                                            localStorage.setItem(
+                                                                "dateRange",
+                                                                JSON.stringify(updatedDateRange)
+                                                            );
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <header className="d-flex align-items-center justify-content-center px-3 py-2 bg-white shadow rounded">
                                                 <select
                                                     className="form-select w-100 mx-auto"
                                                     value={filter}
@@ -777,13 +936,12 @@ export default function chat() {
                                                     ))}
                                                 </select>
                                             </header>
-
                                             <div className="d-none mb-3 mx-3 d-lg-block position-relative">
                                                 <input
                                                     type="text"
                                                     name="smsg"
                                                     className="form-control search-input"
-                                                    onChange={(e) => setSearchInput(e.target.value)}
+                                                    onChange={(e) => search(e.target.value)}
                                                     placeholder="Search name or number"
                                                 />
                                                 <i className="fas fa-search search-icon"></i>
@@ -847,7 +1005,7 @@ export default function chat() {
                                                     </div>
                                                     {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                 </div>
-                                                <div id="tab-client-details" className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                <div id="tab-client-details" className="tab-pane fade leadTab" role="tabpanel" aria-labelledby="client-details">
                                                     {allLeads.map((d, i) => {
                                                         const isLastItem = i === allLeads.length - 1;
                                                         return (
@@ -1091,7 +1249,7 @@ export default function chat() {
                                                                                                                                     />
                                                                                                                                 )}
                                                                                                                                 <br />
-                                                                                                                                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' ,wordBreak: 'break-word'}}>
+                                                                                                                                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', wordBreak: 'break-word' }}>
                                                                                                                                     {m.message}
                                                                                                                                 </pre>                                                                                                                            </>
                                                                                                                         )}

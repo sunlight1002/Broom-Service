@@ -15,6 +15,7 @@ use App\Traits\GoogleAPI;
 use App\Models\WorkerLeads;
 use Illuminate\Support\Str;
 use App\Models\Notification;
+use App\Models\LeadActivity;
 use Illuminate\Http\Request;
 use App\Enums\LeadStatusEnum;
 use App\Enums\SettingKeyEnum;
@@ -313,6 +314,7 @@ Broom Service Team 🌹",
 
                         // Check if the client already exists
                         $client = Client::where('phone', $phone)->first();
+                        $changed = null;
 
                         if (!$client) {
                             $client = new Client;
@@ -326,7 +328,7 @@ Broom Service Team 🌹",
                             $client->geo_address = '';
                             $client->lng = ($lng);
                             $client->save();
-
+                            
                             $m = $lng == 'heb'
                                 ? "ליד חדש נוצר בהצלחה\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
                                 : "New lead created successfully\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
@@ -339,12 +341,21 @@ Broom Service Team 🌹",
                                 ]);
                                 $client->created_at = Carbon::now();
                                 $client->save();
+                                $changed = now();
                             }
 
                             $m = $lng == 'heb'
                                 ? "עופרת כבר קיימת\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
                                 : "Lead already exists\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
                         }
+
+                        LeadActivity::create([
+                            'client_id' => $client->id,
+                            'created_date' => now(),
+                            'status_changed_date' => $changed ? $changed : "",
+                            'changes_status' => LeadStatusEnum::PENDING,
+                            'reason' => $changed ? "Changed by Bot" : "",
+                        ]);
 
                         // Send WhatsApp message
                         $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
@@ -633,6 +644,14 @@ Broom Service Team 🌹",
                     $client->updated_at = now();
                     $client->status = 0;
                     $client->save();
+
+                    LeadActivity::create([
+                        'client_id' => $client->id,
+                        'created_date' => now(),
+                        'status_changed_date' => now(),
+                        'changes_status' => LeadStatusEnum::PENDING,
+                        'reason' => "Changed by Bot",
+                    ]);
                 }
                 $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
             }
@@ -1704,6 +1723,15 @@ Broom Service Team 🌹",
                                     [],
                                     ['lead_status' => LeadStatusEnum::POTENTIAL]
                                 );
+
+                                LeadActivity::create([
+                                    'client_id' => $client->id,
+                                    'created_date' => now(),
+                                    'status_changed_date' => now(),
+                                    'changes_status' => LeadStatusEnum::POTENTIAL,
+                                    'reason' => "Changed by Bot",
+                                ]);
+
                                 $client->status = 1;
                                 $client->save();
     
@@ -2342,6 +2370,13 @@ Broom Service Team 🌹",
                 ['lead_status' => LeadStatusEnum::PENDING]
             );
 
+            LeadActivity::create([
+                'client_id' => $lead->id,
+                'created_date' => now(),
+                'status_changed_date' => now(),
+                'changes_status' => LeadStatusEnum::PENDING,
+                'reason' => "",
+            ]);
 
             $m = $this->botMessages['main-menu']['heb'];
             $sid = "HX386916d517b39fc62c3ac739b3797cc1";
@@ -2382,7 +2417,7 @@ Broom Service Team 🌹",
             ]));
 
         } else {
-            $lead = Client::where('phone', 'like', '%' . $phone . '%')->first();
+            $lead = Client::where('phone', $phone)->first();
             if (empty($lead)) {
                 $lead = Client::where('email', $request->email)->first();
             }
@@ -2399,6 +2434,14 @@ Broom Service Team 🌹",
                         [],
                         ['lead_status' => LeadStatusEnum::PENDING]
                     );
+
+                    LeadActivity::create([
+                        'client_id' => $lead->id,
+                        'created_date' => now(),
+                        'status_changed_date' => now(),
+                        'changes_status' => LeadStatusEnum::PENDING,
+                        'reason' => "",
+                    ]);
 
                     $lead->status = 0;
                     $lead->save();

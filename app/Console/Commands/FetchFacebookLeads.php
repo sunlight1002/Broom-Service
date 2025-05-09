@@ -76,7 +76,7 @@ class FetchFacebookLeads extends Command
         $baseUrl = 'https://graph.facebook.com/v21.0/'; // Use the latest API version
 
         // Calculate yesterday's date range
-        $yesterdayStart = Carbon::now('UTC')->subMinutes(10)->timestamp;
+        $yesterdayStart = Carbon::now('UTC')->subMinutes(5)->timestamp;
         $yesterdayEnd = Carbon::now()->timestamp;
 
         try {
@@ -235,6 +235,14 @@ class FetchFacebookLeads extends Command
                                             [],
                                             ['lead_status' => LeadStatusEnum::PENDING]
                                         );
+
+                                        LeadActivity::create([
+                                            'client_id' => $client->id,
+                                            'created_date' => now(),
+                                            'status_changed_date' => now(),
+                                            'changes_status' => LeadStatusEnum::PENDING,
+                                            'reason' => "Facebook lead arrived",
+                                        ]);
                                 
                                         $client->status = 0;
                                         $client->save();

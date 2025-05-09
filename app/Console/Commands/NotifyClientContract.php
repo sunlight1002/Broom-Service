@@ -91,7 +91,6 @@ class NotifyClientContract extends Command
 
         // Notify for contracts "not-signed" older than 3 days
         foreach ($contracts3Days as $contract) {
-            \Log::info($contract);
             $client = $contract->client;
 
             // Check if 3-day notification has already been sent

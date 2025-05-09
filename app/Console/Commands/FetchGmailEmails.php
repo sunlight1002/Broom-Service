@@ -12,6 +12,10 @@ use App\Models\Client;
 use App\Models\User;
 use App\Models\ScheduleChange;
 use App\Models\Setting;
+use App\Models\Notification;
+use App\Models\LeadActivity;
+use App\Enums\NotificationTypeEnum;
+use App\Enums\LeadStatusEnum;
 use Aws\Api\Service;
 use Google\Service\CloudSearch\UserId;
 use Illuminate\Support\Facades\Log;
@@ -202,6 +206,23 @@ class FetchGmailEmails extends Command
                                     'lng'            => "heb",
                                     'phone'          => $phoneNumber,
                                 ]);
+
+                                LeadActivity::create([
+                                    'client_id' => $client->id,
+                                    'created_date' => now(),
+                                    'status_changed_date' => "",
+                                    'changes_status' => LeadStatusEnum::PENDING,
+                                    'reason' => "teleservice",
+                                ]);
+
+                                // Create a notification
+                                Notification::create([
+                                    'user_id' => $client->id,
+                                    'user_type' => get_class($client),
+                                    'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
+                                    'status' => 'created'
+                                ]);
+
                             } else {
                                 $this->info("Matched Client: {$client->firstname}, Phone: {$client->phone}");
                             }

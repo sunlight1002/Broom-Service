@@ -114,8 +114,10 @@ class ChatController extends Controller
         $page = $request->input('page', 1);
         $from = $request->input('from');
         $filter = $request->input('filter') ?? null; 
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
         $perPage = 20;
-    
+
         $query = WebhookResponse::query()
             ->select('number')
             ->groupBy('number')
@@ -125,42 +127,48 @@ class ChatController extends Controller
         if ($from) {
             $query->where('from', $from);
         }
-    
+
+        // ✅ Add date range filter only if both dates are present
+        if ($start_date && $end_date) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($start_date)->startOfDay(),
+                Carbon::parse($end_date)->endOfDay()
+            ]);
+        }
+
         $rawData = $query
             ->skip(($page - 1) * $perPage * 2)
             ->take($perPage * 2)
             ->get();
-    
+
         $data = collect();
         $clients = [];
-    
+
         foreach ($rawData as $entry) {
             $number = $entry->number;
-    
+
             // Skip group chats
             if (strpos($number, '@g.us') !== false) {
                 continue;
             }
-    
+
             // Load client with lead_status
             $client = Client::with('lead_status')->where('phone', $number)->first();
-            // \Log::info($client);
-    
-           // Only apply filter if it's explicitly set
+
+            // Only apply filter if it's explicitly set
             if (!empty($filter)) {
                 if ($client && $client->lead_status && $client->lead_status->lead_status != $filter) {
                     continue;
                 }
             }
-    
+
             $unreadCount = WebhookResponse::where('number', $number)
                 ->where('read', 0)
                 ->count();
-    
+
             $entry->unread = $unreadCount;
             $data->push($entry);
 
-    
             if ($client) {
                 $clients[] = [
                     'name'   => trim("{$client->firstname} {$client->lastname}"),
@@ -169,22 +177,19 @@ class ChatController extends Controller
                     'client' => $client->status != 0 ? 1 : 0,
                 ];
             }
-    
+
             if ($data->count() >= $perPage) {
                 break;
             }
         }
-    
+
         return response()->json([
             'data'    => $data->values(),
             'clients' => $clients,
         ]);
     }
-    
-    
-    
 
-
+    
     public function allLeads(Request $request)
     {
         $perPage = $request->get('per_page', 20); // default 20

@@ -220,7 +220,7 @@ export default function MyRoutes() {
 
     return (
         <Provider template={AlertTemplate} {...options}>
-            <Router>
+            <Router future={{ v7_startTransition: true , v7_relativeSplatPath: true}}>
                 <Routes>
                     {/* Home route  */}
                     <Route exact path="/" element={<ClientLogin />} />

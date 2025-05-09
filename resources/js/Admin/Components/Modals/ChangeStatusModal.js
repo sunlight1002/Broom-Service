@@ -39,6 +39,8 @@ export default function ChangeStatusModal({
     const [loading, setLoading] = useState(false);
     const [totalAmount, setTotalAmount] = useState(0);
 
+
+
     const PastStatusMap = {
         "unhappy": t("admin.client.Unhappy"),
         "price issue": t("admin.client.Price_issue"),
@@ -131,8 +133,6 @@ export default function ChangeStatusModal({
                 }
             })
             .catch((e) => {
-                console.log(e);
-
                 Swal.fire({
                     title: "Error!",
                     text: e.response?.data?.message || "Something went wrong!",

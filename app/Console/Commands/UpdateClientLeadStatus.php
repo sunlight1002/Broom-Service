@@ -7,6 +7,7 @@ use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Events\ClientLeadStatusChanged;
 use App\Models\Client;
+use App\Models\LeadActivity;
 use App\Traits\JobSchedule;
 use Illuminate\Console\Command;
 use App\Events\WhatsappNotificationEvent;
@@ -68,6 +69,14 @@ class UpdateClientLeadStatus extends Command
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
+
+                LeadActivity::create([
+                    'client_id' => $client->id,
+                    'created_date' => now(),
+                    'status_changed_date' => now(),
+                    'changes_status' => $newLeadStatus,
+                    'reason' => "",
+                ]);
 
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
             }

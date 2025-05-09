@@ -116,6 +116,9 @@ export default function AdminLoginOtp() {
                 localStorage.setItem("admin-token", result.data.admin.token);
                 localStorage.setItem("admin-name", result.data.admin.name);
                 localStorage.setItem("admin-id", result.data.admin.id);
+                localStorage.setItem("admin-lng", result.data.admin.lng);
+                localStorage.setItem("admin-role", result.data.admin.role);
+                localStorage.setItem("admin-email", result.data.admin.email);
 
                 const rememberToken = result?.data?.remember_token;
 

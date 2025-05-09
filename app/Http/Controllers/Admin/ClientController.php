@@ -1203,7 +1203,8 @@ class ClientController extends Controller
             'reschedule_date' => $data['status'] == 'reschedule call' ? $data['reschedule_date'] :  null,
             'reschedule_time' => $data['status'] == 'reschedule call' ? $data['reschedule_time'] : null,
             'voice_bot_call_date' => $data['status'] == 'voice bot' ? $data['reschedule_date'] :  null,
-            'voice_bot_call_time' => $data['status'] == 'voice bot' ? $data['reschedule_time'] : null
+            'voice_bot_call_time' => $data['status'] == 'voice bot' ? $data['reschedule_time'] : null,
+            'changed_by' => auth()->user()->id
         ]);
     
         if ($data['status'] == LeadStatusEnum::RESCHEDULE_CALL) {
