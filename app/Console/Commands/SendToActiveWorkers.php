@@ -128,7 +128,7 @@ The Broom Service Team 🌹',
                 'value' => now()->toISOString(),
             ]);
 
-            $modifyMessage = str_replace(':worker_name', trim(($worker->firstname ?? '') . ' ' . ($worker->lastname ?? '')), $specialMsg[$worker->lng ?? 'en']);
+            // $modifyMessage = str_replace(':worker_name', trim(($worker->firstname ?? '') . ' ' . ($worker->lastname ?? '')), $specialMsg[$worker->lng ?? 'en']);
 
             // $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $modifyMessage));
 

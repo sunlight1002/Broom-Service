@@ -1258,7 +1258,7 @@ class WorkerLeadWebhookController extends Controller
                     $messageBody = $input;
                     $last_menu = end($menu_option);
 
-                    if($last_menu == 'main_monday_msg' && $messageBody == '1') {
+                    if($last_menu == 'main_monday_msg' && $ButtonPayload == '1') {
                         // Send appropriate message
                         if ($user->lng == 'heb') {
                             $m = "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
@@ -1290,7 +1290,7 @@ class WorkerLeadWebhookController extends Controller
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-                    } else if ($last_menu == 'main_monday_msg' && $messageBody == '2') {
+                    } else if ($last_menu == 'main_monday_msg' && ($messageBody == '2' || $ButtonPayload == '2')) {
 
 
                         $message = null;
