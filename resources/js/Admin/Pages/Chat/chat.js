@@ -156,13 +156,15 @@ export default function chat() {
                     setClients(prev => mergeUnique(prev, newClients, 'id'));
                     setData(prev => mergeUnique(prev, newData, 'number'));
                 } else if (lead) {
+                    console.log(newClients);
+                    
                     setAllLeads(newClients);
                 } else {
                     setClients(newClients);
                     setData(newData);
                 }
 
-                if (newData.length === 0) {
+                if (newData?.length === 0) {
                     setHasMore(false);
                 }
 
@@ -465,14 +467,14 @@ export default function chat() {
         const { start_date, end_date } = dateRange || {};
         if ((start_date && !end_date) || (!start_date && end_date)) return;
         getData(page, true);
-    }, [fromNumber, filter, hasMore, dateRange, lead, page, searchInput, unread]); // Include `lead` to avoid loading data in lead mode
+    }, [fromNumber, filter, hasMore, dateRange, lead , client , page, searchInput, unread]); // Include `lead` to avoid loading data in lead mode
 
 
     useEffect(() => {
         setPage(1);
         setData([]);
         setClients([]);
-    }, [filter, unread, isSearching])
+    }, [filter, unread, isSearching, dateRange]);
 
 
     useEffect(() => {

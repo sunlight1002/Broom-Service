@@ -369,6 +369,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     Route::get('webhook-responses', [ChatController::class, 'index']);
     Route::get('chats', [ChatController::class, 'chats']);
+    Route::get('personal-chat', [ChatController::class, 'personalChat']);
     Route::get('chat-message/{no}', [ChatController::class, 'chatsMessages']);
     Route::post('chat-message', [ChatController::class, 'storeWebhookResponse']);
     Route::post('chat-reply', [ChatController::class, 'chatReply']);

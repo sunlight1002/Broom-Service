@@ -149,6 +149,10 @@ public function chats(Request $request)
             }
         }
 
+        if(!is_null($start_date) && !is_null($end_date)){
+            $clientQuery->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
         $clientsPaginated = $clientQuery
             ->skip(($page - 1) * $perPage)
             ->take($perPage)
@@ -325,6 +329,95 @@ public function chats(Request $request)
         }
 
         if ($data->count() >= $perPage) break;
+    }
+
+    return response()->json([
+        'data'    => $data->values(),
+        'clients' => $clients,
+    ]);
+}
+
+
+public function personalChat(Request $request)
+{
+    $page = $request->input('page', 1);
+    $from = $request->input('from');
+    $unread = $request->boolean('unread'); // ensure it's treated as boolean
+    $filter = $request->input('filter') ?? null;
+    $start_date = $request->input('start_date');
+    $end_date = $request->input('end_date');
+    $perPage = 20;
+
+    \Log::info("Filter: {$filter}, Unread only: " . ($unread ? 'yes' : 'no'));
+
+    $query = WebhookResponse::query()
+        ->select('number')
+        ->groupBy('number')
+        ->whereNotNull('number')
+        ->orderBy('created_at', 'desc');
+
+    if ($from) {
+        $query->where('from', $from);
+    }
+
+    if ($start_date && $end_date) {
+        $query->whereBetween('created_at', [
+            Carbon::parse($start_date)->startOfDay(),
+            Carbon::parse($end_date)->endOfDay()
+        ]);
+    }
+
+    $rawData = $query
+        ->skip(($page - 1) * $perPage * 2)
+        ->take($perPage * 2)
+        ->get();
+
+    $data = collect();
+    $clients = [];
+
+    foreach ($rawData as $entry) {
+        $number = $entry->number;
+
+        // Skip group chats
+        if (strpos($number, '@g.us') !== false) {
+            continue;
+        }
+
+        // Load client with lead_status
+        $client = Client::with('lead_status')->where('phone', $number)->first();
+
+        // Count unread messages
+        $unreadCount = WebhookResponse::where('number', $number)
+            ->where('read', 0)
+            ->count();
+
+        // Apply unread filter if requested
+        if ($unread && $unreadCount === 0) {
+            continue;
+        }
+
+        // Apply lead_status filter if provided
+        if (!empty($filter)) {
+            if (!$client || !$client->lead_status || $client->lead_status->lead_status != $filter) {
+                continue;
+            }
+        }
+
+        $entry->unread = $unreadCount;
+        $data->push($entry);
+
+        if ($client) {
+            $clients[] = [
+                'name'   => trim("{$client->firstname} {$client->lastname}"),
+                'id'     => $client->id,
+                'num'    => $number,
+                'client' => $client->status != 0 ? 1 : 0,
+            ];
+        }
+
+        if ($data->count() >= $perPage) {
+            break;
+        }
     }
 
     return response()->json([

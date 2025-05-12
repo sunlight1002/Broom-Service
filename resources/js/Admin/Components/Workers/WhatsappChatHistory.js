@@ -17,13 +17,19 @@ const WhatsappChatHistory = ({
     workerId,
     worker
 }) => {
+    console.log(worker, "worker");
+    
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
     const [groupedMessages, setGroupedMessages] = useState({});
     const [selectNumber, setSelectNumber] = useState(null);
     const [clients, setClients] = useState([]);
-    const [expired, setExpired] = useState(0);
+    const [expired, setExpired] = useState({
+        expired: 0,
+        offical: 0,
+        isExist: 0
+    });
     const [isOpen, setIsOpen] = useState(false);
     const [chatName, setChatName] = useState("")
     const [selectedChat, setSelectedChat] = useState(null);
@@ -53,6 +59,11 @@ const WhatsappChatHistory = ({
     const [tabs, setTabs] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
 
+
+    const fromNumber = process.env.MIX_TWILIO_WHATSAPP_NUMBER;
+    console.log(fromNumber, "fromNumber");
+    
+
     const windowWidth = useWindowWidth();
 
     useEffect(() => {
@@ -62,21 +73,6 @@ const WhatsappChatHistory = ({
             setShowChatList(false)
         }
     }, [windowWidth])
-
-    const getWebhook = () => {
-        axios.get('/api/admin/webhook-responses', { headers })
-            .then((response) => {
-                setWebhookResponses(response?.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching webhook responses:", error);
-            });
-    }
-
-
-    // useEffect(() => {
-    //     getWebhook()
-    // }, []);
 
 
     useEffect(() => {
@@ -111,7 +107,7 @@ const WhatsappChatHistory = ({
         if (loadingChats || !hasMore) return; // Prevent multiple requests
 
         setLoadingChats(true);
-        axios.get(`/api/admin/chats?page=${page}&from=${activeTab}`, { headers })
+        axios.get(`/api/admin/personal-chat?page=${page}&from=${fromNumber}`, { headers })
             .then((res) => {
                 const newData = res.data.data;
                 const newClients = res.data.clients;
@@ -124,7 +120,7 @@ const WhatsappChatHistory = ({
                 // setPage(prevPage => prevPage + 1);
 
                 // If no more data to load, set hasMore to false
-                if (newData.length === 0) {
+                if (newData?.length === 0) {
                     setHasMore(false);
                 }
             })
@@ -136,28 +132,11 @@ const WhatsappChatHistory = ({
             });
     };
 
-    const getLeads = async () => {
-        try {
-            const res = await axios.get(`/api/admin/leads`, { headers })
-
-            setAllLeads(res?.data?.data);
-
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const getLead = () => {
-        axios
-            .get(`/api/admin/leads/${leadId}/edit`, { headers })
-            .then((res) => {
-                setNumber(res?.data?.lead?.phone);
-            });
-    };
-
 
     const getMessages = (no) => {
-        axios.get(`/api/admin/chat-message/${worker?.phone}?from=${activeTab ?? localStorage.getItem("from")}`, { headers }).then((res) => {
+        axios.get(`/api/admin/chat-message/${worker?.phone}?from=${fromNumber}`, { headers }).then((res) => {
+            // console.log(res.data, "res.data");
+
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
             if (cl > c.length) {
@@ -166,32 +145,16 @@ const WhatsappChatHistory = ({
             setChatName(res?.data?.clientName)
 
             localStorage.setItem("chatLen", c.length);
-            // setExpired(res.data.expired);
+            setExpired({
+                expired: res.data.expired,
+                offical: res.data.offical,
+                isExist: res.data.isExist
+            });
             setMessages(c);
 
             const grouped = groupMessagesByDate(c);
             setGroupedMessages(grouped);
         });
-    };
-
-    const addInChat = async () => {
-        try {
-            const res = await axios.post(`/api/admin/chat-message`, { number }, { headers });
-            const r = res.data.data;
-            setSelectNumber(r.number);
-            setSelectedChat(r.number);
-            getMessages(r.number);
-            setShowChatList(false);
-            handleClose();
-            localStorage.setItem("number", r.number);
-            // Safely handle the removal of the element with escaped class name
-            const unreadElement = document.querySelector(escapedClassName);
-            if (unreadElement) {
-                unreadElement.remove();
-            }
-        } catch (error) {
-            // alert.info("you are already in a chat")
-        }
     };
 
     const groupMessagesByDate = (messages) => {
@@ -216,6 +179,7 @@ const WhatsappChatHistory = ({
         const send = new FormData(); // Use FormData to handle file uploads
         send.append("number", worker?.phone);
         send.append("message", messageToSend);
+        send.append("from", fromNumber);
         if (replyId) {
             send.append("replyId", replyId);
         }
@@ -223,10 +187,6 @@ const WhatsappChatHistory = ({
             send.append("media", selectedFile); // Append the media file if it exists
         }
         setLoading(true);
-
-        send.forEach((value, key) => {
-            console.log(`${key}:`, value);
-        });
 
         axios.post(`/api/admin/chat-reply`, send, {
             headers: {
@@ -352,39 +312,20 @@ const WhatsappChatHistory = ({
         };
     }, [data, loadingChats, hasMore]);
 
-    const getFromNumber = async () => {
-        try {
-            const response = await axios.get(`/api/admin/get-from-numbers`, { headers });
-            setTabs(response.data);
-            setActiveTab(response.data[0]);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
 
     useEffect(() => {
-        getLead();
-        addInChat()
-    }, [number, leadId, selectNumber])
-
-    useEffect(() => {
-        getLeads()
-        getFromNumber();
         if (localStorage.getItem("number")) {
             callApi();
         }
     }, []);
 
     useEffect(() => {
-        if (activeTab) {
-            setPage(1); // optional: reset pagination if tab changed
-            setData([]);
-            setClients([]);
-            setHasMore(true);
-            getData();
-        }
-    }, [activeTab]);
+        setPage(1); // optional: reset pagination if tab changed
+        setData([]);
+        setClients([]);
+        setHasMore(true);
+        getData();
+    }, []);
 
     const handleDeleteConversation = (e) => {
         e.preventDefault();
@@ -447,37 +388,6 @@ const WhatsappChatHistory = ({
 
     return (
         <div>
-            <header className="d-flex align-items-center justify-content-center p-3 bg-white shadow rounded">
-                {/* <div className="flex-grow-1 w-100 text-center"> */}
-                <select
-                    className="form-select w-100 mx-auto"
-                    value={activeTab}
-                    onChange={(e) => {
-                        setActiveTab(e.target.value)
-                        localStorage.setItem("from", e.target.value)
-                    }}                >
-                    {tabs.map((tab) => (
-                        <option key={tab} value={tab}>
-                            {tab}
-                        </option>
-                    ))}
-                </select>
-                <div className="header-buttons-container">
-                    <div className="button-icons mx-3">
-                        <div className="icon-container">
-                            <button
-                                type="button"
-                                className="btn navyblue text-right float-right py-1 px-2 "
-                                onClick={(e) => handleDeleteConversation(e)}
-                            >
-                                <i className="fa fa-trash"></i>
-                            </button>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-                {/* </div> */}
-            </header>
             <div className="wa chat-conversation"
                 style={{ borderRadius: "0" }}
             >
@@ -561,7 +471,7 @@ const WhatsappChatHistory = ({
 
                                                                             {m?.message != null && m?.message?.startsWith("Replying to:") && (
                                                                                 <>
-                                                                                    {webhookResponses
+                                                                                    {groupedMessages[date]
                                                                                         ?.filter((response) => response.id === m.wa_id)
                                                                                         .map((response) => (
                                                                                             <React.Fragment key={response.id}>
@@ -739,39 +649,55 @@ const WhatsappChatHistory = ({
                     </div>
                 </div>
 
-                {expired == 0 ? (
-                    <>
-                        <div className="wa-input-bar">
-                            {/* Attachments Button */}
+
+                <div className="wa-input-bar">
+                    {/* Attachments Button */}
+                    {
+                        expired.offical === 0 && (
                             <button className="wa-input-icon"
                                 onClick={() => setWaMedia(true)}
                             >
                                 <i className="fa fa-paperclip" aria-hidden="true"></i>
                             </button>
+                        )
+                    }
 
-                            {/* Emoji Button */}
-                            <button className="wa-input-icon"
-                                onClick={() => setEmoji(prev => !prev)}
-                            >
-                                <i className="fa-regular fa-face-smile" aria-hidden="true"></i>
-                            </button>
+                    {/* Emoji Button */}
+                    <button className="wa-input-icon"
+                        onClick={() => setEmoji(prev => !prev)}
+                    >
+                        <i className="fa-regular fa-face-smile" aria-hidden="true"></i>
+                    </button>
 
-                            {/* Text Input */}
-                            <input
-                                type="text"
-                                name="message"
-                                id="message_typing"
-                                className="wa-input-text"
-                                chat-box=""
-                                disabled={loading}
-                                onKeyDown={(e) => e.key === "Enter" ? sendMessage() : ""}
-                                placeholder={t("admin.global.chatPlaceholder")}
-                                value={message}
-                                onChange={(e) => handleInputChange(e)}
-                            />
+                    {/* Text Input */}
+                    <textarea
+                        name="message"
+                        id="message_typing"
+                        className="wa-input-text"
+                        style={{ resize: 'none' }}
+                        disabled={loading}
+                        onKeyDown={(e) => {
+                            if (!(
+                                (expired.isExist === 0 && expired.offical === 1) ||
+                                (expired.expired === 1 && expired.offical === 1)
+                            )) {
+                                e.key === "Enter" && !e.shiftKey ? (e.preventDefault(), sendMessage()) : null;
+                            }
+                        }}
+                        placeholder={t("admin.global.chatPlaceholder")}
+                        value={message}
+                        onChange={handleInputChange}
+                    />
 
-                            {/* Send Button */}
-                            <button className="wa-input-icon wa-send-button mx-2"
+
+                    {/* Send Button */}
+                    {
+                        !(
+                            (expired.isExist === 0 && expired.offical === 1) ||
+                            (expired.expired === 1 && expired.offical === 1)
+                        ) && (
+                            <button
+                                className="wa-input-icon wa-send-button mx-2"
                                 onClick={(e) => sendMessage()}
                                 disabled={selectedFile && selectedFile?.name ? false : message == ''}
                             >
@@ -779,69 +705,53 @@ const WhatsappChatHistory = ({
                                     loading ? (
                                         <MiniLoader />
                                     ) : (
-                                        message.trim() ? (
-                                            <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                        ) : (
-                                            // <i className="fa fa-microphone" aria-hidden="true"></i>
-                                            <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                        )
+                                        <i className="fa fa-paper-plane" aria-hidden="true"></i>
                                     )
                                 }
                             </button>
-                        </div>
+                        )
+                    }
 
-                        {/* Emoji Modal */}
-                        <Modal
-                            show={emoji} onHide={() => setEmoji(false)} centered>
-                            <Modal.Header closeButton>
-                                <Modal.Title>{t("admin.global.select_emoji")}</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <div className="d-flex justify-content-center align-items-center">
-                                    <EmojiPicker onEmojiClick={onEmojiClick} />
-                                </div>
-                            </Modal.Body>
-                            <Modal.Footer>
-                                <Button variant="secondary" onClick={() => setEmoji(false)}>
-                                    {t("global.close")}
-                                </Button>
-                            </Modal.Footer>
-                        </Modal>
-                        <Modal show={waMedia} onHide={() => setWaMedia(false)} centered>
-                            <Modal.Header closeButton>
-                                <Modal.Title>{t("admin.global.upload_options")}</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <div className="d-flex flex-column">
-                                    <Button variant="outline-primary" onClick={() => handleFileUpload('Image')}>
-                                        📷 {t("admin.global.upload_image")}
-                                    </Button>
-                                    <Button variant="outline-primary" onClick={() => handleFileUpload('Video')}>
-                                        🎥 {t("admin.global.upload_video")}
-                                    </Button>
-                                </div>
-                            </Modal.Body>
-                            <Modal.Footer>
-                                <Button variant="secondary" onClick={() => setWaMedia(false)}>
-                                    {t("global.close")}
-                                </Button>
-                            </Modal.Footer>
-                        </Modal>
-                    </>
-                ) : (
-                    <div className="input-group">
-                        <div className="text-center">
-                            <button
-                                type="button"
-                                className="btn btn-info text-white"
-                                data-toggle="modal"
-                                data-target="#exampleModalTemplate"
-                            >
-                                {t("admin.global.restartChat")} <i className="fas fa-refresh"></i>
-                            </button>
+
+                </div>
+
+                {/* Emoji Modal */}
+                <Modal
+                    show={emoji} onHide={() => setEmoji(false)} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>{t("admin.global.select_emoji")}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="d-flex justify-content-center align-items-center">
+                            <EmojiPicker onEmojiClick={onEmojiClick} />
                         </div>
-                    </div>
-                )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setEmoji(false)}>
+                            {t("global.close")}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={waMedia} onHide={() => setWaMedia(false)} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>{t("admin.global.upload_options")}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="d-flex flex-column">
+                            <Button variant="outline-primary" onClick={() => handleFileUpload('Image')}>
+                                📷 {t("admin.global.upload_image")}
+                            </Button>
+                            <Button variant="outline-primary" onClick={() => handleFileUpload('Video')}>
+                                🎥 {t("admin.global.upload_video")}
+                            </Button>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setWaMedia(false)}>
+                            {t("global.close")}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
             </div>
         </div>
