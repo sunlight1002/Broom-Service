@@ -3808,7 +3808,7 @@ Broom Service Team 🌹",
                         $ButtonPayload = $data['ButtonPayload'] ?? null;
                         $last_menu = end($menu_option);
 
-                        if($last_menu == 'main_monday_msg' && $listId == '1') {
+                        if($last_menu == 'main_monday_msg' && ($listId == '1' || $ButtonPayload == '1')) {
 
                             $m = $client->lng == 'heb'
                                 ? "מהו השינוי או הבקשה לשבוע הבא?"
