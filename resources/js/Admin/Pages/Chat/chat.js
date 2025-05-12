@@ -127,35 +127,47 @@ export default function chat() {
         if (loadingChats || (!hasMore && !replace)) return;
 
         setLoadingChats(true);
-        axios.get(`/api/admin/chats?page=${pageToLoad}&from=${fromNumber}&filter=${filter}&start_date=${dateRange.start_date}&end_date=${dateRange.end_date}&unread=${unread}`, { headers })
-            .then((res) => {
-                const newData = res.data.data;
-                const newClients = res.data.clients;
 
-                if (replace) {
+        axios
+            .get(`/api/admin/chats`, {
+                params: {
+                    page: pageToLoad,
+                    from: fromNumber,
+                    filter,
+                    start_date: dateRange.start_date,
+                    end_date: dateRange.end_date,
+                    unread,
+                    search: searchInput,
+                    isChat: client ? client : false
+                },
+                headers
+            })
+            .then((res) => {
+                const { data: newData, clients: newClients } = res.data;
+
+                if (!isSearching) {
+                    const mergeUnique = (prev = [], incoming = [], key) => {
+                        const existingKeys = new Set(prev.map(item => item[key]));
+                        const filtered = incoming.filter(item => !existingKeys.has(item[key]));
+                        return [...prev, ...filtered];
+                    };
+
+
+                    setClients(prev => mergeUnique(prev, newClients, 'id'));
+                    setData(prev => mergeUnique(prev, newData, 'number'));
+                } else if (lead) {
+                    setAllLeads(newClients);
+                } else {
                     setClients(newClients);
                     setData(newData);
-                    setPage(2); // Ready for next manual scroll page
-                    setHasMore(true); // Reset in case more pages are available again
-                } else {
-                    // Append only new/unique items (assuming each item has a unique `id`)
-                    setClients(prev => {
-                        const existingIds = new Set(prev.map(c => c.id));
-                        const filtered = newClients.filter(c => !existingIds.has(c.id));
-                        return [...prev, ...filtered];
-                    });
+                }
 
-                    setData(prev => {
-                        const existingIds = new Set(prev.map(d => d.number));
-                        const filtered = newData.filter(d => !existingIds.has(d.number));
-                        return [...prev, ...filtered];
-                    });
+                if (newData.length === 0) {
+                    setHasMore(false);
+                }
 
-                    if (newData.length === 0) {
-                        setHasMore(false);
-                    } else {
-                        setPage(prev => prev + 1);
-                    }
+                if (!replace) {
+                    setPage(prev => prev + 1);
                 }
             })
             .catch((err) => {
@@ -165,6 +177,7 @@ export default function chat() {
                 setLoadingChats(false);
             });
     };
+
 
     const getLeads = async (pageNumber = leadPage) => {
 
@@ -361,32 +374,35 @@ export default function chat() {
     };
 
 
-    const search = (s) => {
-        const query = s || searchInput;
-        if (query) setIsSearching(true);
-        else setIsSearching(false); // If search is cleared
 
-        axios.get(`/api/admin/chat-search?s=${query}&type=${lead ? 'lead' : 'client'}&from=${fromNumber}`, { headers })
-            .then((res) => {
-                const r = res.data.data;
 
-                if (lead) {
-                    setAllLeads(res.data);
-                } else {
-                    setClients(res.data.clients);
-                }
-                setData(r);
-            });
-    };
+    // const search = (s) => {
+    //     const query = s || searchInput;
+    //     if (query) setIsSearching(true);
+    //     else setIsSearching(false); // If search is cleared
+
+    //     axios.get(`/api/admin/chat-search?s=${query}&type=${lead ? 'lead' : 'client'}&from=${fromNumber}&page=${page}`, { headers })
+    //         .then((res) => {
+    //             const r = res.data.data;
+
+    //             if (lead) {
+    //                 setAllLeads(res.data);
+    //             } else {
+    //                 setClients(res.data.clients);
+    //             }
+    //             setData(r);
+    //         });
+    // };
 
 
 
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-        if (bottom) {
-            getData(); // Load more data when reaching the bottom
+        if (bottom && hasMore && !loadingChats) {
+            getData();
         }
     };
+
 
     const LeadhandleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
@@ -434,43 +450,40 @@ export default function chat() {
 
 
     useEffect(() => {
-        if (!lead) { // Prevent conflict when in lead mode
+        if (!lead) {
             setPage(1);
             setData([]);
             setClients([]);
             setHasMore(true);
             setLoadingChats(false);
         }
-    }, [fromNumber, dateRange, filter, unread]);
+    }, [fromNumber, dateRange, filter]);
 
-
-    useEffect(() => {
-        if (!lead) {
-            const { startDate, endDate } = dateRange || {};
-
-            // Skip if only one of them exists
-            if ((startDate && !endDate) || (!startDate && endDate)) return;
-
-            getData(1);
-        }
-    }, [fromNumber, filter, hasMore, dateRange, lead, page, unread]); // Include `lead` to avoid loading data in lead mode
 
 
     useEffect(() => {
+        const { start_date, end_date } = dateRange || {};
+        if ((start_date && !end_date) || (!start_date && end_date)) return;
+        getData(page, true);
+    }, [fromNumber, filter, hasMore, dateRange, lead, page, searchInput, unread]); // Include `lead` to avoid loading data in lead mode
+
+
+    useEffect(() => {
+        setPage(1);
         setData([]);
         setClients([]);
-    }, [filter])
+    }, [filter, unread, isSearching])
 
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (!isSearching) {
-                getData(1, true);
-            }
+            // if (!isSearching) {
+            getData(page, true);
+            // }
         }, 10000);
 
         return () => clearInterval(interval);
-    }, [dateRange, filter, searchInput, isSearching, unread]);
+    }, [dateRange, filter, searchInput, unread]);
 
 
     const handleDeleteConversation = (e) => {
@@ -532,7 +545,7 @@ export default function chat() {
 
 
     function escapeSelectorClass(className) {
-        return className.replace(/([ :#.+,])/g, '\\$1');
+    return className.replace(/([!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
     }
 
 
@@ -575,11 +588,10 @@ export default function chat() {
                             scroller();
                         }, 200);
 
-                        // Safely handle the removal of the element with escaped class name
-                        const unreadElement = document.querySelector(escapedClassName);
-                        if (unreadElement) {
-                            unreadElement.remove();
-                        }
+                        document.querySelector(
+                            ".cl_" + d.number
+                        ).style.background = "#fff";
+                        document.querySelector(".cn_" + d.number).remove();
                     }}
                     key={i}
                 >
@@ -752,11 +764,17 @@ export default function chat() {
                                                         name="smsg"
                                                         className="form-control search-input"
                                                         onChange={(e) => {
-                                                            search(e.target.value)
-                                                            setSearchInput(e.target.value)
+                                                            const value = e.target.value;
+                                                            setSearchInput(value);
+                                                            if (value.trim() === '') {
+                                                                setIsSearching(false);
+                                                            } else {
+                                                                setIsSearching(true);
+                                                            }
                                                         }}
                                                         placeholder="Search name or number"
                                                     />
+
                                                     <i className="fas fa-search search-icon"></i>
                                                 </div>
                                                 <div className="ClientHistory mb-1">
@@ -996,11 +1014,17 @@ export default function chat() {
                                                     name="smsg"
                                                     className="form-control search-input"
                                                     onChange={(e) => {
-                                                        search(e.target.value)
-                                                        setSearchInput(e.target.value)
+                                                        const value = e.target.value;
+                                                        setSearchInput(value);
+                                                        if (value.trim() === '') {
+                                                            setIsSearching(false);
+                                                        } else {
+                                                            setIsSearching(true);
+                                                        }
                                                     }}
                                                     placeholder="Search name or number"
                                                 />
+
                                                 <i className="fas fa-search search-icon"></i>
                                             </div>
                                             <div className="ClientHistory px-3 mb-1">
@@ -1069,12 +1093,12 @@ export default function chat() {
                                                     role="tabpanel"
                                                     aria-labelledby="chat-details"
                                                 >
-                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '550px' }}>
                                                         {clientsCard}
+                                                        {loadingChats && <div className="d-flex justify-content-center mx-2"><MiniLoader /></div>}
                                                     </div>
-                                                    {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                 </div>
-                                                <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '550px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
                                                     {allLeads.map((d, i) => {
                                                         const isLastItem = i === allLeads.length - 1;
                                                         return (
@@ -1113,13 +1137,11 @@ export default function chat() {
                                                             </div>
                                                         );
                                                     })}
-
-                                                    {LeadLoading && (
+                                                    {(LeadLoading) && (
                                                         <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
                                                     )}
                                                 </div>
                                             </div>
-                                            {/* {loadingChats && <div className="d-flex justify-content-center"><MiniLoader /></div>} */}
                                         </div>
 
                                         <div id="waChat" className="col-xl-8 col-12 p-0" style={{

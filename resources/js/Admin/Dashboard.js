@@ -46,6 +46,7 @@ export default function Dashboard() {
         start_date: "",
         end_date: "",
     });
+    const [selected, setSelected] = useState("today");
     // const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -121,7 +122,7 @@ export default function Dashboard() {
 
     const getIncome = (start_date = null, end_date = null) => {
         axios
-            .post("/api/admin/income", { start_date, end_date }, { headers })
+            .post("/api/admin/income", { start_date, end_date, selected }, { headers })
             .then((res) => {
                 const profitArray = res.data?.graph?.data?.profit || [];
                 const expenseArray = res.data?.graph?.data?.expense || [];
@@ -175,9 +176,8 @@ export default function Dashboard() {
         getIncome();
         // latestClients();
         getAdmin();
-    }, []);
-    const [selected, setSelected] = useState("today");
-    console.log(selected);
+    }, [selected, dateRange]);
+
     // const handleSelect = (day) => {
     //     setSelected(day);
     // };

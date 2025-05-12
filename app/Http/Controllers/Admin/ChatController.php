@@ -109,71 +109,112 @@ class ChatController extends Controller
     //     ]);
     // }
 
-    public function chats(Request $request)
-    {
-        $page = $request->input('page', 1);
-        $from = $request->input('from');
-        $unread = $request->boolean('unread'); // ensure it's treated as boolean
-        $filter = $request->input('filter') ?? null;
-        $start_date = $request->input('start_date');
-        $end_date = $request->input('end_date');
-        $perPage = 20;
+public function chats(Request $request)
+{
+    $page = $request->input('page', 1);
+    $from = $request->input('from');
+    $unread = $request->boolean('unread');
+    $filter = $request->input('filter');
+    $start_date = $request->input('start_date');
+    $end_date = $request->input('end_date');
+    $search = $request->input('search');
+    $isChat = $request->boolean('isChat');
 
-        \Log::info("Filter: {$filter}, Unread only: " . ($unread ? 'yes' : 'no'));
+    $perPage = 20;
 
-        $query = WebhookResponse::query()
-            ->select('number')
-            ->groupBy('number')
-            ->whereNotNull('number')
-            ->orderBy('created_at', 'desc');
+    $data = collect();
+    $clients = [];
 
-        if ($from) {
-            $query->where('from', $from);
+    $isGroupNumber = fn($number) => strpos($number, '@g.us') !== false;
+
+    if (!$isChat) {
+        $clientQuery = Client::with('lead_status');
+
+        if ($filter) {
+            $clientQuery->whereHas('lead_status', function ($q) use ($filter) {
+                $q->where('lead_status', $filter);
+            });
         }
 
+        if ($search) {
+            $searchTerm = '%' . $search . '%';
+
+            if (is_numeric($search)) {
+                $clientQuery->where('phone', 'like', $searchTerm);
+            } else {
+                $clientQuery->where(function ($q) use ($searchTerm) {
+                    $q->where('firstname', 'like', $searchTerm)
+                      ->orWhere('lastname', 'like', $searchTerm);
+                });
+            }
+        }
+
+        $clientsPaginated = $clientQuery
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get();
+
+        // foreach ($clientsPaginated as $client) {
+        //     $number = $client->phone;
+
+        //     if (!$number || $isGroupNumber($number)) continue;
+
+        //     $unreadCount = WebhookResponse::where('number', $number)
+        //         ->where('read', 0)
+        //         ->count();
+
+        //     $entry = new \stdClass();
+        //     $entry->number = $number;
+        //     $entry->unread = $unreadCount;
+        //     $data->push($entry);
+
+        //     $clients[] = [
+        //         'name'   => trim("{$client->firstname} {$client->lastname}"),
+        //         'id'     => $client->id,
+        //         'num'    => $number,
+        //         'client' => $client->status != 0 ? 1 : 0,
+        //     ];
+        // }
+
+        return response()->json([
+            // 'data'    => $data->values(),
+            'clients' => $clientsPaginated,
+        ]);
+    }
+
+    if ($unread) {
+        $unreadQuery = WebhookResponse::where('read', 0)
+            ->whereNotNull('from')
+            ->whereNotNull('number')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         if ($start_date && $end_date) {
-            $query->whereBetween('created_at', [
+            $unreadQuery->whereBetween('created_at', [
                 Carbon::parse($start_date)->startOfDay(),
                 Carbon::parse($end_date)->endOfDay()
             ]);
         }
 
-        $rawData = $query
-            ->skip(($page - 1) * $perPage * 2)
-            ->take($perPage * 2)
-            ->get();
+        $numbersWithUnread = $unreadQuery->pluck('number')->unique();
 
-        $data = collect();
-        $clients = [];
+        foreach ($numbersWithUnread as $number) {
+            if ($isGroupNumber($number)) continue;
 
-        foreach ($rawData as $entry) {
-            $number = $entry->number;
+            $unreadCount = WebhookResponse::where('number', $number)->where('read', 0)->count();
+            \Log::info($number);
+            if ($unreadCount === 0) continue;
 
-            // Skip group chats
-            if (strpos($number, '@g.us') !== false) {
-                continue;
-            }
-
-            // Load client with lead_status
             $client = Client::with('lead_status')->where('phone', $number)->first();
 
-            // Count unread messages
-            $unreadCount = WebhookResponse::where('number', $number)
-                ->where('read', 0)
-                ->count();
-
-            // Apply unread filter if requested
-            if ($unread && $unreadCount === 0) {
-                continue;
-            }
-
-            // Apply lead_status filter if provided
             if (!empty($filter)) {
-                if (!$client || !$client->lead_status || $client->lead_status->lead_status != $filter) {
+                if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
                     continue;
                 }
             }
 
+            $entry = new \stdClass();
+            $entry->number = $number;
             $entry->unread = $unreadCount;
             $data->push($entry);
 
@@ -185,17 +226,114 @@ class ChatController extends Controller
                     'client' => $client->status != 0 ? 1 : 0,
                 ];
             }
-
-            if ($data->count() >= $perPage) {
-                break;
-            }
         }
 
+        $paginatedData = $data->slice(($page - 1) * $perPage, $perPage)->values();
+
         return response()->json([
-            'data'    => $data->values(),
+            'data'    => $paginatedData,
             'clients' => $clients,
         ]);
     }
+
+    // ------------------- ALL CHAT HANDLING ---------------------
+    $query = WebhookResponse::query()
+        ->select('number')
+        ->whereNotNull('number')
+        ->groupBy('number')
+        ->orderBy('created_at', 'desc');
+
+    if ($from) {
+        $query->where('from', $from);
+    }
+
+    if ($start_date && $end_date) {
+        $query->whereBetween('created_at', [
+            Carbon::parse($start_date)->startOfDay(),
+            Carbon::parse($end_date)->endOfDay()
+        ]);
+    }
+
+    if ($search) {
+        $searchTerm = '%' . $search . '%';
+
+        if (is_numeric($search)) {
+            // Search by phone/number/message (numeric search)
+            $clientPhones = Client::where('phone', 'like', $searchTerm)->pluck('phone');
+            $messageNumbers = WebhookResponse::where('message', 'like', $searchTerm)->pluck('number');
+            $numberMatches = WebhookResponse::where('number', 'like', $searchTerm)->pluck('number');
+
+            $searchNumbers = $clientPhones
+                ->merge($messageNumbers)
+                ->merge($numberMatches)
+                ->unique()
+                ->toArray();
+        } else {
+            // Search by name/message (text search)
+            $clientPhones = Client::where('firstname', 'like', $searchTerm)
+                ->orWhere('lastname', 'like', $searchTerm)
+                ->pluck('phone');
+
+            $messageNumbers = WebhookResponse::where('message', 'like', $searchTerm)->pluck('number');
+
+            $searchNumbers = $clientPhones
+                ->merge($messageNumbers)
+                ->unique()
+                ->toArray();
+        }
+
+        // If no matching numbers, return empty
+        if (empty($searchNumbers)) {
+            return response()->json([
+                'data' => [],
+                'clients' => [],
+            ]);
+        }
+
+        $query->whereIn('number', $searchNumbers);
+    }
+
+    // ------------------- PAGINATION AND FETCH ---------------------
+    $rawData = $query
+        ->skip(($page - 1) * $perPage * 2)
+        ->take($perPage * 2)
+        ->get();
+
+    foreach ($rawData as $entry) {
+        $number = $entry->number;
+        if ($isGroupNumber($number)) continue;
+
+        $unreadCount = WebhookResponse::where('number', $number)->where('read', 0)->count();
+        $client = Client::with('lead_status')->where('phone', $number)->first();
+
+        if (!empty($filter)) {
+            if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
+                continue;
+            }
+        }
+
+        $entry->unread = $unreadCount;
+        $data->push($entry);
+
+        if ($client) {
+            $clients[] = [
+                'name'   => trim("{$client->firstname} {$client->lastname}"),
+                'id'     => $client->id,
+                'num'    => $number,
+                'client' => $client->status != 0 ? 1 : 0,
+            ];
+        }
+
+        if ($data->count() >= $perPage) break;
+    }
+
+    return response()->json([
+        'data'    => $data->values(),
+        'clients' => $clients,
+    ]);
+}
+
+
 
 
     
@@ -493,7 +631,6 @@ class ChatController extends Controller
     public function search(Request $request)
     {
         $s = $request->s;
-        \Log::info($s);
         $type = $request->type; // 'lead' or 'client'
     
         if (is_null($s)) {

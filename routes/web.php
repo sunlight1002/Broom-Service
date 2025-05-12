@@ -45,6 +45,7 @@ Route::any('/webhook_active_worker_monday', [WorkerLeadWebhookController::class,
 Route::any('/twilio/worker-lead-webhook', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive']);
 Route::any('/twilio/webhook', [LeadWebhookController::class, 'fbWebhookCurrentLive']);
 
+
 Route::any('/whapi-group', [LeadWebhookController::class, 'whapiGroup']);
 Route::any('/twilio/status-callback', [LeadWebhookController::class, 'statusCallback']);
 
