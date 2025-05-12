@@ -62,10 +62,12 @@ export default function chat() {
         start_date: "",
         end_date: "",
     });
+    const [isSearching, setIsSearching] = useState(false);
 
     const [leadPage, setLeadPage] = useState(1);
     const [leadHasMore, setLeadHasMore] = useState(true);
     const [LeadLoading, setLeadLoading] = useState(false);
+    const [unread, setUnread] = useState(false);
 
     const statusArr = {
         pending: t("admin.leads.Pending"),
@@ -123,13 +125,13 @@ export default function chat() {
 
     const getData = (pageToLoad = page, replace = false) => {
         if (loadingChats || (!hasMore && !replace)) return;
-    
+
         setLoadingChats(true);
-        axios.get(`/api/admin/chats?page=${pageToLoad}&from=${fromNumber}&filter=${filter}&start_date=${dateRange.start_date}&end_date=${dateRange.end_date}`, { headers })
+        axios.get(`/api/admin/chats?page=${pageToLoad}&from=${fromNumber}&filter=${filter}&start_date=${dateRange.start_date}&end_date=${dateRange.end_date}&unread=${unread}`, { headers })
             .then((res) => {
                 const newData = res.data.data;
                 const newClients = res.data.clients;
-    
+
                 if (replace) {
                     setClients(newClients);
                     setData(newData);
@@ -142,13 +144,13 @@ export default function chat() {
                         const filtered = newClients.filter(c => !existingIds.has(c.id));
                         return [...prev, ...filtered];
                     });
-    
+
                     setData(prev => {
-                        const existingIds = new Set(prev.map(d => d.id));
-                        const filtered = newData.filter(d => !existingIds.has(d.id));
+                        const existingIds = new Set(prev.map(d => d.number));
+                        const filtered = newData.filter(d => !existingIds.has(d.number));
                         return [...prev, ...filtered];
                     });
-    
+
                     if (newData.length === 0) {
                         setHasMore(false);
                     } else {
@@ -163,8 +165,6 @@ export default function chat() {
                 setLoadingChats(false);
             });
     };
-    
-
 
     const getLeads = async (pageNumber = leadPage) => {
 
@@ -173,16 +173,15 @@ export default function chat() {
         try {
             const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20&filter=${filter}`, { headers });
             const newLeads = res.data.data;
-            console.log(newLeads);
-            
             if (res.data.data.length > 0) {
                 setAllLeads((prev) => [...prev, ...newLeads]);
             }
             if (newLeads.length === 0) {
                 setLeadHasMore(false);
-            } else {
-                setLeadPage(prev => prev + 1);
             }
+            // else {
+            setLeadPage(prev => prev + 1);
+            // }
         } catch (err) {
             console.error(err);
         } finally {
@@ -363,32 +362,35 @@ export default function chat() {
 
 
     const search = (s) => {
-        axios.get(`/api/admin/chat-search?s=${s || ''}&type=${lead ? 'lead' : 'client'}&from=${fromNumber}`, { headers }).then((res) => {
-            const r = res.data.data;
+        const query = s || searchInput;
+        if (query) setIsSearching(true);
+        else setIsSearching(false); // If search is cleared
 
-            if (lead) {
-                setAllLeads(res.data);
-            } else {
-                setClients(res.data.clients);
-            }
-            setData(r);
-        });
+        axios.get(`/api/admin/chat-search?s=${query}&type=${lead ? 'lead' : 'client'}&from=${fromNumber}`, { headers })
+            .then((res) => {
+                const r = res.data.data;
+
+                if (lead) {
+                    setAllLeads(res.data);
+                } else {
+                    setClients(res.data.clients);
+                }
+                setData(r);
+            });
     };
+
 
 
     const handleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-        if (bottom) {            
+        if (bottom) {
             getData(); // Load more data when reaching the bottom
         }
     };
 
     const LeadhandleScroll = (e) => {
         const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-        console.log(bottom);
-        
         if (bottom) {
-            console.log("Loading more data...");
             getLeads(); // Load more data when reaching the bottom
         }
     };
@@ -429,7 +431,7 @@ export default function chat() {
             getLeads(1);
         }
     }, [lead, filter, dateRange]); // Filter can be shared if lead mode changes results
-    
+
 
     useEffect(() => {
         if (!lead) { // Prevent conflict when in lead mode
@@ -439,7 +441,7 @@ export default function chat() {
             setHasMore(true);
             setLoadingChats(false);
         }
-    }, [fromNumber, dateRange, filter]);
+    }, [fromNumber, dateRange, filter, unread]);
 
 
     useEffect(() => {
@@ -451,25 +453,24 @@ export default function chat() {
 
             getData(1);
         }
-    }, [fromNumber, filter, hasMore, dateRange, lead]); // Include `lead` to avoid loading data in lead mode
+    }, [fromNumber, filter, hasMore, dateRange, lead, page, unread]); // Include `lead` to avoid loading data in lead mode
 
 
     useEffect(() => {
         setData([]);
         setClients([]);
     }, [filter])
-    
+
 
     useEffect(() => {
-        
         const interval = setInterval(() => {
-            getData(1, true); // Always refresh page 1 and replace data
+            if (!isSearching) {
+                getData(1, true);
+            }
         }, 10000);
-    
-        return () => clearInterval(interval); // Cleanup
-    }, [dateRange, filter]);
-    
-    
+
+        return () => clearInterval(interval);
+    }, [dateRange, filter, searchInput, isSearching, unread]);
 
 
     const handleDeleteConversation = (e) => {
@@ -661,9 +662,9 @@ export default function chat() {
                                                     }}
                                                     className="hide-scrollbar mt-2"
                                                 >
-                                                    <p className="date">Date Period</p>
+                                                    {/* <p className="date">Date Period</p> */}
 
-                                                    <div className="d-flex align-items-center">
+                                                    <div className="d-flex align-items-center flex-wrap">
                                                         <input
                                                             className="form-control calender"
                                                             type="date"
@@ -686,7 +687,7 @@ export default function chat() {
                                                         />
                                                         <div className="mx-2">-</div>
                                                         <input
-                                                            className="form-control calender"
+                                                            className="form-control calender mr-1"
                                                             type="date"
                                                             placeholder="To date"
                                                             name="to_filter"
@@ -706,6 +707,26 @@ export default function chat() {
                                                                 );
                                                             }}
                                                         />
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-default navyblue mx-1 my-1"
+                                                            style={{
+                                                                padding: ".195rem .6rem",
+                                                            }}
+                                                            onClick={() => {
+                                                                const updatedDateRange = {
+                                                                    start_date: "",
+                                                                    end_date: "",
+                                                                };
+                                                                setDateRange(updatedDateRange);
+                                                                localStorage.setItem(
+                                                                    "dateRange",
+                                                                    JSON.stringify(updatedDateRange)
+                                                                );
+                                                            }}
+                                                        >
+                                                            Reset
+                                                        </button>
                                                     </div>
                                                 </div>
                                                 <header className="d-flex align-items-center justify-content-center py-2 bg-white shadow rounded">
@@ -737,6 +758,16 @@ export default function chat() {
                                                         placeholder="Search name or number"
                                                     />
                                                     <i className="fas fa-search search-icon"></i>
+                                                </div>
+                                                <div className="ClientHistory mb-1">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="smsg"
+                                                        onChange={(e) => {
+                                                            setUnread(e.target.checked)
+                                                        }}
+                                                    />
+                                                    <span>Unread</span>
                                                 </div>
                                                 <div className="ClientHistory mb-1">
                                                     <ul className="nav nav-tabs" role="tablist">
@@ -793,7 +824,7 @@ export default function chat() {
                                                         </div>
                                                         {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                     </div>
-                                                    <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade leadTab" role="tabpanel" aria-labelledby="client-details">
+                                                    <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
                                                         {allLeads.map((d, i) => {
                                                             const isLastItem = i === allLeads.length - 1;
                                                             return (
@@ -877,8 +908,8 @@ export default function chat() {
                                                 }}
                                                 className="hide-scrollbar mt-2 px-3"
                                             >
-                                                <p className="date">Date Period</p>
-                                                <div className="d-flex align-items-center">
+                                                {/* <p className="date">Date Period</p> */}
+                                                <div className="d-flex align-items-center flex-wrap">
                                                     <input
                                                         className="form-control calender"
                                                         type="date"
@@ -921,6 +952,26 @@ export default function chat() {
                                                             );
                                                         }}
                                                     />
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-default navyblue mx-1 my-1"
+                                                        style={{
+                                                            padding: ".195rem .6rem",
+                                                        }}
+                                                        onClick={() => {
+                                                            const updatedDateRange = {
+                                                                start_date: "",
+                                                                end_date: "",
+                                                            };
+                                                            setDateRange(updatedDateRange);
+                                                            localStorage.setItem(
+                                                                "dateRange",
+                                                                JSON.stringify(updatedDateRange)
+                                                            );
+                                                        }}
+                                                    >
+                                                        Reset
+                                                    </button>
                                                 </div>
                                             </div>
                                             <header className="d-flex align-items-center justify-content-center px-3 py-2 bg-white shadow rounded">
@@ -951,6 +1002,18 @@ export default function chat() {
                                                     placeholder="Search name or number"
                                                 />
                                                 <i className="fas fa-search search-icon"></i>
+                                            </div>
+                                            <div className="ClientHistory px-3 mb-1">
+                                                <input
+                                                    type="checkbox"
+                                                    name="smsg"
+                                                    id="unread"
+                                                    className="mx-1"
+                                                    onChange={(e) => {
+                                                        setUnread(e.target.checked)
+                                                    }}
+                                                />
+                                                <label htmlFor="unread" >Unread</label>
                                             </div>
                                             {/* <div className="d-flex justify-content-between align-items-center my-2 pl-3 pr-3">
                                                 <span data-icon="chat" onClick={() => setNewChat(prev => !prev)} className=""
@@ -997,7 +1060,7 @@ export default function chat() {
 
                                             <div className="tab-content"
                                                 style={{
-                                                    overflowY: lead ? "auto" : "hidden",
+                                                    overflowY: lead ? "auto" : "visible",
                                                 }}
                                             >
                                                 <div
@@ -1011,7 +1074,7 @@ export default function chat() {
                                                     </div>
                                                     {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                 </div>
-                                                <div id="tab-client-details" className="tab-pane fade leadTab" role="tabpanel" aria-labelledby="client-details">
+                                                <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
                                                     {allLeads.map((d, i) => {
                                                         const isLastItem = i === allLeads.length - 1;
                                                         return (

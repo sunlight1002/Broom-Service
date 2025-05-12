@@ -50,6 +50,7 @@ export default function Lead() {
         t("admin.leads.Irrelevant"),
         t("admin.leads.Uninterested"),
         t("admin.leads.Unanswered"),
+        t("admin.leads.Unanswered_final"),
         t("admin.leads.Potential_client"),
         t("admin.leads.Reschedule_call"),
         t("admin.leads.Voice_bot")

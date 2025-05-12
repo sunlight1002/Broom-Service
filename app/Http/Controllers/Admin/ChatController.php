@@ -113,10 +113,13 @@ class ChatController extends Controller
     {
         $page = $request->input('page', 1);
         $from = $request->input('from');
-        $filter = $request->input('filter') ?? null; 
+        $unread = $request->boolean('unread'); // ensure it's treated as boolean
+        $filter = $request->input('filter') ?? null;
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
         $perPage = 20;
+
+        \Log::info("Filter: {$filter}, Unread only: " . ($unread ? 'yes' : 'no'));
 
         $query = WebhookResponse::query()
             ->select('number')
@@ -128,7 +131,6 @@ class ChatController extends Controller
             $query->where('from', $from);
         }
 
-        // ✅ Add date range filter only if both dates are present
         if ($start_date && $end_date) {
             $query->whereBetween('created_at', [
                 Carbon::parse($start_date)->startOfDay(),
@@ -155,16 +157,22 @@ class ChatController extends Controller
             // Load client with lead_status
             $client = Client::with('lead_status')->where('phone', $number)->first();
 
-            // Only apply filter if it's explicitly set
-            if (!empty($filter)) {
-                if ($client && $client->lead_status && $client->lead_status->lead_status != $filter) {
-                    continue;
-                }
-            }
-
+            // Count unread messages
             $unreadCount = WebhookResponse::where('number', $number)
                 ->where('read', 0)
                 ->count();
+
+            // Apply unread filter if requested
+            if ($unread && $unreadCount === 0) {
+                continue;
+            }
+
+            // Apply lead_status filter if provided
+            if (!empty($filter)) {
+                if (!$client || !$client->lead_status || $client->lead_status->lead_status != $filter) {
+                    continue;
+                }
+            }
 
             $entry->unread = $unreadCount;
             $data->push($entry);
@@ -188,6 +196,7 @@ class ChatController extends Controller
             'clients' => $clients,
         ]);
     }
+
 
     
     public function allLeads(Request $request)
