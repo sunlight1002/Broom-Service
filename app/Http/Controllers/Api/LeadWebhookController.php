@@ -636,23 +636,23 @@ Broom Service Team 🌹",
             }          
             
             if($client){
-                if(!in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])){
-                    $client->lead_status->lead_status = "pending";
-                    $client->lead_status->updated_at = now();
-                    $client->lead_status->save();
-                    $client->created_at = now();
-                    $client->updated_at = now();
-                    $client->status = 0;
-                    $client->save();
+                // if(!in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])){
+                //     $client->lead_status->lead_status = "pending";
+                //     $client->lead_status->updated_at = now();
+                //     $client->lead_status->save();
+                //     $client->created_at = now();
+                //     $client->updated_at = now();
+                //     $client->status = 0;
+                //     $client->save();
 
-                    LeadActivity::create([
-                        'client_id' => $client->id,
-                        'created_date' => now(),
-                        'status_changed_date' => now(),
-                        'changes_status' => LeadStatusEnum::PENDING,
-                        'reason' => "Changed by Bot",
-                    ]);
-                }
+                //     LeadActivity::create([
+                //         'client_id' => $client->id,
+                //         'created_date' => now(),
+                //         'status_changed_date' => now(),
+                //         'changes_status' => LeadStatusEnum::PENDING,
+                //         'reason' => "Changed by Bot",
+                //     ]);
+                // }
                 $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
             }
     
