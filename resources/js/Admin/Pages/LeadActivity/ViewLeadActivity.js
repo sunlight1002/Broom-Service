@@ -24,7 +24,7 @@ const LeadActivityList = () => {
                             created_date: activity.created_date ? new Date(activity.created_date) : null,
                             status_changed_date: activity.status_changed_date ? new Date(activity.status_changed_date) : null
                         }))
-                        .sort((a, b) => a.created_date - b.created_date);
+                        // .sort((a, b) => a.created_date - b.created_date);
 
                     setLeadActivities(sortedData);
                 })
@@ -49,13 +49,17 @@ const LeadActivityList = () => {
                         )}
 
                         {leadActivities.length > 0 && leadActivities.map((activity, index) => {
+                            let statusChangeMessage = '';
                             const previousActivity = index > 0 ? leadActivities[index - 1] : null;
                             const oldStatus = previousActivity ? previousActivity.changes_status : 'pending';
                             if (!activity.status_changed_date || activity.changes_status === oldStatus) {
                                 return null;
                             }
 
-                            const statusChangeMessage = `Status changed on ${activity.status_changed_date.toLocaleString()} from "${oldStatus}" to "${activity.changes_status}"`;
+                            statusChangeMessage = `Status changed on ${activity.status_changed_date.toLocaleString()} from "${oldStatus}" to "${activity.changes_status}"`;
+                            if(activity?.changed_by){
+                                statusChangeMessage += ` changed by ${activity.changed_by}`
+                            }
 
                             return (
                                 <tr key={activity.id} className="hover:bg-gray-100">

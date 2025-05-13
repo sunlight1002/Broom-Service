@@ -221,7 +221,7 @@ export default function MyRoutes() {
 
     return (
         <Provider template={AlertTemplate} {...options}>
-            <Router future={{ v7_startTransition: true , v7_relativeSplatPath: true}}>
+            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Routes>
                     {/* Home route  */}
                     <Route exact path="/" element={<ClientLogin />} />
@@ -1180,8 +1180,13 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="chat/:number"
-                                element={<Chat />}
+                                path="chat"
+                                element={<Chat number={process.env.MIX_TWILIO_WHATSAPP_NUMBER}/>}
+                            />
+                            <Route
+                                exact
+                                path="worker-lead-chat"
+                                element={<Chat number={process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER}/>}
                             />
                             <Route
                                 exact

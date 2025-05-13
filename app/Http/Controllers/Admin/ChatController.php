@@ -7,6 +7,8 @@ use App\Models\Client;
 use App\Models\TextResponse;
 use App\Models\WebhookResponse;
 use App\Models\WorkerWebhookResponse;
+use App\Models\WorkerLeads;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -115,18 +117,169 @@ class ChatController extends Controller
     {
         $page        = $request->input('page', 1);
         $from        = $request->input('from');
-        $unread      = $request->boolean('unread');
         $filter      = $request->input('filter');
         $start_date  = $request->input('start_date');
         $end_date    = $request->input('end_date');
         $search      = $request->input('search');
-        $isChat      = $request->boolean('isChat');
+        $unread      = $request->boolean('unread');
+        $isLead      = $request->boolean('lead');
+        $isClient    = $request->boolean('client');
+        $isWorker    = $request->boolean('worker');
 
         $perPage     = 20;
         $data        = collect();
         $clients     = [];
 
         $isGroupNumber = fn($number) => strpos($number, '@g.us') !== false;
+
+        $start = $start_date ? Carbon::parse($start_date)->startOfDay() : null;
+        $end   = $end_date   ? Carbon::parse($end_date)->endOfDay() : null;
+
+        if ($isLead || $isClient || $isWorker) {
+            $numberMessageQuery = WebhookResponse::query()
+                ->select('number')
+                ->when($search || $start_date, function ($q) use ($search, $start, $end) {
+                    if ($search) {
+                        $term = '%' . $search . '%';
+                        $q->where(function ($q2) use ($term) {
+                            $q2->where('message', 'like', $term)
+                            ->orWhere('number', 'like', $term);
+                        });
+                    }
+
+                    if ($start && $end) {
+                        $q->whereBetween('created_at', [$start, $end]);
+                    }
+                })
+                ->distinct();
+
+            $numbersWithMessages = $numberMessageQuery->pluck('number')->toArray();
+
+            if ($isWorker) {
+                // Fetch users whose phones are in chat numbers
+                $userQuery = User::query()
+                    ->whereIn('phone', $numbersWithMessages);
+
+                if ($search) {
+                    $searchTerm = '%' . $search . '%';
+                    $userQuery->where(function ($q) use ($searchTerm) {
+                        $q->orWhere('phone', 'like', $searchTerm)
+                        ->orWhere('firstname', 'like', $searchTerm)
+                        ->orWhere('lastname', 'like', $searchTerm);
+                    });
+                }
+
+                $userQuery->orderByDesc('id');
+
+                $results = $userQuery
+                    ->skip(($page - 1) * $perPage)
+                    ->take($perPage)
+                    ->get();
+
+                $clients = [];
+                $data = collect();
+
+                foreach ($results as $user) {
+                    $clients[] = [
+                        'name'   => trim("{$user->firstname} {$user->lastname}"),
+                        'id'     => $user->id,
+                        'num'    => $user->phone,
+                        'client' => 0, // Workers are not clients
+                    ];
+                }
+
+                $recentDataQuery = WebhookResponse::query()
+                    ->select('number')
+                    ->whereIn('number', array_column($clients, 'num'))
+                    ->groupBy('number')
+                    ->orderBy(DB::raw("MAX(created_at)"), 'desc');
+
+                foreach ($recentDataQuery->get() as $entry) {
+                    $number = $entry->number;
+
+                    $unreadCount = WebhookResponse::where('number', $number)
+                        ->where('read', 0)
+                        ->count();
+
+                    $entry->unread = $unreadCount;
+
+                    $data->push($entry);
+
+                    if ($data->count() >= $perPage) break;
+                }
+
+                return response()->json([
+                    'clients' => $clients,
+                    'data'    => $data->values(),
+                ]);
+            }
+
+            $clientQuery = Client::query()
+                ->whereIn('phone', $numbersWithMessages);
+
+            if ($isLead) {
+                $clientQuery->where('status', '!=', 2);
+            } elseif ($isClient) {
+                $clientQuery->where('status', '=', 2);
+            }
+
+            if ($search) {
+                $searchTerm = '%' . $search . '%';
+                $clientQuery->where(function ($q) use ($searchTerm) {
+                    $q->orWhere('phone', 'like', $searchTerm)
+                    ->orWhere('firstname', 'like', $searchTerm)
+                    ->orWhere('lastname', 'like', $searchTerm);
+                });
+            }
+
+            $clientQuery->orderByDesc('id');
+
+            $results = $clientQuery
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
+                ->get();
+
+            $clients = [];
+            $data = collect();
+
+            foreach ($results as $client) {
+                $clients[] = [
+                    'name'   => trim("{$client->firstname} {$client->lastname}"),
+                    'id'     => $client->id,
+                    'num'    => $client->phone,
+                    'client' => $client->status != 0 ? 1 : 0,
+                ];
+            }
+
+            $recentDataQuery = WebhookResponse::query()
+                ->select('number')
+                ->whereIn('number', array_column($clients, 'num'))
+                ->when($start && $end, fn($q) => $q->whereBetween('created_at', [$start, $end]))
+                ->groupBy('number')
+                ->orderBy(DB::raw("MAX(created_at)"), 'desc');
+
+            foreach ($recentDataQuery->get() as $entry) {
+                $number = $entry->number;
+
+                $unreadCount = WebhookResponse::where('number', $number)
+                    ->where('read', 0)
+                    ->when($start && $end, fn($q) => $q->whereBetween('created_at', [$start, $end]))
+                    ->count();
+
+                $entry->unread = $unreadCount;
+
+                $data->push($entry);
+
+                if ($data->count() >= $perPage) break;
+            }
+
+            return response()->json([
+                'clients' => $clients,
+                'data'    => $data->values(),
+            ]);
+
+        }
+
 
         // Use correct model based on 'from'
         if ($from == str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))) {
@@ -189,13 +342,23 @@ class ChatController extends Controller
                 ->where('read', 0)
                 ->count();
 
-            $client = Client::with('lead_status')
+            if($table == 'worker_webhook_responses') {
+                $client = WorkerLeads::where('phone', $number)->first();
+
+                if (!empty($filter)) {
+                    if (!$client || !$client->status || $client->status !== $filter) {
+                        continue;
+                    }
+                }
+            }else{
+                $client = Client::with('lead_status')
                 ->where('phone', $number)
                 ->first();
 
-            if (!empty($filter)) {
-                if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
-                    continue;
+                if (!empty($filter)) {
+                    if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
+                        continue;
+                    }
                 }
             }
 
@@ -207,7 +370,7 @@ class ChatController extends Controller
                     'name'   => trim("{$client->firstname} {$client->lastname}"),
                     'id'     => $client->id,
                     'num'    => $number,
-                    'client' => $client->status != 0 ? 1 : 0,
+                    'client' => $table === 'worker_webhook_responses' ? false : ($client && $client->status != 0 ? 1 : 0),
                 ];
             }
 
@@ -309,10 +472,6 @@ public function personalChat(Request $request)
         'clients' => $clients,
     ]);
 }
-
-
-
-
     
     public function allLeads(Request $request)
     {
@@ -377,31 +536,47 @@ public function personalChat(Request $request)
     {
         $offical = false;
         $from = $request->input('from');
-        $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
+        $isWorkerLead = $request->boolean('isWorkerLead'); // use boolean for safety
 
-        WebhookResponse::where(['number' => $no, 'read' => 0])->update([
-            'read' => 1
-        ]);
+        // Dynamically use the correct model
+        $model = $isWorkerLead ? new WorkerWebhookResponse : new WebhookResponse;
+        $table = $model->getTable();
 
-        $lastMsg = WebhookResponse::where('number', $no)->get()->last();
+        // Get chat messages for the number and from
+        $chat = $model->where('number', $no)
+                    ->when($from, fn($q) => $q->where('from', $from))
+                    ->get();
+
+        // Mark unread messages as read
+        $model->where('number', $no)
+            ->where('read', 0)
+            ->update(['read' => 1]);
+
+        // Get last message to check if expired
+        $lastMsg = $model->where('number', $no)->latest('created_at')->first();
         $expired = ($lastMsg && $lastMsg->created_at < Carbon::now()->subHours(24)) ? 1 : 0;
 
-        if(in_array($from, [str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')), str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))])) {
-            $offical = true;
-        }
+        // Determine if it's an official number
+        $officialNumbers = [
+            str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')),
+            str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number')),
+        ];
+        $offical = in_array($from, $officialNumbers);
 
-        $client = Client::where('phone', $no)->first();
+        // Fetch client only if not worker lead
+        $client = $isWorkerLead ? WorkerLeads::where('phone', $no)->first() : Client::where('phone', $no)->first();
 
-        $clientName = $client ? $client->firstname . " " . $client->lastname : 'Unknown';
+        $clientName = $client ? "{$client->firstname} {$client->lastname}" : 'Unknown';
 
         return response()->json([
             'chat' => $chat,
             'expired' => $expired,
-            'offical' => $offical == true ? 1 : 0,
+            'offical' => $offical ? 1 : 0,
             'clientName' => $clientName,
             'isExist' => $client ? 1 : 0
         ]);
     }
+
 
 
     public function chatReply(Request $request)

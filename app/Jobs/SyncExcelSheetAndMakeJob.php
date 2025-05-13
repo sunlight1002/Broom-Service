@@ -495,7 +495,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 
                                 if (isset($selectedOfferData[0])) {
                                     $res = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0], $messages);
-                                
                                     if (!isset($newJob['job_ids'][$currentDate])) {
                                         $newJob['job_ids'][$currentDate] = [];
                                         $newJob['job_cancel_ids'][$currentDate] = [];
@@ -523,6 +522,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
+                \Log::info('newJob', ['newJob' => $newJob]);
                 foreach ($newJob['job_ids'] as $date => $jobIdsToKeep) {
                     // Cancel jobs NOT in the list of kept job_ids
                     $jobs = Job::whereDate('start_date', $date)
@@ -715,15 +715,25 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
             ->first();
             
-            if (!$worker || !in_array($worker->id, ['209','185', '67'])) {
-                echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
-                return [
-                    "job_cancel_id" => $jobData ? $jobData->id : null
-                ];
-            }
+            // if (!$worker || !in_array($worker->id, ['209','185', '67'])) {
+            //     echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
+            //     return [
+            //         "job_cancel_id" => $jobData ? $jobData->id : null
+            //     ];
+            // }
 
             if (!empty($row[20])) {
-                $jobData = Job::with('workerShifts')->where('id', trim($row[20]))->first();
+                $jobData = Job::with('workerShifts')
+                        ->where('id', trim($row[20]))
+                        ->where('client_id', $client->id)
+                        ->first();
+
+                        // dd($jobData . " ". $client->id);
+
+                if(!$jobData){
+                    \Log::info('job not found client id ' . $client->id ." " .$row[2]. ' job id ' . $row[20]);
+                    $jobData = null;
+                }
             
                 if ($jobData && $jobData->start_date != $currentDate) {
                     $jobData->start_date = $currentDate;

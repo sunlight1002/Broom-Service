@@ -47,7 +47,7 @@ export default function Sidebar() {
     const fullUrl = location.pathname + location.search;
     // Check if the current path matches any of the routes in the dropdown
     const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings", "/admin/holidays", "/admin/templates"].includes(location.pathname);
-    const isChatDropdownActive = [`/admin/chat/${process.env.MIX_TWILIO_WHATSAPP_NUMBER}`, `/admin/chat/${process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER}`].includes(location.pathname);
+    const isChatDropdownActive = [`/admin/chat`, `/admin/worker-lead-chat`].includes(location.pathname);
     const isClientDropdownActive = ["/admin/clients", "/admin/clients?type=pending%20client","/admin/clients?type=active%20client", "/admin/clients?type=freeze%20client", "/admin/clients?type=past"].includes(fullUrl);
 
     const getAdmin = () => {
@@ -84,8 +84,8 @@ export default function Sidebar() {
         discount: "/admin/discount",
         waTemplates: "/admin/templates",
         payslipSettings: "/admin/payslip-settings",
-        client_worker_chat: `/admin/chat/${process.env.MIX_TWILIO_WHATSAPP_NUMBER}`,
-        worker_lead_chat: `/admin/chat/${process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER}`,
+        client_worker_chat: `/admin/chat`,
+        worker_lead_chat: `/admin/worker-lead-chat`,
         // Client routes
         clients: "/admin/clients",
         pendingClient: "/admin/clients?type=pending%20client",

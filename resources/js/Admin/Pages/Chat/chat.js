@@ -14,10 +14,11 @@ import Sidebar from "../../Layouts/Sidebar";
 import './ChatFooter.css'; // Import the CSS
 
 
-export default function chat() {
+export default function chat({
+    number: fromNumber
+}) {
 
     const param = useParams();
-    const fromNumber = param?.number;
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
@@ -55,7 +56,6 @@ export default function chat() {
     const [loadingChats, setLoadingChats] = useState(false);
     const [page, setPage] = useState(1); // Page number to fetch
     const [hasMore, setHasMore] = useState(true); // To track if more records exist
-    const [tabs, setTabs] = useState([]);
     const [filter, setFilter] = useState("");
     const [searchInput, setSearchInput] = useState("");
     const [dateRange, setDateRange] = useState({
@@ -68,22 +68,54 @@ export default function chat() {
     const [leadHasMore, setLeadHasMore] = useState(true);
     const [LeadLoading, setLeadLoading] = useState(false);
     const [unread, setUnread] = useState(false);
+    const [activeTab, setActiveTab] = useState({
+        all: true,
+        unread: false,
+        lead: false,
+        client: false,
+        worker: false
+    })
 
-    const statusArr = {
-        pending: t("admin.leads.Pending"),
-        potential: t("admin.leads.Potential"),
-        irrelevant: t("admin.leads.Irrelevant"),
-        uninterested: t("admin.leads.Uninterested"),
-        unanswered: t("admin.leads.Unanswered"),
-        "unanswered final": t("admin.leads.Unanswered_final"),
-        "reschedule call": t("admin.leads.Reschedule_call"),
-        "voice bot": t("admin.leads.Voice_bot"),
-        "potential client": t("admin.leads.Potential_client"),
-        "pending client": t("admin.leads.Pending_client"),
-        "freeze client": t("admin.leads.Freeze_client"),
-        "active client": t("admin.leads.Active_client"),
-        past: t("admin.client.past"),
-    };
+    const tabs = ['all', 'lead', 'client', 'worker', 'unread'];
+
+    let workerLead = false;
+
+    if (fromNumber == process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER) {
+        workerLead = true
+    }
+
+    const statusArr = activeTab.lead
+        ? {
+            pending: t("admin.leads.Pending"),
+            potential: t("admin.leads.Potential"),
+            irrelevant: t("admin.leads.Irrelevant"),
+            uninterested: t("admin.leads.Uninterested"),
+            unanswered: t("admin.leads.Unanswered"),
+            "unanswered final": t("admin.leads.Unanswered_final"),
+            "reschedule call": t("admin.leads.Reschedule_call"),
+            "voice bot": t("admin.leads.Voice_bot"),
+            "potential client": t("admin.leads.Potential_client"),
+        }
+        : activeTab.client
+            ? {
+                "pending client": t("admin.leads.Pending_client"),
+                "freeze client": t("admin.leads.Freeze_client"),
+                "active client": t("admin.leads.Active_client"),
+                past: t("admin.client.past"),
+            }
+            : workerLead ? {
+                pending: t("admin.leads.Pending"),
+                irrelevant: t("admin.leads.Irrelevant"),
+                rejected: t("admin.leads.Rejected"),
+                "will-think": t("admin.leads.Will_think"),
+                unanswered: t("admin.leads.Unanswered"),
+                hiring: t("admin.leads.Hiring"),
+                "not-hired": t("admin.leads.Not_hired"),
+                "Not respond to bot": t("admin.leads.not_respond_to_bot"),
+                "Not respond to messages": t("admin.leads.not_respond_to_messages"),
+            } : {}; // default fallback to avoid 'undefined'
+
+
     const windowWidth = useWindowWidth();
 
     useEffect(() => {
@@ -137,9 +169,11 @@ export default function chat() {
                     filter,
                     start_date: dateRange.start_date,
                     end_date: dateRange.end_date,
-                    unread,
+                    unread: activeTab.unread,
+                    lead: activeTab.lead,
+                    client: activeTab.client,
+                    worker: activeTab.worker,
                     search: searchInput,
-                    isChat: client ? client : false
                 },
                 headers
             })
@@ -220,7 +254,7 @@ export default function chat() {
 
 
     const getMessages = (no) => {
-        axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}`, { headers }).then((res) => {
+        axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}&isWorkerLead=${workerLead}`, { headers }).then((res) => {
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
             if (cl > c.length) {
@@ -450,14 +484,14 @@ export default function chat() {
         const { start_date, end_date } = dateRange || {};
         if ((start_date && !end_date) || (!start_date && end_date)) return;
         getData(page, true);
-    }, [fromNumber, filter, hasMore, dateRange, page, searchInput, unread]); // Include `lead` to avoid loading data in lead mode
+    }, [fromNumber, filter, hasMore, dateRange, page, searchInput, activeTab]);
 
 
     useEffect(() => {
         setPage(1);
         setData([]);
         setClients([]);
-    }, [filter, unread, isSearching, dateRange]);
+    }, [filter, activeTab, isSearching, dateRange]);
 
 
     useEffect(() => {
@@ -468,7 +502,7 @@ export default function chat() {
         }, 10000);
 
         return () => clearInterval(interval);
-    }, [dateRange, filter, searchInput, unread]);
+    }, [dateRange, filter, searchInput, activeTab, fromNumber]);
 
 
     const handleDeleteConversation = (e) => {
@@ -649,6 +683,30 @@ export default function chat() {
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-xl-8 col-12" style={{ backgroundColor: "white" }}>
+                                                <div className=" px-2 d-flex align-items-center justify-content-between mb-1">
+                                                    {
+                                                        !workerLead && (
+                                                            <div className="d-flex align-items-center justify-content-between mt-2">
+                                                                {tabs.map((tab) => (
+                                                                    <button
+                                                                        key={tab}
+                                                                        name={tab}
+                                                                        className={`btn m-1 ${activeTab[tab] ? 'btn-outline-secondary' : 'navyblue'}`}
+                                                                        onClick={() => {
+                                                                            const newActiveTab = {};
+                                                                            tabs.forEach((t) => {
+                                                                                newActiveTab[t] = t === tab;
+                                                                            });
+                                                                            setActiveTab(newActiveTab);
+                                                                        }}
+                                                                    >
+                                                                        {tab}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
                                                 <div
                                                     style={{
                                                         display: "flex",
@@ -727,24 +785,7 @@ export default function chat() {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <header className="d-flex align-items-center justify-content-center py-2 bg-white shadow rounded">
-                                                    <select
-                                                        className="form-select w-100 mx-auto"
-                                                        value={filter}
-                                                        onChange={(e) => {
-                                                            setFilter(e.target.value)
-                                                        }}
-                                                    >
-                                                        <option value="">{(t("global.all"))}</option>
-                                                        {Object.keys(statusArr).map((s) => (
-                                                            <option key={s} value={s}>
-                                                                {statusArr[s]}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </header>
-
-                                                <div className=" mb-3 d-lg-block position-relative">
+                                                <div className=" my-2 d-lg-block position-relative">
                                                     <input
                                                         type="text"
                                                         name="smsg"
@@ -763,16 +804,28 @@ export default function chat() {
 
                                                     <i className="fas fa-search search-icon"></i>
                                                 </div>
-                                                <div className="ClientHistory mb-1">
-                                                    <input
-                                                        type="checkbox"
-                                                        name="smsg"
-                                                        onChange={(e) => {
-                                                            setUnread(e.target.checked)
-                                                        }}
-                                                    />
-                                                    <span>Unread</span>
-                                                </div>
+                                                {
+                                                    !activeTab.unread &&
+                                                    !activeTab.worker &&
+                                                    (activeTab.lead || activeTab.client || workerLead) && (
+                                                        <header className="d-flex align-items-center justify-content-center bg-white shadow rounded">
+                                                            <select
+                                                                className="form-select w-100 mx-auto"
+                                                                value={filter}
+                                                                onChange={(e) => {
+                                                                    setFilter(e.target.value);
+                                                                }}
+                                                            >
+                                                                <option value="">{t("global.all")}</option>
+                                                                {Object.keys(statusArr).map((s) => (
+                                                                    <option key={s} value={s}>
+                                                                        {statusArr[s]}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </header>
+                                                    )
+                                                }
                                                 <div className="ClientHistory mb-1">
                                                     <ul className="nav nav-tabs" role="tablist">
                                                         <li className="nav-item" role="presentation">
@@ -902,6 +955,28 @@ export default function chat() {
                                                 // paddingBottom: "0"
                                             }}
                                         >
+                                            {
+                                                !workerLead && (
+                                                    <div className="d-flex align-items-center justify-content-start px-3 mt-2">
+                                                        {tabs.map((tab) => (
+                                                            <button
+                                                                key={tab}
+                                                                name={tab}
+                                                                className={`btn m-1 ${activeTab[tab] ? 'btn-outline-secondary' : 'navyblue'}`}
+                                                                onClick={() => {
+                                                                    const newActiveTab = {};
+                                                                    tabs.forEach((t) => {
+                                                                        newActiveTab[t] = t === tab;
+                                                                    });
+                                                                    setActiveTab(newActiveTab);
+                                                                }}
+                                                            >
+                                                                {tab}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )
+                                            }
                                             <div
                                                 style={{
                                                     display: "flex",
@@ -978,23 +1053,8 @@ export default function chat() {
                                                     </button>
                                                 </div>
                                             </div>
-                                            <header className="d-flex align-items-center justify-content-center px-3 py-2 bg-white shadow rounded">
-                                                <select
-                                                    className="form-select w-100 mx-auto"
-                                                    value={filter}
-                                                    onChange={(e) => {
-                                                        setFilter(e.target.value)
-                                                    }}
-                                                >
-                                                    <option value="">{(t("global.all"))}</option>
-                                                    {Object.keys(statusArr).map((s) => (
-                                                        <option key={s} value={s}>
-                                                            {statusArr[s]}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </header>
-                                            <div className="d-none mb-3 mx-3 d-lg-block position-relative">
+
+                                            <div className="d-none my-2 mx-3 d-lg-block position-relative">
                                                 <input
                                                     type="text"
                                                     name="smsg"
@@ -1013,18 +1073,29 @@ export default function chat() {
 
                                                 <i className="fas fa-search search-icon"></i>
                                             </div>
-                                            <div className="ClientHistory px-3 mb-1">
-                                                <input
-                                                    type="checkbox"
-                                                    name="smsg"
-                                                    id="unread"
-                                                    className="mx-1"
-                                                    onChange={(e) => {
-                                                        setUnread(e.target.checked)
-                                                    }}
-                                                />
-                                                <label htmlFor="unread" >Unread</label>
-                                            </div>
+                                            {
+                                                !activeTab.unread &&
+                                                !activeTab.worker &&
+                                                (activeTab.lead || activeTab.client || workerLead) && (
+                                                    <header className="d-flex align-items-center justify-content-center px-3 pb-2 bg-white shadow rounded">
+                                                        <select
+                                                            className="form-select w-100 mx-auto"
+                                                            value={filter}
+                                                            onChange={(e) => {
+                                                                setFilter(e.target.value);
+                                                            }}
+                                                        >
+                                                            <option value="">{t("global.all")}</option>
+                                                            {Object.keys(statusArr).map((s) => (
+                                                                <option key={s} value={s}>
+                                                                    {statusArr[s]}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </header>
+                                                )
+                                            }
+
                                             {/* <div className="d-flex justify-content-between align-items-center my-2 pl-3 pr-3">
                                                 <span data-icon="chat" onClick={() => setNewChat(prev => !prev)} className=""
                                                 ></span>
