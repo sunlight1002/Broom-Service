@@ -909,7 +909,7 @@ export function NonIsraeliContract({
                                     </div>
                                     <div
                                         className={
-                                            "d-flex flex-column " +
+                                            "d-flex flex-column align-items-end " +
                                             (isGeneratingPDF ? "col-6" : "")
                                         }
                                     >

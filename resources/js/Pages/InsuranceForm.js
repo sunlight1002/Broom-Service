@@ -20,6 +20,7 @@ import companySign from '../Assets/image/company-sign.png'
 import Font from '../../../public/fonts/OSAran400FFC.ttf'
 import { GrFormPreviousLink } from "react-icons/gr";
 import { GrFormNextLink } from "react-icons/gr";
+import {useAlert} from "react-alert";
 
 import moment from "moment";
 import FullPageLoader from "../Components/common/FullPageLoader";
@@ -36,6 +37,7 @@ const InsuranceForm = ({
     isManpower,
     type
 }) => {
+    const alert = useAlert();
     const [show, setShow] = useState(false);
     const sigRef = useRef();
     const currentDate = moment().format("YYYY-MM-DD");
@@ -184,13 +186,13 @@ const InsuranceForm = ({
                 "Details are required because a field is marked 'yes'",
                 function (value) {
                     const {
-                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                        g2, g3, g4, g5, g6, g7, g8, g9, g10,
                         g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
                         g23, g24
                     } = this.parent;
 
                     const requiresDetails = [
-                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                        g2, g3, g4, g5, g6, g7, g8, g9, g10,
                         g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
                         g23, g24
                     ].includes("yes");
@@ -257,14 +259,43 @@ const InsuranceForm = ({
 
 
     const saveFormData = async (isSubmit) => {
-        const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(
-            (res) => res.arrayBuffer()
-        );
+         const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(res => res.arrayBuffer());
         const pdfDoc = await PDFDocument.load(formPdfBytes);
-        // setPdfDoc(PdfDoc);
         pdfDoc.registerFontkit(fontkit);
 
+        // Fetch Hebrew font from public directory
+        const fontBytes = await fetch(Font).then(res => res.arrayBuffer());
+        const hebrewFont = await pdfDoc.embedFont(fontBytes);
+
         const pdfForm = pdfDoc.getForm();
+
+        const containsHebrew = (text) => /[\u0590-\u05FF]/.test(text);
+
+        // Get all the form fields before modifying them
+        const hebrewCheckFields = ["canStreet", "canTown"];
+        hebrewCheckFields.forEach((fieldName) => {
+            const fieldText = values[fieldName] || "";
+            const field = pdfForm.getTextField(fieldName);
+
+            // Instead of using setFont directly, use updateAppearances with the font
+            try {
+                // Set the text first
+                field.setText(fieldText);
+                
+                // Only attempt to update appearances with Hebrew font if Hebrew characters detected
+                if (containsHebrew(fieldText)) {
+                    // Use the lower-level API to update appearances with the Hebrew font
+                    field.updateAppearances(hebrewFont);
+                }
+            } catch (error) {
+                console.warn(`Could not set font for field ${fieldName}:`, error);
+                // Fallback - just set the text without custom font
+                field.setText(fieldText);
+            }
+        });
+
+
+
 
         pdfForm.getTextField("canFirstName").setText(values.canFirstName || "");
         pdfForm.getTextField("canLastName").setText(values.canLastName || "");
@@ -275,9 +306,9 @@ const InsuranceForm = ({
             .getTextField("canFirstDateOfIns")
             .setText(values.canFirstDateOfIns || "");
         pdfForm.getTextField("canZipcode").setText(values.canZipcode || "");
-        pdfForm.getTextField("canTown").setText(values.canTown || "");
+        // pdfForm.getTextField("canTown").setText(values.canTown || "");
         pdfForm.getTextField("canHouseNo").setText(values.canHouseNo || "");
-        pdfForm.getTextField("canStreet").setText(values.canStreet || "");
+        // pdfForm.getTextField("canStreet").setText(values.canStreet || "");
         pdfForm.getTextField("canTelephone").setText(values.canTelephone || "");
         pdfForm.getTextField("canCellPhone").setText(values.canCellPhone || "");
         pdfForm.getTextField("canEmail").setFontSize(9);
@@ -445,18 +476,18 @@ const InsuranceForm = ({
                     },
                 })
                 .then((res) => {
-
-                    Swal.fire({
-                        text: t("insurance.signedSuccess"),
-                        icon: "success",
-                    });
+                    alert.success(t("insurance.signedSuccess"));
+                    // Swal.fire({
+                    //     text: t("insurance.signedSuccess"),
+                    //     icon: "success",
+                    // });
                     if (type === "lead" && res?.data?.id) {
                         navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
                     }
                     setNextStep(8);
-                    setTimeout(() => {
-                        window.location.reload(true);
-                    }, 2000);
+                    // setTimeout(() => {
+                    //     window.location.reload(true);
+                    // }, 2000);
                     setLoading(false);
                 })
                 .catch((e) => {
