@@ -159,30 +159,7 @@ public function chats(Request $request)
             ->take($perPage)
             ->get();
 
-        // foreach ($clientsPaginated as $client) {
-        //     $number = $client->phone;
-
-        //     if (!$number || $isGroupNumber($number)) continue;
-
-        //     $unreadCount = WebhookResponse::where('number', $number)
-        //         ->where('read', 0)
-        //         ->count();
-
-        //     $entry = new \stdClass();
-        //     $entry->number = $number;
-        //     $entry->unread = $unreadCount;
-        //     $data->push($entry);
-
-        //     $clients[] = [
-        //         'name'   => trim("{$client->firstname} {$client->lastname}"),
-        //         'id'     => $client->id,
-        //         'num'    => $number,
-        //         'client' => $client->status != 0 ? 1 : 0,
-        //     ];
-        // }
-
         return response()->json([
-            // 'data'    => $data->values(),
             'clients' => $clientsPaginated,
         ]);
     }
@@ -425,7 +402,6 @@ public function personalChat(Request $request)
     {
         $offical = false;
         $from = $request->input('from');
-        \Log::info($from);
         $chat = WebhookResponse::where('number', $no)->where('from', $from)->get();
 
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([

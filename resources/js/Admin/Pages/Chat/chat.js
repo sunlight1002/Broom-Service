@@ -42,7 +42,7 @@ export default function chat() {
     const [waMedia, setWaMedia] = useState(false)
     const [selectedFile, setSelectedFile] = useState({})
     const [allLeads, setAllLeads] = useState([]);
-    const [leadId, setLeadId] = useState(null)
+    // const [leadId, setLeadId] = useState(null)
     const [number, setNumber] = useState(null)
     const [newChat, setNewChat] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -75,6 +75,7 @@ export default function chat() {
         irrelevant: t("admin.leads.Irrelevant"),
         uninterested: t("admin.leads.Uninterested"),
         unanswered: t("admin.leads.Unanswered"),
+        "unanswered final": t("admin.leads.Unanswered_final"),
         "reschedule call": t("admin.leads.Reschedule_call"),
         "voice bot": t("admin.leads.Voice_bot"),
         "potential client": t("admin.leads.Potential_client"),
@@ -144,8 +145,6 @@ export default function chat() {
             })
             .then((res) => {
                 const { data: newData, clients: newClients } = res.data;
-                    console.log(newData, "newData");
-
                 if (!isSearching) {
                     const mergeUnique = (prev = [], incoming = [], key) => {
                         const existingKeys = new Set(prev.map(item => item[key]));
@@ -206,24 +205,22 @@ export default function chat() {
 
 
 
-    const getLead = () => {
-        axios
-            .get(`/api/admin/leads/${leadId}/edit`, { headers })
-            .then((res) => {
-                setNumber(res?.data?.lead?.phone);
-            });
-    };
+    // const getLead = () => {
+    //     axios
+    //         .get(`/api/admin/leads/${leadId}/edit`, { headers })
+    //         .then((res) => {
+    //             setNumber(res?.data?.lead?.phone);
+    //         });
+    // };
 
-    useEffect(() => {
-        getLead();
-        // addInChat()
-    }, [number, leadId, selectNumber]);
+    // useEffect(() => {
+    //     getLead();
+    //     // addInChat()
+    // }, [number, leadId, selectNumber]);
 
 
     const getMessages = (no) => {
         axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}`, { headers }).then((res) => {
-            // console.log(res.data, "res.data");
-
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
             if (cl > c.length) {
@@ -376,39 +373,25 @@ export default function chat() {
     };
 
 
-
-
-    // const search = (s) => {
-    //     const query = s || searchInput;
-    //     if (query) setIsSearching(true);
-    //     else setIsSearching(false); // If search is cleared
-
-    //     axios.get(`/api/admin/chat-search?s=${query}&type=${lead ? 'lead' : 'client'}&from=${fromNumber}&page=${page}`, { headers })
-    //         .then((res) => {
-    //             const r = res.data.data;
-
-    //             if (lead) {
-    //                 setAllLeads(res.data);
-    //             } else {
-    //                 setClients(res.data.clients);
-    //             }
-    //             setData(r);
-    //         });
-    // };
-
-
-
     const handleScroll = (e) => {
-        const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-        if (bottom && hasMore && !loadingChats) {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        const threshold = 10; // Trigger when 10px or less remains
+
+        const nearBottom = scrollHeight - scrollTop - clientHeight <= threshold;
+
+        if (nearBottom && hasMore && !loadingChats) {
             getData();
         }
     };
 
 
     const LeadhandleScroll = (e) => {
-        const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-        if (bottom) {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        const threshold = 10; // Trigger when 10px or less remains
+
+        const nearBottom = scrollHeight - scrollTop - clientHeight <= threshold;
+
+        if (nearBottom && leadHasMore && !LeadLoading) {
             getLeads(); // Load more data when reaching the bottom
         }
     };
@@ -546,18 +529,14 @@ export default function chat() {
     };
 
 
-    function escapeSelectorClass(className) {
-    return className.replace(/([!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
-    }
-
+    // function escapeSelectorClass(className) {
+    //     return className.replace(/([!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
+    // }
 
     const clientsCard = data
-        // ?.slice(0)
-        // .reverse()
-        // .sort((a, b) => b.unread - a.unread)
         .map((d, i) => {
             let cd = clients?.find(({ num }) => num == d.number);
-            const escapedClassName = escapeSelectorClass(".cn_" + d.number);
+            // const escapedClassName = escapeSelectorClass(".cn_" + d.number);
 
             return (
                 <div
@@ -594,6 +573,11 @@ export default function chat() {
                             ".cl_" + d.number
                         ).style.background = "#fff";
                         document.querySelector(".cn_" + d.number).remove();
+
+                        // if(escapedClassName){
+                        //     document.querySelector(escapedClassName).style.background = "#fff";
+                        //     document.querySelector(escapedClassName).remove();
+                        // }
                     }}
                     key={i}
                 >
