@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Twilio\Rest\Client as TwilioClient;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 
 class ChatController extends Controller
@@ -186,118 +187,49 @@ public function chats(Request $request)
         ]);
     }
 
-    if ($unread) {
-        $unreadQuery = WebhookResponse::where('read', 0)
-            ->whereNotNull('from')
-            ->whereNotNull('number')
-            ->orderBy('created_at', 'desc')
-            ->get();
+   $query = WebhookResponse::query()
+    ->select('webhook_responses.number')
+    ->when($unread, function ($q) {
+        $q->where('read', 0);
+    })
+    ->whereNotNull('webhook_responses.number')
+    ->groupBy('webhook_responses.number')
+    ->orderBy(DB::raw('MAX(webhook_responses.created_at)'), 'desc') // latest message per number
+    ->leftJoin('clients', 'webhook_responses.number', '=', 'clients.phone'); // JOIN for advanced filtering
 
-        if ($start_date && $end_date) {
-            $unreadQuery->whereBetween('created_at', [
-                Carbon::parse($start_date)->startOfDay(),
-                Carbon::parse($end_date)->endOfDay()
-            ]);
-        }
-
-        $numbersWithUnread = $unreadQuery->pluck('number')->unique();
-
-        foreach ($numbersWithUnread as $number) {
-            if ($isGroupNumber($number)) continue;
-
-            $unreadCount = WebhookResponse::where('number', $number)->where('read', 0)->count();
-            \Log::info($number);
-            if ($unreadCount === 0) continue;
-
-            $client = Client::with('lead_status')->where('phone', $number)->first();
-
-            if (!empty($filter)) {
-                if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
-                    continue;
-                }
-            }
-
-            $entry = new \stdClass();
-            $entry->number = $number;
-            $entry->unread = $unreadCount;
-            $data->push($entry);
-
-            if ($client) {
-                $clients[] = [
-                    'name'   => trim("{$client->firstname} {$client->lastname}"),
-                    'id'     => $client->id,
-                    'num'    => $number,
-                    'client' => $client->status != 0 ? 1 : 0,
-                ];
-            }
-        }
-
-        $paginatedData = $data->slice(($page - 1) * $perPage, $perPage)->values();
-
-        return response()->json([
-            'data'    => $paginatedData,
-            'clients' => $clients,
-        ]);
-    }
-
-    // ------------------- ALL CHAT HANDLING ---------------------
-    $query = WebhookResponse::query()
-        ->select('number')
-        ->whereNotNull('number')
-        ->groupBy('number')
-        ->orderBy('created_at', 'desc');
-
+    // Filter by 'from'
     if ($from) {
-        $query->where('from', $from);
+        $query->where('webhook_responses.from', $from);
     }
 
+    // Filter by date range
     if ($start_date && $end_date) {
-        $query->whereBetween('created_at', [
+        $query->whereBetween('webhook_responses.created_at', [
             Carbon::parse($start_date)->startOfDay(),
             Carbon::parse($end_date)->endOfDay()
         ]);
     }
 
+    // Search condition
     if ($search) {
         $searchTerm = '%' . $search . '%';
 
-        if (is_numeric($search)) {
-            // Search by phone/number/message (numeric search)
-            $clientPhones = Client::where('phone', 'like', $searchTerm)->pluck('phone');
-            $messageNumbers = WebhookResponse::where('message', 'like', $searchTerm)->pluck('number');
-            $numberMatches = WebhookResponse::where('number', 'like', $searchTerm)->pluck('number');
-
-            $searchNumbers = $clientPhones
-                ->merge($messageNumbers)
-                ->merge($numberMatches)
-                ->unique()
-                ->toArray();
-        } else {
-            // Search by name/message (text search)
-            $clientPhones = Client::where('firstname', 'like', $searchTerm)
-                ->orWhere('lastname', 'like', $searchTerm)
-                ->pluck('phone');
-
-            $messageNumbers = WebhookResponse::where('message', 'like', $searchTerm)->pluck('number');
-
-            $searchNumbers = $clientPhones
-                ->merge($messageNumbers)
-                ->unique()
-                ->toArray();
-        }
-
-        // If no matching numbers, return empty
-        if (empty($searchNumbers)) {
-            return response()->json([
-                'data' => [],
-                'clients' => [],
-            ]);
-        }
-
-        $query->whereIn('number', $searchNumbers);
+        $query->where(function ($q) use ($search, $searchTerm) {
+            if (is_numeric($search)) {
+                // Numeric search: match phone, number, or message
+                $q->orWhere('webhook_responses.number', 'like', $searchTerm)
+                ->orWhere('webhook_responses.message', 'like', $searchTerm)
+                ->orWhere('clients.phone', 'like', $searchTerm);
+            } else {
+                // Text search: match firstname, lastname, or message
+                $q->orWhere('clients.firstname', 'like', $searchTerm)
+                ->orWhere('clients.lastname', 'like', $searchTerm)
+                ->orWhere('webhook_responses.message', 'like', $searchTerm);
+            }
+        });
     }
 
-    // ------------------- PAGINATION AND FETCH ---------------------
+
     $rawData = $query
         ->skip(($page - 1) * $perPage * 2)
         ->take($perPage * 2)

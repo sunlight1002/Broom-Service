@@ -144,6 +144,7 @@ export default function chat() {
             })
             .then((res) => {
                 const { data: newData, clients: newClients } = res.data;
+                    console.log(newData, "newData");
 
                 if (!isSearching) {
                     const mergeUnique = (prev = [], incoming = [], key) => {
@@ -156,7 +157,6 @@ export default function chat() {
                     setClients(prev => mergeUnique(prev, newClients, 'id'));
                     setData(prev => mergeUnique(prev, newData, 'number'));
                 } else if (lead) {
-                    console.log(newClients);
                     
                     setAllLeads(newClients);
                 } else {
@@ -552,9 +552,9 @@ export default function chat() {
 
 
     const clientsCard = data
-        ?.slice(0)
-        .reverse()
-        .sort((a, b) => b.unread - a.unread)
+        // ?.slice(0)
+        // .reverse()
+        // .sort((a, b) => b.unread - a.unread)
         .map((d, i) => {
             let cd = clients?.find(({ num }) => num == d.number);
             const escapedClassName = escapeSelectorClass(".cn_" + d.number);

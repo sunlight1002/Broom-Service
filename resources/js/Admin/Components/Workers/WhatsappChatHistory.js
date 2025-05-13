@@ -17,8 +17,6 @@ const WhatsappChatHistory = ({
     workerId,
     worker
 }) => {
-    console.log(worker, "worker");
-    
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
@@ -62,7 +60,7 @@ const WhatsappChatHistory = ({
 
     const fromNumber = process.env.MIX_TWILIO_WHATSAPP_NUMBER;
     console.log(fromNumber, "fromNumber");
-    
+
 
     const windowWidth = useWindowWidth();
 
@@ -103,34 +101,34 @@ const WhatsappChatHistory = ({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getData = () => {
-        if (loadingChats || !hasMore) return; // Prevent multiple requests
+    // const getData = () => {
+    //     if (loadingChats || !hasMore) return; // Prevent multiple requests
 
-        setLoadingChats(true);
-        axios.get(`/api/admin/personal-chat?page=${page}&from=${fromNumber}`, { headers })
-            .then((res) => {
-                const newData = res.data.data;
-                const newClients = res.data.clients;
+    //     setLoadingChats(true);
+    //     axios.get(`/api/admin/personal-chat?page=${page}&from=${fromNumber}`, { headers })
+    //         .then((res) => {
+    //             const newData = res.data.data;
+    //             const newClients = res.data.clients;
 
-                // Update data and clients
-                setClients(prevClients => [...prevClients, ...newClients]);
-                setData(prevData => [...prevData, ...newData]);
+    //             // Update data and clients
+    //             setClients(prevClients => [...prevClients, ...newClients]);
+    //             setData(prevData => [...prevData, ...newData]);
 
-                // Update page number
-                // setPage(prevPage => prevPage + 1);
+    //             // Update page number
+    //             // setPage(prevPage => prevPage + 1);
 
-                // If no more data to load, set hasMore to false
-                if (newData?.length === 0) {
-                    setHasMore(false);
-                }
-            })
-            .catch((error) => {
-                console.error("Error loading data:", error);
-            })
-            .finally(() => {
-                setLoadingChats(false);
-            });
-    };
+    //             // If no more data to load, set hasMore to false
+    //             if (newData?.length === 0) {
+    //                 setHasMore(false);
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error loading data:", error);
+    //         })
+    //         .finally(() => {
+    //             setLoadingChats(false);
+    //         });
+    // };
 
 
     const getMessages = (no) => {
@@ -276,8 +274,8 @@ const WhatsappChatHistory = ({
 
     const callApi = () => {
         const interval = setInterval(() => {
-            getMessages(localStorage.getItem("number"));
-        }, 10000);
+            getMessages(fromNumber);
+        }, 8000);
         return () => clearInterval(interval);
     };
 
@@ -294,7 +292,7 @@ const WhatsappChatHistory = ({
         if (bottom) {
             console.log("Loading more data...");
             setPage(prevPage => prevPage + 1);
-            getData(); // Load more data when reaching the bottom
+            // getData(); // Load more data when reaching the bottom
         }
     };
 
@@ -314,18 +312,17 @@ const WhatsappChatHistory = ({
 
 
     useEffect(() => {
-        if (localStorage.getItem("number")) {
-            callApi();
-        }
+        callApi();
+        getMessages(fromNumber);
     }, []);
 
-    useEffect(() => {
-        setPage(1); // optional: reset pagination if tab changed
-        setData([]);
-        setClients([]);
-        setHasMore(true);
-        getData();
-    }, []);
+    // useEffect(() => {
+    //     setPage(1); // optional: reset pagination if tab changed
+    //     setData([]);
+    //     setClients([]);
+    //     setHasMore(true);
+    //     getData();
+    // }, []);
 
     const handleDeleteConversation = (e) => {
         e.preventDefault();
@@ -352,9 +349,9 @@ const WhatsappChatHistory = ({
                     .then((response) => {
                         localStorage.removeItem("number");
                         Swal.fire("Deleted!", response.data.msg, "success");
-                        setTimeout(() => {
-                            getData();
-                        }, 1000);
+                        // setTimeout(() => {
+                        //     getData();
+                        // }, 1000);
                     })
                     .catch((err) => {
                         Swal.fire("Error!", err.response.data.msg, "error");
