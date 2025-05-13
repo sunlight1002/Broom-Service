@@ -326,7 +326,6 @@ export default function GeneralInfo({
                                                         ? errors.employeePassportNumber
                                                         : ""
                                                 }
-                                                disabled={values?.employeePassportNumber ? true : false}
                                                 required
                                             // readonly={values.employeePassportNumber === null ? false : true}
                                             />
