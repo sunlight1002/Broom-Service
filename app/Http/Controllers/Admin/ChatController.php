@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\TextResponse;
 use App\Models\WebhookResponse;
+use App\Models\WorkerWebhookResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -110,141 +111,115 @@ class ChatController extends Controller
     //     ]);
     // }
 
-public function chats(Request $request)
-{
-    $page = $request->input('page', 1);
-    $from = $request->input('from');
-    $unread = $request->boolean('unread');
-    $filter = $request->input('filter');
-    $start_date = $request->input('start_date');
-    $end_date = $request->input('end_date');
-    $search = $request->input('search');
-    $isChat = $request->boolean('isChat');
+    public function chats(Request $request)
+    {
+        $page        = $request->input('page', 1);
+        $from        = $request->input('from');
+        $unread      = $request->boolean('unread');
+        $filter      = $request->input('filter');
+        $start_date  = $request->input('start_date');
+        $end_date    = $request->input('end_date');
+        $search      = $request->input('search');
+        $isChat      = $request->boolean('isChat');
 
-    $perPage = 20;
+        $perPage     = 20;
+        $data        = collect();
+        $clients     = [];
 
-    $data = collect();
-    $clients = [];
+        $isGroupNumber = fn($number) => strpos($number, '@g.us') !== false;
 
-    $isGroupNumber = fn($number) => strpos($number, '@g.us') !== false;
+        // Use correct model based on 'from'
+        if ($from == str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))) {
+            $model = new WorkerWebhookResponse;
+            \Log::info("Worker Lead");
+        } else {
+            $model = new WebhookResponse;
+        }
 
-    if (!$isChat) {
-        $clientQuery = Client::with('lead_status');
+        $table = $model->getTable(); // Dynamic table name
 
-        if ($filter) {
-            $clientQuery->whereHas('lead_status', function ($q) use ($filter) {
-                $q->where('lead_status', $filter);
-            });
+        // Build dynamic query
+        $query = $model->newQuery()
+            ->select("{$table}.number")
+            ->when($unread, fn($q) => $q->where("{$table}.read", 0))
+            ->whereNotNull("{$table}.number")
+            ->groupBy("{$table}.number")
+            ->orderBy(DB::raw("MAX({$table}.created_at)"), 'desc')
+            ->leftJoin('clients', "{$table}.number", '=', 'clients.phone');
+
+        if ($from) {
+            $query->where("{$table}.from", $from);
+        }
+
+        if ($start_date && $end_date) {
+            $query->whereBetween("{$table}.created_at", [
+                Carbon::parse($start_date)->startOfDay(),
+                Carbon::parse($end_date)->endOfDay()
+            ]);
         }
 
         if ($search) {
             $searchTerm = '%' . $search . '%';
-
-            if (is_numeric($search)) {
-                $clientQuery->where('phone', 'like', $searchTerm);
-            } else {
-                $clientQuery->where(function ($q) use ($searchTerm) {
-                    $q->where('firstname', 'like', $searchTerm)
-                      ->orWhere('lastname', 'like', $searchTerm);
-                });
-            }
+            $query->where(function ($q) use ($search, $searchTerm, $table) {
+                if (is_numeric($search)) {
+                    $q->orWhere("{$table}.number", 'like', $searchTerm)
+                    ->orWhere("{$table}.message", 'like', $searchTerm)
+                    ->orWhere('clients.phone', 'like', $searchTerm);
+                } else {
+                    $q->orWhere('clients.firstname', 'like', $searchTerm)
+                    ->orWhere('clients.lastname', 'like', $searchTerm)
+                    ->orWhere("{$table}.message", 'like', $searchTerm);
+                }
+            });
         }
 
-        if(!is_null($start_date) && !is_null($end_date)){
-            $clientQuery->whereBetween('created_at', [$start_date, $end_date]);
-        }
-
-        $clientsPaginated = $clientQuery
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage)
+        // Fetch results with 2x page size to filter on PHP side
+        $rawData = $query
+            ->skip(($page - 1) * $perPage * 2)
+            ->take($perPage * 2)
             ->get();
 
+        foreach ($rawData as $entry) {
+            $number = $entry->number;
+            if ($isGroupNumber($number)) continue;
+
+            // Dynamically calculate unread count using the right model
+            $unreadCount = $model->newQuery()
+                ->where('number', $number)
+                ->where('read', 0)
+                ->count();
+
+            $client = Client::with('lead_status')
+                ->where('phone', $number)
+                ->first();
+
+            if (!empty($filter)) {
+                if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
+                    continue;
+                }
+            }
+
+            $entry->unread = $unreadCount;
+            $data->push($entry);
+
+            if ($client) {
+                $clients[] = [
+                    'name'   => trim("{$client->firstname} {$client->lastname}"),
+                    'id'     => $client->id,
+                    'num'    => $number,
+                    'client' => $client->status != 0 ? 1 : 0,
+                ];
+            }
+
+            if ($data->count() >= $perPage) break;
+        }
+
         return response()->json([
-            'clients' => $clientsPaginated,
+            'data'    => $data->values(),
+            'clients' => $clients,
         ]);
     }
 
-   $query = WebhookResponse::query()
-    ->select('webhook_responses.number')
-    ->when($unread, function ($q) {
-        $q->where('read', 0);
-    })
-    ->whereNotNull('webhook_responses.number')
-    ->groupBy('webhook_responses.number')
-    ->orderBy(DB::raw('MAX(webhook_responses.created_at)'), 'desc') // latest message per number
-    ->leftJoin('clients', 'webhook_responses.number', '=', 'clients.phone'); // JOIN for advanced filtering
-
-    // Filter by 'from'
-    if ($from) {
-        $query->where('webhook_responses.from', $from);
-    }
-
-    // Filter by date range
-    if ($start_date && $end_date) {
-        $query->whereBetween('webhook_responses.created_at', [
-            Carbon::parse($start_date)->startOfDay(),
-            Carbon::parse($end_date)->endOfDay()
-        ]);
-    }
-
-    // Search condition
-    if ($search) {
-        $searchTerm = '%' . $search . '%';
-
-        $query->where(function ($q) use ($search, $searchTerm) {
-            if (is_numeric($search)) {
-                // Numeric search: match phone, number, or message
-                $q->orWhere('webhook_responses.number', 'like', $searchTerm)
-                ->orWhere('webhook_responses.message', 'like', $searchTerm)
-                ->orWhere('clients.phone', 'like', $searchTerm);
-            } else {
-                // Text search: match firstname, lastname, or message
-                $q->orWhere('clients.firstname', 'like', $searchTerm)
-                ->orWhere('clients.lastname', 'like', $searchTerm)
-                ->orWhere('webhook_responses.message', 'like', $searchTerm);
-            }
-        });
-    }
-
-
-    $rawData = $query
-        ->skip(($page - 1) * $perPage * 2)
-        ->take($perPage * 2)
-        ->get();
-
-    foreach ($rawData as $entry) {
-        $number = $entry->number;
-        if ($isGroupNumber($number)) continue;
-
-        $unreadCount = WebhookResponse::where('number', $number)->where('read', 0)->count();
-        $client = Client::with('lead_status')->where('phone', $number)->first();
-
-        if (!empty($filter)) {
-            if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
-                continue;
-            }
-        }
-
-        $entry->unread = $unreadCount;
-        $data->push($entry);
-
-        if ($client) {
-            $clients[] = [
-                'name'   => trim("{$client->firstname} {$client->lastname}"),
-                'id'     => $client->id,
-                'num'    => $number,
-                'client' => $client->status != 0 ? 1 : 0,
-            ];
-        }
-
-        if ($data->count() >= $perPage) break;
-    }
-
-    return response()->json([
-        'data'    => $data->values(),
-        'clients' => $clients,
-    ]);
-}
 
 
 public function personalChat(Request $request)

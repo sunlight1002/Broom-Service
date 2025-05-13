@@ -3116,11 +3116,34 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                    StoreWebhookResponse($text, $receiverNumber, $data);
+                    if(in_array($eventType, [
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT, 
+                        WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
+                        WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
+                        WhatsappMessageTemplateEnum::WORKER_FORMS,
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
+                        ])){
+                        StoreWorkerWebhookResponse($text, $receiverNumber, $data);
+                    }else{
+                        StoreWebhookResponse($text, $receiverNumber, $data);
+                    }
 
                     Log::info($response->json());
                 }else{
-                    StoreWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
+                    if(in_array($eventType, [
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT, 
+                        WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
+                        WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
+                        WhatsappMessageTemplateEnum::WORKER_FORMS,
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
+                        ])){
+                        StoreWorkerWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
+                    }else{
+                        StoreWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
+                    }
+                    
                     \Log::info("twilio message $isTwilio");
                 }
             }

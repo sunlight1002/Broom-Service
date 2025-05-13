@@ -156,7 +156,7 @@ export default function chat() {
                     setClients(prev => mergeUnique(prev, newClients, 'id'));
                     setData(prev => mergeUnique(prev, newData, 'number'));
                 } else if (lead) {
-                    
+
                     setAllLeads(newClients);
                 } else {
                     setClients(newClients);
@@ -385,35 +385,37 @@ export default function chat() {
     };
 
 
-    const LeadhandleScroll = (e) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
-        const threshold = 10; // Trigger when 10px or less remains
+    // const LeadhandleScroll = (e) => {
+    //     const { scrollTop, scrollHeight, clientHeight } = e.target;
+    //     const threshold = 10; // Trigger when 10px or less remains
 
-        const nearBottom = scrollHeight - scrollTop - clientHeight <= threshold;
+    //     const nearBottom = scrollHeight - scrollTop - clientHeight <= threshold;
 
-        if (nearBottom && leadHasMore && !LeadLoading) {
-            getLeads(); // Load more data when reaching the bottom
-        }
-    };
+    //     if (nearBottom && leadHasMore && !LeadLoading) {
+    //         getLeads(); // Load more data when reaching the bottom
+    //     }
+    // };
 
     // Add the scroll event listener to the container
     useEffect(() => {
         const scrollContainer = document.getElementById('scrollContainer');
-        const leadScrollContainer = document.getElementById('tab-client-details');
+        // const leadScrollContainer = document.getElementById('tab-client-details');
 
         if (scrollContainer && client) {
             scrollContainer.addEventListener('scroll', handleScroll);
-        } else if (leadScrollContainer) {
-            leadScrollContainer.addEventListener('scroll', LeadhandleScroll);
         }
+        // else if (leadScrollContainer) {
+        //     leadScrollContainer.addEventListener('scroll', LeadhandleScroll);
+        // }
         return () => {
             if (scrollContainer && client) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
-            } else if (leadScrollContainer) {
-                leadScrollContainer.removeEventListener('scroll', LeadhandleScroll);
             }
+            // else if (leadScrollContainer) {
+            //     leadScrollContainer.removeEventListener('scroll', LeadhandleScroll);
+            // }
         };
-    }, [data, loadingChats, hasMore, LeadLoading, leadHasMore, lead, client]);
+    }, [data, loadingChats, hasMore]);
 
 
     useEffect(() => {
@@ -423,25 +425,23 @@ export default function chat() {
         }
     }, []);
 
-    useEffect(() => {
-        if (lead) {
-            setLeadHasMore(true);
-            setLeadLoading(false);
-            setAllLeads([]);
-            setLeadPage(1);
-            getLeads(1);
-        }
-    }, [lead, filter, dateRange]); // Filter can be shared if lead mode changes results
+    // useEffect(() => {
+    //     if (lead) {
+    //         setLeadHasMore(true);
+    //         setLeadLoading(false);
+    //         setAllLeads([]);
+    //         setLeadPage(1);
+    //         getLeads(1);
+    //     }
+    // }, [lead, filter, dateRange]); // Filter can be shared if lead mode changes results
 
 
     useEffect(() => {
-        if (!lead) {
-            setPage(1);
-            setData([]);
-            setClients([]);
-            setHasMore(true);
-            setLoadingChats(false);
-        }
+        setPage(1);
+        setData([]);
+        setClients([]);
+        setHasMore(true);
+        setLoadingChats(false);
     }, [fromNumber, dateRange, filter]);
 
 
@@ -450,7 +450,7 @@ export default function chat() {
         const { start_date, end_date } = dateRange || {};
         if ((start_date && !end_date) || (!start_date && end_date)) return;
         getData(page, true);
-    }, [fromNumber, filter, hasMore, dateRange, lead , client , page, searchInput, unread]); // Include `lead` to avoid loading data in lead mode
+    }, [fromNumber, filter, hasMore, dateRange, page, searchInput, unread]); // Include `lead` to avoid loading data in lead mode
 
 
     useEffect(() => {
@@ -791,7 +791,7 @@ export default function chat() {
                                                                 {t("admin.global.chats")}
                                                             </a>
                                                         </li>
-                                                        <li className="nav-item" role="presentation">
+                                                        {/* <li className="nav-item" role="presentation">
                                                             <a
                                                                 id="client-details"
                                                                 className="nav-link navyblueColor"
@@ -807,7 +807,7 @@ export default function chat() {
                                                                 {t("admin.global.clients")}
 
                                                             </a>
-                                                        </li>
+                                                        </li> */}
                                                     </ul>
                                                 </div>
 
@@ -828,7 +828,7 @@ export default function chat() {
                                                         </div>
                                                         {loadingChats && <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>}
                                                     </div>
-                                                    <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                    {/* <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '600px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
                                                         {allLeads.map((d, i) => {
                                                             const isLastItem = i === allLeads.length - 1;
                                                             return (
@@ -871,7 +871,7 @@ export default function chat() {
                                                         {LeadLoading && (
                                                             <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
                                                         )}
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </div>
                                         </div>
@@ -1048,7 +1048,7 @@ export default function chat() {
 
                                                         </a>
                                                     </li>
-                                                    <li className="nav-item" role="presentation">
+                                                    {/* <li className="nav-item" role="presentation">
                                                         <a
                                                             id="client-details"
                                                             className="nav-link navyblueColor"
@@ -1064,7 +1064,7 @@ export default function chat() {
                                                             {t("admin.global.clients")}
 
                                                         </a>
-                                                    </li>
+                                                    </li> */}
                                                 </ul>
                                             </div>
 
@@ -1084,7 +1084,7 @@ export default function chat() {
                                                         {loadingChats && <div className="d-flex justify-content-center mx-2"><MiniLoader /></div>}
                                                     </div>
                                                 </div>
-                                                <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '550px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
+                                                {/* <div id="tab-client-details" style={{ overflowY: 'auto', maxHeight: '550px' }} className="tab-pane fade" role="tabpanel" aria-labelledby="client-details">
                                                     {allLeads.map((d, i) => {
                                                         const isLastItem = i === allLeads.length - 1;
                                                         return (
@@ -1126,7 +1126,7 @@ export default function chat() {
                                                     {(LeadLoading) && (
                                                         <div className="d-flex text-align-center justify-content-center"><MiniLoader /></div>
                                                     )}
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
 
