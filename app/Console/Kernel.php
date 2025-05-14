@@ -55,7 +55,6 @@ class Kernel extends ConsoleKernel
         // $schedule->command('meeting:reminder')->onOneServer()->hourly();
         // $schedule->command('client:update-lead-status')->onOneServer()->hourly();
 
-        // $schedule->command('notifyclientforcontract')->onOneServer()->hourly();
         // $schedule->command('mondayNotify')->onOneServer()->weeklyOn(1, '08:00'); // 1 = Monday
         // $schedule->command('remind:next-week-services')->onOneServer()->weeklyOn(3, '9:00');
 

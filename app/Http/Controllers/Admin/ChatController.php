@@ -135,6 +135,10 @@ class ChatController extends Controller
         $start = $start_date ? Carbon::parse($start_date)->startOfDay() : null;
         $end   = $end_date   ? Carbon::parse($end_date)->endOfDay() : null;
 
+        if ($start && !$end) {
+            $end = $start->copy()->endOfDay();
+        }
+
         if ($isLead || $isClient || $isWorker) {
             $numberMessageQuery = WebhookResponse::query()
                 ->select('number')

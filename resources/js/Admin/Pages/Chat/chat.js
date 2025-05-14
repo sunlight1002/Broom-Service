@@ -179,11 +179,20 @@ export default function chat({
             })
             .then((res) => {
                 const { data: newData, clients: newClients } = res.data;
-                if (!isSearching) {
+                if (replace) {
                     const mergeUnique = (prev = [], incoming = [], key) => {
                         const existingKeys = new Set(prev.map(item => item[key]));
                         const filtered = incoming.filter(item => !existingKeys.has(item[key]));
-                        return [...prev, ...filtered];
+                        return [...filtered, ...prev]; // put new items at the top
+                    };
+
+                    setClients(prev => mergeUnique(prev, newClients, 'id'));
+                    setData(prev => mergeUnique(prev, newData, 'number'));
+                } else if(!isSearching && !replace){
+                     const mergeUnique = (prev = [], incoming = [], key) => {
+                        const existingKeys = new Set(prev.map(item => item[key]));
+                        const filtered = incoming.filter(item => !existingKeys.has(item[key]));
+                        return [...prev, ...filtered]; // put new items at the top
                     };
 
                     setClients(prev => mergeUnique(prev, newClients, 'id'));
@@ -480,7 +489,7 @@ export default function chat({
 
     useEffect(() => {
         const { start_date, end_date } = dateRange || {};
-        if ((start_date && !end_date) || (!start_date && end_date)) return;
+        // if ((start_date && !end_date) || (start_date && end_date)) return;
         getData(page, true);
     }, [fromNumber, filter, hasMore, dateRange, page, searchInput, activeTab]);
 

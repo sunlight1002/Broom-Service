@@ -25,7 +25,7 @@ class ContractReminder extends Command
 
     public function handle()
     {
-        $staticDate = "2024-10-11";
+        $staticDate = "2025-01-01";
         $timeIntervals = [
             '24hours' => Carbon::now()->subDay(1)->toDateString(),
             '3days' => Carbon::now()->subDays(3)->toDateString(),
