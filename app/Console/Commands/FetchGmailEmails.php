@@ -105,9 +105,8 @@ class FetchGmailEmails extends Command
             $user = 'me';
 
             try {
-                $fiveMinutesAgo = now()->subMinutes(15)->timestamp;
+                $fiveMinutesAgo = now()->subMinutes(5)->timestamp;
                 $query = "after:{$fiveMinutesAgo}";
-                \Log::info($query);
                 
                 $messages = $service->users_messages->listUsersMessages($user, ['q' => $query]);
                 
@@ -152,10 +151,7 @@ class FetchGmailEmails extends Command
                             } else {
                                 $parts = $payload->getParts();
                                 foreach ($parts as $part) {
-                                    \Log::info([$part]);
-                                    \Log::info("mimeType: " . $part['mimeType']);
-
-                                    if ($part['mimeType'] === 'text/plain' || $part['mimeType'] === 'text/html' || in_array($part['mimeType'], ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'])) {
+                                    if ($part['mimeType'] === 'text/plain' && !in_array($part['mimeType'], ['text/html','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'])) {
                                         $body = base64_decode(str_replace(['-', '_'], ['+', '/'], $part['body']['data']));
                                         break;
                                     }
@@ -184,6 +180,7 @@ class FetchGmailEmails extends Command
 
 
                             $client = null;
+                            \log::info($phoneNumber . " phone number");
                             if ($phoneNumber) {
                                 $client = Client::where('phone', $phoneNumber)->first();
                                 $user = User::where('phone', $phoneNumber)->first();
