@@ -779,6 +779,9 @@ export default function chat({
                                                                     "dateRange",
                                                                     JSON.stringify(updatedDateRange)
                                                                 );
+                                                                setClients([]);
+                                                                setData([]);
+                                                                setPage(1);
                                                             }}
                                                         >
                                                             Reset
@@ -1047,6 +1050,9 @@ export default function chat({
                                                                 "dateRange",
                                                                 JSON.stringify(updatedDateRange)
                                                             );
+                                                            setClients([]);
+                                                            setData([]);
+                                                            setPage(1);
                                                         }}
                                                     >
                                                         Reset
@@ -1150,7 +1156,7 @@ export default function chat({
                                                     role="tabpanel"
                                                     aria-labelledby="chat-details"
                                                 >
-                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '550px' }}>
+                                                    <div id="scrollContainer" style={{ overflowY: 'auto', maxHeight: '600px' }}>
                                                         {clientsCard}
                                                         {loadingChats && <div className="d-flex justify-content-center mx-2"><MiniLoader /></div>}
                                                     </div>
