@@ -612,6 +612,32 @@ class DashboardController extends Controller
   {
     $start_date = $request->get('start_date');
     $end_date = $request->get('end_date');
+    $selected = $request->get('selected');
+
+    // Determine dates based on selected filter
+    switch ($selected) {
+        case 'today':
+            $start_date = Carbon::today()->startOfDay()->toDateTimeString();
+            $end_date = Carbon::today()->endOfDay()->toDateTimeString();
+            break;
+
+        case 'this_week':
+            $start_date = Carbon::now()->startOfWeek()->toDateTimeString();
+            $end_date = Carbon::now()->endOfWeek()->toDateTimeString();
+            break;
+
+        case 'this_month':
+            $start_date = Carbon::now()->startOfMonth()->toDateTimeString();
+            $end_date = Carbon::now()->endOfMonth()->toDateTimeString();
+            break;
+
+        case 'all_time':
+            $start_date = Carbon::now()->startOfYear()->toDateTimeString();
+            $end_date = Carbon::now()->endOfYear()->toDateTimeString();
+            break;
+    }
+
+    \Log::info("Start date: {$start_date}, End date: {$end_date}");
 
     $data = Job::query()
     ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')

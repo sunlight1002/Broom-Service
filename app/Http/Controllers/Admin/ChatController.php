@@ -308,11 +308,8 @@ class ChatController extends Controller
             $query->where("{$table}.from", $from);
         }
 
-        if ($start_date && $end_date) {
-            $query->whereBetween("{$table}.created_at", [
-                Carbon::parse($start_date)->startOfDay(),
-                Carbon::parse($end_date)->endOfDay()
-            ]);
+        if ($start && $end) {
+            $query->whereBetween("{$table}.created_at", [$start, $end]);
         }
 
         if ($search) {
