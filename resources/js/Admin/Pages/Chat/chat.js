@@ -15,7 +15,8 @@ import './ChatFooter.css'; // Import the CSS
 
 
 export default function chat({
-    number: fromNumber
+    number: fromNumber,
+    workerLead = false
 }) {
 
     const param = useParams();
@@ -51,11 +52,10 @@ export default function chat({
     const [client, setClient] = useState(true)
     const [media, setMedia] = useState('')
     const [image, setImage] = useState('')
-    const [webhookResponses, setWebhookResponses] = useState([]);
     const [waSvg, setWaSvg] = useState(false);
     const [loadingChats, setLoadingChats] = useState(false);
     const [page, setPage] = useState(1); // Page number to fetch
-    const [hasMore, setHasMore] = useState(true); // To track if more records exist
+    const [hasMore, setHasMore] = useState(true);
     const [filter, setFilter] = useState("");
     const [searchInput, setSearchInput] = useState("");
     const [dateRange, setDateRange] = useState({
@@ -77,12 +77,6 @@ export default function chat({
     })
 
     const tabs = ['all', 'lead', 'client', 'worker', 'unread'];
-
-    let workerLead = false;
-
-    if (fromNumber == process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER) {
-        workerLead = true
-    }
 
     const statusArr = activeTab.lead
         ? {
@@ -156,11 +150,18 @@ export default function chat({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const getData = (pageToLoad = page, replace = false) => {
+    const mergeUnique = (prev = [], incoming = [], key, replace = false) => {
+        const existingKeys = new Set(prev.map(item => item[key]));
+        if (!replace) {
+            return [...prev, ...incoming.filter(item => !existingKeys.has(item[key]))];
+        } else {
+            return [...incoming.filter(item => !existingKeys.has(item[key])), ...prev];
+        }
+    };
+
+    const getData = (pageToLoad = page, replace = false, loadNext = false) => {
         if (loadingChats || (!hasMore && !replace)) return;
-
         setLoadingChats(true);
-
         axios
             .get(`/api/admin/chats`, {
                 params: {
@@ -178,38 +179,29 @@ export default function chat({
                 headers
             })
             .then((res) => {
-                const { data: newData, clients: newClients } = res.data;
+                const { data: newData, clients: newClients, pagination } = res.data;
+
                 if (replace) {
-                    const mergeUnique = (prev = [], incoming = [], key) => {
-                        const existingKeys = new Set(prev.map(item => item[key]));
-                        const filtered = incoming.filter(item => !existingKeys.has(item[key]));
-                        return [...filtered, ...prev]; // put new items at the top
-                    };
-
+                    setClients(prev => mergeUnique(prev, newClients, 'id', true));
+                    setData(prev => mergeUnique(prev, newData, 'number', true));
+                } else if (loadNext) {
+                    if (pagination.current_page < pagination.last_page) {
+                        setPage(prev => prev + 1);
+                        setHasMore(true);
+                    } else {
+                        setHasMore(false);
+                    }
                     setClients(prev => mergeUnique(prev, newClients, 'id'));
                     setData(prev => mergeUnique(prev, newData, 'number'));
-                } else if(!isSearching && !replace){
-                     const mergeUnique = (prev = [], incoming = [], key) => {
-                        const existingKeys = new Set(prev.map(item => item[key]));
-                        const filtered = incoming.filter(item => !existingKeys.has(item[key]));
-                        return [...prev, ...filtered]; // put new items at the top
-                    };
-
-                    setClients(prev => mergeUnique(prev, newClients, 'id'));
-                    setData(prev => mergeUnique(prev, newData, 'number'));
-                } else if (lead) {
-                    setAllLeads(newClients);
                 } else {
+                    if (pagination.current_page < pagination.last_page) {
+                        setPage(prev => prev + 1);
+                        setHasMore(true);
+                    } else {
+                        setHasMore(false);
+                    }
                     setClients(newClients);
                     setData(newData);
-                }
-
-                if (newData?.length === 0) {
-                    setHasMore(false);
-                }
-
-                if (!replace) {
-                    setPage(prev => prev + 1);
                 }
             })
             .catch((err) => {
@@ -219,45 +211,6 @@ export default function chat({
                 setLoadingChats(false);
             });
     };
-
-
-    // const getLeads = async (pageNumber = leadPage) => {
-
-    //     if (LeadLoading || !leadHasMore) return;
-    //     setLeadLoading(true);
-    //     try {
-    //         const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20&filter=${filter}`, { headers });
-    //         const newLeads = res.data.data;
-    //         if (res.data.data.length > 0) {
-    //             setAllLeads((prev) => [...prev, ...newLeads]);
-    //         }
-    //         if (newLeads.length === 0) {
-    //             setLeadHasMore(false);
-    //         }
-    //         // else {
-    //         setLeadPage(prev => prev + 1);
-    //         // }
-    //     } catch (err) {
-    //         console.error(err);
-    //     } finally {
-    //         setLeadLoading(false);
-    //     }
-    // };
-
-
-
-    // const getLead = () => {
-    //     axios
-    //         .get(`/api/admin/leads/${leadId}/edit`, { headers })
-    //         .then((res) => {
-    //             setNumber(res?.data?.lead?.phone);
-    //         });
-    // };
-
-    // useEffect(() => {
-    //     getLead();
-    //     // addInChat()
-    // }, [number, leadId, selectNumber]);
 
 
     const getMessages = (no) => {
@@ -314,10 +267,6 @@ export default function chat({
             send.append("media", selectedFile); // Append the media file if it exists
         }
         setLoading(true);
-
-        // send.forEach((value, key) => {
-        //     console.log(`${key}:`, value);
-        // });
 
         axios.post(`/api/admin/chat-reply`, send, {
             headers: {
@@ -416,45 +365,25 @@ export default function chat({
 
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target;
-        const threshold = 10; // Trigger when 10px or less remains
+        const threshold = 50; // Trigger when 10px or less remains
 
-        const nearBottom = scrollHeight - scrollTop - clientHeight <= threshold;
+        const nearBottom = (scrollHeight - scrollTop - clientHeight) <= threshold;
 
         if (nearBottom && hasMore && !loadingChats) {
-            getData();
+            getData(page, false, true); // Load more data when reaching the bottom
         }
     };
 
 
-    // const LeadhandleScroll = (e) => {
-    //     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    //     const threshold = 10; // Trigger when 10px or less remains
-
-    //     const nearBottom = scrollHeight - scrollTop - clientHeight <= threshold;
-
-    //     if (nearBottom && leadHasMore && !LeadLoading) {
-    //         getLeads(); // Load more data when reaching the bottom
-    //     }
-    // };
-
-    // Add the scroll event listener to the container
     useEffect(() => {
         const scrollContainer = document.getElementById('scrollContainer');
-        // const leadScrollContainer = document.getElementById('tab-client-details');
-
-        if (scrollContainer && client) {
+        if (scrollContainer) {
             scrollContainer.addEventListener('scroll', handleScroll);
         }
-        // else if (leadScrollContainer) {
-        //     leadScrollContainer.addEventListener('scroll', LeadhandleScroll);
-        // }
         return () => {
-            if (scrollContainer && client) {
+            if (scrollContainer) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
             }
-            // else if (leadScrollContainer) {
-            //     leadScrollContainer.removeEventListener('scroll', LeadhandleScroll);
-            // }
         };
     }, [data, loadingChats, hasMore]);
 
@@ -466,16 +395,6 @@ export default function chat({
         }
     }, []);
 
-    // useEffect(() => {
-    //     if (lead) {
-    //         setLeadHasMore(true);
-    //         setLeadLoading(false);
-    //         setAllLeads([]);
-    //         setLeadPage(1);
-    //         getLeads(1);
-    //     }
-    // }, [lead, filter, dateRange]); // Filter can be shared if lead mode changes results
-
 
     useEffect(() => {
         setPage(1);
@@ -483,33 +402,26 @@ export default function chat({
         setClients([]);
         setHasMore(true);
         setLoadingChats(false);
+
     }, [fromNumber, dateRange, filter]);
-
-
-
-    useEffect(() => {
-        const { start_date, end_date } = dateRange || {};
-        // if ((start_date && !end_date) || (start_date && end_date)) return;
-        getData(page, true);
-    }, [fromNumber, filter, hasMore, dateRange, page, searchInput, activeTab]);
 
 
     useEffect(() => {
         setPage(1);
-        setData([]);
-        setClients([]);
-    }, [filter, activeTab, isSearching, dateRange]);
+        setHasMore(true);
+        getData(1, false);
+    }, [fromNumber, filter, hasMore, dateRange, searchInput, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
 
     useEffect(() => {
         const interval = setInterval(() => {
             // if (!isSearching) {
-            getData(page, true);
+            getData(1, true);
             // }
         }, 10000);
 
         return () => clearInterval(interval);
-    }, [dateRange, filter, searchInput, activeTab, fromNumber]);
+    }, [dateRange, filter, searchInput, fromNumber, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
 
     const handleDeleteConversation = (e) => {

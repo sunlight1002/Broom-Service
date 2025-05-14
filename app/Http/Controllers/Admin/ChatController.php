@@ -175,10 +175,8 @@ class ChatController extends Controller
 
                 $userQuery->orderByDesc('id');
 
-                $results = $userQuery
-                    ->skip(($page - 1) * $perPage)
-                    ->take($perPage)
-                    ->get();
+                $results = $userQuery->paginate($perPage);
+
 
                 $clients = [];
                 $data = collect();
@@ -212,9 +210,20 @@ class ChatController extends Controller
                     if ($data->count() >= $perPage) break;
                 }
 
+                    $pagination = [
+                    'current_page' => $results->currentPage(),
+                    'last_page'    => $results->lastPage(),
+                    'per_page'     => $results->perPage(),
+                    'total'        => $results->total(),
+                    'from'         => $results->firstItem(),
+                    'to'           => $results->lastItem(),
+                ];
+
                 return response()->json([
                     'clients' => $clients,
                     'data'    => $data->values(),
+                    'pagination' => $pagination
+
                 ]);
             }
 
@@ -238,10 +247,7 @@ class ChatController extends Controller
 
             $clientQuery->orderByDesc('id');
 
-            $results = $clientQuery
-                ->skip(($page - 1) * $perPage)
-                ->take($perPage)
-                ->get();
+            $results = $clientQuery->paginate($perPage);
 
             $clients = [];
             $data = collect();
@@ -277,9 +283,19 @@ class ChatController extends Controller
                 if ($data->count() >= $perPage) break;
             }
 
+                    $pagination = [
+                        'current_page' => $results->currentPage(),
+                        'last_page'    => $results->lastPage(),
+                        'per_page'     => $results->perPage(),
+                        'total'        => $results->total(),
+                        'from'         => $results->firstItem(),
+                        'to'           => $results->lastItem(),
+                    ];
+
             return response()->json([
                 'clients' => $clients,
                 'data'    => $data->values(),
+                'pagination' => $pagination
             ]);
 
         }
@@ -288,7 +304,6 @@ class ChatController extends Controller
         // Use correct model based on 'from'
         if ($from == str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))) {
             $model = new WorkerWebhookResponse;
-            \Log::info("Worker Lead");
         } else {
             $model = new WebhookResponse;
         }
@@ -328,12 +343,10 @@ class ChatController extends Controller
         }
 
         // Fetch results with 2x page size to filter on PHP side
-        $rawData = $query
-            ->skip(($page - 1) * $perPage * 2)
-            ->take($perPage * 2)
-            ->get();
+        $rawData = $query->paginate($perPage);
+            \Log::info($rawData);
 
-        foreach ($rawData as $entry) {
+        foreach ($rawData->items() as $entry) {
             $number = $entry->number;
             if ($isGroupNumber($number)) continue;
 
@@ -378,9 +391,19 @@ class ChatController extends Controller
             if ($data->count() >= $perPage) break;
         }
 
+        $pagination = [
+            'current_page' => $rawData->currentPage(),
+            'last_page'    => $rawData->lastPage(),
+            'per_page'     => $rawData->perPage(),
+            'total'        => $rawData->total(),
+            'from'         => $rawData->firstItem(),
+            'to'           => $rawData->lastItem(),
+        ];
+
         return response()->json([
             'data'    => $data->values(),
             'clients' => $clients,
+            'pagination' => $pagination
         ]);
     }
 
