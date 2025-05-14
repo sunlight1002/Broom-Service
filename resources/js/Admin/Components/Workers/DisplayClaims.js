@@ -48,7 +48,7 @@ const DisplayClaims = ({ worker }) => {
                     <h4>{t("admin.global.claim")}</h4>
                     <Form.Control 
                         type="text" 
-                        placeholder={t("admin.hearing.searchPlaceholder")}
+                        placeholder={t("worker.search")}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         style={{ maxWidth: "250px" }}
@@ -57,7 +57,7 @@ const DisplayClaims = ({ worker }) => {
                 <Table striped bordered hover responsive>
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>#Id</th>
                             <th>{t("admin.global.claim")}</th>
                             <th>{t("global.date")}</th>
                             <th>{t("admin.global.status")}</th>
@@ -91,7 +91,7 @@ const DisplayClaims = ({ worker }) => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="text-center">{t("admin.hearing.noClaims")}</td>
+                                    <td colSpan="5" className="text-center">{t("admin.hearing.noRecord")}</td>
                                 </tr>
                             )
                         )}

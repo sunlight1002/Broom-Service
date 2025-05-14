@@ -2738,8 +2738,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX1065d9f2b2d6424a17367a1ff72c709e" :"HX03fd91b1d53e8e3833efbc7476c39f70";
-
+                        if(in_array($clientData['id'], [88, 21, 1660])){
+                            $sid = $lng == "heb" ? "HX1065d9f2b2d6424a17367a1ff72c709e" :"HX03fd91b1d53e8e3833efbc7476c39f70";
+                        }else{
+                            $sid = $lng == "heb" ? "HX3885b7a64e902bfdd02c790bad694721" :"HXe4a6b7fdb4e5a82f55003f9956a9f169";
+                        }
+                        
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
                             [
