@@ -109,6 +109,8 @@ office@broomservice.co.il',
                     $query->where('lead_status', 'active client');
                 })
                 ->get();
+
+        // $clients = Client::whereIn('id', [3709])->get();
             // dd($clients);
         foreach ($clients as $client) {
             // if(in_array($client->id, [110,112,120,121,174,203,220,221,232,233,261,270,1,2,6,8,11,13,15,21,23,24,25,30,39,40,43,45,49,51,52,54,55,57,65,67,68,70,71,79,80,85,86,88,91,135,166,179,204,215,238,240,245,246,247,333,339,394])) {
@@ -130,7 +132,8 @@ office@broomservice.co.il',
             $client->stop_last_message = 0;
             $client->save();
             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addHours(20));
-            // echo $client->id . PHP_EOL;
+            echo $client->id . PHP_EOL;
+            sleep(2);
         }
     }
 }

@@ -145,7 +145,7 @@ www.broomservice.co.il
                         } else if ($email) {
                             $client = Client::where('email', $email)->first();
                         }
-                        $shifts[] = trim($row[9] ?? '');
+                        $shifts[] = trim($row[10] ?? '');
                         if ($client) {
                             $currentDateObj = Carbon::parse($currentDate); // Current date
                             $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
@@ -155,7 +155,7 @@ www.broomservice.co.il
                                 $shift = "";
                                 $day = $currentDateObj->format('l');
                                 if($client->lng == 'en') {
-                                    switch (trim($row[9])) {
+                                    switch (trim($row[10])) {
                                         case 'יום':
                                         case 'בוקר':
                                         case '7 בבוקר':
@@ -178,11 +178,11 @@ www.broomservice.co.il
                                             break;
 
                                         default:
-                                            $shift = $row[9];
+                                            $shift = $row[10];
                                             break;
                                     }
                                 } else {
-                                    switch (trim($row[9])) {
+                                    switch (trim($row[10])) {
                                         case 'יום':
                                         case 'בוקר':
                                         case '7 בבוקר':
@@ -205,7 +205,7 @@ www.broomservice.co.il
                                             break;
 
                                         default:
-                                            $shift = $row[9];
+                                            $shift = $row[10];
                                             break;
                                     }
                                     switch ($day) {

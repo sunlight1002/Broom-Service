@@ -32,7 +32,9 @@ class AddClientContactToGoogleContact extends Command
         $this->info('Checking clients for missing Google contactId...');
 
         // Retrieve all clients where contactId is null
-        $clients = Client::whereNull('contactId')->get();
+        $clients = Client::whereNull('contactId')->whereHas('contract', function($q) {
+            $q->where('status', 'verified');
+        })->get();
 
         if ($clients->isEmpty()) {
             $this->info('No clients with null contactId found.');

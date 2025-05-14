@@ -44,7 +44,7 @@ class NotifyTeamToUpdateLeadStatus extends Command
     {
         $clients = Client::where('created_at', '<=', Carbon::now()->subHours(24))->whereHas('lead_status', function ($q) {
             $q->whereIn('lead_status', ['pending']);
-        })->whereDate('created_at', '>=', "2024-10-19")->get();
+        })->whereDate('created_at', '>=', Carbon::now()->subDays(30))->get();
 
         foreach ($clients as $client) {
             event(new WhatsappNotificationEvent([

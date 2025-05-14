@@ -37,6 +37,7 @@ class SendJobReviewMessageToClient extends Command
     protected $twilioAccountSid;
     protected $twilioAuthToken;
     protected $twilioPhoneNumber;
+    protected $twilioWhatsappNumber;
     protected $twilio;
     protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
 

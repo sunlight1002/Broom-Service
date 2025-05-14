@@ -105,7 +105,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
             ->weeklyOn(Schedule::TUESDAY, '08:30');
 
-        // $schedule->command('gmail:fetch')->everyFiveMinutes();
+        $schedule->command('gmail:fetch')->everyFiveMinutes();
         $schedule->command('set:active-workers-monday-message')->weeklyOn(Schedule::SUNDAY, '20:00');
 
         $schedule->command('add:jobs-in-google-sheet')->dailyAt('19:00');
