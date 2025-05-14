@@ -36,11 +36,14 @@ if (!function_exists('sendInvoicePayToClient')) {
 if(!function_exists('generateShortUrl')) {
     function generateShortUrl($urlData, $type = null)
     {
-
+        $token = null;
         if (empty($urlData)) {
             return null;  
         }
-        $token = substr(md5(uniqid()), 0, 6);
+
+        do {
+            $token = substr(md5(uniqid()), 0, 6);
+        } while (ShortUrl::where('token', $token)->exists());
         
         $shortUrl = ShortUrl::create([
             'url' => $urlData,

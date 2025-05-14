@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import moment from 'moment';
 
 const LeadActivityList = () => {
     const { id: clientId } = useParams();
@@ -18,11 +19,13 @@ const LeadActivityList = () => {
             axios
                 .get(`/api/admin/lead-activities/${clientId}`, { headers })
                 .then((res) => {
+                    console.log(res.data);
+                    
                     const sortedData = res.data
                         .map(activity => ({
                             ...activity,
-                            created_date: activity.created_date ? new Date(activity.created_date) : null,
-                            status_changed_date: activity.status_changed_date ? new Date(activity.status_changed_date) : null
+                            created_date: activity.created_date ? moment(activity.created_date).format('YYYY/MM/DD hh:mm A') : null,
+                            status_changed_date: activity.created_at ? moment(activity.created_at).format('YYYY/MM/DD hh:mm A') : null
                         }))
                         // .sort((a, b) => a.created_date - b.created_date);
 
@@ -40,10 +43,10 @@ const LeadActivityList = () => {
             <div className="overflow-x-auto">
                 <table ref={tableRef} className="display table table-bordered w-100">
                     <tbody>
-                        {leadActivities.length > 0 && leadActivities[0].created_date instanceof Date && !isNaN(leadActivities[0].created_date) && (
+                        {leadActivities.length > 0 && leadActivities[0].created_date && (
                             <tr className="bg-gray-50">
                                 <td className="px-10 py-3 border-b text-left">
-                                    Lead created on {leadActivities[0].created_date.toLocaleString()} with status "{leadActivities[0].changes_status || 'pending'}"
+                                    Lead created on {leadActivities[0].created_date} with status "{leadActivities[0].changes_status || 'pending'}"
                                 </td>
                             </tr>
                         )}
@@ -56,7 +59,7 @@ const LeadActivityList = () => {
                                 return null;
                             }
 
-                            statusChangeMessage = `Status changed on ${activity.status_changed_date.toLocaleString()} from "${oldStatus}" to "${activity.changes_status}"`;
+                            statusChangeMessage = `Status changed on ${activity.status_changed_date} from "${oldStatus}" to "${activity.changes_status}"`;
                             if(activity?.changed_by){
                                 statusChangeMessage += ` changed by ${activity.changed_by}`
                             }

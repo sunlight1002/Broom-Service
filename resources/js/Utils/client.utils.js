@@ -120,6 +120,14 @@ export const leadStatusColor = (_status) => {
             _color = "#a95a3cf2";
             break;
 
+        case "agriculture visa":
+            _color = "#ff9871f2";
+            break;
+
+        case "other":
+            _color = "#456f63f2";
+            break;
+
         default:
             break;
     }

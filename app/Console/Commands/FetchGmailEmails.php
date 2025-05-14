@@ -180,7 +180,6 @@ class FetchGmailEmails extends Command
 
 
                             $client = null;
-                            \log::info($phoneNumber . " phone number");
                             if ($phoneNumber) {
                                 $client = Client::where('phone', $phoneNumber)->first();
                                 $user = User::where('phone', $phoneNumber)->first();

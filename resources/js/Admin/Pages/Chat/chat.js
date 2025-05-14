@@ -482,15 +482,9 @@ export default function chat({
     };
 
 
-    // function escapeSelectorClass(className) {
-    //     return className.replace(/([!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
-    // }
-
     const clientsCard = data
         .map((d, i) => {
             let cd = clients?.find(({ num }) => num == d.number);
-            // const escapedClassName = escapeSelectorClass(".cn_" + d.number);
-
             return (
                 <div
                     className={"card p-3 cardList cl_" + d.number}
@@ -526,17 +520,11 @@ export default function chat({
                             ".cl_" + d.number
                         ).style.background = "#fff";
                         document.querySelector(".cn_" + d.number).remove();
-
-                        // if(escapedClassName){
-                        //     document.querySelector(escapedClassName).style.background = "#fff";
-                        //     document.querySelector(escapedClassName).remove();
-                        // }
                     }}
                     key={i}
                 >
                     <div className="d-flex align-items-center">
                         <div
-                            //  className="user-icon2"
                             className=""
                         >
                             {/* <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} /> */}

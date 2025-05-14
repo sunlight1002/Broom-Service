@@ -125,7 +125,7 @@ class WorkerLeadsController extends Controller
                 'firstname' => 'nullable|string|max:255',
                 'lastname' => 'nullable|string|min:2|max:255',
                 'email' => 'nullable|email|max:255|unique:worker_leads,email',
-                'phone' => 'required|string|max:15', // Adjust max length as needed
+                'phone' => 'required|string|max:15|unique:worker_leads,phone', // Adjust max length as needed
                 'status' => 'required|string',
                 'role' => 'required|string',
                 // 'ready_to_get_best_job' => 'boolean',
@@ -283,7 +283,6 @@ class WorkerLeadsController extends Controller
         // Change the status
         $workerLead->status = $request->status;
         $workerLead->sub_status = $request->status == "not-hired" ? $request->sub_status : null;
-        \Log::info($request->status);
         $workerLead->save();
 
         if ($workerLead->status === 'irrelevant') {

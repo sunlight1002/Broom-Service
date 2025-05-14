@@ -14,6 +14,7 @@ use App\Models\WhatsAppBotClientState;
 use App\Models\WebhookResponse;
 use App\Events\NewLeadArrived;
 use App\Models\Notification;
+use App\Models\LeadActivity;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;

@@ -61,9 +61,11 @@ export default function WorkerLead() {
     const notHiredSubStatus = {
         "construction visa": "construction visa",
         "caregiver visa": "caregiver visa",
+        "agriculture visa": "agriculture visa",
         "hotel sector": "hotel sector",
         "Tied to employer": "Tied to employer",
-        "expired": "expired"
+        "expired": "expired",
+        "other": "other",
     };
 
     const toggleChangeStatusModal = (_id) => {
