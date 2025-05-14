@@ -910,6 +910,56 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
+                \Log::info('tMinutes: ' . $tMinutes);
+                if (
+                    ($jobData->actual_time_taken_minutes && $jobData->actual_time_taken_minutes != $tMinutes) ||
+                    (!$jobData->actual_time_taken_minutes && $jobData->jobService->duration_minutes != $tMinutes)
+                ) {
+                \Log::info('actual_time_taken_minutes: ' . $jobData->actual_time_taken_minutes);
+                    $jobData->actual_time_taken_minutes = $tMinutes;
+                    $jobData->save();
+                    $this->updateJobAmount($jobData->id);
+
+                    if (isset($jobData->order) && $jobData->order->total_amount != $jobData->total_amount) {
+                        $order = $jobData->order;
+                        \Log::info($order);
+                            if ($order->status == 'Closed') {
+                                return response()->json([
+                                    'message' => 'Job order is already closed',
+                                ], 403);
+                            }
+            
+                            $closeDocResponse = $this->cancelICountDocument(
+                                $order->order_id,
+                                'order',
+                                'Creating another order'
+                            );
+            
+                            if ($closeDocResponse['status'] != true) {
+                                return response()->json([
+                                    'message' => $closeDocResponse['reason']
+                                ], 500);
+                            }
+            
+                            $order->update(['status' => 'Cancelled']);
+            
+                            $order->jobs()->update([
+                                'isOrdered' => 'c',
+                                'order_id' => NULL,
+                                'is_order_generated' => false
+                            ]);
+
+                            CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                            $jobData->refresh();
+                            $orderId = $jobData->order ? $jobData->order->order_id : null;
+
+                            if($orderId) {
+                                $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                                $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                            }
+                    }
+
+                }
 
                 if($tMinutes != $jobData->actual_time_taken_minutes) {
                     $jobData->actual_time_taken_minutes = $tMinutes;
