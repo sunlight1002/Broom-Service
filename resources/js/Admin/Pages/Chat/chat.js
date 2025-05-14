@@ -183,7 +183,7 @@ export default function chat({
                     const mergeUnique = (prev = [], incoming = [], key) => {
                         const existingKeys = new Set(prev.map(item => item[key]));
                         const filtered = incoming.filter(item => !existingKeys.has(item[key]));
-                        return [...prev, ...filtered];
+                        return [...filtered, ...prev ];
                     };
 
 
