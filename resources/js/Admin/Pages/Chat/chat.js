@@ -183,14 +183,12 @@ export default function chat({
                     const mergeUnique = (prev = [], incoming = [], key) => {
                         const existingKeys = new Set(prev.map(item => item[key]));
                         const filtered = incoming.filter(item => !existingKeys.has(item[key]));
-                        return [...filtered, ...prev ];
+                        return [...prev, ...filtered];
                     };
-
 
                     setClients(prev => mergeUnique(prev, newClients, 'id'));
                     setData(prev => mergeUnique(prev, newData, 'number'));
                 } else if (lead) {
-
                     setAllLeads(newClients);
                 } else {
                     setClients(newClients);
@@ -214,28 +212,28 @@ export default function chat({
     };
 
 
-    const getLeads = async (pageNumber = leadPage) => {
+    // const getLeads = async (pageNumber = leadPage) => {
 
-        if (LeadLoading || !leadHasMore) return;
-        setLeadLoading(true);
-        try {
-            const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20&filter=${filter}`, { headers });
-            const newLeads = res.data.data;
-            if (res.data.data.length > 0) {
-                setAllLeads((prev) => [...prev, ...newLeads]);
-            }
-            if (newLeads.length === 0) {
-                setLeadHasMore(false);
-            }
-            // else {
-            setLeadPage(prev => prev + 1);
-            // }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLeadLoading(false);
-        }
-    };
+    //     if (LeadLoading || !leadHasMore) return;
+    //     setLeadLoading(true);
+    //     try {
+    //         const res = await axios.get(`/api/admin/all-leads?page=${pageNumber}&per_page=20&filter=${filter}`, { headers });
+    //         const newLeads = res.data.data;
+    //         if (res.data.data.length > 0) {
+    //             setAllLeads((prev) => [...prev, ...newLeads]);
+    //         }
+    //         if (newLeads.length === 0) {
+    //             setLeadHasMore(false);
+    //         }
+    //         // else {
+    //         setLeadPage(prev => prev + 1);
+    //         // }
+    //     } catch (err) {
+    //         console.error(err);
+    //     } finally {
+    //         setLeadLoading(false);
+    //     }
+    // };
 
 
 

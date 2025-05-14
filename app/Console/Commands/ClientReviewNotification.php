@@ -32,7 +32,7 @@ class ClientReviewNotification extends Command
     protected $description = 'Client Review Notification';
     protected $twilioAccountSid;
     protected $twilioAuthToken;
-    protected $twilioPhoneNumber;
+    protected $twilioWhatsappNumber;
     protected $twilio;
     protected $message = [
         "en" => "Hello :client_name,
@@ -81,7 +81,7 @@ Please reply with the appropriate number.",
      */
     public function handle()
     {
-        $clients = Client::where('status', '2')->where('id', '194')
+        $clients = Client::where('status', '2')
         ->whereHas('lead_status', function ($query) {
             $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
         })

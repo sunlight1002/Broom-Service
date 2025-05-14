@@ -40,7 +40,7 @@ class ClientEmailController extends Controller
 
     protected $twilioAccountSid;
     protected $twilioAuthToken;
-    protected $twilioPhoneNumber;
+    protected $twilioWhatsappNumber;
     protected $twilio;
 
     public function __construct()
