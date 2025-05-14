@@ -2289,7 +2289,7 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS:
+                    case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_1_DAY:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
@@ -2317,7 +2317,7 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS:
+                    case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
@@ -2345,7 +2345,7 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS:
+                    case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_4_DAYS:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;

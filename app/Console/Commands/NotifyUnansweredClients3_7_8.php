@@ -28,54 +28,53 @@ class NotifyUnansweredClients3_7_8 extends Command
             ->get();
 
         foreach ($clients as $client) {
-            $daysSinceUpdate = $client->lead_status->updated_at->startOfDay()->diffInDays($currentDate->startOfDay());
-            \Log::info('Days old: ' . $daysSinceUpdate);
+                $daysSinceUpdate = $client->lead_status->updated_at->startOfDay()->diffInDays($currentDate->startOfDay());
+                \Log::info('Days old: ' . $daysSinceUpdate);
 
-            $metaEnum = null;
-            $enum = null;
-            $message = null;
+                $metaEnum = null;
+                $enum = null;
+                $message = null;
 
-            switch ($daysSinceUpdate) {
-                case 3:
-                    $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_3DAYS;
-                    $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS;
-                    $message = "Hello {$client->firstname}, we noticed you haven’t responded for 3 days. Please get back to us at your earliest convenience.";
-                    break;
-                case 7:
-                    $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_7DAYS;
-                    $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS;
-                    $message = "Hi {$client->firstname}, it’s been 7 days since we last heard from you. Please let us know how we can assist you.";
-                    break;
-                case 8:
-                    $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_8DAYS;
-                    $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS;
-                    $message = "Dear {$client->firstname}, this is a reminder that it has been 8 days since your query. We’re here to help—please reply.";
+                switch ($daysSinceUpdate) {
+                    case 1:
+                        $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_1DAY;
+                        $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_1_DAY;
+                        $message = "Hello {$client->firstname}, just checking in since we haven’t heard from you. Let us know if you have any questions.";
+                        break;
+                    case 3:
+                        $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_3DAYS;
+                        $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS;
+                        $message = "Hi {$client->firstname}, we noticed you haven’t responded for 3 days. Please get back to us when you can.";
+                        break;
+                    case 4:
+                        $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_4DAYS;
+                        $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_4_DAYS;
+                        $message = "Dear {$client->firstname}, it's been 4 days since your inquiry. We're here to assist—please respond.";
 
-                    // Update status to UNANSWERED_FINAL after 8 days
-                    $client->lead_status->update(['lead_status' => LeadStatusEnum::UNANSWERED_FINAL]);
-                    $this->info("Client status updated to UNANSWERED_FINAL for {$client->firstname}.");
-                    break;
-                default:
-                    continue 2;
+                        // Update status to UNANSWERED_FINAL after 4 days
+                        $client->lead_status->update(['lead_status' => LeadStatusEnum::UNANSWERED_FINAL]);
+                        $this->info("Client status updated to UNANSWERED_FINAL for {$client->firstname}.");
+                        break;
+                    default:
+                        continue 2;
+                }
+
+                if (ClientMetas::where('client_id', $client->id)->where('key', $metaEnum)->exists()) {
+                    $this->info("Notification already sent to client: {$client->firstname} for {$daysSinceUpdate} days.");
+                    continue;
+                }
+
+                $this->sendWhatsAppMessage($client, $enum);
+
+                ClientMetas::create([
+                    'client_id' => $client->id,
+                    'key' => $metaEnum,
+                    'value' => Carbon::now(),
+                ]);
+
+                $this->info("Notification sent to client: {$client->firstname} ({$client->phone}) with message: {$message}");
             }
 
-            // Check if notification for this specific day was already sent
-            if (ClientMetas::where('client_id', $client->id)->where('key', $metaEnum)->exists()) {
-                $this->info("Notification already sent to client: {$client->firstname} for {$daysSinceUpdate} days.");
-                continue;
-            }
-
-            $this->sendWhatsAppMessage($client, $enum);
-
-            // Log the notification in ClientMetas
-            ClientMetas::create([
-                'client_id' => $client->id,
-                'key' => $metaEnum,
-                'value' => Carbon::now(),
-            ]);
-
-            $this->info("Notification sent to client: {$client->firstname} ({$client->phone}) with message: {$message}");
-        }
 
         return 0;
     }

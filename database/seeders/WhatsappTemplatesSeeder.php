@@ -3450,8 +3450,8 @@ office@broomservice.co.il",
             ],
 
             [
-                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS,
-                'description' => 'Send notification to client after 3 days without answer',
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_1_DAY,
+                'description' => 'Send notification to client after 1 days without answer',
                 'message_en' => "Hello, *:client_name*
 
 We just wanted to remind you that we haven’t been able to reach you regarding your inquiry.
@@ -3494,8 +3494,8 @@ office@broomservice.co.il
             ],
 
             [
-                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS,
-                'description' => 'Send notification to client after 7 days without answer',
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS,
+                'description' => 'Send notification to client after 3 days without answer',
                 'message_en' => "Hello, *:client_name*
 
 Following your inquiry, we haven’t been able to reach you yet.
@@ -3543,8 +3543,8 @@ office@broomservice.co.il
             ],
 
             [
-                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS,
-                'description' => 'Send notification to client after 8 days without answer',
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_4_DAYS,
+                'description' => 'Send notification to client after 4 days without answer',
                 'message_en' => "Hello, *:client_name*
 
 Following your inquiry, we haven’t been able to reach you so far.
