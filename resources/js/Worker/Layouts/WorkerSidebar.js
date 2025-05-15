@@ -26,33 +26,47 @@ export default function WorkerSidebar() {
     const getProtocol = async () => {
         try {
             const res = await axios.get(`/api/protocol?worker_id=${workerId}`, { headers });
-            // console.log(res.data, "res");
             if (res.status === 200) {
                 setProtocol(true);
+                localStorage.setItem("worker-protocol", "true");
             }
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setProtocol(false);
-            } else {
-                setProtocol(false);
-            }
+            setProtocol(false);
+            localStorage.setItem("worker-protocol", "false");
         }
     };
 
     const getHiring = async () => {
-        const res2 = await axios.get(`/api/schedule`, { headers });
-        if (res2.data?.data?.length > 0) {
-            setHearing(true);
-        } else {
-            setHearing(false)
+        try {
+            const res2 = await axios.get(`/api/schedule`, { headers });
+            const hasData = res2.data?.data?.length > 0;
+            setHearing(hasData);
+            localStorage.setItem("worker-hearing", hasData ? "true" : "false");
+        } catch (err) {
+            setHearing(false);
+            localStorage.setItem("worker-hearing", "false");
         }
-    }
+    };
+
 
 
     useEffect(() => {
-        getProtocol();
-        getHiring();
+        const cachedProtocol = localStorage.getItem("worker-protocol");
+        const cachedHearing = localStorage.getItem("worker-hearing");
+
+        if (cachedProtocol !== null) {
+            setProtocol(cachedProtocol === "true");
+        } else {
+            getProtocol();
+        }
+
+        if (cachedHearing !== null) {
+            setHearing(cachedHearing === "true");
+        } else {
+            getHiring();
+        }
     }, [workerId]);
+
 
     const HandleLogout = async (e) => {
         await axios.post("/api/logout", {}, { headers }).then((res) => {
@@ -133,7 +147,7 @@ export default function WorkerSidebar() {
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/tasks">
-                    <i className="fa-solid fa-list-check"></i>
+                        <i className="fa-solid fa-list-check"></i>
                         {t("worker.sidebar.tasks")}
                     </NavLink>
                 </li>
@@ -158,7 +172,7 @@ export default function WorkerSidebar() {
                 <li className="list-group-item">
                     <NavLink to="/worker/tutorial">
                         <i className="fa-solid fa-user"></i>
-                        Tutorials
+                        {t("worker.tutorials")}
                     </NavLink>
                 </li>
             </ul>

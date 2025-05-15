@@ -1703,6 +1703,8 @@
             "payments": "Платежи",
             "earnings": "Заработок",
             "notification": "Уведомления",
+            "tutorials": "уроки",
+            "list_of_videos": "Список видео",
             "settings": {
                 "title": "Настройки",
                 "manage_team": "Управление командой",

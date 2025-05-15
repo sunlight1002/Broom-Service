@@ -91,8 +91,8 @@ const CustomVideoPlayer = ({ src }) => {
 
             {/* Custom Controls */}
             <div className="custom-controls row m-0 pb-2">
-                <div className="progress-bar-container col-12 col-md-7 mt-3">
-                    <div className='d-flex justify-content-between align-items-center ml-3 w-100'>
+                <div className="progress-bar-container col-12 col-md-7 mt-3 px-3">
+                    <div className='d-flex justify-content-between align-items-center w-100'>
                         <span className="progress-time">{formatTime(progress)}</span>
                         <span className="progress-time">{formatTime(duration)}</span>
                     </div>
@@ -103,7 +103,7 @@ const CustomVideoPlayer = ({ src }) => {
                         value={progress}
                         step="0.01"
                         onChange={handleProgressChange}
-                        className="progress-bar mx-3 my-1"
+                        className="progress-bar my-1"
                         style={{
                             '--progress': `${(progress / duration) * 100}%`
                         }}

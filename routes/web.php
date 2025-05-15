@@ -47,6 +47,7 @@ Route::any('/twilio/webhook', [LeadWebhookController::class, 'fbWebhookCurrentLi
 
 
 Route::any('/whapi-group', [LeadWebhookController::class, 'whapiGroup']);
+Route::any('/whapi-pending-request', [LeadWebhookController::class, 'whapiPendingRequest']);
 Route::any('/twilio/status-callback', [LeadWebhookController::class, 'statusCallback']);
 
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);

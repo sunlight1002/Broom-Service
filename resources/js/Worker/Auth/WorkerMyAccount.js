@@ -362,6 +362,12 @@ export default function WorkerMyAccount() {
                                         <option value="en">
                                             {t("worker.settings.English")}
                                         </option>
+                                        <option value="ru">
+                                            Russian
+                                        </option>
+                                        {/* <option value="spa">
+                                            Spanish
+                                        </option> */}
                                     </select>
                                 </div>
                             </div>
@@ -589,7 +595,7 @@ export default function WorkerMyAccount() {
                                         ref={elementsRef.current[index]}
                                         type="checkbox"
                                         className="mx-2"
-                                        style={{height: "auto"}}
+                                        style={{ height: "auto" }}
                                         name={item.key}
                                         value={item.key}
                                     />

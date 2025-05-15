@@ -2077,7 +2077,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXd2938634aead6ea78c061e646fe842ff" :"HX27fb48c040eb82000bee49889456372e";
+                        $sid = $lng == "heb" ? "HX21394a2e7d50529efe397629f74c02cc" :"HX4426be78542a3b79ad4e47d77747423a";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+". $receiverNumber,
@@ -2557,7 +2557,7 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber, 
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
-                                    "1" => $property_person_name,
+                                    "1" => $property_person_name ?? '',
                                     "2" => $offerData['service_names'] ?? '',
                                     "3" => "price-offer/" . base64_encode($offerData['id'])
                                 ]),

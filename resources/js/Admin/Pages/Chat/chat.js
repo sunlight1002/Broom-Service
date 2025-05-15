@@ -19,7 +19,6 @@ export default function chat({
     workerLead = false
 }) {
 
-    const param = useParams();
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
@@ -43,10 +42,6 @@ export default function chat({
     const [emoji, setEmoji] = useState(false)
     const [waMedia, setWaMedia] = useState(false)
     const [selectedFile, setSelectedFile] = useState({})
-    const [allLeads, setAllLeads] = useState([]);
-    // const [leadId, setLeadId] = useState(null)
-    const [number, setNumber] = useState(null)
-    const [newChat, setNewChat] = useState(false)
     const [loading, setLoading] = useState(false)
     const [lead, setLead] = useState(false)
     const [client, setClient] = useState(true)
@@ -63,11 +58,6 @@ export default function chat({
         end_date: "",
     });
     const [isSearching, setIsSearching] = useState(false);
-
-    const [leadPage, setLeadPage] = useState(1);
-    const [leadHasMore, setLeadHasMore] = useState(true);
-    const [LeadLoading, setLeadLoading] = useState(false);
-    const [unread, setUnread] = useState(false);
     const [activeTab, setActiveTab] = useState({
         all: true,
         unread: false,
@@ -481,6 +471,19 @@ export default function chat({
         }
     };
 
+    const getLink = (id) => {
+        if (activeTab.lead) {
+            return `/admin/leads/view/${id}`;
+        } else if (activeTab.client) {
+            return `/admin/clients/view/${id}`;
+        } else if (activeTab.worker) {
+            return `/admin/workers/view/${id}`;
+        }else if (workerLead) {
+            return `/admin/worker-leads/view/${id}`;
+        }
+        return '#'; // fallback if no tab is active
+    };
+
 
     const clientsCard = data
         .map((d, i) => {
@@ -539,13 +542,7 @@ export default function chat({
                                         cursor: "pointer",
                                     }}
                                 >
-                                    <Link
-                                        to={
-                                            cd.client == 1
-                                                ? `/admin/clients/view/${cd.id}`
-                                                : `/admin/leads/view/${cd.id}`
-                                        }
-                                    >
+                                    <Link to={getLink(cd.id)}>
                                         {cd.name}
                                     </Link>
                                 </h5>

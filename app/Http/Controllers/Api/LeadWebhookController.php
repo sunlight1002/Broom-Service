@@ -200,31 +200,7 @@ Broom Service Team 🌹",
         $data = $request->all();
     
         Log::info('Twilio Callback Data:'. PHP_EOL, $data);
-    
-        // Extract MessageSid
-        $messageSid = $data['MessageSid'] ?? null;
-    
-        // if ($messageSid) {
-        //     try {
-        //         // Fetch the original message details
-        //         $message = $this->twilio->messages($messageSid)->fetch();
-    
-        //         Log::info('Fetched Message Body:'. PHP_EOL, ['body' => $message->body]);
-    
-        //         // Optionally: store or update in your database
-        //         // Example:
-        //         // Message::updateOrCreate(
-        //         //     ['sid' => $message->sid],
-        //         //     ['body' => $message->body, 'status' => $data['MessageStatus']]
-        //         // );
-    
-        //     } catch (\Exception $e) {
-        //         Log::error('Error fetching message from Twilio:', ['error' => $e->getMessage()]);
-        //     }
-        // } else {
-        //     Log::warning('No MessageSid found in Twilio callback.');
-        // }
-    
+       
         return response()->json(['status' => 'success'], 200);
     }
 
@@ -500,6 +476,129 @@ Broom Service Team 🌹",
 
     }
 
+    public function whapiPendingRequest(Request $request)
+    {
+        // Check if request content is JSON (likely from Whapi)
+        $content = $request->getContent();
+        $data = json_decode($content, true);
+        $messageId = $data['messages'][0]['id'] ?? null;
+
+        if (!$messageId) {
+            \Log::info('Invalid message data');
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('pending_processed_message_' . $messageId) === $messageId) {
+            \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+
+        // Store the messageId in the cache for 1 hour
+        Cache::put('pending_processed_message_' . $messageId, $messageId, now()->addHours(1));
+
+        $message_data = $data['messages'];
+        $from = $message_data[0]['from'];
+        $input = $data['messages'][0]['text']['body'] ?? "";
+
+        $client = Client::where('phone', $from)->first();
+
+        $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
+
+        $last_menu = null;
+        $send_menu = null;
+        if ($clientMessageStatus) {
+            $lng = $clientMessageStatus->lng ?? 'heb';
+            $menu_option = explode('->', $clientMessageStatus->menu_option);
+            $last_menu = end($menu_option);
+        }
+
+        if ($last_menu == 'team_send_message' && trim($input) == '1') {
+            $send_menu = 'team_send_message_1';
+        } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
+            $send_menu = 'client_add_request';
+        }
+
+        switch($send_menu){
+             case 'team_send_message_1':
+                \Log::info('team_send_message_1');
+                $text = [
+                    "en" => "Hello :client_name,
+Please let us know what additional information or request you would like to add.",
+                    "heb" => "שלום :client_name,
+אנא עדכן אותנו מה ברצונך להוסיף או לבקש."
+                ];
+
+                $nextMessage = $text[$lng];
+                $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+
+                $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+                sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                WhatsAppBotActiveClientState::updateOrCreate(
+                    ["from" => $from],
+                    [
+                        "from" => $from,
+                        'menu_option' => 'team_send_message_1'
+                    ]
+                );
+
+                WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'entry_id'      => $messageId,
+                    'message'       => $personalizedMessage ?? '',
+                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                    'number'        => $from,
+                    'flex'          => 'A',
+                    'read'          => 1,
+                    // 'data'          => json_encode($twi->toArray()),
+                ]);
+
+                break;
+
+            case "client_add_request":
+                $text = [
+                    "en" => "Hello :client_name,
+We’ve received your updated request:
+':client_message'
+Your message has been forwarded to the team for further handling. Thank you for your patience!",
+                    "heb" => "שלום :client_name,
+קיבלנו את עדכון הבקשה שלך:
+':client_message'
+ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                ];
+
+                $nextMessage = $text[$lng];
+                $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+
+                $personalizedMessage = str_replace([':client_name', ':client_message'], [$clientName, '*' . trim($input) . '*'], $nextMessage);
+                sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'entry_id'      => $messageId,
+                    'message'       => $personalizedMessage,
+                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                    'number'        => $from,
+                    'flex'          => 'A',
+                    'read'          => 1,
+                    // 'data'          => json_encode($twi->toArray()),
+                ]);
+
+
+                $scheduleChange = new ScheduleChange();
+                $scheduleChange->user_type = get_class($client);
+                $scheduleChange->user_id = $client->id;
+                $scheduleChange->reason = $lng == "en" ? "additional information" : 'מידע נוסף';
+                $scheduleChange->comments = $input;
+                $scheduleChange->save();
+                $clientMessageStatus->delete();
+
+                break;
+        }
+    }
 
     public function fbWebhookCurrentLive(Request $request)
     {

@@ -2207,6 +2207,8 @@
         "statusRejected": "Rejected",
         "worker_refund": "Worker Refund",
         "thankyou": "Thank you for your confirmation...",
+        "tutorials": "Tutorials",
+        "list_of_videos": "List of videos",
         "common": {
             "meetings": "Meetings"
         },

@@ -88,7 +88,8 @@ class LeadController extends Controller
                 'latest_lead_activity.reason',
                 'latest_lead_activity.reschedule_date',
                 'latest_lead_activity.reschedule_time'
-            );
+            )
+            ->groupBy('clients.id');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {

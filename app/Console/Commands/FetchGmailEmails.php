@@ -147,16 +147,21 @@ class FetchGmailEmails extends Command
 
                                 $body = '';
                             if ($payload->getBody()->getSize() > 0) {
-                                $body = base64_decode(str_replace(['-', '_'], ['+', '/'], $payload->getBody()->getData()));
+                                $rawBody = base64_decode(str_replace(['-', '_'], ['+', '/'], $payload->getBody()->getData()));
+                                $body = strip_tags($rawBody); // Strip HTML if any
                             } else {
                                 $parts = $payload->getParts();
                                 foreach ($parts as $part) {
-                                    if ($part['mimeType'] === 'text/plain' && !in_array($part['mimeType'], ['text/html','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'])) {
-                                        $body = base64_decode(str_replace(['-', '_'], ['+', '/'], $part['body']['data']));
+                                    $mimeType = $part['mimeType'];
+                                    // Only allow text/plain and skip known other types
+                                    if ($mimeType === 'text/plain' || $mimeType === 'text/html') {
+                                        $rawBody = base64_decode(str_replace(['-', '_'], ['+', '/'], $part['body']['data']));
+                                        $body = ($mimeType === 'text/html') ? strip_tags($rawBody) : $rawBody;
                                         break;
                                     }
                                 }
                             }
+
                             preg_match('/\b\d{10}\b/', $body, $matches);
                             $phoneNumber = $matches[0] ?? null;
 

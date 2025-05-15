@@ -404,34 +404,33 @@ The Broom Service Team 🌹",
         // \Log::info($scheduleChange);
 
         $lng = $scheduleChange->user->lng;
-        \Log::info($lng);
         $from = $scheduleChange->user->phone;
         $team_reason = $request->reason;
         $team_message = $request->message;
-        $clientName = "*" . ($scheduleChange->user->firstname ?? '') . ' ' . ($scheduleChange->user->lastname ?? '') . "*";
+        $clientName = "*" . trim(trim($scheduleChange->user->firstname ?? '') . ' ' . trim($scheduleChange->user->lastname ?? '')) . "*";
 
         $nextMessage = $message[$lng];
         $personalizedMessage = str_replace([':client_name', ':team_reason', ':team_message'], [$clientName, $team_reason, $team_message], $nextMessage);
         // \Log::info($personalizedMessage);
-        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
-        $sid = $lng == "heb" ? "HXbac97d19ae31997868024e04057b1c9e" : "HX8b65fe4cfaf8858031df30829033f8a7";
+        // $sid = $lng == "heb" ? "HXbac97d19ae31997868024e04057b1c9e" : "HX8b65fe4cfaf8858031df30829033f8a7";
 
-            $message = $twilio->messages->create(
-                "whatsapp:+$from",
-                [
-                    "from" => "$twilioWhatsappNumber", 
-                    "contentSid" => $sid,
-                    "contentVariables" => json_encode([
-                        "1" => $clientName,
-                        "2" => $team_reason,
-                        "3" => $team_message
-                    ]) 
-                ]
-            );
-            \Log::info($message->sid);
+        //     $message = $twilio->messages->create(
+        //         "whatsapp:+$from",
+        //         [
+        //             "from" => "$twilioWhatsappNumber", 
+        //             "contentSid" => $sid,
+        //             "contentVariables" => json_encode([
+        //                 "1" => $clientName,
+        //                 "2" => $team_reason,
+        //                 "3" => $team_message
+        //             ]) 
+        //         ]
+        //     );
+        //     \Log::info($message->sid);
         
-            StoreWebhookResponse($message->body ?? '', $from, $message->toArray());
+            StoreWebhookResponse($personalizedMessage ?? '', $from, null);
 
         $clientState = WhatsAppBotActiveClientState::where('from', $from)->first();
         if ($clientState) {
