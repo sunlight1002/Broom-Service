@@ -58,9 +58,9 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $query = Client::query()
+        $query = Client::with('property_addresses')
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
-            ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
+            // ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
             ->leftJoinSub(
                 LeadActivity::select('lead_activities.client_id', 'lead_activities.reason', 'lead_activities.reschedule_date', 'lead_activities.reschedule_time')
                     ->whereNotNull('reschedule_date')
@@ -83,8 +83,8 @@ class LeadController extends Controller
                 'clients.phone',
                 'leadstatus.lead_status',
                 'clients.created_at',
-                'client_property_addresses.address_name',
-                'client_property_addresses.geo_address',
+                // 'client_property_addresses.address_name',
+                // 'client_property_addresses.geo_address',
                 'latest_lead_activity.reason',
                 'latest_lead_activity.reschedule_date',
                 'latest_lead_activity.reschedule_time'
@@ -103,8 +103,12 @@ class LeadController extends Controller
                                 ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.invoicename', 'like', "%" . $keyword . "%")
                                 ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%")
-                                ->orWhere('client_property_addresses.address_name', 'like', "%" . $keyword . "%")
-                                ->orWhere('client_property_addresses.geo_address', 'like', "%" . $keyword . "%");
+                                ->orWhereHas('property_addresses', function ($query) use ($keyword) {
+                                    $query->where('address_name', 'like', "%" . $keyword . "%")
+                                        ->orWhere('geo_address', 'like', "%" . $keyword . "%");
+                                });
+                                // ->orWhere('client_property_addresses.address_name', 'like', "%" . $keyword . "%")
+                                // ->orWhere('client_property_addresses.geo_address', 'like', "%" . $keyword . "%");
                         });
                     }
                 }
