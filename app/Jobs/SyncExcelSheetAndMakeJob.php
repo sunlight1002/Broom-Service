@@ -221,7 +221,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                     
 
-                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-21'))) {
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-05-11'))) {
                         $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -910,20 +910,77 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
-                \Log::info('tMinutes: ' . $tMinutes);
-                if (
-                    ($jobData->actual_time_taken_minutes && $jobData->actual_time_taken_minutes != $tMinutes) ||
-                    (!$jobData->actual_time_taken_minutes && $jobData->jobService->duration_minutes != $tMinutes)
+
+                if (trim($row[23]) === "h" && 
+                    $jobData->actual_time_taken_minutes && 
+                    $jobData->actual_time_taken_minutes != $tMinutes
                 ) {
-                \Log::info('actual_time_taken_minutes: ' . $jobData->actual_time_taken_minutes);
+                    // Update the actual time and recalculate amount
                     $jobData->actual_time_taken_minutes = $tMinutes;
                     $jobData->save();
+                    
                     $this->updateJobAmount($jobData->id);
+                    $jobData->refresh();
 
-                    if (isset($jobData->order) && $jobData->order->total_amount != $jobData->total_amount) {
-                        $order = $jobData->order;
-                        \Log::info($order);
-                            if ($order->status == 'Closed') {
+                    $order = $jobData->order;
+
+                    \Log::info($jobData->order->total_amount . ' != ' . $jobData->total_amount);
+
+                    // Check and update the order if needed
+                    if ($jobData->order && $jobData->order->total_amount != $jobData->total_amount) {
+                        
+                        \Log::info('Order before cancellation: ', $order->toArray());
+
+                        if ($order->status === 'Closed') {
+                            return response()->json([
+                                'message' => 'Job order is already closed',
+                            ], 403);
+                        }
+
+                        $closeDocResponse = $this->cancelICountDocument(
+                            $order->order_id,
+                            'order',
+                            'Creating another order'
+                        );
+
+                        if (!($closeDocResponse['status'] ?? false)) {
+                            return response()->json([
+                                'message' => $closeDocResponse['reason'] ?? 'Unknown error while cancelling order'
+                            ], 500);
+                        }
+
+                        $order->update(['status' => 'Cancelled']);
+
+                        echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL;
+
+                        // Reset job ordering info
+                        $jobData->isOrdered = 'c';
+                        $jobData->order_id = null;
+                        $jobData->is_order_generated = false;
+                        $jobData->save();
+
+                        // Create a new job order immediately
+                        CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                        $jobData->refresh();
+
+                        // Update sheet with new link
+                        $orderId = $jobData->order->order_id ?? null;
+                        if ($orderId) {
+                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}";
+                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                            echo "Row: {$rowCount} New job order created: {$link}" . PHP_EOL . PHP_EOL;
+                        }
+                    }
+                }
+
+
+                if(trim($row[23]) == "f") {
+                   $order = isset($jobData->order) ? $jobData->order : null;
+                   if($order && $order->total_amount != $jobData->total_amount) {
+                       $this->updateJobAmount($jobData->id);
+                       $jobData->refresh();
+                       
+                        if ($order->status == 'Closed') {
                                 return response()->json([
                                     'message' => 'Job order is already closed',
                                 ], 403);
@@ -942,6 +999,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             }
             
                             $order->update(['status' => 'Cancelled']);
+
+                            echo "Row: {$rowCount} Job order is cancelled. {https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId}" . PHP_EOL . PHP_EOL . PHP_EOL;
             
                             $order->jobs()->update([
                                 'isOrdered' => 'c',
@@ -957,14 +1016,14 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
                                 $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
                             }
-                    }
 
+                            echo "Row: {$rowCount} Job order is already cancelled. Creating another order {$link}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                   }
                 }
-
-                if($tMinutes != $jobData->actual_time_taken_minutes) {
-                    $jobData->actual_time_taken_minutes = $tMinutes;
-                    $jobData->save();
-                }
+                // if($tMinutes != $jobData->actual_time_taken_minutes) {
+                //     $jobData->actual_time_taken_minutes = $tMinutes;
+                //     $jobData->save();
+                // }
                 $selectedAddress = $row[19] ?? null;
                 $selectedOffer = is_array($jobData->offer_service)
                 ? $jobData->offer_service
