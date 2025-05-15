@@ -707,6 +707,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $subServices        = $selectedOfferData['sub_services'] ?? [];
             $subServicesId      = $subServices['id'] ?? null;
             $subServicesAddress = $subServices['address'] ?? null;
+            $type               = $selectedOfferData['type'] ?? null;
+            $workerJobHours     = $selectedOfferData['workers'][0]['jobHours'] ?? null;
 
             $jobData = null;
 
@@ -715,18 +717,32 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
             ->first();
             
-            // if (!$worker || !in_array($worker->id, ['209','185', '67'])) {
-            //     echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
-            //     return [
-            //         "job_cancel_id" => $jobData ? $jobData->id : null
-            //     ];
-            // }
+            if (!$worker) {
+                echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
+                return;
+            }
 
-            if (!empty($row[20])) {
-                $jobData = Job::with('workerShifts')
-                        ->where('id', trim($row[20]))
-                        ->where('client_id', $client->id)
-                        ->first();
+             $jobData = Job::where('offer_id', $offer->id)
+                    ->where('start_date', $currentDate)
+                    ->where('client_id', $client->id)
+                    ->whereHas('contract', function ($q) {
+                        $q->where('status', 'verified');
+                    })
+                    ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
+                    ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
+                    ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
+                    ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
+                    ->when(
+                        (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
+                        fn($q) => $q->where('offer_service->address', $address)
+                    )
+                    ->first();
+
+            // if (!empty($row[20])) {
+                // $jobData = Job::with('workerShifts')
+                //         ->where('id', trim($row[20]))
+                //         ->where('client_id', $client->id)
+                //         ->first();
 
                         // dd($jobData . " ". $client->id);
 
@@ -744,14 +760,14 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     foreach ($jobData->workerShifts as $shift) {
                         $originalStart = $shift->starting_at;
                         $originalEnd = $shift->ending_at;
-            
-                        $startTime = Carbon::parse($originalStart)->format('H:i:s');
-                        $endTime = Carbon::parse($originalEnd)->format('H:i:s');
-            
+
+                        // Safely extract the time portion
+                        $startTime = Carbon::parse($originalStart)->toTimeString();
+                        $endTime = Carbon::parse($originalEnd)->toTimeString();
+
                         $newStart = "{$currentDate} {$startTime}";
                         $newEnd = "{$currentDate} {$endTime}";
-            
-                        // Update only if the date part is different
+
                         if (
                             Carbon::parse($originalStart)->toDateString() !== $currentDate ||
                             Carbon::parse($originalEnd)->toDateString() !== $currentDate
@@ -759,40 +775,43 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             $shift->starting_at = $newStart;
                             $shift->ending_at = $newEnd;
                             $shift->save();
-            
+
                             \Log::info("Updated shift for Job ID {$jobData->id} - Shift ID {$shift->id}: {$newStart} to {$newEnd}");
                         }
                     }
                 }
+
             
                 \Log::info($jobData);
-            }
+            // }
             
 
-            if(!$jobData){
-                // Build the job query with JSON conditions
-                $jobData = Job::where('offer_id', $offer->id)
-                    ->where('start_date', $currentDate)
-                    ->where('client_id', $client->id)
-                    ->whereHas('contract', function ($q) {
-                        $q->where('status', 'verified');
-                    })
-                    ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
-                    ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
-                    ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
-                    ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
-                    ->when(
-                        (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
-                        fn($q) => $q->where('offer_service->address', $address)
-                    )
-                    ->first();
-            }
+            // if(!$jobData){
+            //     // Build the job query with JSON conditions
+            //     $jobData = Job::where('offer_id', $offer->id)
+            //         ->where('start_date', $currentDate)
+            //         ->where('client_id', $client->id)
+            //         ->whereHas('contract', function ($q) {
+            //             $q->where('status', 'verified');
+            //         })
+            //         ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
+            //         ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
+            //         ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
+            //         ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
+            //         ->when(
+            //             (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
+            //             fn($q) => $q->where('offer_service->address', $address)
+            //         )
+            //         ->first();
+            // }
 
                 
             $tMinutes = 0;
-
+            \Log::info($workerJobHours. " ". $type);
             // Calculate job duration based on row[13]
-            $durationRaw = $row[13] ?? 0;
+            // $durationRaw = $row[13] ?? 0;
+            $durationRaw = trim($row[23]) == "h" ? (!empty($row[14]) ? trim($row[14]) : $workerJobHours) : trim($row[13]);
+            \Log::info($durationRaw);
             $durationRaw = str_replace(',', '.', $durationRaw);
 
             // Check if input contains '+'
@@ -1137,16 +1156,21 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $day = $daysMap[$day] ?? $day;
             }
 
-            // Determine worker's starting time based on any existing jobs on the current date
-            $hasJob = $worker->jobs()->where('start_date', $currentDate)->get();
-            if ($hasJob->isNotEmpty()) {
-                foreach ($hasJob as $job) {
-                    if ($job->end_time) {
-                        $startTime = $job->end_time;
-                        break;
+           if ($worker) {
+                // Determine worker's starting time based on any existing jobs on the current date
+                $hasJob = $worker->jobs()->where('start_date', $currentDate)->get();
+                if ($hasJob->isNotEmpty()) {
+                    foreach ($hasJob as $job) {
+                        if ($job->end_time) {
+                            $startTime = $job->end_time;
+                            break;
+                        }
                     }
                 }
+            } else {
+                Log::warning("Worker is null when checking jobs for date: {$currentDate}");
             }
+
             if (!$startTime) {
                 $shiftMapping = [
                     "Morning"    => "08:00:00",
@@ -1233,9 +1257,11 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             $status          = JobStatusEnum::SCHEDULED;
             $statusCompleted = JobStatusEnum::COMPLETED;
-            if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $worker->id)) {
-                \Log::info("Job time is conflicting with another job. Job will be unscheduled.");
-                $status = JobStatusEnum::UNSCHEDULED;
+            if($worker){
+                    if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $worker->id)) {
+                    \Log::info("Job time is conflicting with another job. Job will be unscheduled.");
+                    $status = JobStatusEnum::UNSCHEDULED;
+                }
             }
 
             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
