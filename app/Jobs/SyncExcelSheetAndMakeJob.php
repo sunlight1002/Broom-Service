@@ -722,7 +722,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 return;
             }
 
-             $jobData = Job::where('offer_id', $offer->id)
+            $jobData = Job::where('offer_id', $offer->id)
                     ->where('start_date', $currentDate)
                     ->where('client_id', $client->id)
                     ->whereHas('contract', function ($q) {
@@ -737,6 +737,17 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         fn($q) => $q->where('offer_service->address', $address)
                     )
                     ->first();
+
+            if($worker && $jobData && $worker->id != $jobData->worker_id){
+                $jobData->worker_id = $worker->id;
+                $jobData->previous_worker_id = $jobData->worker_id;
+                $jobData->previous_worker_after = null;
+                $jobData->save();
+            }
+
+            if($jobData && $jobData->total_amount){
+                $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+            }
 
             // if (!empty($row[20])) {
                 // $jobData = Job::with('workerShifts')
@@ -810,7 +821,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             \Log::info($workerJobHours. " ". $type);
             // Calculate job duration based on row[13]
             // $durationRaw = $row[13] ?? 0;
-            $durationRaw = trim($row[23]) == "h" ? (!empty($row[14]) ? trim($row[14]) : $workerJobHours) : trim($row[13]);
+            $durationRaw = $type == "hourly" ? (!empty($row[14]) ? trim($row[14]) : $workerJobHours) : $workerJobHours;
             \Log::info($durationRaw);
             $durationRaw = str_replace(',', '.', $durationRaw);
 
@@ -905,6 +916,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     
                     CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
                     $jobData->refresh();
+                    $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
                     $orderId = $jobData->order ? $jobData->order->order_id : null;
 
                     if($orderId) {
@@ -920,14 +933,18 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         $this->updateJobAmount($jobData->id);
                         $jobData->refresh();
 
-                        if(isset($jobData->order)) {
-                            $orderId = $jobData->order ? $jobData->order->order_id : null;
-                            if($orderId) {
-                                $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
-                                $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                            }              
+                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+                        if(!isset($jobData->order)) {
+                            CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                            $jobData->refresh();
                         }
-                    }
+                        $orderId = $jobData->order ? $jobData->order->order_id : null;
+                        if($orderId) {
+                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                        } 
+                    }   
                 }
 
                 if (trim($row[23]) === "h" && 
@@ -981,6 +998,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         // Create a new job order immediately
                         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
                         $jobData->refresh();
+                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
 
                         // Update sheet with new link
                         $orderId = $jobData->order->order_id ?? null;
@@ -1029,6 +1048,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                             CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
                             $jobData->refresh();
+
+                            $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
                             $orderId = $jobData->order ? $jobData->order->order_id : null;
 
                             if($orderId) {
@@ -1334,6 +1356,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 'job_group_id'  => $jobGroupID,
                 'parent_job_id' => $parentJob->id
             ]);
+
+            $this->updateColumnInRow(($index + 1), "D", $total_amount, $sheet);
+
 
             foreach ($mergedContinuousTime as $slot) {
                 $job->workerShifts()->create($slot);
