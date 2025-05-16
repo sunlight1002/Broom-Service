@@ -31,6 +31,7 @@ export default function EditClient() {
     const [vatNumber, setVatNumber] = useState("");
     const [loading, setLoading] = useState(false);
     const [disableNotification, setDisableNotification] = useState(false)
+    const [icountId, setIcountId] = useState(null);
 
     const alert = useAlert();
     const params = useParams();
@@ -99,6 +100,7 @@ export default function EditClient() {
             disable_notification: disableNotification,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
+            icount_client_id: icountId
         };
 
         axios
@@ -149,6 +151,7 @@ export default function EditClient() {
                 setVatNumber(response.data.client.vat_number);
                 setAddresses(response.data.client.property_addresses);
                 setDisableNotification(response.data.client.disable_notification == 1 ? true : false);
+                setIcountId(response.data?.client?.icount_client_id ?? null);
                 response.data.client.extra != null
                     ? setExtra(JSON.parse(response.data.client.extra))
                     : setExtra([{ email: "", name: "", phone: "" }]);
@@ -383,19 +386,35 @@ export default function EditClient() {
                                                 <option value="en">English</option>
                                             </select>
                                         </div>
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                                Icount client ID
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={icountId}
+                                                onChange={(e) =>
+                                                    setIcountId(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Icount client ID"
+                                                autoComplete="vat-number"
+                                            />
+                                        </div>
                                         <div className="form-group d-flex align-items-center justify-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "10rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "10rem" }}>
                                                 Disabled Notification
                                             </label>
                                             <input
                                                 type="checkbox"
                                                 checked={disableNotification}
-                                                onChange={() => setDisableNotification(prev=> !prev)}
+                                                onChange={() => setDisableNotification(prev => !prev)}
                                             />
                                         </div>
                                     </div>
                                     <div className="col">
-                                    <div className="form-group d-flex align-items-center">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PrimaryPhone")} *
                                             </label>
@@ -408,7 +427,7 @@ export default function EditClient() {
                                                         const dialCode = country.dialCode;
                                                         let formattedPhone = phone;
                                                         if (phone.startsWith(dialCode + '0')) {
-                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                         }
                                                         setPhone(formattedPhone);
                                                     }}
@@ -540,7 +559,7 @@ export default function EditClient() {
 
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.VatNumber")}
+                                                {t("admin.leads.AddLead.VatNumber")}
                                             </label>
                                             <input
                                                 type="text"
@@ -790,7 +809,7 @@ export default function EditClient() {
                                                                         const dialCode = country.dialCode;
                                                                         let formattedPhone = phone;
                                                                         if (phone.startsWith(dialCode + '0')) {
-                                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                                         }
                                                                         handleAlternatePhone(i, formattedPhone)
                                                                     }}
@@ -824,7 +843,7 @@ export default function EditClient() {
                                                             ) : (
                                                                 <>
                                                                     <button
-                                                                    style={{ fontSize: "24px", color: "#2F4054", padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px" }}
+                                                                        style={{ fontSize: "24px", color: "#2F4054", padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px" }}
                                                                         className="mt-25 btn"
                                                                         onClick={(
                                                                             e

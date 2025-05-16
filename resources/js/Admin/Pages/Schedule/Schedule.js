@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Button, Modal } from "react-bootstrap";
+
 import axios from "axios";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useAlert } from "react-alert";
 
 import $ from "jquery";
 import "datatables.net";
@@ -21,6 +24,10 @@ export default function Schedule() {
     const [isLoading, setIsLoading] = useState(false);
     const [filter, setFilter] = useState("All");
     const tableRef = useRef(null);
+    const [statusModal, setStatusModal] = useState(false)
+    const [selectedMeetingId, setSelectedMeetingId] = useState(null)
+    const [status, setStatus] = useState("");
+    const alert = useAlert();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -35,6 +42,34 @@ export default function Schedule() {
         t("admin.schedule.options.meetingStatus.rescheduled"),
     ];
 
+    const statusArr = {
+        "pending": t("admin.schedule.options.meetingStatus.Pending"),
+        "confirmed": t("admin.schedule.options.meetingStatus.Confirmed"),
+        "completed": t("admin.schedule.options.meetingStatus.Completed"),
+        "declined": t("admin.schedule.options.meetingStatus.Declined"),
+        // "rescheduled": t("admin.schedule.options.meetingStatus.rescheduled"),
+    };
+
+    const handleModal = (id, status) => {
+        if(status != "rescheduled") {
+            setStatus(status)
+        }
+        setSelectedMeetingId(id);
+        setStatusModal(true);
+    };
+
+    const handleUpdateStatus = async () => {
+        try {
+            const res = await axios.put(`/api/admin/change-schedule-status/${selectedMeetingId}`, { status }, { headers });
+            if (res.status === 200) {
+                setStatusModal(false);
+                alert.success(res?.data?.message);
+                $(tableRef.current).DataTable().draw();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -97,11 +132,11 @@ export default function Schedule() {
                         data: "address_name",
                         render: function (data, type, row, meta) {
                             if (data) {
-                                if(row.latitude && row.longitude){
+                                if (row.latitude && row.longitude) {
                                     return `<a href="https://maps.google.com/?q=${row.latitude},${row.longitude}" target="_blank" style="color: black; text-decoration: underline;">
                                     ${row.city ? row.city + ", " : ""} ${data}
                                 </a>`;
-                                }else{
+                                } else {
                                     return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${row.city ? row.city + ", " : ""} ${data} </a>`;
                                 }
                             } else {
@@ -127,7 +162,7 @@ export default function Schedule() {
                             }
 
                             // return `<span style="color: ${color};">${data}</span>`;
-                            return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return `<p class="dt-meeting-status" data-id="${row.id}" data-status="${data}" style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                                         ${data}
                                     </p>`;
                         },
@@ -211,6 +246,7 @@ export default function Schedule() {
                     !e.target.closest(".dropdown-menu") &&
                     !e.target.closest(".dt-client-link") &&
                     !e.target.closest(".dt-address-link") &&
+                    !e.target.closest(".dt-meeting-status") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -222,7 +258,8 @@ export default function Schedule() {
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
                     !e.target.closest(".dt-client-link") &&
-                    !e.target.closest(".dt-address-link")
+                    !e.target.closest(".dt-address-link") &&
+                    !e.target.closest(".dt-meeting-status")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                     _clientID = $(e.target)
@@ -258,6 +295,12 @@ export default function Schedule() {
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
             handleDelete(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-meeting-status", function () {
+            const _id = $(this).data("id");
+            const _status = $(this).data("status");
+            handleModal(_id, _status);
         });
 
 
@@ -393,6 +436,59 @@ export default function Schedule() {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                size="md"
+                className="modal-container"
+                show={statusModal}
+                onHide={() => setStatusModal(false)}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Change Status</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">{t("global.status")}</label>
+
+                                <select
+                                    name="status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    value={status}
+                                    className="form-control mb-3"
+                                >
+                                    <option value="">---select status---</option>
+                                    {Object.keys(statusArr).map((s) => (
+                                        <option key={s} value={s}>
+                                            {statusArr[s]}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setStatusModal(false)}
+                    >
+                        {t("modal.close")}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={handleUpdateStatus}
+                        className="btn btn-primary"
+                    >
+                        {t("global.send")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
             <FullPageLoader visible={isLoading} />
         </div>

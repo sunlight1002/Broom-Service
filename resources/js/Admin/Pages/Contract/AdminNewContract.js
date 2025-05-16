@@ -3,7 +3,7 @@ import i18next from "i18next";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import companySign from "../../../Assets/image/company-sign.png";
@@ -32,6 +32,7 @@ export default function AdminNewContract() {
         status: "active client",
         id: "",
     });
+    const navigate = useNavigate();
 
     const { t } = useTranslation();
     const params = useParams();
@@ -125,8 +126,9 @@ export default function AdminNewContract() {
             .then(async (response) => {
                 Swal.fire("Added!", response?.data?.message, "success");
                 setTimeout(() => {
-                    window.location.reload(true);
-                }, 600);
+                    window.location.href = "https://app.icount.co.il/m/dc768/c105acpbu6825c2b73b?fname=" + client?.firstname + "&lname=" + client?.lastname + "&phone=" + client?.phone + "&email=" + client?.email + "&name_on_invoice=" + client.invoicename ? client.invoicename : client.firstname + " " + client.lastname;
+                    // window.location.reload(true);
+                }, 300);
             })
             .catch((e) => {
                 console.log(e);
@@ -148,14 +150,15 @@ export default function AdminNewContract() {
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: t("form101.label_yes"),
-            cancelButtonText: t("form101.label_no"), 
+            cancelButtonText: t("form101.label_no"),
         }).then(async (result) => {
             if (result.isConfirmed) {
                 handleSubmit();
             } else {
                 setTimeout(() => {
-                    window.location.reload(true);
-                }, 600);
+                    window.location.href = "https://app.icount.co.il/m/dc768/c105acpbu6825c2b73b?fname=" + client?.firstname + "&lname=" + client?.lastname + "&phone=" + client?.phone + "&email=" + client?.email + "&name_on_invoice=" + client.invoicename ? client.invoicename : client.firstname + " " + client.lastname;
+                    // window.location.reload(true);
+                }, 200);
             }
         });
     };

@@ -3124,6 +3124,9 @@ button.time-counter, span.time-counter {
   color: white !important;
 }
 
+#content .dt-scroll {
+  overflow: visible !important;
+}
 
 #content .dt-paging button {
   background-color: #1E1E1E;
@@ -4486,4 +4489,27 @@ video::-webkit-media-controls-panel {
 
 .volume-slider {
   width: 100px;
+}
+
+.contract-dropdown .dropdown-menu {
+ transform: translate3d(-70px, 38px, 0px) !important;
+}
+
+.contract-dropdown .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1.5rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529;
+  text-align: inherit;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+} 
+
+.contract-dropdown .dropdown-item:hover {
+  color: #16181b;
+  text-decoration: none;
+  background-color: #f8f9fa;
 }

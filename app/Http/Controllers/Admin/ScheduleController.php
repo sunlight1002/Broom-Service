@@ -468,4 +468,23 @@ class ScheduleController extends Controller
             'latestSchedule' => $latestSchedule
         ]);
     }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $schedule = Schedule::find($id);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Schedule not found',
+            ], 404);
+        }
+
+        $schedule->update([
+            'booking_status' => $request->status
+        ]);
+
+        return response()->json([
+            'message' => 'Schedule status has been updated'
+        ]);
+    }
 }

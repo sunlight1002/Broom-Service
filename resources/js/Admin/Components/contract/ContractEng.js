@@ -6,7 +6,7 @@ import SignatureCanvas from "react-signature-canvas";
 import companySign from "../../../Assets/image/company-sign.png";
 import { Table, Tr, Td } from "react-super-responsive-table";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import swal from "sweetalert";
 import Moment from "moment";
 import i18next from "i18next";
@@ -18,6 +18,7 @@ export default function ContractEng() {
     const [client, setClient] = useState([]);
     const [offer, setOffer] = useState([]);
     const param = useParams();
+    const navigate = useNavigate();
     const sigRef = useRef();
     const { t } = useTranslation();
     const headers = {
@@ -75,9 +76,13 @@ export default function ContractEng() {
             .post(`/api/admin/verify-contract`, { id: param.id }, { headers })
             .then((res) => {
                 swal(res.data.message, "", "success");
-                setTimeout(() => {
-                    window.location.reload(true);
-                }, 1000);
+                 setTimeout(() => {
+                    window.location.href = "https://app.icount.co.il/m/dc768/c105acpbu6825c2b73b?fname=" + client?.firstname + "&lname=" + client?.lastname + "&phone=" + client?.phone + "&email=" + client?.email + "&name_on_invoice=" + (client.invoicename ? client.invoicename : client.firstname + " " + client.lastname);
+                    // window.location.reload(true);
+                }, 200);
+                // setTimeout(() => {
+                //     window.location.reload(true);
+                // }, 1000);
             })
             .catch((e) => {
                 Swal.fire({
@@ -106,6 +111,7 @@ export default function ContractEng() {
                                             <div className="col-sm-6">
                                                 <div className="mt-2 float-right">
                                                     <input
+                                                        type="button"
                                                         className="btn btn-warning"
                                                         onClick={handleVerify}
                                                         value="Verify"
@@ -118,6 +124,7 @@ export default function ContractEng() {
                                             <div className="col-sm-6">
                                                 <div className="mt-2 float-right">
                                                     <input
+                                                        type="button"
                                                         className="btn btn-success"
                                                         value="Verified"
                                                     />

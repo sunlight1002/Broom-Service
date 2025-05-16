@@ -7,6 +7,7 @@ import { useAlert } from "react-alert";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useTranslation } from "react-i18next";
+import { Base64 } from "js-base64";
 
 import $ from "jquery";
 import "datatables.net";
@@ -129,6 +130,8 @@ export default function AllWorkers() {
 
                             _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
+                            _html += `<button type="button" class="dropdown-item dt-worker-forms-btn" data-id="${Base64.encode(row.id.toString())}">View Worker Forms</button>`;
+
                             _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
                             _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
@@ -241,6 +244,11 @@ export default function AllWorkers() {
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/workers/view/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-worker-forms-btn", function () {
+            const _id = $(this).data("id");
+            window.open(`/worker-forms/${_id}`, "_blank");
         });
 
         $(tableRef.current).on("click", ".dt-freeze-shift-btn", function () {

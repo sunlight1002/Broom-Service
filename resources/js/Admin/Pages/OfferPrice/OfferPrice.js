@@ -4,6 +4,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Button, Modal } from "react-bootstrap";
+import { useAlert } from "react-alert";
+import { Base64 } from "js-base64";
 
 import $ from "jquery";
 import "datatables.net";
@@ -17,21 +20,30 @@ import ViewOfferModal from "./ViewOfferModal";
 export default function OfferPrice() {
     const { t, i18n } = useTranslation();
     const tableRef = useRef(null);
-
+    const [offerId, setOfferId] = useState(null);
+    const [statusModal, setStatusModal] = useState(false)
+    const [status, setStatus] = useState("");
     const navigate = useNavigate();
     const [filter, setFilter] = useState("All");
     const [isModalOpen, setModalStatus] = useState(false);
     const [selectedOfferId, setSelectedOfferId] = useState(null);
+    const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    
+
     const offerStatuses = {
         "Sent": t("global.sent"),
         "Accepted": t("modal.accepted"),
         "Declined": t("admin.schedule.options.meetingStatus.Declined")
+    };
+
+    const statusArr = {
+        "sent": t("global.sent"),
+        "accepted": t("modal.accepted"),
+        "declined": t("admin.schedule.options.meetingStatus.Declined")
     };
 
     const handleModal = (id) => {
@@ -70,6 +82,25 @@ export default function OfferPrice() {
             }
         });
 
+    }
+
+    const changeStatusModal = (id, status) => {
+        setOfferId(id);
+        setStatus(status);
+        setStatusModal(true);
+    }
+
+    const handleUpdateStatus = async () => {
+        try {
+            const res = await axios.put(`/api/admin/offer-change-status/${offerId}`, { status }, { headers });
+            if (res.status === 200) {
+                setStatusModal(false);
+                $(tableRef.current).DataTable().draw();
+                alert.success(res?.data?.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const initializeDataTable = (initialPage = 0) => {
@@ -126,7 +157,7 @@ export default function OfferPrice() {
                             }
 
                             // return `<span style="color: ${color};">${data}</span>`;
-                            return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return `<p class="dt-status-btn" data-id="${row.id}" data-status="${data}" style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                             ${data}
                         </p>`;
 
@@ -149,6 +180,8 @@ export default function OfferPrice() {
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
                             _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-client-offer-btn" data-id="${Base64.encode(row.id.toString())}">View Client Offer</button>`;
 
                             _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
@@ -221,6 +254,7 @@ export default function OfferPrice() {
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
                     !e.target.closest(".dt-client-name") &&
+                    !e.target.closest(".dt-status-btn") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -230,7 +264,8 @@ export default function OfferPrice() {
                 if (
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-client-name")
+                    !e.target.closest(".dt-client-name") &&
+                    !e.target.closest(".dt-status-btn")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
@@ -259,6 +294,12 @@ export default function OfferPrice() {
             navigate(`/admin/offered-price/edit/${_id}`);
         });
 
+        $(tableRef.current).on("click", ".dt-client-offer-btn", function () {
+            const _id = $(this).data("id");
+            window.open(`/price-offer/${_id}`, '_blank');
+            // navigate(`/price-offer/${_id}`);
+        });
+
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             // navigate(`/admin/view-offer/${_id}`);
@@ -273,6 +314,12 @@ export default function OfferPrice() {
         $(tableRef.current).on("click", ".dt-reopen-btn", function () {
             const _id = $(this).data("id");
             handleReopen(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-status-btn", function () {
+            const _id = $(this).data("id");
+            const status = $(this).data("status");
+            changeStatusModal(_id, status);
         });
 
 
@@ -441,15 +488,15 @@ export default function OfferPrice() {
                                 setselectedFilter={setFilter}
                             />
                             {Object.entries(offerStatuses).map(([key, value]) => (
-                                    <FilterButtons
-                                        text={value}
-                                        name={key}
-                                        className="px-3 mr-1"
-                                        key={key}
-                                        selectedFilter={filter}
-                                        setselectedFilter={(status) => setFilter(status)}
-                                    />
-                                ))}
+                                <FilterButtons
+                                    text={value}
+                                    name={key}
+                                    className="px-3 mr-1"
+                                    key={key}
+                                    selectedFilter={filter}
+                                    setselectedFilter={(status) => setFilter(status)}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -464,6 +511,59 @@ export default function OfferPrice() {
                     </div>
                 </div>
             </div>
+            <Modal
+                size="md"
+                className="modal-container"
+                show={statusModal}
+                onHide={() => setStatusModal(false)}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Change Status</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">{t("global.status")}</label>
+
+                                <select
+                                    name="status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    value={status}
+                                    className="form-control mb-3"
+                                >
+                                    <option value="">---select status---</option>
+                                    {Object.keys(statusArr).map((s) => (
+                                        <option key={s} value={s}>
+                                            {statusArr[s]}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setStatusModal(false)}
+                    >
+                        {t("modal.close")}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={handleUpdateStatus}
+                        className="btn btn-primary"
+                    >
+                        {t("global.send")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             {isModalOpen && <ViewOfferModal showModal={isModalOpen} handleClose={() => setModalStatus(false)} offerId={selectedOfferId} />}
         </div>
     );

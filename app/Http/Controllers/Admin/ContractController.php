@@ -47,7 +47,7 @@ class ContractController extends Controller
             ->when($status != 'All', function ($q) use ($status) {
                 return $q->where('contracts.status', $status);
             })
-            ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services', 'contracts.created_at');
+            ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.unique_hash', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services', 'contracts.created_at');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -360,6 +360,58 @@ class ContractController extends Controller
     
         return response()->json([
             'message' => 'Status has been changed successfully!',
+        ]);
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $contract = Contract::with('client')->find($id);
+        if (!$contract) {
+            return response()->json([
+                'message' => 'Contract not found',
+            ], 404);
+        }
+        $contract->update(['status' => $request->status]);
+
+        if($request->status == ContractStatusEnum::VERIFIED){
+            $client = $contract->client;
+            $newLeadStatus = LeadStatusEnum::ACTIVE_CLIENT;
+
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+                $client->status = 2;
+                $client->save();
+                
+                $emailData = [
+                    'client' => $client->toArray(),
+                    'status' => $newLeadStatus,
+                ];
+
+                SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
+            }
+        }else if ($request->status == ContractStatusEnum::NOT_SIGNED) {
+            $contract->signature = null;
+
+            // Make sure form_data is an array
+            $formData = is_array($contract->form_data)
+                ? $contract->form_data
+                : (json_decode($contract->form_data, true) ?? []);
+
+            // Remove the card_signature field
+            unset($formData['card_signature']);
+
+            // Encode back to JSON
+            $contract->form_data = !empty($formData) ? json_encode($formData) : null;
+            $contract->signed_at = null;
+            $contract->save();
+        }
+
+
+        return response()->json([
+            'message' => 'Contract status updated successfully',
         ]);
     }
 }

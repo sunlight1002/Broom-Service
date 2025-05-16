@@ -31,6 +31,7 @@ class VerifyCsrfToken extends Middleware
         'twilio/status-callback',
         'whapi-group',
         'twilio/worker-lead-webhook',
-        'whapi-pending-request'
+        'whapi-pending-request',
+        'icount/callback'
     ];
 }

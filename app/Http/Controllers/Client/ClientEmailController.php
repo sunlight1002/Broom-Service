@@ -735,7 +735,7 @@ class ClientEmailController extends Controller
     {
         try {
             $contract = Contract::query()
-                ->with('client')
+                ->with(['client', 'offer'])
                 ->find($request->id);
 
             if (!$contract) {

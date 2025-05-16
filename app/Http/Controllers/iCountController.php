@@ -362,4 +362,15 @@ class iCountController extends Controller
             return null; // or handle the error as you see fit
         }
     }
+
+    public function icountCallback(Request $request)
+    {
+        $data = $request->all();
+        $client = Client::where('email', $data['customer_email'])->first();
+        if($client){
+            $client->update([
+                "icount_client_id" => $data['customer_id']
+            ]);
+        }
+    }
 }

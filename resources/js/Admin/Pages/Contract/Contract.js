@@ -4,7 +4,8 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
-
+import { Button, Modal } from "react-bootstrap";
+import { useAlert } from "react-alert";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -21,8 +22,11 @@ export default function Contract() {
     const tableRef = useRef(null);
     const statusRef = useRef(null);
     const [loading, setLoading] = useState(false)
-
+    const [statusModal, setStatusModal] = useState(false)
+    const [selectedContractId, setSelectedContractId] = useState(null)
     const [filter, setFilter] = useState("All");
+    const [status, setStatus] = useState("");
+    const alert = useAlert();
 
     const contractStatuses = {
         "verified": t("global.verified"),
@@ -50,7 +54,25 @@ export default function Contract() {
         }
     }, [])
 
+    const handleModal = (id, status) => {
+        setStatus(status);
+        setSelectedContractId(id);
+        setStatusModal(true);
+    };
 
+
+    const handleUpdateStatus = async () => {
+        try {
+            const res = await axios.put(`/api/admin/contract-change-status/${selectedContractId}`, { status }, { headers });
+            if (res.status === 200) {
+                setStatusModal(false);
+                alert.success(res?.data?.message);
+                $(tableRef.current).DataTable().draw();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -134,7 +156,7 @@ export default function Contract() {
 
                             // return `<span style="color: ${color};">${data}</span>`;
 
-                            return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return `<p class="dt-job-status" data-id="${row.id}" data-status="${data}" style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                                         ${data}
                                     </p>`;
                         },
@@ -163,15 +185,18 @@ export default function Contract() {
                         data: "action",
                         orderable: false,
                         responsivePriority: 1,
+                        width: "10%",
                         render: function (data, type, row, meta) {
                             let _html =
-                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                '<div class="action-dropdown dropdown contract-dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
                             // console.log(row);
 
                             // Check conditions for "Create Job" button
                             const services = Array.isArray(row.services) ? row.services : [];
                             const allOneTime = services.every((service) => service.is_one_time === true);
                             const hasMultipleServices = services.length > 1;
+
+                            _html += `<button type="button" class="dropdown-item dt-client-contract-btn" data-id="${row.unique_hash}">View Client Contract</button>`;
 
                             if (row.status === "verified" && (!allOneTime || hasMultipleServices)) {
                                 _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">${t("admin.client.createJob")}</button>`;
@@ -251,6 +276,7 @@ export default function Contract() {
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
                     !e.target.closest(".dt-client-name") &&
+                    !e.target.closest(".dt-job-status") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -260,7 +286,8 @@ export default function Contract() {
                 if (
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-client-name")
+                    !e.target.closest(".dt-client-name") &&
+                    !e.target.closest(".dt-job-status")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
@@ -304,9 +331,20 @@ export default function Contract() {
             navigate(`/admin/view-contract/${_id}`);
         });
 
+        $(tableRef.current).on("click", ".dt-client-contract-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/work-contract/${_id}`);
+        });
+
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
             handleDelete(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-job-status", function () {
+            const _id = $(this).data("id");
+            const status = $(this).data("status");
+            handleModal(_id, status);
         });
 
         // Handle language changes
@@ -529,6 +567,60 @@ export default function Contract() {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                size="md"
+                className="modal-container"
+                show={statusModal}
+                onHide={() => setStatusModal(false)}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Change Status</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">{t("global.status")}</label>
+
+                                <select
+                                    name="status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    value={status}
+                                    className="form-control mb-3"
+                                >
+                                    <option value="">---select status---</option>
+                                    {Object.keys(contractStatuses).map((s) => (
+                                        <option key={s} value={s}>
+                                            {contractStatuses[s]}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setStatusModal(false)}
+                    >
+                        {t("modal.close")}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={handleUpdateStatus}
+                        className="btn btn-primary"
+                    >
+                        {t("global.send")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             {loading && <FullPageLoader visible={loading} />}
         </div>
     );

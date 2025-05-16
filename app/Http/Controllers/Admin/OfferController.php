@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\LeadStatus;
 use App\Models\Offer;
+use App\Models\Contract;
 use App\Traits\PriceOffered;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,6 +24,8 @@ use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
 use App\Models\LeadActivity;
+use App\Events\OfferAccepted;
+use App\Enums\ContractStatusEnum;
 
 class OfferController extends Controller
 {
@@ -399,4 +402,80 @@ class OfferController extends Controller
             'latestOffer' => $latestOffer
         ]);
     }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $offer = Offer::with('client', 'contract')->find($id);
+        if (!$offer) {
+            return response()->json([
+                'message' => 'Offer not found'
+            ], 404);
+        }
+
+        if (!$request->status) {
+            return response()->json([
+                'message' => 'Status not found'
+            ], 404);
+        }
+
+        $offer->update(['status' => $request->status]);
+
+        if ($request->status == "accepted") {
+            $client = $offer->client;
+            $ofr = $offer->toArray();
+
+            // Check if contract already exists
+            $contract = $offer->contract;
+            if (!$contract) {
+                $hash = md5($ofr['client']['email'] . $ofr['id']);
+
+                $contract = Contract::create([
+                    'offer_id'       => $offer->id,
+                    'client_id'      => $ofr['client']['id'],
+                    'unique_hash'    => $hash,
+                    'consent_to_ads' => true,
+                    'status'         => ContractStatusEnum::NOT_SIGNED
+                ]);
+            }
+
+            if ($client->lead_status->lead_status !== LeadStatusEnum::ACTIVE_CLIENT) {
+                $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+
+                if ($client->lead_status->lead_status != $newLeadStatus) {
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => $newLeadStatus]
+                    );
+                }
+
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
+
+            Notification::create([
+                'user_id'   => $ofr['client']['id'],
+                'user_type' => Client::class,
+                'type'      => NotificationTypeEnum::LEAD_ACCEPTED_PRICE_OFFER,
+                'offer_id'  => $offer->id,
+                'status'    => 'accepted'
+            ]);
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                ]
+            ]));
+
+            $ofr['contract_id'] = $contract->unique_hash;
+
+            event(new OfferAccepted($ofr));
+        }else if ($request->status == "sent") {
+            event(new OfferSaved($offer->toArray()));
+        }
+
+        return response()->json([
+            'message' => 'Offer status has been changed successfully'
+        ]);
+    }
+
 }

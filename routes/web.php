@@ -28,6 +28,7 @@ use App\Models\ShortUrl;
 
 Route::post('/zcredit/callback', [PaymentController::class, 'callback']);
 Route::post('/icount/webhook', [iCountController::class, 'webhook']);
+Route::post('/icount/callback', [iCountController::class, 'icountCallback']);
 
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 Route::post('/wallybox/callback', [ExpanseController::class, 'wallyboxCallback']);

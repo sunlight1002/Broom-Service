@@ -221,6 +221,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('clients/{id}/offers', [OfferController::class, 'ClientOffers']);
     Route::post('latest-client-offer', [OfferController::class, 'getLatestClientOffer']);
     Route::post('offer-reopen/{id}', [OfferController::class, 'reopen']);
+    Route::put('offer-change-status/{id}', [OfferController::class, 'changeStatus']);
 
     // Contract Api
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
@@ -231,6 +232,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('cancel-contract-jobs', [ContractController::class, 'cancelJob']);
     Route::post('contract-file/save', [ContractController::class, 'saveContractFile']);
     Route::post('set-to-active-client/{id}', [ContractController::class, 'setToActiveClient']);
+    Route::put('contract-change-status/{id}', [ContractController::class, 'changeStatus']);
 
     // TeamMembers
     Route::resource('teams', TeamMemberController::class)->except(['create', 'show']);
@@ -260,6 +262,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('client-schedules', [ScheduleController::class, 'clientSchedules']);
     Route::get('teams/{id}/schedule-events', [ScheduleController::class, 'getTeamEvents']);
     Route::post('latest-client-schedule', [ScheduleController::class, 'latestClientSchedule']);
+    Route::put('change-schedule-status/{id}', [ScheduleController::class, 'changeStatus']);
 
     // client files
     Route::post('add-file', [ClientController::class, 'addfile']);
