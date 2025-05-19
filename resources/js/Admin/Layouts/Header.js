@@ -42,6 +42,27 @@ export default function AdminHeader() {
         });
     };
 
+    axios.interceptors.response.use(
+        response => response, // Return response if it's OK
+        error => {
+            if (error.response && error.response.status === 401) {
+                // Clear token from localStorage
+                localStorage.removeItem('admin-token'); // e.g., 'access_token'
+                localStorage.removeItem('admin-name');
+                localStorage.removeItem('admin-id');
+                localStorage.removeItem('admin-email');
+                localStorage.removeItem('admin-lng');
+                localStorage.removeItem('admin-role');
+
+                // Redirect to login
+                navigate('/admin/login');
+                // window.location.href = 'client/login';
+            }
+
+            return Promise.reject(error);
+        }
+    );
+
     const getSetting = () => {
         axios.get("/api/admin/my-account", { headers }).then((response) => {
             setMe(response.data.account);
@@ -52,13 +73,13 @@ export default function AdminHeader() {
                 response.data.account.lng ? response.data.account.lng : "en"
             );
 
-            if(response?.data?.account?.lng == "en") {
+            if (response?.data?.account?.lng == "en") {
                 document.querySelector("html").removeAttribute("dir");
-                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
-                    if (rtlLink) {
-                        rtlLink.remove();
-                    }
-            }else{
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
+            } else {
                 document.querySelector("html").setAttribute("dir", "rtl");
                 import("../../Assets/css/rtl.css");
             }
@@ -119,9 +140,9 @@ export default function AdminHeader() {
                                         type="button"
                                         className="btn btn-link dropdown-toggle"
                                         data-toggle="dropdown"
-                                        style={{marginTop: "10px"}}
+                                        style={{ marginTop: "10px" }}
                                     >
-                                        <i className="mt-1"><LuBellRing /></i>  
+                                        <i className="mt-1"><LuBellRing /></i>
                                     </button>
                                     <ul className="dropdown-menu adminIconDropdown">
                                         {notices.map((n, i) => {
@@ -137,17 +158,17 @@ export default function AdminHeader() {
                                                         style={
                                                             n.seen == 0
                                                                 ? {
-                                                                      background:
-                                                                          "#eee",
-                                                                      padding:
-                                                                          "2%",
-                                                                      cursor: "pointer",
-                                                                  }
+                                                                    background:
+                                                                        "#eee",
+                                                                    padding:
+                                                                        "2%",
+                                                                    cursor: "pointer",
+                                                                }
                                                                 : {
-                                                                      padding:
-                                                                          "2%",
-                                                                      cursor: "pointer",
-                                                                  }
+                                                                    padding:
+                                                                        "2%",
+                                                                    cursor: "pointer",
+                                                                }
                                                         }
                                                         className="agg-list"
                                                     >

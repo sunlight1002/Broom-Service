@@ -43,7 +43,7 @@ export default function Clients() {
     const [filter, setFilter] = useState('');
 
     const leadStatuses = {
-        "potential": t("admin.client.Potential"),
+        // "potential": t("admin.client.Potential"),
         "pending client": t("admin.client.Pending_client"),
         "active client": t("admin.client.Active_client"),
         "freeze client": t("admin.client.Freeze_client"),

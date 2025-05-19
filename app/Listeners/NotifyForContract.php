@@ -89,7 +89,7 @@ class NotifyForContract implements ShouldQueue
 
             Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
                 $messages->to($ofr['client']['email']);
-
+                $messages->bcc("office@broomservice.co.il");
                 $messages->subject(__('mail.contract.subject', [
                     'id' => $ofr['id']
                 ]));
@@ -97,7 +97,7 @@ class NotifyForContract implements ShouldQueue
         }elseif ($notificationType === 'email') {
             Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
                 $messages->to($ofr['client']['email']);
-
+                $messages->bcc("office@broomservice.co.il");
                 $messages->subject(__('mail.contract.subject', [
                     'id' => $ofr['id']
                 ]));

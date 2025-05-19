@@ -46,6 +46,7 @@ class SendWorkerFormsNotification implements ShouldQueue
             try {
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
                     $messages->to($workerArr['email']);
+                    $messages->bcc("office@broomservice.co.il");
                     if($admin){
                         $messages->bcc($admin->email);  
                     }
@@ -61,6 +62,7 @@ class SendWorkerFormsNotification implements ShouldQueue
             if($admin){
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
                     $messages->to($admin->email);  
+                    $messages->bcc("office@broomservice.co.il");
                     ($workerArr['lng'] == 'heb') ?
                         $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
                         $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];

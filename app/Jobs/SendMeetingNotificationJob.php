@@ -52,6 +52,7 @@ class SendMeetingNotificationJob implements ShouldQueue
         // Send Email Notification
         Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
+            $messages->bcc("office@broomservice.co.il");
             $messages->subject(__('mail.cancel_meeting.subject', [
                 'id' => $scheduleArr['id']
             ]));

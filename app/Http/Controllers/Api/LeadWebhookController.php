@@ -3561,6 +3561,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
         // Send Email Notification
         Mail::send('Mails.client.VerifedClient', $emailData, function ($message) use ($client) {
             $message->to($client->email);
+            $message->bcc("office@broomservice.co.il");
             $message->subject(__('mail.verification.subject'));
         });
 
@@ -3740,6 +3741,14 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             ]
                         );
 
+
+                        Notification::create([
+                            'user_id' => $client->id,
+                            'user_type' => Client::class,
+                            'type' => NotificationTypeEnum::CLIENT_REVIEWED,
+                            'status' => 'reviewed'
+                        ]);
+
                         WebhookResponse::create([
                             'status'        => 1,
                             'name'          => 'whatsapp',
@@ -3808,6 +3817,13 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                 
                             ]
                         );
+
+                        Notification::create([
+                            'user_id' => $client->id,
+                            'user_type' => Client::class,
+                            'type' => NotificationTypeEnum::CLIENT_REVIEWED,
+                            'status' => 'reviewed'
+                        ]);
 
                         WebhookResponse::create([
                             'status'        => 1,

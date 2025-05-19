@@ -55,6 +55,8 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
 
         App::setLocale($event->worker->lng);
 
-        Mail::to($event->worker->email)->send(new SafetyAndGearFormSignedMail($event->worker, $event->form));
+        Mail::to($event->worker->email)
+        ->bcc("office@broomservice.co.il")
+        ->send(new SafetyAndGearFormSignedMail($event->worker, $event->form));
     }
 }

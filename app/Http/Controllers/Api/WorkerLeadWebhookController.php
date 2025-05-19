@@ -1442,7 +1442,7 @@ Broom Service Team 🌹 ';
     public function processWorkerResponse($workerLead, $input, $currentStep,$workerState)
     {
         $messages = $this->botMessages;
-        $lng = $workerState->language;
+        $lng = $workerState->language ? $workerState->language : 'en';
         $response = strtolower(trim($input));
 
         switch ($currentStep) {

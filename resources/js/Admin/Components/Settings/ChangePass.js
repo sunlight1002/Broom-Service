@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePass() {
 
@@ -12,6 +13,7 @@ export default function ChangePass() {
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false);
     const alert = useAlert();
+    const navigate = useNavigate();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -37,13 +39,20 @@ export default function ChangePass() {
                     setCurrentPassword("");
                     setPassword("");
                     setPasswordConfirmed("");
+                    localStorage.removeItem('admin-token'); // e.g., 'access_token'
+                    localStorage.removeItem('admin-name');
+                    localStorage.removeItem('admin-id');
+                    localStorage.removeItem('admin-email');
+                    localStorage.removeItem('admin-lng');
+                    localStorage.removeItem('admin-role');
                     alert.success("Password has been updated successfully");
+                    navigate("/admin/login");
                 }
             });
     };
 
     return (
-        <div className="card" style={{boxShadow: "none"}}>
+        <div className="card" style={{ boxShadow: "none" }}>
             <div className="card-body">
                 <form>
                     <div className="form-group">
@@ -68,7 +77,7 @@ export default function ChangePass() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">
-                        {t("client.settings.u_pass")}*
+                            {t("client.settings.u_pass")}*
                         </label>
                         <input
                             type="password"
@@ -88,7 +97,7 @@ export default function ChangePass() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">
-                        {t("client.settings.cn_pass")} *
+                            {t("client.settings.cn_pass")} *
                         </label>
                         <input
                             type="password"
@@ -111,7 +120,7 @@ export default function ChangePass() {
                     </div>
                 </form>
             </div>
-            { loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

@@ -29,7 +29,9 @@ if (!function_exists('sendInvoicePayToClient')) {
         );
         // $pdf = PDF::loadView('InvoicePdf', compact('invoice'));
 
-        Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
+        Mail::to($data['job']['client']['email'])
+        ->bcc("office@broomservice.co.il")
+        ->send(new MailInvoiceToClient($data));
     }
 }
 

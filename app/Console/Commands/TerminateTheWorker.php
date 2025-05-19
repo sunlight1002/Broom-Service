@@ -51,12 +51,13 @@ class TerminateTheWorker extends Command
 
                 $worker->update(['status' => 0]);
 
-                if($insuranceCompany && $insuranceCompany->email){
+                if ($insuranceCompany && $insuranceCompany->email) {
                     App::setLocale('heb');
                     // Send email
                     Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $file_name) {
                         $message->to($insuranceCompany->email)
-                            ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? ''). ' ' . ($worker['lastname'] ?? '')]))
+                            ->bcc("office@broomservice.co.il")
+                            ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]))
                             ->attach(storage_path("app/public/signed-docs/{$file_name}"));
                     });
                 }

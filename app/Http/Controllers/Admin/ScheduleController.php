@@ -471,7 +471,7 @@ class ScheduleController extends Controller
 
     public function changeStatus(Request $request, $id)
     {
-        $schedule = Schedule::find($id);
+        $schedule = Schedule::with(['client'])->find($id);
 
         if (!$schedule) {
             return response()->json([
@@ -482,6 +482,35 @@ class ScheduleController extends Controller
         $schedule->update([
             'booking_status' => $request->status
         ]);
+
+        $client = $schedule->client;
+
+        if($request->status == 'declined') {
+            $hasUnVerifiedContract = $client->contract->contains(function ($contract) {
+                return $contract->status === 'un-verified';
+            });
+    
+            if (!$hasUnVerifiedContract) {
+
+                $client->update(['status' => 0]);
+                $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+    
+                if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => $newLeadStatus]
+                    );
+    
+                    event(new ClientLeadStatusChanged($client, $newLeadStatus));
+                }
+            }else{
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
+                    "notificationData" => $schedule->toArray()
+                ]));
+                \Log::info("hasAcceptedOffer");
+            }
+        }
 
         return response()->json([
             'message' => 'Schedule status has been updated'

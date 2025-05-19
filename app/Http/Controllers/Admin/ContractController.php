@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use Carbon\Carbon;
 
 use App\Enums\ContractStatusEnum;
@@ -202,7 +203,7 @@ class ContractController extends Controller
             );
             $client->status = 2;
             $client->save();
-            
+
             $emailData = [
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
@@ -257,7 +258,7 @@ class ContractController extends Controller
         //     $contracts->offer->setAttribute('services', $this->formatServices($contracts->offer));
         // }
 
-            
+
         $client = Client::find($id);
         return response()->json([
             'contract' => $contracts,
@@ -322,7 +323,8 @@ class ContractController extends Controller
         ]);
     }
 
-    public function setToActiveClient($id){
+    public function setToActiveClient($id)
+    {
 
         $client = Client::find($id);
 
@@ -333,23 +335,23 @@ class ContractController extends Controller
         }
         $client->status = 2;
         $client->save();
-    
+
         $newLeadStatus = LeadStatusEnum::ACTIVE_CLIENT;
-    
+
         if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => $newLeadStatus]
             );
-    
+
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
         }
-    
+
         $client->logs()->create([
             'status' => 2,
             'reason' => "",
         ]);
-    
+
         // Log the status change in LeadActivity
         $activity = LeadActivity::create([
             'client_id' => $id,
@@ -357,7 +359,7 @@ class ContractController extends Controller
             'status_changed_date' => now(),
             'changes_status' => $newLeadStatus,
         ]);
-    
+
         return response()->json([
             'message' => 'Status has been changed successfully!',
         ]);
@@ -373,7 +375,9 @@ class ContractController extends Controller
         }
         $contract->update(['status' => $request->status]);
 
-        if($request->status == ContractStatusEnum::VERIFIED){
+        $client = $contract->client;
+
+        if ($request->status == ContractStatusEnum::VERIFIED) {
             $client = $contract->client;
             $newLeadStatus = LeadStatusEnum::ACTIVE_CLIENT;
 
@@ -384,7 +388,7 @@ class ContractController extends Controller
                 );
                 $client->status = 2;
                 $client->save();
-                
+
                 $emailData = [
                     'client' => $client->toArray(),
                     'status' => $newLeadStatus,
@@ -392,7 +396,7 @@ class ContractController extends Controller
 
                 SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
             }
-        }else if ($request->status == ContractStatusEnum::NOT_SIGNED) {
+        } else if ($request->status == ContractStatusEnum::NOT_SIGNED) {
             $contract->signature = null;
 
             // Make sure form_data is an array
@@ -407,6 +411,21 @@ class ContractController extends Controller
             $contract->form_data = !empty($formData) ? json_encode($formData) : null;
             $contract->signed_at = null;
             $contract->save();
+        } else if ($request->status == ContractStatusEnum::UN_VERIFIED) {
+            if ($client->lead_status->lead_status !== LeadStatusEnum::ACTIVE_CLIENT) {
+                $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+
+                if ($client->lead_status->lead_status != $newLeadStatus) {
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => $newLeadStatus]
+                    );
+                }
+                $client->status = 2;
+                $client->save();
+
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
         }
 
 

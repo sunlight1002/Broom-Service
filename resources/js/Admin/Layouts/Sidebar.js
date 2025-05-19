@@ -48,7 +48,7 @@ export default function Sidebar() {
     // Check if the current path matches any of the routes in the dropdown
     const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings", "/admin/holidays", "/admin/templates"].includes(location.pathname);
     const isChatDropdownActive = [`/admin/chat`, `/admin/worker-lead-chat`].includes(location.pathname);
-    const isClientDropdownActive = ["/admin/clients", "/admin/clients?type=pending%20client","/admin/clients?type=active%20client", "/admin/clients?type=freeze%20client", "/admin/clients?type=past"].includes(fullUrl);
+    const isClientDropdownActive = ["/admin/clients", "/admin/clients?type=pending%20client", "/admin/clients?type=active%20client", "/admin/clients?type=freeze%20client", "/admin/clients?type=past"].includes(fullUrl);
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
@@ -307,74 +307,82 @@ export default function Sidebar() {
                                     <i className="fa-solid fa-message font-20"></i>{t("admin.sidebar.whatsapp")}
                                 </NavLink>
                             </li> */}
-
-                            <li className={`list-group-item ${isChatDropdownActive ? "active" : ""}`}>
-                                <div className="fence commonDropdown">
-                                    <div >
-                                        <a
-                                            href="#"
-                                            className={`text-left ${isChatDropdownActive ? "active" : ""} `}
-                                            data-toggle="collapse"
-                                            onClick={toggleChatDropdown}
-                                            aria-expanded={chatDropdown}
-                                            data-target="#chat"
-                                            aria-controls="chat"
-                                        >
-                                            <i className="fa-solid fa-message font-20"></i> {t("admin.sidebar.whatsapp")}{" "}
-                                            <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
-                                                style={{
-                                                    rotate: chatDropdown ? "180deg" : ""
-                                                }}
-                                            ></i>
-                                        </a>
-                                    </div>
-                                    <div
-                                        id="chat"
-                                        className={`collapse ${isParentActive() ? "show" : ""}`}
-                                        aria-labelledby="chat"
-                                         data-parent="#chat"
-                                    >
-                                        <div className="card-body">
-                                            <ul className="list-group">
-                                                <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
-                                                    <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
-                                                        <i className="fa fa-angle-right"></i>{" "}
-                                                        Clients/Workers Chat
-                                                    </Link>
-                                                </li>
-                                                <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
-                                                    <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
-                                                        <i className="fa fa-angle-right"></i>{" "}
-                                                        Worker Leads Chat
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-
-
-
-                            <li className="list-group-item">
-                                <NavLink to="/admin/messenger">
-                                    <i className="fa-solid fa-comment font-20"></i>{t("admin.sidebar.messenger")}
-                                </NavLink>
-                            </li>
-
-                            <li className="list-group-item">
-                                <NavLink to="/admin/custom-message">
-                                    <i className="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
-                                </NavLink>
-                            </li>
-
-                            <li className="list-group-item">
-                                <NavLink to="/admin/payments">
-                                    <i className="fa-solid fa-cart-shopping font-20"></i>{t("admin.sidebar.payments")}
-                                </NavLink>
-                            </li>
                         </>
                     )
+                }
+
+                <li className={`list-group-item ${isChatDropdownActive ? "active" : ""}`}>
+                    <div className="fence commonDropdown">
+                        <div >
+                            <a
+                                href="#"
+                                className={`text-left ${isChatDropdownActive ? "active" : ""} `}
+                                data-toggle="collapse"
+                                onClick={toggleChatDropdown}
+                                aria-expanded={chatDropdown}
+                                data-target="#chat"
+                                aria-controls="chat"
+                            >
+                                <i className="fa-solid fa-message font-20"></i> {t("admin.sidebar.whatsapp")}{" "}
+                                <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
+                                    style={{
+                                        rotate: chatDropdown ? "180deg" : ""
+                                    }}
+                                ></i>
+                            </a>
+                        </div>
+                        <div
+                            id="chat"
+                            className={`collapse ${isParentActive() ? "show" : ""}`}
+                            aria-labelledby="chat"
+                            data-parent="#chat"
+                        >
+                            <div className="card-body">
+                                <ul className="list-group">
+                                    {
+                                        role !== "hr" && (
+                                            <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
+                                                <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    Clients/Workers Chat
+                                                </Link>
+                                            </li>
+                                        )
+                                    }
+                                    <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
+                                        <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            Worker Leads Chat
+                                        </Link>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                {role !== "hr" && (
+                    <>
+
+                        <li className="list-group-item">
+                            <NavLink to="/admin/messenger">
+                                <i className="fa-solid fa-comment font-20"></i>{t("admin.sidebar.messenger")}
+                            </NavLink>
+                        </li>
+
+                        <li className="list-group-item">
+                            <NavLink to="/admin/custom-message">
+                                <i className="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
+                            </NavLink>
+                        </li>
+
+                        <li className="list-group-item">
+                            <NavLink to="/admin/payments">
+                                <i className="fa-solid fa-cart-shopping font-20"></i>{t("admin.sidebar.payments")}
+                            </NavLink>
+                        </li>
+                    </>
+                )
                 }
 
                 {role !== "member" && role !== "hr" && (
@@ -504,6 +512,6 @@ export default function Sidebar() {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

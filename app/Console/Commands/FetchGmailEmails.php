@@ -136,6 +136,20 @@ class FetchGmailEmails extends Command
                         }
                         
                         if ($matched) {
+                            $hasAttachment = false;
+                            $parts = $payload->getParts();
+                            foreach ($parts as $part) {
+                                if (!empty($part->getFilename())) {
+                                    $hasAttachment = true;
+                                    break;
+                                }
+                            }
+
+                            if ($hasAttachment) {
+                                $this->info("Skipping email with attachment from: {$fromEmail}");
+                                continue;
+                            }
+
                             foreach ($headers as $header) {
                                 if ($header->getName() == 'To') {
                                     $toEmail = $header->getValue();

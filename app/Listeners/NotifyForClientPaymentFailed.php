@@ -95,6 +95,7 @@ class NotifyForClientPaymentFailed implements ShouldQueue
 
             Mail::send('Mails.client.payment-failed', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['client']['email']);
+                $messages->bcc("office@broomservice.co.il");
                 $sub = __('mail.client.payment-failed.subject');
                 $messages->subject($sub);
             });
@@ -102,6 +103,7 @@ class NotifyForClientPaymentFailed implements ShouldQueue
 
             Mail::send('Mails.client.payment-failed', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['client']['email']);
+                $messages->bcc("office@broomservice.co.il");
                 $sub = __('mail.client.payment-failed.subject');
                 $messages->subject($sub);
             });

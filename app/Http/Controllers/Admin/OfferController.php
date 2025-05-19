@@ -112,13 +112,13 @@ class OfferController extends Controller
 
         if ($meetings->isNotEmpty()) {
             foreach ($meetings as $meeting) {
-               if($meeting->status == 'pending') {
+                if ($meeting->status == 'pending') {
                     $meeting->status = 'confirmed';
                     $meeting->save();
-               }
+                }
             }
         }
-        
+
 
         $services = json_decode($request->get('services'), true);
 
@@ -133,7 +133,6 @@ class OfferController extends Controller
                     $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
                 }
                 $subtotal += $serviceTotal;
-
             } elseif ($service['type'] == 'squaremeter') {
                 if (isset($service['ratepersquaremeter']) && isset($service['totalsquaremeter'])) {
                     $serviceTotal += $service['ratepersquaremeter'] * $service['totalsquaremeter'];
@@ -142,8 +141,8 @@ class OfferController extends Controller
             } else {
                 $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
-            } 
-        
+            }
+
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 
@@ -163,15 +162,15 @@ class OfferController extends Controller
             $client->update([
                 'status' => 1
             ]);
-    
+
             $newLeadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
-    
+
             if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                 $client->lead_status()->updateOrCreate(
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
-    
+
                 LeadActivity::create([
                     'client_id' => $client->id,
                     'created_date' => " ",
@@ -179,9 +178,8 @@ class OfferController extends Controller
                     'changes_status' => $newLeadStatus,
                     'reason' => "New price offered",
                 ]);
-    
+
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
-    
             }
         }
 
@@ -195,7 +193,8 @@ class OfferController extends Controller
         ]);
     }
 
-    public function reopen($id){
+    public function reopen($id)
+    {
         $offer = Offer::find($id);
 
         $offer->load(['client', 'service']);
@@ -315,21 +314,16 @@ class OfferController extends Controller
                     $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
                 }
                 $subtotal += $serviceTotal;
-
-            } 
-            elseif ($service['type'] == 'squaremeter') {
+            } elseif ($service['type'] == 'squaremeter') {
                 if (isset($service['ratepersquaremeter']) && isset($service['totalsquaremeter'])) {
                     $serviceTotal += $service['ratepersquaremeter'] * $service['totalsquaremeter'];
                 }
                 $subtotal += $serviceTotal;
-            }
-            else
-            {
+            } else {
                 $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
+            }
 
-            } 
-        
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 
@@ -419,6 +413,7 @@ class OfferController extends Controller
         }
 
         $offer->update(['status' => $request->status]);
+        $client = $offer->client;
 
         if ($request->status == "accepted") {
             $client = $offer->client;
@@ -469,13 +464,45 @@ class OfferController extends Controller
             $ofr['contract_id'] = $contract->unique_hash;
 
             event(new OfferAccepted($ofr));
-        }else if ($request->status == "sent") {
+        } else if ($request->status == "sent") {
             event(new OfferSaved($offer->toArray()));
+        } else {
+            $hasAcceptedOffer = $client->offers()->where('status', 'accepted')->exists();
+
+            if (!$hasAcceptedOffer) {
+                Notification::create([
+                    'user_id' => $offerArr['client']['id'],
+                    'user_type' => get_class($client),
+                    'type' => NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER,
+                    'offer_id' => $offer->id,
+                    'status' => 'declined'
+                ]);
+
+                $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+
+                if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => $newLeadStatus]
+                    );
+                    event(new ClientLeadStatusChanged($client, $newLeadStatus));
+                }
+            } else {
+                $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
         }
 
         return response()->json([
             'message' => 'Offer status has been changed successfully'
         ]);
     }
-
 }

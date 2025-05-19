@@ -55,6 +55,8 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
 
         App::setLocale($event->worker->lng);
 
-        Mail::to($event->worker->email)->send(new InsuranceFormSignedMail($event->worker, $event->form));
+        Mail::to($event->worker->email)
+        ->bcc("office@broomservice.co.il")
+        ->send(new InsuranceFormSignedMail($event->worker, $event->form));
     }
 }
