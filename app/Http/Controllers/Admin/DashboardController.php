@@ -71,7 +71,7 @@ class DashboardController extends Controller
   // }
   public function dashboard(Request $request)
   {
-      $filterType = $request->input('filter', 'today');
+      $filterType = $request->input('selected', 'today');
       $today = Carbon::today();
       $startDate = $endDate = null;
   
@@ -125,12 +125,13 @@ class DashboardController extends Controller
           \Log::info($total_paid_order_price);
           \Log::info($total_unpaid_order_price);
 
-      $total_workers = User::where(function ($q) use ($today) {
+      $total_workers = User::where('status', '1')->where(function ($q) use ($today) {
           $q->whereNull('last_work_date')
             ->orWhereDate('last_work_date', '>=', $today);
       })->count();
   
       $total_schedules = Schedule::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
+      \Log::info($total_schedules);
   
       $total_offers = Offer::where('status', 'sent')
           ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {

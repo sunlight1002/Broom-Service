@@ -301,7 +301,7 @@ class WorkerLeadsController extends Controller
             if($admin){
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
                     $messages->to($admin->email);
-                    $messages->bcc("office@broomservice.co.il")
+                    $messages->bcc(config('services.mail.default'));
                     ($workerArr['lng'] == 'heb') ?
                         $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
                         $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];

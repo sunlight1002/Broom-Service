@@ -66,7 +66,7 @@ class SendMeetingMailJob implements ShouldQueue
                 
                 Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $icsFilePath) {
                     $messages->to($scheduleArr['client']['email']);
-                    $messages->bcc("office@broomservice.co.il");
+                    $messages->bcc(config('services.mail.default'));
                     $messages->subject(__('mail.meeting.subject', [
                         'id' => $scheduleArr['id']
                     ]));
@@ -83,7 +83,7 @@ class SendMeetingMailJob implements ShouldQueue
             }else{
                 Mail::send('/Mails/OffsiteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
                     $messages->to($scheduleArr['client']['email']);
-                    $messages->bcc("office@broomservice.co.il");
+                    $messages->bcc(config('services.mail.default'));
                     $messages->subject(__('mail.meeting.subject', [
                         'id' => $scheduleArr['id']
                     ]));
@@ -112,7 +112,7 @@ class SendMeetingMailJob implements ShouldQueue
 
                 Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
                     $messages->to($scheduleArr['client']['email']);
-                    $messages->bcc("office@broomservice.co.il");
+                    $messages->bcc(config('services.mail.default'));
                     $messages->subject(__('mail.meeting.subject', [
                         'id' => $scheduleArr['id']
                     ]));
@@ -121,7 +121,7 @@ class SendMeetingMailJob implements ShouldQueue
             }else{
                 Mail::send('/Mails/OffsiteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
                     $messages->to($scheduleArr['client']['email']);
-                    $messages->bcc("office@broomservice.co.il");
+                    $messages->bcc(config('services.mail.default'));
                     $messages->subject(__('mail.meeting.subject', [
                         'id' => $scheduleArr['id']
                     ]));

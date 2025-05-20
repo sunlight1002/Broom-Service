@@ -344,7 +344,6 @@ class ChatController extends Controller
 
         // Fetch results with 2x page size to filter on PHP side
         $rawData = $query->paginate($perPage);
-            \Log::info($rawData);
 
         foreach ($rawData->items() as $entry) {
             $number = $entry->number;
@@ -418,8 +417,6 @@ public function personalChat(Request $request)
     $start_date = $request->input('start_date');
     $end_date = $request->input('end_date');
     $perPage = 20;
-
-    \Log::info("Filter: {$filter}, Unread only: " . ($unread ? 'yes' : 'no'));
 
     $query = WebhookResponse::query()
         ->select('number')

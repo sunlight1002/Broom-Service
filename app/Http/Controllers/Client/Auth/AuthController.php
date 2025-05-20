@@ -84,7 +84,8 @@ class AuthController extends Controller
         
                         try {
                             // Send OTP via email
-                            Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
+                            Mail::to($client->email)
+                            ->send(new LoginOtpMail($otp, $client));
                             $emailSent = true;
                         } catch (\Exception $e) {
                             $emailError = $e->getMessage();
@@ -308,7 +309,8 @@ class AuthController extends Controller
     
         // Attempt to send the OTP via email
         try {
-            Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
+            Mail::to($client->email)
+            ->send(new LoginOtpMail($otp, $client));
             $emailSent = true;
         } catch (\Exception $e) {
             $emailError = $e->getMessage();

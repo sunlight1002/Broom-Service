@@ -3,30 +3,19 @@
 namespace App\Listeners;
 
 use App\Enums\NotificationTypeEnum;
-use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\WorkerFormTypeEnum;
 use App\Events\InsuranceFormSigned;
-use App\Events\WhatsappNotificationEvent;
 use App\Mail\Admin\InsuranceFormSignedMail as AdminInsuranceFormSignedMail;
 use App\Mail\Worker\InsuranceFormSignedMail;
 use App\Models\Admin;
+use App\Models\InsuranceCompany;
 use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
 class NotifyForInsuranceFormSigned implements ShouldQueue
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Handle the event.
      *
@@ -35,10 +24,13 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
      */
     public function handle(InsuranceFormSigned $event)
     {
-        // no whatsapp notification to admin in group
+        $worker = $event->worker;
+        $form = $event->form;
+        $insuranceCompany = InsuranceCompany::first();
+
         Notification::create([
-            'user_id' => $event->worker->id,
-            'user_type' => get_class($event->worker),
+            'user_id' => $worker->id,
+            'user_type' => get_class($worker),
             'type' => NotificationTypeEnum::INSURANCE_SIGNED,
             'status' => 'signed'
         ]);
@@ -48,15 +40,80 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
 
-        // App::setLocale('en');
-        // foreach ($admins as $key => $admin) {
-        //     Mail::to($admin->email)->send(new AdminInsuranceFormSignedMail($admin, $event->worker, $event->form));
-        // }
+        $form101 = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::FORM101)
+            ->first();
+        $insuaranceForm = $worker->forms()->where('type', 'insurance')->first();
 
-        App::setLocale($event->worker->lng);
+        $file_name = $insuaranceForm ? $insuaranceForm->pdf_file : null;
 
-        Mail::to($event->worker->email)
-        ->bcc("office@broomservice.co.il")
-        ->send(new InsuranceFormSignedMail($event->worker, $event->form));
+        $dateOfBeginningWork = $form101 ? data_get($form101->data, 'DateOfBeginningWork') : null;
+        $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+        App::setLocale('heb');
+
+        if ($insuranceCompany && $insuranceCompany->email && $file_name) {
+            $pdfPath = storage_path("app/public/signed-docs/{$file_name}");
+
+            $workerPassport = $worker->passport_card ?? null;
+            $workerVisa = $worker->visa ?? null;
+
+            $workerPassportDocName = str_replace(' ', '-', "Passport-{$workerName}");
+            $workerVisaDocName = str_replace(' ', '-', "Visa-{$workerName}");
+
+            Mail::send(
+                '/insuaranceCompany',
+                ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork],
+                function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName) {
+                    $message->to($insuranceCompany->email)
+                        ->subject(__('mail.insuarance_company.subject', [
+                            'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')
+                        ]));
+                    $message->bcc(config('services.mail.default'));
+                    if (is_file($pdfPath)) {
+                        $message->attach($pdfPath);
+                    }
+
+                    if ($workerPassport) {
+                        $message->attach(storage_path("app/public/uploads/documents/{$workerPassport}"), ['as' => $workerPassportDocName]);
+                    }
+
+                    if ($workerVisa) {
+                        $message->attach(storage_path("app/public/uploads/documents/{$workerVisa}"), ['as' => $workerVisaDocName]);
+                    }
+                }
+            );
+        }
+
+        // Send all worker forms to HR
+        $workerForms = $worker->forms()->get();
+        $attachments = [];
+        $admin = Admin::where('role', 'hr')->first();
+
+        foreach ($workerForms as $workerForm) {
+            $formType = $workerForm->type;
+            $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
+
+            if (file_exists($filePath)) {
+                $workerIdentifier = $worker->id_number ?: $worker->passport;
+                $fileName = str_replace(' ', '-', "{$formType}-{$workerName}-{$workerIdentifier}.pdf");
+                $attachments[$filePath] = $fileName;
+            }
+        }
+
+        Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
+            $message->to(config('services.mail.default'));
+            if ($admin) {
+                $message->bcc($admin->email);
+            }
+            $message->subject(__('mail.all_forms.subject'));
+
+            foreach ($attachments as $filePath => $fileName) {
+                $message->attach($filePath, ['as' => $fileName]);
+            }
+        });
+
+        App::setLocale($worker->lng);
+
+        Mail::to($worker->email)->send(new InsuranceFormSignedMail($worker, $form));
     }
 }

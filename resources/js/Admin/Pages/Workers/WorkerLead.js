@@ -205,24 +205,24 @@ export default function WorkerLead() {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
                 },
-                columnDefs: [
-                    {
-                        targets: 3,
-                        className: "text-left",
-                    },
-                    {
-                        targets: "_all",
-                        createdCell: function (
-                            td,
-                            cellData,
-                            rowData,
-                            row,
-                            col
-                        ) {
-                            $(td).addClass("custom-cell-class");
-                        },
-                    },
-                ],
+                // columnDefs: [
+                //     {
+                //         targets: 3,
+                //         className: "text-left",
+                //     },
+                //     {
+                //         targets: "_all",
+                //         createdCell: function (
+                //             td,
+                //             cellData,
+                //             rowData,
+                //             row,
+                //             col
+                //         ) {
+                //             $(td).addClass("custom-cell-class");
+                //         },
+                //     },
+                // ],
                 initComplete: function () {
                     // Explicitly set the initial page after table initialization
                     const table = $(tableRef.current).DataTable();
@@ -309,11 +309,11 @@ export default function WorkerLead() {
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
-                $(tableRef.current).off("click");
+                // $(tableRef.current).off("click");
                 $(tableRef.current).off("page.dt");
             }
         };
-    }, [location.search]);
+    }, []);
 
     useEffect(() => {
         filterRef.current = filter; // Update the ref with the latest filter

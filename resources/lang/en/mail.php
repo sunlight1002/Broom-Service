@@ -634,7 +634,7 @@ return [
             'header' => 'Price Offer Reminder from Broom Service',
             'salutation' => "Hello :client_name,",
             'content' => "Just a reminder that you received a price offer from us on :offer_date.\nPlease find attached the price offer again for :service_name. \nOnce you confirm, we will send you an engagement agreement to complete and sign.\n\nClick the button below to view the price offer.\nIf you have any questions or need any assistance, we are here to help.\n\nClick here to view your price offer :price_offer_link",
-	        'signature' => "\n\nBest regards,  \nBroom Service\n📞 03-525-70-60\n🌐 www.broomservice.co.il"
+            'signature' => "\n\nBest regards,  \nBroom Service\n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
         'lead_accepted_price_offer' => [
             'header' => 'Action Required: Contract Signing for :client_name',
@@ -708,7 +708,7 @@ return [
                 'signature' => "Best Regards,\nBroom Service\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
             ],
         ],
-        
+
         // 'file_submission_request' => [
         //     'header' => 'File Submission Request for Quote | Broom Service',
         //     'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
@@ -753,7 +753,7 @@ return [
             'header' => 'Agreement Signature Reminder - Broom Service',
             'salutation' => "Hello :client_name,",
             'content' => "Just a reminder that an engagement agreement was sent to you on :contract_date.\nPlease find the agreement attached again. Kindly complete all details and sign where required.\n\nClick the button below to view the agreement.\nIf you have any questions or need assistance, we are here to help.\n\nClick here to view your agreement :contract_link",
-	        'signature' => "\n\nBest regards,  \nBroom Service  \n📞 03-525-70-60\n🌐 www.broomservice.co.il"
+            'signature' => "\n\nBest regards,  \nBroom Service  \n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
         // 'contract_reminder_team' => [
         //     'subject' => 'Follow-Up on Sent Contract | Broom Service',
@@ -903,7 +903,7 @@ return [
         'update_on_comment_resolution' => [
             'content' => "We’ve added updates to the tasks on your job for *:service_name* scheduled for *:date_time*. \nPlease review the latest updates and our responses to each task.\n\n*View Comments and Updates:* :view_worker_job",
             'signature' => "\n\nBest regards,\nBroom Service Team"
-        ],    
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -953,5 +953,13 @@ return [
         'company' => 'Broom Service',
         'company_team' => 'Broom Service Team',
         'company_meeting' => 'Meeting with Broom Service Team',
-    ]
+    ],
+    "all_forms" => [
+        'subject' => 'All forms of the worker',
+        'body' => "All forms of this worker: :worker_name",
+        "form101" => "Form 101",
+        "contract" => "Contract",
+        "safety_and_gear" => "Safety and equipment",
+        "insurance" => "Insurance",
+    ],
 ];

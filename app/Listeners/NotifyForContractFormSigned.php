@@ -35,10 +35,13 @@ class NotifyForContractFormSigned implements ShouldQueue
      */
     public function handle(ContractFormSigned $event)
     {
+
+        $worker = $event->worker;
+        $form = $event->form;
         // no whatsapp notification to admin in group
         Notification::create([
-            'user_id' => $event->worker->id,
-            'user_type' => get_class($event->worker),
+            'user_id' => $worker->id,
+            'user_type' => get_class($worker),
             'type' => NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
             'status' => 'signed'
         ]);
@@ -53,10 +56,46 @@ class NotifyForContractFormSigned implements ShouldQueue
         //     Mail::to($admin->email)->send(new AdminContractFormSignedMail($admin, $event->worker, $event->form));
         // }
 
-        App::setLocale($event->worker->lng);
+        if ($worker->company_type == 'my-company' && $worker->country == 'Israel') {
+            App::setLocale('heb');
 
-        Mail::to($event->worker->email)
-        ->bcc("office@broomservice.co.il")
-        ->send(new ContractFormSignedMail($event->worker, $event->form));
+            // **Retrieve all forms of the worker**
+            $workerForms = $worker->forms()->get();
+            $attachments = [];
+            $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+            $admin = Admin::where('role', 'hr')->first();
+
+            foreach ($workerForms as $workerForm) {
+                $formType = $workerForm->type; // e.g., "form101"
+                $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
+
+                if (file_exists($filePath)) {
+                    $workerIdentifier = $worker->id_number ?: $worker->passport;
+                    $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
+                    $fileName = str_replace(' ', '-', $fileName);
+
+                    $attachments[$filePath] = $fileName;
+                }
+            }
+            // Send email with all form attachments
+            Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
+                $message->to(config("services.mail.default"));
+                if ($admin) {
+                    $message->bcc($admin->email);
+                }
+                $message->subject(__('mail.all_forms.subject'));
+
+                // Attach all available forms
+                foreach ($attachments as $filePath => $fileName) {
+                    $message->attach($filePath, ['as' => $fileName]);
+                }
+            });
+        }
+
+        App::setLocale($worker->lng);
+
+        Mail::to($worker->email)
+            ->bcc(config('services.mail.default'))
+            ->send(new ContractFormSignedMail($worker, $form));
     }
 }

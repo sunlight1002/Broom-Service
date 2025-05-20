@@ -34,7 +34,7 @@ export default function WorkersRefund() {
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-                stateSave: true,
+                stateSave: false,
                 ajax: {
                     url: "/api/admin/refund-claims/list",
                     type: "GET",
@@ -156,11 +156,11 @@ export default function WorkersRefund() {
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy();
-                $(tableRef.current).off("click");
+                // $(tableRef.current).off("click");
                 $(tableRef.current).off("page.dt");
             }
         };
-    }, [filter, location.search]);
+    }, [filter]);
 
     const initializeTableActions = () => {
         $(tableRef.current).on("click", ".dt-approve-btn", function () {

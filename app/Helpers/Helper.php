@@ -30,7 +30,7 @@ if (!function_exists('sendInvoicePayToClient')) {
         // $pdf = PDF::loadView('InvoicePdf', compact('invoice'));
 
         Mail::to($data['job']['client']['email'])
-        ->bcc("office@broomservice.co.il")
+        ->bcc(config('services.mail.default'))
         ->send(new MailInvoiceToClient($data));
     }
 }

@@ -56,7 +56,7 @@ class NotifyForForm101Signed implements ShouldQueue
         App::setLocale($event->worker->lng);
 
         Mail::to($event->worker->email)
-        ->bcc("office@broomservice.co.il")
+        ->bcc(config('services.mail.default'))
         ->send(new Form101SignedMail($event->worker, $event->form));
     }
 }

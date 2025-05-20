@@ -38,7 +38,7 @@ class TerminateTheWorker extends Command
         $today = Carbon::today()->toDateString();
 
         // Find users whose last_work_date is today and update their status
-        $workers = User::with('forms')->whereDate('last_work_date', $today)->get();
+        $workers = User::with('forms')->where('status', 1)->whereDate('last_work_date', $today)->get();
         $insuranceCompany = InsuranceCompany::first();
 
 
@@ -46,19 +46,24 @@ class TerminateTheWorker extends Command
             $this->info('No workers to terminate today.');
         } else {
             foreach ($workers as $worker) {
-                $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
-                $file_name = $insuranceForm->pdf_file;
-
                 $worker->update(['status' => 0]);
 
-                if ($insuranceCompany && $insuranceCompany->email) {
+                $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
+                $file_name = $insuranceForm->pdf_name;
+                $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+                \Log::info(['file_name' => $file_name]);
+
+
+                if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
                     App::setLocale('heb');
                     // Send email
-                    Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $file_name) {
+                    Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
                         $message->to($insuranceCompany->email)
-                            ->bcc("office@broomservice.co.il")
-                            ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]))
-                            ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+                            ->bcc(config('services.mail.default'))
+                            ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
+                            if(is_file($pdfFile)) {
+                                $message->attach($pdfFile);
+                            }
                     });
                 }
 

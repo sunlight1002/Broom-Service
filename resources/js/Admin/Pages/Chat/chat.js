@@ -207,9 +207,9 @@ export default function chat({
         axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}&isWorkerLead=${workerLead}`, { headers }).then((res) => {
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
-            if (cl > c.length) {
-                scroller();
-            }
+            // if (cl > c.length) {
+            //     scroller();
+            // }
             setChatName(res?.data?.clientName)
 
             localStorage.setItem("chatLen", c.length);
@@ -383,7 +383,7 @@ export default function chat({
             const interval = callApi();
             return () => clearInterval(interval);
         }
-    }, []);
+    }, [localStorage.getItem("number")]);
 
 
     useEffect(() => {

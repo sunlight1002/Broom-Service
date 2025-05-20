@@ -85,7 +85,7 @@ class NotifyForOffer implements ShouldQueue
 
             Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
                 $messages->to($offer['client']['email']);
-                $messages->bcc("office@broomservice.co.il");
+                $messages->bcc(config('services.mail.default'));
                 $messages->subject(__('mail.offer.subject', [
                     'id' => $offer['id']
                 ]));
@@ -93,7 +93,7 @@ class NotifyForOffer implements ShouldQueue
         }elseif ($notificationType === 'email') {
             Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
                 $messages->to($offer['client']['email']);
-                $messages->bcc("office@broomservice.co.il");
+                $messages->bcc(config('services.mail.default'));
                 $messages->subject(__('mail.offer.subject', [
                     'id' => $offer['id']
                 ]));

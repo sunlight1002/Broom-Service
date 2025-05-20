@@ -119,7 +119,7 @@ class CreateJobOrder implements ShouldQueue
 
                 $cleaned_address = '';
                 if($address) {
-                    $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל"], "", $address->geo_address));
+                    $cleaned_address = trim(str_replace(["Israel", "יִשְׂרָאֵל", "ישראל"], "", $address->geo_address));
                 }
 
                 $subServiceId = $offerService['sub_services']['id'] ?? null;

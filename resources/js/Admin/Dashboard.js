@@ -56,45 +56,12 @@ export default function Dashboard() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    // const getCompletedJobs = () => {
-    //     axios.get("/api/admin/dashboard", { headers }).then((response) => {
-    //         setTotalJobs(response.data.total_jobs);
-    //         setTotalNewClients(response.data.total_new_clients);
-    //         setTotalActiveClients(response.data.total_active_clients);
-    //         setTotalLeads(response.data.total_leads);
-    //         setTotalWorkers(response.data.total_workers);
-    //         setTotalWorkerLeads(response.data.total_worker_leads);
-    //         setTotalOffers(response.data.total_offers);
-    //         setContracts(response.data.total_contracts);
-    //         setTotalSchedules(response.data.total_schedules);
-    //         if (response.data.latest_jobs.length > 0) {
-    //             setlatestJobs(response.data.latest_jobs);
-    //         } else {
-    //             setLoading("No job found");
-    //         }
-    //     });
-    // };
-    // const getUtilityTemplates = () => {
-    //     try {
-    //       const allTemplates = json.contents;
-      
-    //       const utilityTemplates = allTemplates.filter(
-    //         (t) => t.approval_requests?.status === "rejected"
-    //       );
-      
-    //       console.log("UTILITY Templates:", utilityTemplates);
-    //     } catch (error) {
-    //       console.error("Error filtering templates:", error);
-    //     }
-    //   };
-
     const getCompletedJobs = (
-        filter = "today",
         startDate = null,
         endDate = null
     ) => {
-        const params = { filter };
-        if (filter === "custom") {
+        const params = { selected };
+        if (selected === "custom") {
             params.start_date = startDate;
             params.end_date = endDate;
         }
@@ -150,18 +117,6 @@ export default function Dashboard() {
     };
     
 
-    // const latestClients = () => {
-    //     axios.get(`/api/admin/latest-clients`, { headers }).then((res) => {
-    //         if (res.data.clients.data.length > 0) {
-    //             setLatestClients(res.data.clients.data);
-    //             setPageCount(res.data.clients.last_page);
-    //         } else {
-    //             setPageCount(0);
-    //             setLoading("No client found!");
-    //         }
-    //     });
-    // };
-
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
@@ -176,11 +131,8 @@ export default function Dashboard() {
         getIncome();
         // latestClients();
         getAdmin();
-    }, [selected, dateRange]);
+    }, [selected]);
 
-    // const handleSelect = (day) => {
-    //     setSelected(day);
-    // };
 
     const handleSelect = (filter) => {
         setSelected(filter);
@@ -221,8 +173,6 @@ export default function Dashboard() {
 
         getCompletedJobs(filter, startDate, endDate);
 
-        console.log("startdate", startDate);
-        console.log("enddate", endDate);
     };
     // useEffect(() => {
     //     const savedDateRange = localStorage.getItem("dateRange");
@@ -234,7 +184,6 @@ export default function Dashboard() {
     useEffect(() => {
         if (dateRange.start_date && dateRange.end_date) {
             getCompletedJobs(
-                "custom",
                 dateRange.start_date,
                 dateRange.end_date
             );

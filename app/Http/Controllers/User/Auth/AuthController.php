@@ -865,7 +865,6 @@ class AuthController extends Controller
             }
 
             $file_name = Str::uuid()->toString() . '.pdf';
-            \Log::info($file_name);
 
             if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
                 return response()->json([
@@ -895,43 +894,6 @@ class AuthController extends Controller
 
             if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 $user = $this->createUser($worker);
-            }
-
-            if($worker->company_type == 'my-company' && $worker->country == 'Israel') {
-                App::setLocale('heb');
-
-                // **Retrieve all forms of the worker**
-                $workerForms = $worker->forms()->get();
-                $attachments = [];
-                $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
-                $admin = Admin::where('role', 'hr')->first();
-
-                foreach ($workerForms as $workerForm) {
-                    $formType = $workerForm->type; // e.g., "form101"
-                    $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
-
-                    if (file_exists($filePath)) {
-                        $workerIdentifier = $worker->id_number ?: $worker->passport;
-                        $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
-                        $fileName = str_replace(' ', '-', $fileName);
-
-                        $attachments[$filePath] = $fileName;
-                    }
-
-                }
-                // Send email with all form attachments
-                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
-                    $message->to(config("services.mail.default"));
-                    if($admin) {
-                        $message->bcc($admin->email);
-                    }
-                    $message->subject(__('mail.all_forms.subject'));
-
-                    // Attach all available forms
-                    foreach ($attachments as $filePath => $fileName) {
-                        $message->attach($filePath, ['as' => $fileName]);
-                    }
-                });
             }
 
         }
@@ -1445,7 +1407,6 @@ class AuthController extends Controller
     public function saveInsuranceForm(Request $request, $id)
     {
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
-        $insuranceCompany = InsuranceCompany::first();
 
         if (!$worker) {
             return response()->json([
@@ -1520,78 +1481,7 @@ class AuthController extends Controller
             }
             event(new InsuranceFormSigned($worker, $form));
 
-            $form101 = $worker->forms()
-            ->where('type', WorkerFormTypeEnum::FORM101)
-            ->first();
-
-            $dateOfBeginningWork = $form101 ? data_get($form101->data, 'DateOfBeginningWork') : null;
-            $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
-
-
-            if ($insuranceCompany && $insuranceCompany->email) {
-                App::setLocale('heb');
-
-                // Determine the correct document file name
-                $workerPassport = $worker->passport_card ?? null;
-                $workerVisa = $worker->visa ?? null;
-
-                $workerPassportDocName = "Passport-{$workerName}";
-                $workerVisaDocName = "Visa-{$workerName}";
-
-                $workerPassportDocName = str_replace(' ', '-', $workerPassportDocName);
-                $workerVisaDocName = str_replace(' ', '-', $workerVisaDocName);
-
-                // Send email
-                Mail::send('/insuaranceCompany', ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork],
-                    function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName) {
-                        $message->to($insuranceCompany->email)
-                            ->subject(__('mail.insuarance_company.subject', [
-                                'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')
-                            ]))
-                            ->attach(storage_path("app/public/signed-docs/{$file_name}"));
-
-                        // Attach document if it exists
-                        if ($workerPassport && $workerVisa) {
-                            $message->attach(storage_path("app/public/uploads/documents/{$workerPassport}"), ['as' => $workerPassportDocName]);
-                            $message->attach(storage_path("app/public/uploads/documents/{$workerVisa}"), ['as' => $workerVisaDocName]);
-                        }
-                    }
-                );
-            }
-
             App::setLocale('heb');
-
-            // **Retrieve all forms of the worker**
-            $workerForms = $worker->forms()->get();
-            $attachments = [];
-            $admin = Admin::where('role', 'hr')->first();
-
-            foreach ($workerForms as $workerForm) {
-                $formType = $workerForm->type; // e.g., "form101"
-                $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
-
-                if (file_exists($filePath)) {
-                    $workerIdentifier = $worker->id_number ?: $worker->passport;
-                    $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
-                    $fileName = str_replace(' ', '-', $fileName);
-
-                    $attachments[$filePath] = $fileName;
-                }
-
-            }
-            // Send email with all form attachments
-            Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
-                $message->to(config('services.mail.default'));
-                if($admin) {
-                    $message->bcc($admin->email);
-                }
-                $message->subject(__('mail.all_forms.subject'));
-
-                // Attach all available forms
-                foreach ($attachments as $filePath => $fileName) {
-                    $message->attach($filePath, ['as' => $fileName]);
-                }
-            });
         }
 
         return response()->json([
