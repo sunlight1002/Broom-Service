@@ -36,11 +36,26 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
+        $filter = $request->get('filter');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
+        $startDate = Carbon::parse($start_date)->startOfDay();
+        $endDate = Carbon::parse($end_date)->endOfDay();
+
         $query = Schedule::query()
             ->leftJoin('admins', 'schedules.team_id', '=', 'admins.id')
             ->leftJoin('clients', 'schedules.client_id', '=', 'clients.id')
             ->leftJoin('client_property_addresses', 'schedules.address_id', '=', 'client_property_addresses.id')
             ->select('schedules.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.phone', 'schedules.booking_status', 'client_property_addresses.city', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time', 'client_property_addresses.geo_address');
+
+        if (!empty($start_date) && !empty($end_date)) {
+            $query->whereBetween('schedules.start_date', [$startDate, $endDate]);
+        }
+
+        if (!empty($filter) && $filter != 'All') {
+            $query->where('schedules.booking_status', $filter);
+        }
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -97,13 +112,13 @@ class ScheduleController extends Controller
             'address_id'     => 'Property',
             'team_id'        => 'Attender'
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-    
+
         $input = $request->input();
-    
+
         if ($input['start_time']) {
             // Map Hebrew meridian terms to English equivalents
             $hebrewMeridianMap = [
@@ -115,19 +130,19 @@ class ScheduleController extends Controller
                 'אחרי הצהריים' => 'PM',
                 'בערב' => 'PM',
             ];
-    
+
             // Replace Hebrew meridians in the start_time with English AM/PM
             $input['start_time'] = str_replace(array_keys($hebrewMeridianMap), array_values($hebrewMeridianMap), $input['start_time']);
-    
+
             // Ensure the start_time is in a valid format that Carbon can parse
             $startTimeWithDate = date('Y-m-d') . ' ' . $input['start_time']; // Add current date for full timestamp
-    
+
             try {
                 // Parse the start_time to create end_time (30 minutes added)
                 $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', $startTimeWithDate)
                     ->addMinutes(30)
                     ->format('h:i A');
-    
+
                 // Standard format for start_time (24-hour format)
                 $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', $startTimeWithDate)
                     ->toTimeString();
@@ -138,30 +153,30 @@ class ScheduleController extends Controller
                 ], 400);
             }
         }
-    
+
         $client = Client::find($input['client_id']);
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found',
             ], 404);
         }
-    
+
         if (empty($client->phone)) {
             return response()->json([
                 'message' => "Client's phone is required",
             ], 403);
         }
-    
+
         $schedule = Schedule::create($input);
-    
-        if($client->status != 2) {
+
+        if ($client->status != 2) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => LeadStatusEnum::POTENTIAL]
             );
-        
+
             event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
-        
+
             LeadActivity::create([
                 'client_id' => $client->id,
                 'created_date' => " ",
@@ -170,19 +185,19 @@ class ScheduleController extends Controller
                 'reason' => 'New schedule created',
             ]);
         }
-    
+
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);
-    
+
             SendMeetingMailJob::dispatch($schedule);
-    
+
             return response()->json([
                 'data' => $schedule,
                 'message' => 'Meeting scheduled successfully',
             ]);
         }
         $schedule->load(['client', 'team', 'propertyAddress']);
-    
+
         $this->saveGoogleCalendarEvent($schedule);
         Notification::create([
             'user_id' => $schedule->client_id,
@@ -191,10 +206,10 @@ class ScheduleController extends Controller
             'meet_id' => $schedule->id,
             'status' => $schedule->booking_status
         ]);
-    
+
         // $this->sendMeetingMail($schedule);
         SendMeetingMailJob::dispatch($schedule);
-    
+
         if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
             Notification::create([
                 'user_id' => $schedule->client_id,
@@ -204,14 +219,14 @@ class ScheduleController extends Controller
                 'status' => $schedule->booking_status
             ]);
         }
-    
+
         return response()->json([
             'data' => $schedule,
             'message' => 'Meeting scheduled successfully',
         ]);
     }
-    
-    
+
+
 
     public function createScheduleCalendarEvent($scheduleID)
     {
@@ -485,25 +500,25 @@ class ScheduleController extends Controller
 
         $client = $schedule->client;
 
-        if($request->status == 'declined') {
+        if ($request->status == 'declined') {
             $hasUnVerifiedContract = $client->contract->contains(function ($contract) {
                 return $contract->status === 'un-verified';
             });
-    
+
             if (!$hasUnVerifiedContract) {
 
                 $client->update(['status' => 0]);
                 $newLeadStatus = LeadStatusEnum::UNINTERESTED;
-    
+
                 if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                     $client->lead_status()->updateOrCreate(
                         [],
                         ['lead_status' => $newLeadStatus]
                     );
-    
+
                     event(new ClientLeadStatusChanged($client, $newLeadStatus));
                 }
-            }else{
+            } else {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
                     "notificationData" => $schedule->toArray()

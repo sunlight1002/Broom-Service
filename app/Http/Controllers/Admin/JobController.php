@@ -73,6 +73,7 @@ class JobController extends Controller
         $actual_time_exceed_filter = $request->get('actual_time_exceed_filter');
         $has_no_worker = $request->get('has_no_worker');
         $show_all_worker = $request->get('show_all_worker');
+        $show_cancel_jobs = $request->get('show_cancel_jobs');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $worker_ids = ['209','185', '67'];  
@@ -85,6 +86,9 @@ class JobController extends Controller
         ->leftJoin('order', 'order.id', '=', 'jobs.order_id')
         ->when(!$show_all_worker && is_array($worker_ids) && count($worker_ids), function ($q) use ($worker_ids) {
             return $q->whereIn('jobs.worker_id', $worker_ids);
+        })
+        ->when($show_cancel_jobs, function ($q) {
+            return $q->where('jobs.status', 'cancel');
         })
         ->when($start_date, fn($q) => $q->whereDate('jobs.start_date', '>=', $start_date))
         ->when($end_date, fn($q) => $q->whereDate('jobs.start_date', '<=', $end_date))

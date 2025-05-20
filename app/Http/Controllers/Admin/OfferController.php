@@ -38,10 +38,24 @@ class OfferController extends Controller
      */
     public function index(Request $request)
     {
+        $filter = $request->get('filter');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
+        $startDate = Carbon::parse($start_date)->startOfDay();
+        $endDate = Carbon::parse($end_date)->endOfDay();
+
         $query = Offer::query()
             ->leftJoin('clients', 'offers.client_id', '=', 'clients.id')
             ->select('offers.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'offers.status', 'offers.subtotal', 'offers.total', 'offers.created_at');
 
+        if (!empty($start_date) && !empty($end_date)) {
+            $query->whereBetween('offers.created_at', [$startDate, $endDate]);
+        }
+
+        if (!empty($filter) && $filter != 'All') {
+            $query->where('offers.status', $filter);
+        }
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {

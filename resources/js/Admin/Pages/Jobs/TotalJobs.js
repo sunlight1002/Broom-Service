@@ -54,9 +54,10 @@ export default function TotalJobs() {
     const actualTimeExceedFilterRef = useRef(null);
     const hasNoWorkerFilterRef = useRef(null);
     const showAllWorkerFilterRef = useRef(null);
+    const showCancelJobsFilterRef = useRef(null);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [allClients, setAllClients] = useState([]);
-    const [selectedJobDate, setSelectedJobDate] = useState(null);   
+    const [selectedJobDate, setSelectedJobDate] = useState(null);
     const alert = useAlert();
     const navigate = useNavigate();
 
@@ -202,6 +203,9 @@ export default function TotalJobs() {
                             ? 1
                             : 0;
                         d.show_all_worker = showAllWorkerFilterRef.current.checked
+                            ? 1
+                            : 0;
+                        d.show_cancel_jobs = showCancelJobsFilterRef.current.checked
                             ? 1
                             : 0;
                         d.start_date = startDateRef.current.value;
@@ -592,7 +596,7 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
             const _id = $(this).data("id");
             const date = $(this).data("date");
-            handleChangeShift({_id, date});
+            handleChangeShift({ _id, date });
             // navigate(`/admin/jobs/${_id}/change-shift`);
         });
 
@@ -787,7 +791,7 @@ export default function TotalJobs() {
         setSelectedJob(_job._id);
         setSelectedJobDate(_job.date);
         console.log(_job);
-        
+
         setIsChangeShiftModal(true);
     };
 
@@ -1347,6 +1351,25 @@ export default function TotalJobs() {
                                         htmlFor="inlineCheckbox3"
                                     >
                                         Show all workers
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="inlineCheckbox4"
+                                        onChange={() => {
+                                            $(tableRef.current)
+                                                .DataTable()
+                                                .draw();
+                                        }}
+                                        ref={showCancelJobsFilterRef}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="inlineCheckbox4"
+                                    >
+                                        Show Cancelled Jobs
                                     </label>
                                 </div>
                             </div>

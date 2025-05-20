@@ -34,6 +34,15 @@ export default function OfferPrice() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
+
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
+    const filterRef = useRef(null);
+
     const offerStatuses = {
         "Sent": t("global.sent"),
         "Accepted": t("modal.accepted"),
@@ -117,6 +126,11 @@ export default function OfferPrice() {
                             "Authorization",
                             `Bearer ` + localStorage.getItem("admin-token")
                         );
+                    },
+                    data: function (d) {
+                        d.filter = filterRef.current.value;
+                        d.start_date = startDateRef.current.value;
+                        d.end_date = endDateRef.current.value;
                     },
                 },
                 order: [[0, "desc"]],
@@ -371,18 +385,14 @@ export default function OfferPrice() {
     };
 
     useEffect(() => {
-        if (filter == "All") {
-            $(tableRef.current).DataTable().column(4).search(null).draw();
-        } else {
-            $(tableRef.current).DataTable().column(4).search(filter).draw();
-        }
-    }, [filter]);
+        $(tableRef.current).DataTable().draw();
+    }, [filter, dateRange]);
 
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
-                <div className="titleBox customer-title">
+                <div className="titleBox customer-title mb-2">
                     <div className="row">
                         <div className="col-sm-5">
                             <h1 className="page-title">{t("client.common.offers")}</h1>
@@ -457,7 +467,7 @@ export default function OfferPrice() {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-sm-6 hidden-xl mt-4">
+                        {/* <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
@@ -466,7 +476,7 @@ export default function OfferPrice() {
                                 <option value="5">{t("client.dashboard.total")}</option>
                                 <option value="4">{t("client.dashboard.status")}</option>
                             </select>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <div className="d-none d-lg-block">
@@ -500,8 +510,100 @@ export default function OfferPrice() {
                         </div>
                     </div>
                 </div>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "left",
+                    }}
+                    className="hide-scrollbar my-2"
+                >
+                    <p className="mr-2" style={{ fontWeight: "bold" }}>Date</p>
+
+                    <div className="d-flex align-items-center flex-wrap">
+                        <input
+                            className="form-control calender"
+                            type="date"
+                            placeholder="From date"
+                            name="from filter"
+                            style={{ width: "fit-content" }}
+                            value={dateRange.start_date}
+                            onChange={(e) => {
+                                const updatedDateRange = {
+                                    start_date: e.target.value,
+                                    end_date: dateRange.end_date,
+                                };
+
+                                setDateRange(updatedDateRange);
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        />
+                        <div className="mx-2">-</div>
+                        <input
+                            className="form-control calender mr-1"
+                            type="date"
+                            placeholder="To date"
+                            name="to_filter"
+                            style={{ width: "fit-content" }}
+                            value={dateRange.end_date}
+                            onChange={(e) => {
+                                const updatedDateRange = {
+                                    start_date: dateRange.start_date,
+                                    end_date: e.target.value,
+                                };
+
+                                setDateRange(updatedDateRange);
+                                // Corrected: JSON.stringify instead of json.stringify
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        />
+                        <button
+                            type="button"
+                            className="btn btn-default navyblue mx-1 my-1"
+                            style={{
+                                padding: ".195rem .6rem",
+                            }}
+                            onClick={() => {
+                                const updatedDateRange = {
+                                    start_date: "",
+                                    end_date: "",
+                                };
+                                setDateRange(updatedDateRange);
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        >
+                            Reset
+                        </button>
+                        <input
+                            type="hidden"
+                            value={dateRange.start_date}
+                            ref={startDateRef}
+                        />
+
+                        <input
+                            type="hidden"
+                            value={dateRange.end_date}
+                            ref={endDateRef}
+                        />
+
+                    </div>
+                </div>
+                <input
+                    type="hidden"
+                    value={filter}
+                    ref={filterRef}
+                />
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body">
+                    <div className="card-body p-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

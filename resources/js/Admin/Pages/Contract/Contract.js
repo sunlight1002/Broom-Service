@@ -27,6 +27,13 @@ export default function Contract() {
     const [filter, setFilter] = useState("All");
     const [status, setStatus] = useState("");
     const alert = useAlert();
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
+
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
 
     const contractStatuses = {
         "verified": t("global.verified"),
@@ -91,6 +98,8 @@ export default function Contract() {
                     },
                     data: function (d) {
                         d.status = statusRef.current.value;
+                        d.start_date = startDateRef.current.value;
+                        d.end_date = endDateRef.current.value;
                     },
                 },
                 order: [[0, "desc"]],
@@ -430,7 +439,7 @@ export default function Contract() {
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
-    }, [filter]);
+    }, [filter, dateRange]);
 
     return (
         <div id="container">
@@ -556,8 +565,95 @@ export default function Contract() {
                         </div>
                     </div>
                 </div>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "left",
+                    }}
+                    className="hide-scrollbar mb-2"
+                >
+                    <p className="mr-2" style={{ fontWeight: "bold" }}>Date</p>
+
+                    <div className="d-flex align-items-center flex-wrap">
+                        <input
+                            className="form-control calender"
+                            type="date"
+                            placeholder="From date"
+                            name="from filter"
+                            style={{ width: "fit-content" }}
+                            value={dateRange.start_date}
+                            onChange={(e) => {
+                                const updatedDateRange = {
+                                    start_date: e.target.value,
+                                    end_date: dateRange.end_date,
+                                };
+
+                                setDateRange(updatedDateRange);
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        />
+                        <div className="mx-2">-</div>
+                        <input
+                            className="form-control calender mr-1"
+                            type="date"
+                            placeholder="To date"
+                            name="to_filter"
+                            style={{ width: "fit-content" }}
+                            value={dateRange.end_date}
+                            onChange={(e) => {
+                                const updatedDateRange = {
+                                    start_date: dateRange.start_date,
+                                    end_date: e.target.value,
+                                };
+
+                                setDateRange(updatedDateRange);
+                                // Corrected: JSON.stringify instead of json.stringify
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        />
+                        <button
+                            type="button"
+                            className="btn btn-default navyblue mx-1 my-1"
+                            style={{
+                                padding: ".195rem .6rem",
+                            }}
+                            onClick={() => {
+                                const updatedDateRange = {
+                                    start_date: "",
+                                    end_date: "",
+                                };
+                                setDateRange(updatedDateRange);
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        >
+                            Reset
+                        </button>
+                        <input
+                            type="hidden"
+                            value={dateRange.start_date}
+                            ref={startDateRef}
+                        />
+
+                        <input
+                            type="hidden"
+                            value={dateRange.end_date}
+                            ref={endDateRef}
+                        />
+
+                    </div>
+                </div>
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body">
+                    <div className="card-body p-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

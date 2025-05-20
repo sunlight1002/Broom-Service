@@ -28,7 +28,9 @@ export default function Sidebar() {
     const adminLng = localStorage.getItem("admin-lng");
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
     const [isClientDropdownOpen, setClientDropdownOpen] = useState(false); // Clients dropdown
-    const [chatDropdown, setChatDropdown] = useState(false);
+    const [chatDropdown, setChatDropdown] = useState(false);    
+    const [isWorkerDropdownOpen, setWorkerDropdownOpen] = useState(false);
+
 
     // Toggle the dropdown
     const toggleDropdown = () => {
@@ -44,17 +46,25 @@ export default function Sidebar() {
         setChatDropdown(!chatDropdown);
     };
 
+    const toggleWorkerDropdown = () => {
+        navigate("/admin/workers");
+        setWorkerDropdownOpen(!isWorkerDropdownOpen);
+    };
+
     const fullUrl = location.pathname + location.search;
     // Check if the current path matches any of the routes in the dropdown
     const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings", "/admin/holidays", "/admin/templates"].includes(location.pathname);
     const isChatDropdownActive = [`/admin/chat`, `/admin/worker-lead-chat`].includes(location.pathname);
     const isClientDropdownActive = ["/admin/clients", "/admin/clients?type=pending%20client", "/admin/clients?type=active%20client", "/admin/clients?type=freeze%20client", "/admin/clients?type=past"].includes(fullUrl);
-
+    const isWorkerDropdownActive = ["/admin/workers", "/admin/workers-leaves", "/admin/workers-refund", "/admin/task"].includes(location.pathname);
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
     };
+
+    console.log(isChatDropdownActive);
+
 
     const HandleLogout = (e) => {
         fetch("/api/admin/logout", {
@@ -92,15 +102,36 @@ export default function Sidebar() {
         activeClient: "/admin/clients?type=active%20client",
         freezeClient: "/admin/clients?type=freeze%20client",
         pastClient: "/admin/clients?type=past",
+        // Worker routes
+        workers: "/admin/workers",
+        workersLeaves: "/admin/workers-leaves",
+        workersRefund: "/admin/workers-refund",
+        task: "/admin/task",
     };
+
+    const settings ={
+
+    }
 
     const isActive = (path) => location.pathname === path;
     const isActiveClient = (path) => fullUrl === path;
 
     // Check if any of the children are active to apply the active class to the parent
-    const isParentActive = () => {
-        return Object.values(routes).some((route) => isActive(route));
+    const isParentActive = (keysToCheck = []) => {
+        if (keysToCheck.length === 0) {
+            return Object.values(routes).some(route => isActive(route));
+        }
+
+        return keysToCheck.some(key => {
+            const route = routes[key];
+            return route && isActive(route);
+        });
     };
+
+
+    // const isSettingsParentActive = () => {
+    //     return Object.values(routes).some((route) => isActiveClient(route));
+    // };
 
     // console.log(lng);
 
@@ -199,27 +230,76 @@ export default function Sidebar() {
                     )
                 }
 
-                <li className="list-group-item">
+                {/* <li className="list-group-item">
                     <NavLink to="/admin/workers"
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.workers")}
                     </NavLink>
+                </li> */}
+                <li className={`list-group-item ${isWorkerDropdownActive ? "active" : ""}`}>
+                    <div className="fence commonDropdown">
+                        <div >
+                            <a
+                                href="#"
+                                className={`text-left ${isWorkerDropdownActive ? "text-white active" : ""} `}
+                                data-toggle="collapse"
+                                onClick={toggleWorkerDropdown}
+                                aria-expanded={isWorkerDropdownOpen}
+                                data-target="#worker"
+                                aria-controls="worker"
+                            >
+                                <i className={`fa-solid fa-users font-20 ${isWorkerDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.workers")}{" "}
+                                <i className={`fa-solid fa-angle-down ${isWorkerDropdownOpen ? "text-white rotate-180" : ""}`}
+                                    style={{
+                                        rotate: isWorkerDropdownOpen ? "180deg" : ""
+                                    }}
+                                ></i>
+                            </a>
+                        </div>
+                        <div
+                            id="worker"
+                            className={`collapse ${isParentActive(["workersLeaves", "task", "workersRefund"]) ? "show" : ""}`}
+                            aria-labelledby="worker"
+                            data-parent="#worker"
+                        >
+                            <div className="card-body">
+                                <ul className="list-group">
+
+                                    <li className={`list-group-item ${isActive(routes.workersLeaves) ? "active" : ""}`}>
+                                        <Link to={routes.workersLeaves} style={isActive(routes.workersLeaves) ? { color: "white" } : { color: "#757589" }}>
+                                            <i className={`fa-solid fa-calendar-minus font-20 ${isActive(routes.workersLeaves) ? "text-white" : ""}`}></i>{" "}{t("admin.sidebar.workerLeave")}
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.task) ? "active" : ""}`}>
+                                        <Link to={routes.task} style={isActive(routes.task) ? { color: "white" } : { color: "#757589" }}>
+                                            <i className={`fa-solid fa-list-check ${isActive(routes.task) ? "text-white" : ""}`}></i>{" "}{t("admin.sidebar.task_management")}
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.workersRefund) ? "active" : ""}`}>
+                                        <Link to={routes.workersRefund} style={isActive(routes.workersRefund) ? { color: "white" } : { color: "#757589" }}>
+                                            <i className={`fa-solid fa-undo-alt font-20 ${isActive(routes.workersRefund) ? "text-white" : ""}`}></i>{" "}{t("worker.worker_refund")}
+                                        </Link>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </li>
-                <li className="list-group-item">
+                {/* <li className="list-group-item">
                     <NavLink to="/admin/workers-leaves"
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-calendar-minus font-20"></i>{t("admin.sidebar.workerLeave")}
                     </NavLink>
-                </li>
-                <li className="list-group-item">
+                </li> */}
+                {/* <li className="list-group-item">
                     <NavLink to="/admin/task"
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
                     </NavLink>
-                </li>
+                </li> */}
                 <li className="list-group-item">
                     <NavLink to="/admin/worker-leads"
                         className="d-flex align-items-center"
@@ -227,13 +307,13 @@ export default function Sidebar() {
                         <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.worker_lead")}
                     </NavLink>
                 </li>
-                <li className="list-group-item">
+                {/* <li className="list-group-item">
                     <NavLink to="/admin/workers-refund"
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-undo-alt font-20"></i>{t("worker.worker_refund")}
                     </NavLink>
-                </li>
+                </li> */}
                 {/* <li className="list-group-item">
                     <NavLink to="/admin/workers-hearing"
                         className="d-flex align-items-center"
@@ -323,7 +403,7 @@ export default function Sidebar() {
                                 data-target="#chat"
                                 aria-controls="chat"
                             >
-                                <i className="fa-solid fa-message font-20"></i> {t("admin.sidebar.whatsapp")}{" "}
+                                <i className={`fa-solid fa-message font-20 ${isChatDropdownActive ? "text-white" : ""}`}></i> {t("admin.sidebar.whatsapp")}{" "}
                                 <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
                                     style={{
                                         rotate: chatDropdown ? "180deg" : ""
@@ -333,7 +413,7 @@ export default function Sidebar() {
                         </div>
                         <div
                             id="chat"
-                            className={`collapse ${isParentActive() ? "show" : ""}`}
+                            className={`collapse ${chatDropdown ? "show" : ""}`}
                             aria-labelledby="chat"
                             data-parent="#chat"
                         >
@@ -424,7 +504,7 @@ export default function Sidebar() {
                         </div>
                         <div
                             id="fence2"
-                            className={`collapse ${isParentActive() ? "show" : ""}`}
+                            className={`collapse ${isParentActive(["manageTeam", "services", "settings", "manpowerCompanies", "insuranceCompanies", "manageTime", "holidays", "discount", "waTemplates", "payslipSettings", "accountSettings"]) ? "show" : ""}`}
                             aria-labelledby="fencehead2"
                             data-parent="#fence"
                         >

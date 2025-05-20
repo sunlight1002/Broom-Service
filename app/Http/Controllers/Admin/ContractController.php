@@ -41,6 +41,11 @@ class ContractController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status');
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
+        $startDate = Carbon::parse($start_date)->startOfDay();
+        $endDate = Carbon::parse($end_date)->endOfDay();
 
         $query = Contract::query()
             ->leftJoin('offers', 'offers.id', '=', 'contracts.offer_id')
@@ -49,6 +54,10 @@ class ContractController extends Controller
                 return $q->where('contracts.status', $status);
             })
             ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.unique_hash', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services', 'contracts.created_at');
+
+        if (!empty($start_date) && !empty($end_date)) {
+            $query->whereBetween('contracts.created_at', [$startDate, $endDate]);
+        }
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {

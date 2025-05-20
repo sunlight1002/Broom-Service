@@ -853,6 +853,8 @@ export default function PriceOffer() {
                                     </thead>
                                     <tbody>
                                         {services.map((s, i) => {
+                                        console.log(s);
+                                        
                                             const serviceName = s.template === "others"
                                                 ? s.other_title
                                                 : clientLng === 'heb'
@@ -917,9 +919,7 @@ export default function PriceOffer() {
 
                                                     {s?.type == "fixed" ? (
                                                         <td>
-                                                            {s.workers
-                                                                .length *
-                                                                s.fixed_price}{" "}
+                                                            {s.fixed_price}{" "}
                                                             {t(
                                                                 "global.currency"
                                                             )}

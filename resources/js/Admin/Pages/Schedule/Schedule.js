@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAlert } from "react-alert";
 
-import $ from "jquery";
+import $, { data } from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
@@ -28,6 +28,14 @@ export default function Schedule() {
     const [selectedMeetingId, setSelectedMeetingId] = useState(null)
     const [status, setStatus] = useState("");
     const alert = useAlert();
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
+
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
+    const filterRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -51,7 +59,7 @@ export default function Schedule() {
     };
 
     const handleModal = (id, status) => {
-        if(status != "rescheduled") {
+        if (status != "rescheduled") {
             setStatus(status)
         }
         setSelectedMeetingId(id);
@@ -85,6 +93,11 @@ export default function Schedule() {
                             "Authorization",
                             `Bearer ` + localStorage.getItem("admin-token")
                         );
+                    },
+                    data: function (d) {
+                        d.filter = filterRef.current.value;
+                        d.start_date = startDateRef.current.value;
+                        d.end_date = endDateRef.current.value;
                     },
                 },
                 order: [[0, "desc"]],
@@ -366,12 +379,9 @@ export default function Schedule() {
     };
 
     useEffect(() => {
-        if (filter == "All") {
-            $(tableRef.current).DataTable().column(5).search(null).draw();
-        } else {
-            $(tableRef.current).DataTable().column(5).search(filter).draw();
-        }
-    }, [filter]);
+        $(tableRef.current).DataTable().draw();
+    }, [filter, dateRange]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -381,7 +391,7 @@ export default function Schedule() {
                         <div className="col-sm-6">
                             <h1 className="page-title">{t("client.common.meetings")}</h1>
                         </div>
-                        <div className="col-sm-6 hidden-xl mt-4">
+                        {/* <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
@@ -390,10 +400,10 @@ export default function Schedule() {
                                 <option value="0">{t("j_status.scheduled")}</option>
                                 <option value="5">{t("global.status")}</option>
                             </select>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
-                <div className=" mb-4 d-none d-lg-block">
+                <div className=" mb-2 d-none d-lg-block">
                     <div className="row">
                         <div
                             style={{
@@ -407,7 +417,7 @@ export default function Schedule() {
                         <div>
                             <FilterButtons
                                 text={t("admin.global.All")}
-                                className="px-3 mr-1 ml-4"
+                                className="px-3 mr-1 ml-2"
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />
@@ -423,10 +433,153 @@ export default function Schedule() {
                                 );
                             })}
                         </div>
+                        <input
+                            type="hidden"
+                            value={filter}
+                            ref={filterRef}
+                        />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-sm-12 mt-0 pl-3 d-flex d-lg-none">
+                        <div className="search-data m-0">
+                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                <div
+                                    className=" mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("global.filter")}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <span className="ml-2" style={{
+                                    padding: "6px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px"
+                                }}>{filter || t("admin.leads.All")}</span>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilter("Day");
+                                        }}
+                                    >
+                                        {t("admin.global.All")}
+                                    </button>
+
+                                    {meetingStatuses.map((_status, _index) => {
+                                        return (
+                                            <button
+                                                className="dropdown-item"
+                                                key={_index}
+                                                onClick={() => {
+                                                    setFilter(_status);
+                                                }}
+                                            >
+                                                {_status}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "left",
+                    }}
+                    className="hide-scrollbar my-2"
+                >
+                    <p className="mr-2" style={{ fontWeight: "bold" }}>Date</p>
+
+                    <div className="d-flex align-items-center flex-wrap">
+                        <input
+                            className="form-control calender"
+                            type="date"
+                            placeholder="From date"
+                            name="from filter"
+                            style={{ width: "fit-content" }}
+                            value={dateRange.start_date}
+                            onChange={(e) => {
+                                const updatedDateRange = {
+                                    start_date: e.target.value,
+                                    end_date: dateRange.end_date,
+                                };
+
+                                setDateRange(updatedDateRange);
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        />
+                        <div className="mx-2">-</div>
+                        <input
+                            className="form-control calender mr-1"
+                            type="date"
+                            placeholder="To date"
+                            name="to_filter"
+                            style={{ width: "fit-content" }}
+                            value={dateRange.end_date}
+                            onChange={(e) => {
+                                const updatedDateRange = {
+                                    start_date: dateRange.start_date,
+                                    end_date: e.target.value,
+                                };
+
+                                setDateRange(updatedDateRange);
+                                // Corrected: JSON.stringify instead of json.stringify
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        />
+                        <button
+                            type="button"
+                            className="btn btn-default navyblue mx-1 my-1"
+                            style={{
+                                padding: ".195rem .6rem",
+                            }}
+                            onClick={() => {
+                                const updatedDateRange = {
+                                    start_date: "",
+                                    end_date: "",
+                                };
+                                setDateRange(updatedDateRange);
+                                localStorage.setItem(
+                                    "dateRange",
+                                    JSON.stringify(updatedDateRange)
+                                );
+                            }}
+                        >
+                            Reset
+                        </button>
+                        <input
+                            type="hidden"
+                            value={dateRange.start_date}
+                            ref={startDateRef}
+                        />
+
+                        <input
+                            type="hidden"
+                            value={dateRange.end_date}
+                            ref={endDateRef}
+                        />
+
                     </div>
                 </div>
                 <div className="card " style={{ boxShadow: "none" }}>
-                    <div className="card-body pl-0 pr-0">
+                    <div className="card-body pl-0 pr-0 pt-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}
