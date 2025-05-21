@@ -90,6 +90,9 @@ class JobController extends Controller
         ->when($show_cancel_jobs, function ($q) {
             return $q->where('jobs.status', 'cancel');
         })
+        ->when(!$show_cancel_jobs, function ($q) {
+            return $q->where('jobs.status', '!=', 'cancel');
+        })
         ->when($start_date, fn($q) => $q->whereDate('jobs.start_date', '>=', $start_date))
         ->when($end_date, fn($q) => $q->whereDate('jobs.start_date', '<=', $end_date))
         ->when($done_filter == 'done', fn($q) => $q->where('jobs.is_job_done', 1))
