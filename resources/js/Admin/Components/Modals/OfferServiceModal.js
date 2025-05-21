@@ -107,8 +107,8 @@ export default function OfferServiceModal({
         const selectedValues = selectedOptions.target.value;
 
         const selectedOptionName = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subname");
-        console.log("selectedOptionName",selectedOptionName);
-        
+        console.log("selectedOptionName", selectedOptionName);
+
         const selectedSubPrice = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subprice");
         const selectedSubHours = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("hours");
 
@@ -353,7 +353,7 @@ export default function OfferServiceModal({
 
     const handleComments = (serviceIndex, e) => {
         const value = e.target.value; // Capture the value before the event is nullified
-    
+
         setOfferServiceTmp((prevState) => {
             const updatedServices = [...prevState];
             updatedServices[serviceIndex] = {
@@ -459,7 +459,10 @@ export default function OfferServiceModal({
                                                     name={service.name}
                                                     template={service.template}
                                                 >
-                                                    {service?.icon ? service.icon : service.name}
+                                                    {service?.name?.includes("Star")
+                                                        ? `${service.icon ? service.icon : service.name}`
+                                                        : service?.icon ? service.icon + " (" + service.name + ")" : service.name}
+
                                                 </option>
                                             ))}
                                         </select>
