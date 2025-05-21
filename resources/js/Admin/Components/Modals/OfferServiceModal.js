@@ -459,7 +459,7 @@ export default function OfferServiceModal({
                                                     name={service.name}
                                                     template={service.template}
                                                 >
-                                                    {service?.name?.includes("Star")
+                                                    {(service?.name?.includes("Star") || service?.name?.includes("כוכבים"))
                                                         ? `${service.icon ? service.icon : service.name}`
                                                         : service?.icon ? service.icon + " " + service.name + "" : service.name}
 
@@ -487,7 +487,10 @@ export default function OfferServiceModal({
                                             <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                             {frequencies.map((s, i) => (
                                                 <option cycle={s.cycle} period={s.period} name={s.name} value={s.id} key={i}>
-                                                    {s.icon ? s.icon : s.name}
+                                                    {(s?.period == "w" && s?.cycle >= 3)
+                                                        ? `${s.icon ? s.icon + "" + s.name.replace(s?.cycle + " ", "") : s.name}`
+                                                        : s?.icon ? s.icon + " " + s.name + "" : s.name}
+
                                                 </option>
                                             ))}
                                         </select>

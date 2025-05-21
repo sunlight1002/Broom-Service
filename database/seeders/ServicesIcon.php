@@ -20,7 +20,7 @@ class ServicesIcon extends Seeder
             ['template' => "airbnb", 'icon' => '🏨'],
             ['template' => "ניקיון כללי", 'icon' => '🧹🪣'],
             ['template' => "after_renovation", 'icon' => '👷'],
-            ['template' => "window_cleaning", 'icon' => 'W🪟'],
+            ['template' => "window_cleaning", 'icon' => '🪟'],
             ['template' => "2 כוכבים", 'icon' => '2⭐'],
             ['template' => "3 כוכבים", 'icon' => '3⭐'],
             ['template' => "4 כוכבים", 'icon' => '4⭐'],
