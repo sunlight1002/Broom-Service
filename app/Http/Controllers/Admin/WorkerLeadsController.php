@@ -184,6 +184,7 @@ class WorkerLeadsController extends Controller
                 'company_type' => $request->company_type ?? '',
                 'experience_in_house_cleaning' => $request->experience_in_house_cleaning ?? '',
                 'you_have_valid_work_visa' => $request->you_have_valid_work_visa ?? '',
+                'source' => "CRM",
             ]);
 
             if ($request->send_bot_message) {
