@@ -144,6 +144,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
     Route::post('add-some-fields', [LeadController::class, 'addSomeFields']);
+    Route::get('get-unique-source', [LeadController::class, 'getUniqueSource']);
 
     //  Routes for Lead Activity
     Route::get('/lead-activities/{id}', [LeadActivityController::class, 'getLeadActivities']);
@@ -178,6 +179,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('worker-leads/{id}', [WorkerLeadsController::class, 'update'])->name('worker-leads.update');
     Route::delete('worker-leads/{id}', [WorkerLeadsController::class, 'destroy'])->name('worker-leads.destroy');
     Route::post('worker-leads/{id}/status', [WorkerLeadsController::class, 'changeStatus'])->name('worker-leads.changeStatus');
+    Route::get('worker-leads/get-unique-source', [WorkerLeadsController::class, 'getUniqueSource']);
 
     // not Available date
     Route::post('get-not-available-dates', [WorkerController::class, 'getNotAvailableDates']);

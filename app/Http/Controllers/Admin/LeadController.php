@@ -59,6 +59,11 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
+        $filter = $request->get('filter');
+        $source = $request->get('source');
+
+        \Log::info($source);
+
         $query = Client::with('property_addresses')
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             // ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
@@ -84,6 +89,7 @@ class LeadController extends Controller
                 'clients.phone',
                 'leadstatus.lead_status',
                 'clients.created_at',
+                'clients.source',
                 // 'client_property_addresses.address_name',
                 // 'client_property_addresses.geo_address',
                 'latest_lead_activity.reason',
@@ -91,6 +97,14 @@ class LeadController extends Controller
                 'latest_lead_activity.reschedule_time'
             )
             ->groupBy('clients.id');
+
+        if ($filter != 'All') {
+            $query->where('leadstatus.lead_status', strtolower($filter));
+        }
+
+        if (!empty($source)) {
+            $query->where('clients.source', $source);
+        }
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -187,6 +201,7 @@ class LeadController extends Controller
         $input['password'] = Hash::make($password);
         $input['passcode'] = $password;
         $input['two_factor_enabled'] = 1;
+        $input['source'] = 'CRM';
 
         // Create the client
         $client = Client::create($input);
@@ -863,5 +878,15 @@ class LeadController extends Controller
         Log::info("lead_data_get");
         Log::info($lead_data);
         return ['lead_data' => $lead_data, 'http_code' => $http_code];
+    }
+
+    public function getUniqueSource()
+    {
+        $leads = Client::all();
+        $sources = $leads->pluck('source')->filter()->unique()->values();
+
+        return response()->json([
+            'sources' => $sources->isEmpty() ? [] : $sources
+        ]);
     }
 }

@@ -8,7 +8,6 @@ import Files from "../Clients/Files";
 import Notes from "./Notes";
 
 export default function LeadDetails({ lead }) {
-
     const { t } = useTranslation();
     const generatedOn = useMemo(() => {
         return (
@@ -235,11 +234,9 @@ export default function LeadDetails({ lead }) {
                                             <div className="form-group navyblueColor">
                                                 <label>
                                                     {" "}
-                                                    {t(
-                                                        "admin.leads.leadDetails.Meta"
-                                                    )}
+                                                    Source
                                                 </label>
-                                                <p>{lead.meta}</p>
+                                                <p>{lead.source}</p>
                                             </div>
                                         </div>
 

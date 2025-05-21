@@ -422,6 +422,7 @@ class AuthController extends Controller
         $input['status']        = 0;
         $input['password']      = bcrypt($input['password']);
         $input['passcode']      = $input['password'];
+        $input['source'] = 'CRM';
         $Client                   = Client::create($input);
         $Client->token            = $Client->createToken('Client', ['Client'])->accessToken;
 

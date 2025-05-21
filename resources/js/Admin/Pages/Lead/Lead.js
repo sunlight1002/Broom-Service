@@ -38,6 +38,11 @@ export default function Lead() {
         isOpen: false,
         id: 0,
     });
+    const [sources, setSources] = useState([])
+    const [source, setSource] = useState("")
+
+    const sourceRef = useRef(source);
+    const filterRef = useRef(filter);
 
     const role = localStorage.getItem("admin-role");
 
@@ -62,6 +67,25 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+
+    const getUniqueSource = async () => {
+        await axios
+            .get("/api/admin/get-unique-source", {
+                headers,
+            })
+            .then((response) => {
+                if (response?.data?.sources?.length > 0) {
+                    setSources(response.data.sources);
+                } else {
+                    setSources([]);
+                }
+            });
+    }
+
+    useEffect(() => {
+        getUniqueSource();
+    }, [])
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -77,6 +101,10 @@ export default function Lead() {
                             `Bearer ` + localStorage.getItem("admin-token")
                         );
                     },
+                    data: function (d) {
+                        d.filter = filterRef.current;
+                        d.source = sourceRef.current;
+                    },
                 },
                 order: [[0, "desc"]],
                 columns: [
@@ -90,7 +118,7 @@ export default function Lead() {
                             const [day, month] = data.split("/");
                             return `${day}/${month}`;
                         }
-                    },                    
+                    },
                     {
                         title: t("admin.global.Name"),
                         data: "name",
@@ -317,13 +345,11 @@ export default function Lead() {
         url.searchParams.delete("page");
         window.history.replaceState({}, "", url);
 
-        if (filter == "All") {
-            table.column(4).search(null).draw();
-        } else {
-            // table.ajax.reload();
-            table.column(4).search(filter).draw();
-        }
-    }, [filter]);
+        filterRef.current = filter;
+        sourceRef.current = source;
+
+        $(tableRef.current).DataTable().draw();
+    }, [filter, source]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -466,6 +492,32 @@ export default function Lead() {
                             );
                         })}
                     </div>
+                    {
+                        sources.length > 0 && (
+                            <div className="col-sm-3 mt-2">
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        marginTop: 10,
+                                    }}
+                                >
+                                    Source
+                                </div>
+                                <select
+                                    className="form-control"
+                                    onChange={(e) => setSource(e.target.value)}
+                                    value={source}
+                                >
+                                    <option value="">--- Select ---</option>
+                                    {sources.length > 0 && sources.map((source) => (
+                                        <option value={source} key={source}>
+                                            {source}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )
+                    }
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body px-0">

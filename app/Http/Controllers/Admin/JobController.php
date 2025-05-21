@@ -2301,7 +2301,7 @@ class JobController extends Controller
         if (isset($job->offer_service['workers'][0]['jobHours'])) {
             $jobHoursThreshold = $job->offer_service['workers'][0]['jobHours'];
         }
-        $dateJobs = Job::with("client")->whereDate('start_date', $date)
+        $dateJobs = Job::with(["client", "propertyAddress"])->whereDate('start_date', $date)
             ->where('client_id', '!=', $job->client_id)
             ->where('status', '!=', JobStatusEnum::CANCEL)
             ->where(function ($q) use ($jobHoursThreshold) {

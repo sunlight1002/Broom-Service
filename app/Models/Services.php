@@ -11,7 +11,8 @@ class Services extends Model
         'heb_name',
         'template',
         'status',
-        'color_code'
+        'color_code',
+        'icon'
     ];
 
     public static function boot()

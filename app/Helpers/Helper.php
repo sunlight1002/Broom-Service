@@ -30,30 +30,30 @@ if (!function_exists('sendInvoicePayToClient')) {
         // $pdf = PDF::loadView('InvoicePdf', compact('invoice'));
 
         Mail::to($data['job']['client']['email'])
-        ->bcc(config('services.mail.default'))
-        ->send(new MailInvoiceToClient($data));
+            ->bcc(config('services.mail.default'))
+            ->send(new MailInvoiceToClient($data));
     }
 }
 
-if(!function_exists('generateShortUrl')) {
+if (!function_exists('generateShortUrl')) {
     function generateShortUrl($urlData, $type = null)
     {
         $token = null;
         if (empty($urlData)) {
-            return null;  
+            return null;
         }
 
         do {
             $token = substr(md5(uniqid()), 0, 6);
         } while (ShortUrl::where('token', $token)->exists());
-        
+
         $shortUrl = ShortUrl::create([
             'url' => $urlData,
             'token' => $token,
         ]);
 
-        if($shortUrl) {
-            return config("services.short_url.domain")."/". $token;
+        if ($shortUrl) {
+            return config("services.short_url.domain") . "/" . $token;
         }
         // if ($type == 'worker') {
         //     return config('services.short_url.worker') . $token;
@@ -67,7 +67,7 @@ if(!function_exists('generateShortUrl')) {
     }
 }
 
-if(!function_exists('StoreWebhookResponse')) {
+if (!function_exists('StoreWebhookResponse')) {
     function StoreWebhookResponse($text, $receiverNumber, $data = null)
     {
 
@@ -84,7 +84,7 @@ if(!function_exists('StoreWebhookResponse')) {
     }
 }
 
-if(!function_exists('StoreWorkerWebhookResponse')) {
+if (!function_exists('StoreWorkerWebhookResponse')) {
     function StoreWorkerWebhookResponse($text, $receiverNumber, $data = null)
     {
         WorkerWebhookResponse::create([
@@ -114,7 +114,7 @@ if (!function_exists('sendTeamWhatsappMessage')) {
             ->post(config('services.whapi.url') . 'messages/text', $payload);
 
         // Check the response status
-        if ($response->successful()) { 
+        if ($response->successful()) {
             return $response->json();
         } else {
             return $response->object(); // Return the response object on error
@@ -123,41 +123,60 @@ if (!function_exists('sendTeamWhatsappMessage')) {
 }
 
 if (!function_exists('sendWhatsappMessage')) {
-    function sendWhatsappMessage($number, $data = array(), $lang = 'he', $replyId = null)
+    function sendWhatsappMessage($number, $data = array(), $replyId = null)
     {
         if (isset($data['disable_notification']) && $data['disable_notification'] == 1) {
             return;
         }
-        // Normalize the phone number
-        $mobile_no = str_replace("-", "", $number);
+        $buttons = $data['buttons'] ?? [];
+        $list = $data['list'] ?? [];
 
-        // Prepend country code if necessary
-        if (strlen($mobile_no) <= 10) {
-            $mobile_no = '972' . $mobile_no; // Assuming '972' is the country code for Israel
+        if(!empty($buttons) || !empty($list)){
+            $type = 'messages/interactive';
+        } else {
+            $type = 'messages/text';
         }
-        
-        // Build the payload for the API request
+
+        $mobile_no = str_replace("-", "", $number);
+        if (strlen($mobile_no) <= 10) {
+            $mobile_no = '972' . $mobile_no;
+        }
+
         $payload = [
             'to' => $mobile_no,
-            'body' => str_replace("\t", "", $data['message'])
         ];
 
-        // Include reply ID if provided
-        if ($replyId) {
-            $payload['quoted'] = $replyId; // Adjust the key according to your API specification
+        if (!empty($buttons)) {
+            $payload['type'] = 'button';
+            $payload['body']['text'] = str_replace("\t", "", $data['message'] ?? '');
+            $payload['action'] = ['buttons' => $buttons];
+        } elseif (!empty($list)) {
+            $payload['type'] = 'list';
+            $payload['body']['text'] = str_replace("\t", "", $data['message'] ?? '');
+            $payload['action'] = ['list' => $list];
+        }else{
+            $payload['body'] = str_replace("\t", "", $data['message'] ?? '');
         }
-        // Send the message using Http Client
-        $response = Http::withToken(config('services.whapi.token'))
-            ->post(config('services.whapi.url') . 'messages/text', $payload);
 
-        // Check the response status
-        if ($response->successful()) { 
+        if ($replyId) {
+            $payload['quoted'] = $replyId;
+        }
+
+        $response = Http::withToken(config('services.whapi.token'))
+            ->post(config('services.whapi.url') . $type, $payload);
+
+        if ($response->successful()) {
             return $response->json();
         } else {
-            return $response->object(); // Return the response object on error
+            \Log::error('Whatsapp API error', [
+                'payload' => $payload,
+                'response' => json_decode($response->body(), true),
+            ]);
+            return json_decode($response->body(), true);
         }
     }
 }
+
 
 if (!function_exists('sendClientWhatsappMessage')) {
     function sendClientWhatsappMessage($number, $data = array(), $lang = 'he', $replyId = null)
@@ -172,7 +191,7 @@ if (!function_exists('sendClientWhatsappMessage')) {
         if (strlen($mobile_no) <= 10) {
             $mobile_no = '972' . $mobile_no; // Assuming '972' is the country code for Israel
         }
-        
+
         // Build the payload for the API request
         $payload = [
             'to' => $mobile_no,
@@ -192,7 +211,7 @@ if (!function_exists('sendClientWhatsappMessage')) {
         Log::info($response->json());
 
         // Check the response status
-        if ($response->successful()) { 
+        if ($response->successful()) {
             return $response->json();
         } else {
             return $response->object(); // Return the response object on error
@@ -202,13 +221,12 @@ if (!function_exists('sendClientWhatsappMessage')) {
 
 if (!function_exists('sendWhatsappMediaMessage')) {
     function sendWhatsappMediaMessage(
-        $number, 
+        $number,
         $mediaPath,
-         $caption = '', 
-         $lang = 'he', 
-         $replyId = null
-        )
-    {
+        $caption = '',
+        $lang = 'he',
+        $replyId = null
+    ) {
         $mobile_no = str_replace("-", "", $number);
         if (strlen($mobile_no) <= 10) {
             $mobile_no = '972' . $mobile_no;
@@ -220,7 +238,7 @@ if (!function_exists('sendWhatsappMediaMessage')) {
         }
 
         try {
-            $fileMimeType = mime_content_type($mediaPath); 
+            $fileMimeType = mime_content_type($mediaPath);
             \Log::info($fileMimeType); // Log the MIME type
             $fileName = basename($mediaPath); // Get the filename
 
@@ -230,7 +248,7 @@ if (!function_exists('sendWhatsappMediaMessage')) {
                 'accept' => 'application/json',
                 'Content-Type' => $fileMimeType,
             ])->withBody(file_get_contents($mediaPath), $fileMimeType)
-              ->post(config('services.whapi.url') . 'media');
+                ->post(config('services.whapi.url') . 'media');
 
             Log::info('WhatsApp media upload response: ', $response->json());
 
@@ -246,7 +264,6 @@ if (!function_exists('sendWhatsappMediaMessage')) {
             }
 
             $mediaId = $media['id'];
-
         } catch (\Exception $e) {
             Log::error('Exception during WhatsApp media upload: ' . $e->getMessage());
             return ['error' => 'An error occurred while uploading the media.'];
@@ -255,14 +272,14 @@ if (!function_exists('sendWhatsappMediaMessage')) {
         // Send the video message using the media ID
         try {
             $messageResponse = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . config('services.whapi.token'),
-                    'Content-Type' => 'application/json',
-                ])->post(config('services.whapi.url') . 'messages/video', [
-                    'to' => $mobile_no,
-                    'media' => $mediaId,
-                    'caption' => $caption ?? '',
-                    'mime_type' => $fileMimeType,
-                ]);
+                'Authorization' => 'Bearer ' . config('services.whapi.token'),
+                'Content-Type' => 'application/json',
+            ])->post(config('services.whapi.url') . 'messages/video', [
+                'to' => $mobile_no,
+                'media' => $mediaId,
+                'caption' => $caption ?? '',
+                'mime_type' => $fileMimeType,
+            ]);
 
             // Log the message response for debugging
             Log::info('WhatsApp send message response: ', $messageResponse->json());
@@ -283,19 +300,18 @@ if (!function_exists('sendWhatsappMediaMessage')) {
 
 if (!function_exists('sendWhatsappFileMessage')) {
     function sendWhatsappFileMessage(
-        $number, 
+        $number,
         $mediaPath,
-         $caption = '', 
-         $lang = 'he', 
-         $replyId = null
-        )
-    {
+        $caption = '',
+        $lang = 'he',
+        $replyId = null
+    ) {
 
         if (!file_exists($mediaPath)) {
             Log::error("File not found at path: $mediaPath");
             return ['error' => 'File not found'];
         }
-        $fileMimeType = mime_content_type($mediaPath); 
+        $fileMimeType = mime_content_type($mediaPath);
         $fileName = basename($mediaPath); // Get the filename
 
         try {
@@ -306,7 +322,7 @@ if (!function_exists('sendWhatsappFileMessage')) {
                 'accept' => 'application/json',
                 'Content-Type' => $fileMimeType,
             ])->withBody(file_get_contents($mediaPath), $fileMimeType)
-              ->post(config('services.whapi.url') . 'media');
+                ->post(config('services.whapi.url') . 'media');
 
             Log::info('WhatsApp media upload response: ', $response->json());
 
@@ -322,7 +338,6 @@ if (!function_exists('sendWhatsappFileMessage')) {
             }
 
             $mediaId = $media['id'];
-
         } catch (\Exception $e) {
             Log::error('Exception during WhatsApp media upload: ' . $e->getMessage());
             return ['error' => 'An error occurred while uploading the media.'];
@@ -331,14 +346,14 @@ if (!function_exists('sendWhatsappFileMessage')) {
         // Send the video message using the media ID
         try {
             $messageResponse = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . config('services.whapi.token'),
-                    'Content-Type' => 'application/json',
-                ])->post(config('services.whapi.url') . 'messages/document', [
-                    'to' => $number,
-                    'media' => $mediaId,
-                    'caption' => $caption ?? '',
-                    'mime_type' => $fileMimeType
-                ]);
+                'Authorization' => 'Bearer ' . config('services.whapi.token'),
+                'Content-Type' => 'application/json',
+            ])->post(config('services.whapi.url') . 'messages/document', [
+                'to' => $number,
+                'media' => $mediaId,
+                'caption' => $caption ?? '',
+                'mime_type' => $fileMimeType
+            ]);
 
             // Log the message response for debugging
             Log::info('WhatsApp send message response: ', $messageResponse->json());
@@ -382,7 +397,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
             Log::error("File not found at path: $fullMediaPath");
             return ['error' => 'File not found'];
         }
-        $fileMimeType = mime_content_type($fullMediaPath); 
+        $fileMimeType = mime_content_type($fullMediaPath);
 
         try {
 
@@ -394,7 +409,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
                 'accept' => 'application/json',
                 'Content-Type' => $fileMimeType,
             ])->withBody(file_get_contents($fullMediaPath), $fileMimeType)
-              ->post(config('services.whapi.url') . 'media');
+                ->post(config('services.whapi.url') . 'media');
 
             Log::info('WhatsApp media upload response: ', $response->json());
 
@@ -410,7 +425,6 @@ if (!function_exists('sendWhatsappImageMessage')) {
             }
 
             $mediaId = $media['id'];
-
         } catch (\Exception $e) {
             Log::error('Exception during WhatsApp media upload: ' . $e->getMessage());
             return ['error' => 'An error occurred while uploading the media.'];
@@ -420,7 +434,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
             $messageResponse = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.whapi.token'),
                 'Content-Type' => 'application/json',
-             ])->post(config('services.whapi.url') . 'messages/image', [
+            ])->post(config('services.whapi.url') . 'messages/image', [
                 'to' => $mobile_no,
                 'media' => $mediaId, // Encode the image as base64
                 'mime_type' => $fileMimeType,
@@ -443,8 +457,6 @@ if (!function_exists('sendWhatsappImageMessage')) {
             Log::error('Exception during WhatsApp message send: ' . $e->getMessage());
             return ['error' => 'An error occurred while sending the message.'];
         }
-
-        
     }
 }
 
@@ -458,14 +470,14 @@ if (!function_exists('sendWorkerWhatsappMessage')) {
         if (strlen($mobile_no) <= 10) {
             $mobile_no = '972' . $mobile_no; // Assuming '972' is the country code for Israel
         }
-        
+
         $response = Http::withToken(config('services.whapi.worker_token'))
             ->post(config('services.whapi.url') . 'messages/text', [
                 'to' => $mobile_no,
                 'body' => str_replace("\t", "", $data['message'])
             ]);
         Log::info($response->json());
-        if($response->successful()) { 
+        if ($response->successful()) {
             return 'message sent successfully.';
         } else {
             return $response->object();
@@ -479,7 +491,7 @@ if (!function_exists('sendWorkerWhatsappMessage')) {
         Log::info($response->json());
 
         // Check the response status
-        if ($response->successful()) { 
+        if ($response->successful()) {
             return $response->json();
         } else {
             return $response->object(); // Return the response object on error
@@ -503,7 +515,7 @@ if (!function_exists('sendWhatsappMediaMessage')) {
         // \Log::info(basename($mediaPath));
 
         try {
-            $fileMimeType = mime_content_type($mediaPath); 
+            $fileMimeType = mime_content_type($mediaPath);
             \Log::info($fileMimeType); // Log the MIME type
             $fileName = basename($mediaPath); // Get the filename
 
@@ -513,7 +525,7 @@ if (!function_exists('sendWhatsappMediaMessage')) {
                 'accept' => 'application/json',
                 'Content-Type' => $fileMimeType,
             ])->withBody(file_get_contents($mediaPath), $fileMimeType)
-              ->post(config('services.whapi.url') . 'media');
+                ->post(config('services.whapi.url') . 'media');
 
             Log::info('WhatsApp media upload response: ', $response->json());
 
@@ -529,7 +541,6 @@ if (!function_exists('sendWhatsappMediaMessage')) {
             }
 
             $mediaId = $media['id'];
-
         } catch (\Exception $e) {
             Log::error('Exception during WhatsApp media upload: ' . $e->getMessage());
             return ['error' => 'An error occurred while uploading the media.'];
@@ -538,15 +549,15 @@ if (!function_exists('sendWhatsappMediaMessage')) {
         // Send the video message using the media ID
         try {
             $messageResponse = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . config('services.whapi.token'),
-                    'Content-Type' => 'application/json',
-                ])->post(config('services.whapi.url') . 'messages/video', [
-                    'to' => $mobile_no,
-                    'media' => $mediaId,
-                    'caption' => $caption,
-                    'mime_type' => 'video/mp4',
-                    'quoted' => $replyId ? $replyId : null
-                ]);
+                'Authorization' => 'Bearer ' . config('services.whapi.token'),
+                'Content-Type' => 'application/json',
+            ])->post(config('services.whapi.url') . 'messages/video', [
+                'to' => $mobile_no,
+                'media' => $mediaId,
+                'caption' => $caption,
+                'mime_type' => 'video/mp4',
+                'quoted' => $replyId ? $replyId : null
+            ]);
 
             // Log the message response for debugging
             Log::info('WhatsApp send message response: ', $messageResponse->json());
@@ -586,9 +597,9 @@ if (!function_exists('createIcsFileContent')) {
     {
         // Define start and end times as Asia/Jerusalem without converting to UTC
         $startDateTime = Carbon::createFromFormat('Y-m-d h:i A', $scheduleArr['start_date'] . ' ' . $scheduleArr['start_time'])
-                               ->format('Ymd\THis');
+            ->format('Ymd\THis');
         $endDateTime = Carbon::createFromFormat('Y-m-d h:i A', $scheduleArr['start_date'] . ' ' . $scheduleArr['end_time'])
-                             ->format('Ymd\THis');
+            ->format('Ymd\THis');
 
         \Log::info("Converted startDateTime: $startDateTime");
         \Log::info("Converted endDateTime: $endDateTime");
@@ -599,7 +610,7 @@ if (!function_exists('createIcsFileContent')) {
         // ICS content setup with timezone specification
         $icsContent = "BEGIN:VCALENDAR\r\n";
         $icsContent .= "VERSION:2.0\r\n";
-        $icsContent .= "PRODID:-//". __('mail.label.company')."//". __('mail.label.company_team')."//$lng\r\n";
+        $icsContent .= "PRODID:-//" . __('mail.label.company') . "//" . __('mail.label.company_team') . "//$lng\r\n";
         $icsContent .= "BEGIN:VEVENT\r\n";
         $icsContent .= "UID:" . uniqid() . "\r\n";
         $icsContent .= "DTSTAMP:" . now('UTC')->format('Ymd\THis\Z') . "\r\n";
@@ -610,7 +621,7 @@ if (!function_exists('createIcsFileContent')) {
         $icsContent .= "LOCATION:" . $scheduleArr['location'] . "\r\n";
         $icsContent .= "END:VEVENT\r\n";
         $icsContent .= "END:VCALENDAR\r\n";
-    
+
         return $icsContent;
     }
 }
@@ -629,6 +640,4 @@ if (!function_exists('get_setting')) {
     }
 }
 
-class FPDF extends TCPDF
-{
-}
+class FPDF extends TCPDF {}

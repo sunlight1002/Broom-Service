@@ -50,7 +50,6 @@ class ServicesController extends Controller
     public function AllServices()
     {
         $services = Services::where('status', 1)->get();
-
         return response()->json([
             'services' => $services,
         ]);
@@ -64,6 +63,7 @@ class ServicesController extends Controller
             $res['name'] = ($request->lng == 'en') ? $service->name : $service->heb_name;
             $res['id']  = $service->id;
             $res['template'] = $service->template;
+            $res['icon'] = $service->icon;
             array_push($result, $res);
         }
 

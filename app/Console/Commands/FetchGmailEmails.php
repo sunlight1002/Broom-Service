@@ -220,6 +220,7 @@ class FetchGmailEmails extends Command
                                     'status'         => 0,
                                     'lng'            => "heb",
                                     'phone'          => $phoneNumber,
+                                    'source'         => 'Teleservice',
                                 ]);
 
                                 LeadActivity::create([

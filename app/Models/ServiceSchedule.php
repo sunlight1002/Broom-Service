@@ -14,7 +14,8 @@ class ServiceSchedule extends Model
         'cycle',
         'period',
         'status',
-        'color_code'
+        'color_code',
+        'icon'
     ];
 
     public function tasks()

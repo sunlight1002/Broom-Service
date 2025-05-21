@@ -15,6 +15,7 @@ trait PriceOffered
 
         if (!empty($services)) {
             foreach ($services as $key => $service) {
+                \Log::info($service);
                 // Fetch and format address
                 if (!empty($service['address'])) {
                     $address = ClientPropertyAddress::find($service['address']);
@@ -26,6 +27,7 @@ trait PriceOffered
                     $jobService = Services::find($service['service']);
                     $services[$key]['service_name_heb'] = $jobService->heb_name ?? 'לא ידוע';
                     $services[$key]['service_name_en'] = $jobService->name ?? "not found";
+                    $services[$key]['s_icon'] = $jobService->icon ?? '';
                 }
 
                 // Fetch ServiceSchedule details
@@ -33,12 +35,12 @@ trait PriceOffered
                     $serviceSchedule = ServiceSchedule::find($service['frequency']);
                     $services[$key]['frequency_name_heb'] = $serviceSchedule->name_heb ?? 'לא ידוע';
                     $services[$key]['frequency_name_en'] = $serviceSchedule->name ?? "not found";
+                    $services[$key]['f_icon'] = $serviceSchedule->icon ?? '';
                 }
 
-                if(!empty($service['sub_services']["id"])) {
+                if (!empty($service['sub_services']["id"])) {
                     $subServices = subservices::find($service['sub_services']["id"]);
                     $services[$key]['sub_services']['subServices'] = $subServices ? $subServices->toArray() : null;
-
                 }
 
                 // Add sub_services address and fulladdress for template "airbnb"

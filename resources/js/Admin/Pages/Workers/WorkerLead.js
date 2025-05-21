@@ -28,6 +28,10 @@ export default function WorkerLead() {
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
     const subFilterRef = useRef(subFilter);
+    const [sources, setSources] = useState([])
+    const [source, setSource] = useState("")
+
+    const sourceRef = useRef(source);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -89,6 +93,26 @@ export default function WorkerLead() {
         }
     };
 
+
+    const getUniqueSource = async () => {
+        await axios
+            .get("/api/admin/worker-leads/get-unique-source", {
+                headers,
+            })
+            .then((response) => {
+                if (response?.data?.sources?.length > 0) {
+                    setSources(response.data.sources);
+                } else {
+                    setSources([]);
+                }
+            });
+    }
+
+    useEffect(() => {
+        getUniqueSource();
+    }, [])
+
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -113,6 +137,7 @@ export default function WorkerLead() {
                             subFilterRef.current === "All"
                                 ? null
                                 : subFilterRef.current; // Use ref here
+                        d.source = sourceRef.current;
                     },
                 },
                 order: [[0, "desc"]],
@@ -146,6 +171,13 @@ export default function WorkerLead() {
                         data: "phone",
                         render: function (data) {
                             return `+${data}`;
+                        },
+                    },
+                    {
+                        title: "Source",
+                        data: "source",
+                        render: function (data) {
+                            return `${data ? data : "-"}`;
                         },
                     },
                     // {
@@ -318,10 +350,11 @@ export default function WorkerLead() {
     useEffect(() => {
         filterRef.current = filter; // Update the ref with the latest filter
         subFilterRef.current = subFilter; // Update the ref with the latest subFilter
+        sourceRef.current = source;
         const table = $(tableRef.current).DataTable();
         table.ajax.reload(null, false); // Reload the table without resetting pagination
         table.columns.adjust().draw(); // This forces a redraw to fix the column shifting issue
-    }, [filter, subFilter]);
+    }, [filter, subFilter, source]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -448,6 +481,33 @@ export default function WorkerLead() {
                                         )
                                     )}
                                 </div>
+                            </div>
+                        )
+                    }
+
+                    {
+                        sources.length > 0 && (
+                            <div className="col-sm-3 px-0 mt-2">
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        marginTop: 10,
+                                    }}
+                                >
+                                    Source
+                                </div>
+                                <select
+                                    className="form-control"
+                                    onChange={(e) => setSource(e.target.value)}
+                                    value={source}
+                                >
+                                    <option value="">--- Select ---</option>
+                                    {sources.length > 0 && sources.map((source) => (
+                                        <option value={source} key={source}>
+                                            {source}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         )
                     }

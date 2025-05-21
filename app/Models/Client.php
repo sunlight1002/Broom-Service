@@ -11,11 +11,13 @@ use App\Enums\LeadStatusEnum;
 use App\Events\NewLeadArrived;
 use Laravel\Passport\HasApiTokens;
 use App\Notifications\CustomResetPassword;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
-
-class Client extends Authenticatable
+class Client extends Authenticatable implements AuditableContract
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Auditable;
+
 
     /**
      * The attributes that are mass assignable.
@@ -70,6 +72,7 @@ class Client extends Authenticatable
         's_bot_notification',
         'full_name',
         'voice_bot',
+        'source'
 
     ];
 

@@ -15,7 +15,7 @@ export const ChangeShiftModal = ({
     isOpen,
     setIsOpen,
     job,
-    selectedDate : selectedDateProp
+    selectedDate: selectedDateProp
 }) => {
     const { t } = useTranslation();
     const alert = useAlert();
@@ -27,11 +27,11 @@ export const ChangeShiftModal = ({
 
     const parseDateString = (dateStr) => {
         if (!dateStr) return new Date();
-        
+
         // Parse DD/MM/YY format with moment and convert to Date object
         return moment(dateStr, "DD/MM/YY").toDate();
-      };
-    
+    };
+
     const [selectedDate, setSelectedDate] = useState(parseDateString(selectedDateProp));
 
 
@@ -41,24 +41,24 @@ export const ChangeShiftModal = ({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const handleDateChange = async(_date) => {
-        setSelectedDate(_date);      
+    const handleDateChange = async (_date) => {
+        setSelectedDate(_date);
     };
 
-    const getClients = async() => {
+    const getClients = async () => {
         const res = await axios.get(`/api/admin/jobs/get-shift-client/${job}/${moment(selectedDate).format("YYYY-MM-DD")}`, { headers });
         setAllJobs(res.data?.jobs);
     }
 
     useEffect(() => {
-      getClients();
+        getClients();
     }, [selectedDate, selectedDateProp]);
 
     const handleSubmit = () => {
         setIsLoading(true);
         axios
             .post(
-                `/api/admin/jobs/${job}/change-client-shift/${formValues.job_id}`, 
+                `/api/admin/jobs/${job}/change-client-shift/${formValues.job_id}`,
                 null,
                 {
                     headers,
@@ -82,7 +82,7 @@ export const ChangeShiftModal = ({
                 setIsLoading(false);
             });
     };
-    
+
 
     return (
         <Modal
@@ -133,9 +133,12 @@ export const ChangeShiftModal = ({
                                         className="form-control mb-3"
                                     >
                                         <option value="">{t("admin.global.select_client")}</option>
-                                        {allJobs.map((job) => (
-                                            <option key={job.id} value={job.id}>{job.client?.firstname + " " + job?.client.lastname + " (" + job?.offer_service?.address?.address_name + ")"} </option>
-                                        ))}
+                                        {allJobs.map((job) => {
+                                            return (
+                                                <option key={job.id} value={job.id}>{job.client?.firstname + " " + job?.client.lastname + " (" + job?.property_address?.address_name + ")"} </option>
+                                            )
+                                        }
+                                        )}
                                     </select>
                                 </div>
                             </div>

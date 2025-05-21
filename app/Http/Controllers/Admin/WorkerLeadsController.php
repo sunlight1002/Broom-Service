@@ -47,6 +47,7 @@ class WorkerLeadsController extends Controller
             'email',
             'phone',
             'status',
+            'source',
             'sub_status',
             'experience_in_house_cleaning',
             'you_have_valid_work_visa',
@@ -57,6 +58,8 @@ class WorkerLeadsController extends Controller
         $order = $request->get('order', []);
         $columnIndex = $order[0]['column'] ?? 0;
         $dir = $order[0]['dir'] ?? 'desc';
+
+        $source = $request->get('source');
 
         // Remove user-based filtering
         $query = WorkerLeads::query();
@@ -81,6 +84,11 @@ class WorkerLeadsController extends Controller
             $query->where('sub_status', $request->get('sub_status'));
         }
 
+        // Filter by source if provided
+        if (!empty($source)) {
+            $query->where('source', $source);
+        }
+
         // Select specified columns
         $query->select($columns);
 
@@ -99,7 +107,8 @@ class WorkerLeadsController extends Controller
                 'name' => $lead->firstname . ' ' . $lead->lastname,
                 'email' => $lead->email,
                 'phone' => $lead->phone,
-                'status' => $lead->sub_status && $lead->status == "not-hired" ? $lead->sub_status :$lead->status,
+                'source' => $lead->source,
+                'status' => $lead->sub_status && $lead->status == "not-hired" ? $lead->sub_status : $lead->status,
                 'experience_in_house_cleaning' => $lead->experience_in_house_cleaning ? 'Yes' : 'No',
                 'you_have_valid_work_visa' => $lead->you_have_valid_work_visa ? 'Yes' : 'No',
             ];
@@ -217,7 +226,8 @@ class WorkerLeadsController extends Controller
         }
     }
 
-    public function getAllWorkerLeads(){
+    public function getAllWorkerLeads()
+    {
         $workerLeads = WorkerLeads::all();
         return response()->json([
             'workerLeads' => $workerLeads
@@ -287,18 +297,18 @@ class WorkerLeadsController extends Controller
 
         if ($workerLead->status === 'irrelevant') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT);
-        }else if ($workerLead->status === 'will-think') {
+        } else if ($workerLead->status === 'will-think') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD);
-        }else if($workerLead->status === 'unanswered'){
+        } else if ($workerLead->status === 'unanswered') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED);
-        }else if($workerLead->status === 'not-hired'){
+        } else if ($workerLead->status === 'not-hired') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM);
-        }else if($workerLead->status === 'hiring'){
+        } else if ($workerLead->status === 'hiring') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM);
             $worker = $this->createUser($workerLead);
             $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
             $workerArr = $worker->toArray();
-            if($admin){
+            if ($admin) {
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
                     $messages->to($admin->email);
                     $messages->bcc(config('services.mail.default'));
@@ -315,7 +325,7 @@ class WorkerLeadsController extends Controller
 
     public function sendWhatsAppMessage($workerLead, $enum)
     {
-       event(new WhatsappNotificationEvent([
+        event(new WhatsappNotificationEvent([
             "type" => $enum,
             "notificationData" => [
                 'worker' => $workerLead->toArray(),
@@ -330,7 +340,8 @@ class WorkerLeadsController extends Controller
         return ($weekDay == 5 || $weekDay == 6);
     }
 
-    public function createUser($workerLead){
+    public function createUser($workerLead)
+    {
         $role = $workerLead->role ?? 'cleaner';
         $lng = $workerLead->lng;
 
@@ -404,16 +415,26 @@ class WorkerLeadsController extends Controller
 
 
         $forms = $workerLead->forms()->get();
-            foreach ($forms as $form) {
-                $form->update([
-                    'user_type' => User::class,
-                    'user_id' => $worker->id
-                ]);
-            }
+        foreach ($forms as $form) {
+            $form->update([
+                'user_type' => User::class,
+                'user_id' => $worker->id
+            ]);
+        }
 
         $workerLead->delete();
 
         return $worker;
     }
 
+
+    public function getUniqueSource()
+    {
+        $workerLeads = WorkerLeads::all();
+        $sources = $workerLeads->pluck('source')->filter()->unique()->values();
+
+        return response()->json([
+            'sources' => $sources->isEmpty() ? [] : $sources
+        ]);
+    }
 }

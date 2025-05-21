@@ -257,6 +257,7 @@ class ClientController extends Controller
 
         $input = $request->data;
         $input['password'] = Hash::make($input['passcode']);
+        $input['source'] = 'CRM';
         
         $client = Client::create($input);
 

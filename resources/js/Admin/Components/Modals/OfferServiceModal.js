@@ -53,7 +53,6 @@ export default function OfferServiceModal({
     isAdd,
     editIndex,
 }) {
-
     const { t } = useTranslation();
     const alert = useAlert();
     const [offerServiceTmp, setOfferServiceTmp] = useState(
@@ -205,8 +204,6 @@ export default function OfferServiceModal({
             return;
         }
         const selectedOption = target.selectedIndex >= 0 ? target.options[target.selectedIndex] : null;
-        console.log("selectedOption",selectedOption);
-        
         if (!selectedOption) {
             console.warn("No option selected for service.");
             return;
@@ -367,10 +364,6 @@ export default function OfferServiceModal({
         });
     };
 
-    console.log("offerServiceTmp", offerServiceTmp);
-    
-    
-
     return (
         <Modal
             size="lg"
@@ -466,7 +459,7 @@ export default function OfferServiceModal({
                                                     name={service.name}
                                                     template={service.template}
                                                 >
-                                                    {service.name}
+                                                    {service?.icon ? service.icon : service.name}
                                                 </option>
                                             ))}
                                         </select>
@@ -491,7 +484,7 @@ export default function OfferServiceModal({
                                             <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                             {frequencies.map((s, i) => (
                                                 <option cycle={s.cycle} period={s.period} name={s.name} value={s.id} key={i}>
-                                                    {s.name}
+                                                    {s.icon ? s.icon : s.name}
                                                 </option>
                                             ))}
                                         </select>

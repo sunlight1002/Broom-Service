@@ -57,6 +57,7 @@ class ServiceSchedulesController extends Controller
             $res['id']   = $schedule->id;
             $res['cycle'] = $schedule->cycle;
             $res['period'] = $schedule->period;
+            $res['icon'] = $schedule->icon;
             array_push($result, $res);
         }
 

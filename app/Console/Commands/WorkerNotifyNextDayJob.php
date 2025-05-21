@@ -48,55 +48,56 @@ class WorkerNotifyNextDayJob extends Command
     {
         $tomorrow = Carbon::tomorrow()->toDateString();
 
-        $jobs = Job::query()
+        $job = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
-            ->whereIn('worker_id', ['209','185', '67'])
+            ->whereIn('worker_id', ['209', '185', '67'])
             ->whereNotNull('worker_id')
             ->whereHas('worker')
-    //     ->whereDoesntHave('workerMetas', function ($query) {
-    //         $query->where('worker_id', DB::raw('jobs.worker_id'));
-    //         $query->where('key', 'next_day_job_reminder_at_5_pm');
-    //     })
             ->whereDoesntHave('workerMetas', function ($query) {
                 $query->whereColumn('job_id', 'jobs.id') // Match by job_id
-                    ->whereColumn('worker_id', 'jobs.worker_id') 
+                    ->whereColumn('worker_id', 'jobs.worker_id')
                     ->where('key', 'next_day_job_reminder_at_5_pm');
             })
             ->whereNull('worker_approved_at')
             ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
             ->whereDate('start_date', $tomorrow)
-            ->get();
-            
-        foreach ($jobs as $key => $job) {
-            $worker = $job->worker;
-            $client = $job->client;
+            ->first();
 
-            if ($worker) {
-                App::setLocale($worker['lng'] ?? 'en');
-                $notificationData = array(
-                    'job'  => $job->toArray(),
-                    'worker'  => $worker->toArray(),  
-                    'client'  => $client->toArray(),  
-                );
-                if (isset($notificationData['job']['worker']) && !empty($notificationData['job']['worker']['phone'])) {
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM,
-                        "notificationData" => $notificationData
-                    ]));
-                }
-
-                WorkerMetas::create([
-                    'worker_id' => $worker->id,
-                    'job_id' => $job->id,
-                    'key' => 'next_day_job_reminder_at_5_pm',
-                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
-                ]);
-
-                $job->update([
-                    'is_worker_reminded' => true
-                ]);
-            }
+        if (!$job) {
+            $this->info("No matching job found for tomorrow.");
+            return 0;
         }
+
+        // foreach ($jobs as $key => $job) {
+        $worker = $job->worker;
+        $client = $job->client;
+
+        if ($worker) {
+            App::setLocale($worker['lng'] ?? 'en');
+            $notificationData = array(
+                'job'  => $job->toArray(),
+                'worker'  => $worker->toArray(),
+                'client'  => $client->toArray(),
+            );
+            if (isset($notificationData['job']['worker']) && !empty($notificationData['job']['worker']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM,
+                    "notificationData" => $notificationData
+                ]));
+            }
+
+            WorkerMetas::create([
+                'worker_id' => $worker->id,
+                'job_id' => $job->id,
+                'key' => 'next_day_job_reminder_at_5_pm',
+                'value' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
+
+            $job->update([
+                'is_worker_reminded' => true
+            ]);
+        }
+        // }
 
         return 0;
     }
