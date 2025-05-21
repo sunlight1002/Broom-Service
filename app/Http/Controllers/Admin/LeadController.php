@@ -18,7 +18,8 @@ use App\Models\WhatsAppBotClientState;
 use App\Models\WhatsappLastReply;
 use App\Traits\JobSchedule;
 use App\Traits\PaymentAPI;
-use App\Traits\ICountDocument;use Carbon\Carbon;
+use App\Traits\ICountDocument;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -107,8 +108,8 @@ class LeadController extends Controller
                                     $query->where('address_name', 'like', "%" . $keyword . "%")
                                         ->orWhere('geo_address', 'like', "%" . $keyword . "%");
                                 });
-                                // ->orWhere('client_property_addresses.address_name', 'like', "%" . $keyword . "%")
-                                // ->orWhere('client_property_addresses.geo_address', 'like', "%" . $keyword . "%");
+                            // ->orWhere('client_property_addresses.address_name', 'like', "%" . $keyword . "%")
+                            // ->orWhere('client_property_addresses.geo_address', 'like', "%" . $keyword . "%");
                         });
                     }
                 }
@@ -137,7 +138,7 @@ class LeadController extends Controller
                 return $data->reschedule_time ?? '-';
             })
             ->addColumn('reason', function ($data) {
-                return $data->reason ?? null; 
+                return $data->reason ?? null;
             })
             ->addColumn('action', function ($data) {
                 return '';
@@ -167,7 +168,7 @@ class LeadController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'vat_number' => ['nullable', 'string', 'max:50'],
             'email'     => ['string', 'email:rfc,dns', 'max:255', 'unique:clients'],
-            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(),'unique:clients'],
+            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(), 'unique:clients'],
         ]);
 
         $validator->sometimes(['contact_person_name', 'contact_person_phone'], ['required'], function ($input) {
@@ -235,7 +236,7 @@ class LeadController extends Controller
         ]);
 
 
-        if($data["send_bot_message"] == 1) {
+        if ($data["send_bot_message"] == 1) {
             try {
                 \Log::info("send_bot_message");
 
@@ -244,14 +245,14 @@ class LeadController extends Controller
                 $message = $twilio->messages->create(
                     "whatsapp:+$client->phone",
                     [
-                        "from" => "$twilioWhatsappNumber", 
-                        "contentSid" => $sid, 
+                        "from" => "$twilioWhatsappNumber",
+                        "contentSid" => $sid,
                     ]
                 );
                 \Log::info($message->sid);
 
                 $m = $this->botMessages['main-menu']['heb'];
-                
+
                 // $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
 
                 WhatsAppBotClientState::updateOrCreate([
@@ -603,13 +604,14 @@ class LeadController extends Controller
                 $client = Client::find($address->client_id);
                 if ($address->id == $savedAddress->id && $client->status == 2) {
                     \Log::info("Address updated");
-                    $data = [
-                        'id' => $address->client_id,
-                        'email' => $client->email ?? null,
-                        'bus_street' => $address->geo_address,
-                        'bus_city' => $address->city ?? null,
-                        'bus_zip' => $address->zipcode ?? null,
-                    ];
+                    if ($client->icount_client_id) {
+                        $data = [
+                            'icount_client_id' => $client->icount_client_id,
+                            'bus_street' => $address->geo_address,
+                            'bus_city' => $address->city ?? null,
+                            'bus_zip' => $address->zipcode ?? null,
+                        ];
+                    }
 
                     $this->updateClientIcount($data);
                 }
@@ -651,8 +653,7 @@ class LeadController extends Controller
             'cid' => $iCountCompanyID,
             'user' => $iCountUsername,
             'pass' => $iCountPassword,
-            'client_id' => $data['id'] ?? 0,
-            'email' => $data['email'] ?? null,
+            'client_id' => $data['icount_client_id'] ?? 0,
             'bus_street' => $data['bus_street'] ?? null,
             'bus_city' => $data['bus_city'] ?? null,
             'bus_zip' => $data['bus_zip'] ?? null,
@@ -762,7 +763,7 @@ class LeadController extends Controller
                         ]);
                         if (!empty($phone)) {
                             $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
-                            if($lng == 'heb') {
+                            if ($lng == 'heb') {
                                 $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                             }
                             $sid = $client->lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
@@ -770,8 +771,8 @@ class LeadController extends Controller
                             $message = $twilio->messages->create(
                                 "whatsapp:+$client->phone",
                                 [
-                                    "from" => "$twilioWhatsappNumber", 
-                                    "contentSid" => $sid, 
+                                    "from" => "$twilioWhatsappNumber",
+                                    "contentSid" => $sid,
                                 ]
                             );
                             \Log::info($message->sid);
@@ -805,18 +806,18 @@ class LeadController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $filter = $request->input('filter');
-    
+
         $clientCount = 0;
         $totalSpend = 0;
         $costPerLead = 0;
         $costPerClient = 0;
-    
+
         // Get all Facebook Insights data
         $insights = FacebookInsights::all();
-    
+
         // Base query for clients
         $clientQuery = Client::whereNotNull('campaign_id');
-    
+
         // Apply date range filter if provided
         if ($startDate && $endDate) {
             $clientQuery->whereBetween('created_at', [$startDate, $endDate]);
@@ -824,15 +825,15 @@ class LeadController extends Controller
         } else {
             $clientCount = $clientQuery->count();
         }
-    
+
         // Total count of all clients (ignoring date range)
         $totalClients = Client::whereNotNull('campaign_id')->count();
-    
+
         // Calculations
         $totalSpend = $insights->sum('spend');
         $costPerLead = $totalClients > 0 ? $totalSpend / $totalClients : 0;
         $costPerClient = $insights->sum('client_count') > 0 ? $totalSpend / $insights->sum('client_count') : 0;
-    
+
         return response()->json([
             'insights' => $insights,
             'clientCount' => $clientCount,
@@ -841,7 +842,7 @@ class LeadController extends Controller
             'costPerClient' => $costPerClient,
         ]);
     }
-    
+
 
     public function getLeadData($leadgen_id, $pageAccessToken)
     {
