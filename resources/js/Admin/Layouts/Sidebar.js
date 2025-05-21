@@ -413,7 +413,7 @@ export default function Sidebar() {
                         </div>
                         <div
                             id="chat"
-                            className={`collapse ${chatDropdown ? "show" : ""}`}
+                            className={`collapse ${isParentActive(["client_worker_chat", "worker_lead_chat"]) ? "show" : ""}`}
                             aria-labelledby="chat"
                             data-parent="#chat"
                         >
