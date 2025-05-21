@@ -38,7 +38,7 @@ export default function ClientLoginOtp() {
         if (clientLogin) {
             navigate("/client/dashboard");
         }
-    }, [navigate]);
+    }, []);
 
     useEffect(() => {
         const countdown = setInterval(() => {

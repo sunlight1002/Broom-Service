@@ -38,16 +38,16 @@ export default function ClientLogin() {
             return;
         }
         try {
-          const response = await axios.post('/api/client/password/email', {
-            email,
-          });
-          alert.success(response?.data?.message);
+            const response = await axios.post('/api/client/password/email', {
+                email,
+            });
+            alert.success(response?.data?.message);
 
         } catch (err) {
             console.log(err);
-            
+
         }
-      };
+    };
 
     const HandleLogin = (e) => {
         e.preventDefault();
@@ -64,12 +64,14 @@ export default function ClientLogin() {
                 return;
             }
 
-            const { token, lng, firstname, lastname, id, email, two_factor_enabled, first_login } = result.data;
-            localStorage.setItem("client-id", id);
+            const { lng, firstname, lastname, id, email, two_factor_enabled, first_login } = result.data.client;
+            const token = result.data.token;
 
             const saveClientData = () => {
                 localStorage.setItem("client-token", token);
                 localStorage.setItem("client-name", `${firstname} ${lastname}`);
+                localStorage.setItem("client-id", id);
+
                 i18next.changeLanguage(lng);
 
                 if (lng === "en") {
@@ -80,7 +82,7 @@ export default function ClientLogin() {
             };
             const redirectTo = (url) => {
                 setLoading(false);
-                window.location = url;
+                navigate(url);
             };
 
             if (isRemembered) {
@@ -205,7 +207,7 @@ export default function ClientLogin() {
                         </div>
 
                         <div className='d-flex justify-content-start align-items-center'>
-                           <button type="button" className="btn btn-link p-0" onClick={() => forgotPassword()}>forgot password</button>
+                            <button type="button" className="btn btn-link p-0" onClick={() => forgotPassword()}>forgot password</button>
                         </div>
 
                         <div className="form-group mt-1">

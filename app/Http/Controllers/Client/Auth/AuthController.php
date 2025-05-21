@@ -36,72 +36,72 @@ class AuthController extends Controller
             'email'     => ['required', 'string', 'email', 'max:255'],
             'password'  => ['required', 'string', 'min:6'],
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->messages()
             ]);
         }
-    
+
         if (Auth::guard('client')->attempt([
             'email'     => $request->email,
             'password'  => $request->password
         ])) {
             $client = Auth::guard('client')->user();
-        
-             DeviceToken::where('tokenable_id', $client->id)
-             ->where('tokenable_type', Client::class)
-             ->where('expires_at', '<', now())
-             ->delete();
 
-             $rememberDeviceToken = $request->cookie('remember_device_token');
-             if ($rememberDeviceToken) {
-                 $storedToken = DeviceToken::where('tokenable_id', $client->id)
-                     ->where('tokenable_type', Client::class)
-                     ->where('token', $rememberDeviceToken)
-                     ->where('expires_at', '>', now())
-                     ->first();
-                     if ($storedToken) {
-                        // Device is remembered
-                        $client->token = $client->createToken('Client', ['client'])->accessToken;
-                        return response()->json($client);
-                    } 
+            DeviceToken::where('tokenable_id', $client->id)
+                ->where('tokenable_type', Client::class)
+                ->where('expires_at', '<', now())
+                ->delete();
+
+            $rememberDeviceToken = $request->cookie('remember_device_token');
+            if ($rememberDeviceToken) {
+                $storedToken = DeviceToken::where('tokenable_id', $client->id)
+                    ->where('tokenable_type', Client::class)
+                    ->where('token', $rememberDeviceToken)
+                    ->where('expires_at', '>', now())
+                    ->first();
+                if ($storedToken) {
+                    // Device is remembered
+                    $client->token = $client->createToken('Client', ['client'])->accessToken;
+                    return response()->json($client);
                 }
+            }
 
             if ($client->status == 2) {
-                if($client->two_factor_enabled){
+                if ($client->two_factor_enabled) {
                     try {
                         $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
 
                         $client->otp = $otp;
-                        $client->otp_expiry = now()->addMinutes(10); 
+                        $client->otp_expiry = now()->addMinutes(10);
                         $client->save();
 
                         $emailSent = false;
                         $smsSent = false;
                         $emailError = null;
                         $smsError = null;
-        
+
                         try {
                             // Send OTP via email
                             Mail::to($client->email)
-                            ->send(new LoginOtpMail($otp, $client));
+                                ->send(new LoginOtpMail($otp, $client));
                             $emailSent = true;
                         } catch (\Exception $e) {
                             $emailError = $e->getMessage();
                         }
-        
+
                         // Send OTP via SMS using Twilio
                         App::setLocale($client->lng);
                         $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-    
+
                         $twilioAccountSid = config('services.twilio.twilio_id');
                         $twilioAuthToken = config('services.twilio.twilio_token');
                         $twilioPhoneNumber = config('services.twilio.twilio_number');
-    
+
                         $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                        $phone_number = '+'.$client->phone;
-                    
+                        $phone_number = '+' . $client->phone;
+
                         $twilioClient->messages->create(
                             $phone_number,
                             ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
@@ -110,27 +110,27 @@ class AuthController extends Controller
                     } catch (\Exception $e) {
                         $smsError = $e->getMessage();
                     }
-    
+
                     if ($emailSent && $smsSent) {
                         return response()->json([
                             "two_factor_enabled" => $client->two_factor_enabled,
-                            "email" => $client->email,
-                            "lng" => $client->lng,
+                            'client' => $client,
+                            'token' => $client->createToken('Client', ['client'])->accessToken,
                             'message' => 'OTP sent to your email and phone number for verification'
                         ]);
                     } elseif ($emailSent) {
                         return response()->json([
                             "two_factor_enabled" => $client->two_factor_enabled,
-                            "email" => $client->email,
-                            "lng" => $client->lng,
+                            'client' => $client,
+                            'token' => $client->createToken('Client', ['client'])->accessToken,
                             'message' => 'OTP sent to your email for verification. Failed to send OTP via SMS.',
                             // 'errors' => ['sms' => $smsError]
                         ]);
                     } elseif ($smsSent) {
                         return response()->json([
                             "two_factor_enabled" => $client->two_factor_enabled,
-                            "email" => $client->email,
-                            "lng" => $client->lng,
+                            'client' => $client,
+                            'token' => $client->createToken('Client', ['client'])->accessToken,
                             'message' => 'OTP sent to your phone number for verification. Failed to send OTP via email.',
                             // 'errors' => ['email' => $emailError]
                         ]);
@@ -142,8 +142,10 @@ class AuthController extends Controller
                         ], 500);
                     }
                 } else {
-                    $client->token = $client->createToken('Client', ['client'])->accessToken;
-                    return response()->json($client);
+                    return response()->json([
+                        'client' => $client,
+                        'token' => $client->createToken('Client', ['client'])->accessToken,
+                    ]);
                 }
             } else {
                 return response()->json([
@@ -172,7 +174,7 @@ class AuthController extends Controller
         $status = Password::broker('clients')->sendResetLink(
             ['email' => $request->email]
         );
-    
+
         // Return the response based on the result
         return $status === Password::RESET_LINK_SENT
             ? response()->json(['message' => __($status)], 200)
@@ -203,7 +205,7 @@ class AuthController extends Controller
 
         // Return the response based on the result
         return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => "Your password has been reset!"]) 
+            ? response()->json(['message' => "Your password has been reset!"])
             : back()->withErrors(['email' => [__($status)]]);
     }
 
@@ -242,26 +244,26 @@ class AuthController extends Controller
             'otp' => ['required', 'string', 'digits:6'],
             'remember_device' => 'boolean',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-    
+
         $client = Client::where('otp', $request->otp)
-                      ->where('otp_expiry', '>=', now())
-                      ->first();
-    
+            ->where('otp_expiry', '>=', now())
+            ->first();
+
         if (!$client) {
             return response()->json(['errors' => ['otp' => 'Invalid OTP or OTP expired']]);
         }
-    
+
         // Clear OTP after successful verification
         $client->otp = null;
         $client->otp_expiry = null;
 
-         // Initialize rememberDeviceToken to null
-         $rememberDeviceToken = null;
-         
+        // Initialize rememberDeviceToken to null
+        $rememberDeviceToken = null;
+
         if ($request->remember_device) {
             $rememberDeviceToken = Str::random(60);
             DeviceToken::updateOrCreate(
@@ -271,18 +273,18 @@ class AuthController extends Controller
         }
 
         $client->save();
-    
+
         // Generate token for the authenticated admin
         $client->token = $client->createToken('Client', ['client'])->accessToken;
         $response = [
             'client' => $client,
         ];
-    
+
         // Add remember_token to response only if it exists
         if ($rememberDeviceToken) {
             $response['remember_token'] = $rememberDeviceToken;
         }
-    
+
         return response()->json($response);
     }
 
@@ -291,43 +293,43 @@ class AuthController extends Controller
     {
         // Retrieve the client by email
         $client = Client::where('email', $request->email)->first();
-    
+
         if (!$client) {
             return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
         }
-    
+
         // Generate a new OTP and set the expiration time
         $otp = strval(random_int(100000, 999999));
         $client->otp = $otp;
         $client->otp_expiry = now()->addMinutes(10);
         $client->save();
-    
+
         $emailSent = false;
         $smsSent = false;
         $emailError = null;
         $smsError = null;
-    
+
         // Attempt to send the OTP via email
         try {
             Mail::to($client->email)
-            ->send(new LoginOtpMail($otp, $client));
+                ->send(new LoginOtpMail($otp, $client));
             $emailSent = true;
         } catch (\Exception $e) {
             $emailError = $e->getMessage();
         }
-    
+
         // Attempt to send the OTP via SMS using Twilio
         try {
             App::setLocale($client->lng);
             $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-    
+
             $twilioAccountSid = config('services.twilio.twilio_id');
             $twilioAuthToken = config('services.twilio.twilio_token');
             $twilioPhoneNumber = config('services.twilio.twilio_number');
-    
+
             $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
             $phone_number = '+' . $client->phone;
-    
+
             $twilioClient->messages->create(
                 $phone_number,
                 ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
@@ -336,7 +338,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             $smsError = $e->getMessage();
         }
-    
+
         // Determine the appropriate response based on the success or failure of each attempt
         if ($emailSent && $smsSent) {
             return response()->json(['message' => 'OTP sent to your email and phone number for verification']);
@@ -365,26 +367,26 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'new_password' => 'required|string|min:6|confirmed', // 'confirmed' ensures new_password == confirm_password
         ]);
-    
+
         // Handle validation errors
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         try {
             $clientId = $request->id;
-    
+
             // Fetch the client
             $client = Client::findOrFail($clientId);
-    
+
             // Update the password and passcode
             $client->password = bcrypt($request->new_password);
             $client->passcode = $request->new_password; // Assuming passcode is stored in plain text
             $client->first_login = false;
             $client->save();
-    
+
             return response()->json([
                 'message' => 'Password updated successfully.'
             ], 200);
@@ -395,7 +397,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    
+
 
     /** 
      * Register api 
