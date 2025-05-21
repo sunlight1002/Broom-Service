@@ -199,7 +199,7 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-worker-id="${row.worker_id}" data-hid="${row.id}">View</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-worker-id="${row.worker_id}" data-hid="${row.id}">Edit / View</button>`;
 
                             _html += `<button type="button" class="dropdown-item dt-claim-btn" data-worker-id="${row.worker_id}" data-hid="${row.id}">Create Claim</button>`;
 

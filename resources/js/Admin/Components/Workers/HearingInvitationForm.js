@@ -30,7 +30,7 @@ const HearingInvitation = () => {
     const [endSlot, setEndSlot] = useState([]);
     const [interval, setInterval] = useState([]);
     const [purpose, setPurpose] = useState("Hearing Invitation");
-    const [purposeText, setPurposeText] = useState("");
+    const [purposes, setPurposes] = useState([""]);
     const [addresses, setAddresses] = useState([]);
     const [address, setAddress] = useState("");
     const [availableSlots, setAvailableSlots] = useState([]);
@@ -66,6 +66,15 @@ const HearingInvitation = () => {
         setSelectedTime(_time);
     };
 
+    const handlePurposeChange = (index, value) => {
+        const updated = [...purposes];
+        updated[index] = value;
+        setPurposes(updated);
+    };
+
+    const addPurposeField = () => {
+        setPurposes([...purposes, ""]);
+    };
 
     const timeOptions = useMemo(() => {
         return createHalfHourlyTimeArray("08:00", "24:00");
@@ -134,7 +143,7 @@ const HearingInvitation = () => {
             }
         }
 
-        let purps = purposeText || "Hearing Invitation";
+        let purps = purposes.filter(p => p.trim() !== "").join(", ") || "Hearing Invitation";
 
         let st = document.querySelector("#status").value;
         const data = {
@@ -439,24 +448,48 @@ const HearingInvitation = () => {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-sm-6">
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("admin.hearing.hearingPurpose")}
-                                </label>
-                                <input
-                                    type="text"
-                                    name="purpose_text"
-                                    id="purpose_text"
-                                    value={purposeText}
-                                    onChange={(e) => {
-                                        setPurposeText(e.target.value);
-                                    }}
-                                    placeholder="Enter purpose please"
-                                    className="form-control"
-                                />
+                        {purposes.map((purpose, index) => (
+                            <div className="col-sm-6 mb-2" key={index}>
+                                <div className="form-group d-flex align-items-center">
+                                    <input
+                                        type="text"
+                                        name={`purpose_text_${index}`}
+                                        value={purpose}
+                                        onChange={(e) => {
+                                            const updated = [...purposes];
+                                            updated[index] = e.target.value;
+                                            setPurposes(updated);
+                                        }}
+                                        placeholder="Enter purpose please"
+                                        className="form-control"
+                                    />
+
+                                    {index === purposes.length - 1 && (
+                                        <button
+                                            type="button"
+                                            style={{ backgroundColor: '#1675e0', color: '#fff' }}
+                                            className="btn btn-sm ml-2"
+                                            onClick={() => setPurposes([...purposes, ""])}
+                                        >
+                                            +
+                                        </button>
+                                    )}
+
+                                    {purposes.length > 1 && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger btn-sm ml-2"
+                                            onClick={() => {
+                                                const updated = purposes.filter((_, i) => i !== index);
+                                                setPurposes(updated);
+                                            }}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
                     <div className="row">
                         <div className="col-sm-4">

@@ -15,6 +15,7 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use PDF;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class HearingInvitationController extends Controller
 {
@@ -111,7 +112,16 @@ class HearingInvitationController extends Controller
             return response()->json(['error' => 'Worker not found'], 404);
         }
 
-        \Log::info($teamId);
+        $purposes = $request->input('purpose');
+
+        $formattedPurposes = '';
+        if (is_array($purposes)) {
+            foreach ($purposes as $index => $text) {
+                $formattedPurposes .= ($index + 1) . '. ' . trim($text) . '<br>';
+            }
+        } else {
+            $formattedPurposes = $purposes;
+        }
 
         $invitation = HearingInvitation::create([
             'user_id' => $request->input('user_id'),
@@ -121,12 +131,24 @@ class HearingInvitationController extends Controller
             'end_time' => $endTime,
             'meet_via' => $request->input('meet_via'),
             'meet_link' => $request->input('meet_link'),
-            'purpose' => $request->input('purpose'),
+            'purpose' => $formattedPurposes,
         ]);
-
+        
+        
         $htmlContent = '';
         switch ($worker->lng) {
             case 'heb':
+                $purposes = $request->input('purpose');
+
+                if (!is_array($purposes)) {
+                    $purposes = preg_split('/[.,]/', $purposes);
+                    $purposes = array_filter(array_map('trim', $purposes));
+                }
+
+                $purposeListHtml = implode('', array_map(function ($text, $i) {
+                    return '<li>' . htmlspecialchars($text) . '</li>';
+                }, $purposes, array_keys($purposes)));
+
                 $htmlContent = '
                 <html>
                 <head>
@@ -172,8 +194,15 @@ class HearingInvitationController extends Controller
                         <p class="honor" style="direction: rtl; text-align: right;">לכבוד: ' . ($worker->firstname . ' ' . $worker->lastname) . '</p>
                         <div class="header" style="direction: rtl; text-align: right;">זימון לישיבת שימוע</div>
                         <p style="direction: rtl; text-align: right;">הרינו להודיעך, כי ביום ' . $request->input('start_date') . ', בשעה ' . $startTime . ' תיערך לך ישיבת שימוע בפני גב\'/מר ' . ($teamName ?? 'לא צויין') . ', ' . ($teamName ? 'מנהל צוות' : 'תפקיד לא צויין') . ', במשרדי החברה, במטרה לשקול את המשך העסקתך בחברה, וזאת מן הטעמים הבאים:</p>
-                        <ol style="direction: rtl; text-align: right;">
-                            <li style="direction: rtl; text-align: right;">' . $request->input('purpose') . '</li>
+                        <ol style="
+                            direction: rtl; 
+                            text-align: right; 
+                            list-style-position: inside; 
+                            padding-right: 0; 
+                            margin-left: 0;
+                            margin-right: 0;
+                        ">
+                            ' . $purposeListHtml . '
                         </ol>
                         <p style="direction: rtl; text-align: right;">לידיעתך, בישיבת השימוע יכול להשתתף גם מלווה/עורך דין מטעמך. כמו כן, הנך רשאי להגיב בכתב לנטען במכתב זה ולצרף כל מסמך התומך בטיעוניך.</p>
                         <p style="direction: rtl; text-align: right;">השימוע יתנהל בפתיחות ובתום לב, ואנו נשקול את בקשותיך/טענותיך, ככל שניתן.</p>
@@ -188,6 +217,17 @@ class HearingInvitationController extends Controller
             
 
             case 'ru':
+                $purposes = $request->input('purpose');
+
+                if (!is_array($purposes)) {
+                    $purposes = preg_split('/[.,]/', $purposes);
+                    $purposes = array_filter(array_map('trim', $purposes));
+                }
+                
+                $purposeListHtml = implode('', array_map(function ($text, $i) {
+                    return '<li>' . htmlspecialchars($text) . '</li>';
+                }, $purposes, array_keys($purposes)));
+                
                 $htmlContent = '
                 <html>
                 <head>
@@ -208,8 +248,8 @@ class HearingInvitationController extends Controller
                         <p class="honor">В честь: ' . ($worker->firstname . ' ' . $worker->lastname) . '</p>
                         <div class="header">Вызов на слушание</div>
                         <p>Мы хотели бы сообщить вам, что ' . $request->input('start_date') . ', в ' . $startTime . ', перед г-жой/г-ном ' . ($teamName ?? 'Не указано') . ', ' . ($teamName ? 'руководитель команды' : 'Должность не указана') . ', в офисе компании будет проведено слушание для рассмотрения вашего дальнейшего трудоустройства в компании по следующим причинам:</p>
-                        <ol>
-                            <li>' . $request->input('purpose') . '</li>
+                        <ol style="direction: ltr; text-align: left; list-style-position: inside; padding-left: 7px; margin-left: 0;">
+                            ' . $purposeListHtml . '
                         </ol>
                         <p>К вашему сведению, кредитор/юрист также может участвовать в слушании от вашего имени. Кроме того, вы можете ответить в письменном виде на то, что утверждается в этом письме, и приложить любой документ, подтверждающий ваши аргументы.</p>
                         <p>Слушание будет проводиться открыто и добросовестно, и мы учтем ваши запросы/претензии, насколько это возможно.</p>
@@ -223,6 +263,17 @@ class HearingInvitationController extends Controller
             break;
                 
             default:
+                $purposes = $request->input('purpose');
+
+                if (!is_array($purposes)) {
+                    $purposes = preg_split('/[.,]/', $purposes);
+                    $purposes = array_filter(array_map('trim', $purposes));
+                }
+                
+                $purposeListHtml = implode('', array_map(function ($text, $i) {
+                    return '<li>' . htmlspecialchars($text) . '</li>';
+                }, $purposes, array_keys($purposes)));
+            
                 $htmlContent = '
                 <html>
                 <head>
@@ -243,8 +294,8 @@ class HearingInvitationController extends Controller
                         <p class="honor">In honor of: ' . ($worker->firstname . ' ' . $worker->lastname) . '</p>
                         <div class="header">Summons for a Hearing</div>
                         <p>We would like to inform you that on ' . $request->input('start_date') . ', at ' . $startTime . ', a hearing will be held for you before Ms./Mr. ' . ($teamName ?? 'Not specified') . ', ' . ($teamName ? 'Team Manager' : 'Position not specified') . ', at the company\'s offices, in order to consider your continued employment in the company, for the following reasons:</p>
-                        <ol>
-                            <li>' . $request->input('purpose') . '</li>
+                        <ol style="direction: ltr; text-align: left; list-style-position: inside; padding-left: 7px; margin-left: 0;">
+                            ' . $purposeListHtml . '
                         </ol>
                         <p>For your information, a lender/lawyer can also participate in the hearing on your behalf. Also, you may respond in writing to what is claimed in this letter and attach any document that supports your arguments.</p>
                         <p>The hearing will be conducted openly and in good faith, and we will consider your requests/claims, as much as possible.</p>
@@ -266,6 +317,7 @@ class HearingInvitationController extends Controller
             'isRemoteEnabled' => true,
         ]);
         $pdfPath = 'hearing_protocols/hearing_invitation_' . $invitation->id . '.pdf';
+        Storage::makeDirectory('public/hearing_protocols');
         $pdf->save(storage_path("app/public/" . $pdfPath));
 
         // Update the invitation record with the file path
@@ -331,6 +383,17 @@ class HearingInvitationController extends Controller
         $startDateTime = Carbon::createFromFormat('Y-m-d h:i A', $request->input('start_date') . ' ' . $request->input('start_time'));
         $endDateTime = $startDateTime->copy()->addMinutes(30);
 
+        $purposes = $request->input('purpose');
+
+        $formattedPurposes = '';
+        if (is_array($purposes)) {
+            foreach ($purposes as $index => $text) {
+                $formattedPurposes .= ($index + 1) . '. ' . trim($text) . '<br>';
+            }
+        } else {
+            $formattedPurposes = $purposes;
+        }
+
         $invitation->update([
             'user_id' => $request->input('user_id'),
             'team_id' => $request->input('team_id'),
@@ -339,7 +402,7 @@ class HearingInvitationController extends Controller
             'end_time' => $endDateTime->format('h:i A'),
             'meet_via' => $request->input('meet_via'),
             'meet_link' => $request->input('meet_link'),
-            'purpose' => $request->input('purpose'),
+            'purpose' => $formattedPurposes,
             'booking_status' => $request->input('booking_status'),
             'address_id' => $request->input('address_id'),
         ]);    

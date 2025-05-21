@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import Sidebar from "../../Layouts/Sidebar";
 
@@ -25,7 +26,8 @@ function ViewHearing() {
     const [endSlot, setEndSlot] = useState([]);
     const [interval, setInterval] = useState([]);
     const [purpose, setPurpose] = useState("Hearing Invitation");
-    const [purposeText, setPurposeText] = useState("");
+    // const [purposeText, setPurposeText] = useState("");
+    const [purposes, setPurposes] = useState([""]);
     const [availableSlots, setAvailableSlots] = useState([]);
     const [bookedSlots, setBookedSlots] = useState([]);
     const [schedule, setSchedule] = useState(null);
@@ -35,7 +37,6 @@ function ViewHearing() {
     const [workers, setWorkers] = useState([]);
     
     const { workerId, hid } = useParams();
-
     
     const alert = useAlert();
     const navigate = useNavigate();
@@ -46,6 +47,10 @@ function ViewHearing() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const sid = queryParams.get("sid");    
+    const urlParamAction = queryParams.get("action");
 
     const sendMeeting = async () => {
         if (meetVia === "on-site") {
@@ -60,7 +65,7 @@ function ViewHearing() {
             }
         }
 
-        let purps = purposeText || "Hearing Invitation";
+        let purps = purposes.filter(p => p.trim() !== "").join(", ") || "Hearing Invitation";
 
         let st = document.querySelector("#status").value;
         const data = {
@@ -69,7 +74,7 @@ function ViewHearing() {
             start_date: selectedDate
                 ? Moment(selectedDate).format("YYYY-MM-DD")
                 : null,
-            start_time: selectedTime,
+            start_time: selectedTime,          
             meet_via: meetVia,
             meet_link: meetLink,
             purpose: purps,
@@ -78,7 +83,7 @@ function ViewHearing() {
 
         setIsLoading(true);
 
-        if (sid) {
+        if (hid) {
             await axios
                 .put(`/api/admin/hearing-invitations/${hid}`, data, { headers })
                 .then((res) => {
@@ -173,8 +178,7 @@ function ViewHearing() {
                 }
                 setMeetVia(d.meet_via);
                 setMeetLink(d.meet_link ?? "");
-                setPurpose(d.purpose);
-                    setPurposeText(d.purpose);
+                setPurposes(d.purpose ? d.purpose.split(",").map(p => p.trim()) : [""]);
             })
             .catch((e) => {
                 setIsLoading(false);
@@ -265,52 +269,52 @@ function ViewHearing() {
     };
 
     const timeOptions = useMemo(() => {
-        return createHalfHourlyTimeArray("08:00", "24:00");
-    }, []);
-
-    const startTimeOptions = useMemo(() => {
-        const _timeOptions = timeOptions.filter((_option) => {
-            if (_option == "24:00") {
-                return false;
-            }
-
-            if (schedule && schedule.start_time) {
-                const _st = moment(schedule.start_time, "hh:mm A").format(
-                    "kk:mm"
-                );
-                if (_st == _option) {
-                    return true;
-                }
-            }
-
-            const _startTime = moment(_option, "kk:mm");
-            const isSlotAvailable = availableSlots.some((slot) => {
-                const _slotStartTime = moment(slot.start_time, "kk:mm");
-                const _slotEndTime = moment(slot.end_time, "kk:mm");
-
-                return (
-                    _slotStartTime.isSame(_startTime) ||
-                    _startTime.isBetween(_slotStartTime, _slotEndTime)
-                );
-            });
-
-            if (!isSlotAvailable) {
-                return false;
-            }
-
-            return !bookedSlots.some((slot) => {
-                const _slotStartTime = moment(slot.start_time, "kk:mm");
-                const _slotEndTime = moment(slot.end_time, "kk:mm");
-
-                return (
-                    _startTime.isBetween(_slotStartTime, _slotEndTime) ||
-                    _startTime.isSame(_slotStartTime)
-                );
-            });
-        });
-
-        return _timeOptions;
-    }, [timeOptions, availableSlots, bookedSlots]);
+          return createHalfHourlyTimeArray("08:00", "24:00");
+      }, []);
+  
+      const startTimeOptions = useMemo(() => {
+          const _timeOptions = timeOptions.filter((_option) => {
+              if (_option == "24:00") {
+                  return false;
+              }
+  
+              if (schedule && schedule.start_time) {
+                  const _st = moment(schedule.start_time, "hh:mm A").format(
+                      "kk:mm"
+                  );
+                  if (_st == _option) {
+                      return true;
+                  }
+              }
+  
+              const _startTime = moment(_option, "kk:mm");
+              const isSlotAvailable = availableSlots.some((slot) => {
+                  const _slotStartTime = moment(slot.start_time, "kk:mm");
+                  const _slotEndTime = moment(slot.end_time, "kk:mm");
+  
+                  return (
+                      _slotStartTime.isSame(_startTime) ||
+                      _startTime.isBetween(_slotStartTime, _slotEndTime)
+                  );
+              });
+  
+              if (!isSlotAvailable) {
+                  return false;
+              }
+  
+              return !bookedSlots.some((slot) => {
+                  const _slotStartTime = moment(slot.start_time, "kk:mm");
+                  const _slotEndTime = moment(slot.end_time, "kk:mm");
+  
+                  return (
+                      _startTime.isBetween(_slotStartTime, _slotEndTime) ||
+                      _startTime.isSame(_slotStartTime)
+                  );
+              });
+          });
+  
+          return _timeOptions;
+      }, [timeOptions, availableSlots, bookedSlots]);
 
     useEffect(() => {
         getTeamAvailibality();
@@ -340,11 +344,20 @@ function ViewHearing() {
         return "";
     }, [selectedDate]);
 
-    const timeSlots = useMemo(() => {
-        return startTimeOptions.map((i) =>
-            moment(i, "kk:mm").format("hh:mm A")
-        );
-    }, [startTimeOptions]);
+       const timeSlots = useMemo(() => {
+            return startTimeOptions
+                .map((i) => moment(i, "kk:mm").format("hh:mm A")) // format time as hh:mm A
+                .filter((t) => {
+                    const todayFormattedDate = moment().format("MMMM, dddd, DD");
+    
+                    if (formattedSelectedDate === todayFormattedDate) {
+                        // Check if the time slot is in the future
+                        return moment(t, "hh:mm A").isAfter(moment());
+                    }
+    
+                    return true;
+                });
+        }, [startTimeOptions, formattedSelectedDate]);
 
     const handleCreateClaim = () => {
         navigate(`/admin/workers/view/${workerId}/hearing-invitation/${hid}/create-claim`, {
@@ -435,24 +448,54 @@ function ViewHearing() {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-sm-6">
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("admin.hearing.hearingPurpose")}
-                                </label>
-                                <input
+                        <div className="col-12">
+                            <label className="control-label">
+                                {t("admin.hearing.hearingPurpose")}
+                            </label>
+                        </div>
+
+                        {purposes.map((purpose, index) => (
+                            <div className="col-sm-6 mb-2" key={index}>
+                                <div className="form-group d-flex align-items-center">
+                                    <input
                                         type="text"
-                                        name="purpose_text"
-                                        id="purpose_text"
-                                        value={purposeText}
+                                        name={`purpose_text_${index}`}
+                                        value={purpose}
                                         onChange={(e) => {
-                                            setPurposeText(e.target.value);
+                                            const updated = [...purposes];
+                                            updated[index] = e.target.value;
+                                            setPurposes(updated);
                                         }}
                                         placeholder="Enter purpose please"
                                         className="form-control"
                                     />
+
+                                    {index === purposes.length - 1 && (
+                                        <button
+                                            type="button"
+                                            style={{ backgroundColor: '#1675e0', color: '#fff' }}
+                                            className="btn btn-sm ml-2"
+                                            onClick={() => setPurposes([...purposes, ""])}
+                                        >
+                                            +
+                                        </button>
+                                    )}
+
+                                    {purposes.length > 1 && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger btn-sm ml-2"
+                                            onClick={() => {
+                                                const updated = purposes.filter((_, i) => i !== index);
+                                                setPurposes(updated);
+                                            }}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
                     <div className="row">
                         <div className="col-sm-4">
