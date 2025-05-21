@@ -461,7 +461,7 @@ export default function OfferServiceModal({
                                                 >
                                                     {service?.name?.includes("Star")
                                                         ? `${service.icon ? service.icon : service.name}`
-                                                        : service?.icon ? service.icon + " (" + service.name + ")" : service.name}
+                                                        : service?.icon ? service.icon + " " + service.name + "" : service.name}
 
                                                 </option>
                                             ))}
