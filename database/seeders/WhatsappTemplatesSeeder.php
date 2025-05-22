@@ -23,7 +23,7 @@ class WhatsappTemplatesSeeder extends Seeder
 
 Please confirm that you have seen the address for tomorrow’s job:
 
-Client Name: *:client_name*
+Client Name: *:translated_client_name*
 Address: *:job_full_address*
 Google Map Address: :google_address
 Job Hours: :job_hours
@@ -38,7 +38,7 @@ Broom Service Team',
 
 אנא אשר שראית את הכתובת לעבודה מחר:
 
-שם הלקוח: *:client_name*
+שם הלקוח: *:translated_client_name*
 כתובת: *:job_full_address*
 כתובת מפת גוגל: :google_address
 שעות עבודה: :job_hours
@@ -53,7 +53,7 @@ Broom Service Team',
 
 Por favor confirma que has visto la dirección para el trabajo de mañana:
 
-Nombre del cliente: *:client_name*
+Nombre del cliente: *:translated_client_name*
 Dirección: *:job_full_address*
 Dirección de Google Maps: :google_address
 Horas de trabajo: :job_hours
@@ -68,7 +68,7 @@ Equipo de Broom Service',
 
 Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
 
-Имя клиента: *:client_name*
+Имя клиента: *:translated_client_name*
 Адрес: *:job_full_address*
 Адрес на карте Google: :google_address
 Часы работы: :job_hours
@@ -96,7 +96,7 @@ Equipo de Broom Service',
 
 This is a reminder to confirm the address for tomorrow’s job as soon as possible:
 
-Client Name: *:client_name*
+Client Name: *:translated_client_name*
 Address: *:job_full_address*
 Google Map Address: :google_address
 Job Hours: :job_hours
@@ -108,11 +108,11 @@ Date/Time: :job_start_date_time
 Best Regards,
 Broom Service Team
 ',
-    'message_heb' => 'שלום, *:worker_name*,
+                'message_heb' => 'שלום, *:worker_name*,
 
 תזכורת לאשר בהקדם האפשרי את הכתובת לעבודה מחר:
 
-שם הלקוח: *:client_name*
+שם הלקוח: *:translated_client_name*
 כתובת: *:job_full_address*
 כתובת מפת גוגל: :google_address
 שעות עבודה: :job_hours
@@ -123,11 +123,11 @@ Broom Service Team
 
 בברכה,
 צוות ברום סרוויס  ',
-    'message_spa' => 'Hola, *:worker_name*,
+                'message_spa' => 'Hola, *:worker_name*,
 
 Este es un recordatorio para confirmar la dirección para el trabajo de mañana lo antes posible:
 
-Nombre del cliente: *:client_name*
+Nombre del cliente: *:translated_client_name*
 Dirección: *:job_full_address*
 Dirección de Google Maps: :google_address
 Horas de trabajo: :job_hours
@@ -139,11 +139,11 @@ Fecha/Hora: :job_start_date_time
 Saludos cordiales,
 Equipo de Broom Service
 ',
-    'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_ru' => 'Здравствуйте, *:worker_name*,
 
 Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
 
-Имя клиента: *:client_name*
+Имя клиента: *:translated_client_name*
 Адрес: *:job_full_address*
 Адрес на карте Google: :google_address
 Часы работы: :job_hours
@@ -155,13 +155,13 @@ Equipo de Broom Service
 С уважением,
 Команда Broom Service',
 
-    'suggestions' => [
-        ':worker_name' => 'Worker Name',
-        ':job_accept_url' => 'Accept Address',
-        ':job_contact_manager_link' => 'Contact Manager',
-        ':job_full_address' => 'Address',
-        ':job_start_date_time' => 'Date/Time',
-    ]
+                'suggestions' => [
+                    ':worker_name' => 'Worker Name',
+                    ':job_accept_url' => 'Accept Address',
+                    ':job_contact_manager_link' => 'Contact Manager',
+                    ':job_full_address' => 'Address',
+                    ':job_start_date_time' => 'Date/Time',
+                ]
             ],
 
             [
@@ -206,7 +206,7 @@ Equipo de Broom Service
 You have a job scheduled at *:job_start_time* at the following location:
 
 Address: *:job_full_address*
-Client: *:client_name*
+Client: *:translated_client_name*
 
 - I’m On My Way :leave_for_work
 - Contact Manager :job_contact_manager_link if you need assistance.
@@ -218,7 +218,7 @@ Broom Service Team',
 יש לך עבודה המתוכננת לשעה *:job_start_time* בכתובת הבאה:
 
 כתובת: *:job_full_address*
-לקוח:  *:client_name*
+לקוח:  *:translated_client_name*
 
 - אני בדרכי :leave_for_work
 - צור קשר עם המנה :job_contact_manager_link במידה ואתה זקוק לעזרה.
@@ -230,7 +230,7 @@ Broom Service Team',
 Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Dirección: *:job_full_address*
-Cliente: *:client_name*
+Cliente: *:translated_client_name*
 
 - Estoy en camino :leave_for_work
 - Contactar al gerente :job_contact_manager_link si necesitas ayuda.
@@ -242,7 +242,7 @@ Equipo de Broom Service',
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
 Адрес: *:job_full_address*
-Клиент: *:client_name*
+Клиент: *:translated_client_name*
 
 - Я в пути :leave_for_work
 - Связаться с менеджером :job_contact_manager_link если вам нужна помощь.
@@ -3130,54 +3130,54 @@ Broom Service Team 🌹",
                 'message_ru' => "",
             ],
 
-//             [
-//                 'key' => WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION,
-//                 'description' => 'Client meeting schedule reminder message template',
-//                 'message_en' => "Hello, *:worker_name*,
+            //             [
+            //                 'key' => WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION,
+            //                 'description' => 'Client meeting schedule reminder message template',
+            //                 'message_en' => "Hello, *:worker_name*,
 
 
 
-// Best Regards,
-// Broom Service Team 🌹",
+            // Best Regards,
+            // Broom Service Team 🌹",
 
-//                 'message_heb' => "שלום, *:worker_name*
-
-
-// בברכה,
-// צוות ברום סרוויס🌹
-// www.broomservice.co.il
-// טלפון: 03-525-70-60
-// office@broomservice.co.il",
-//                 'message_spa' => '',
-//                 'message_ru' => "",
-//             ],
+            //                 'message_heb' => "שלום, *:worker_name*
 
 
+            // בברכה,
+            // צוות ברום סרוויס🌹
+            // www.broomservice.co.il
+            // טלפון: 03-525-70-60
+            // office@broomservice.co.il",
+            //                 'message_spa' => '',
+            //                 'message_ru' => "",
+            //             ],
 
-//             [
-//                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM,
-//                 'description' => 'Client meeting schedule reminder message template',
-//                 'message_en' => "Hello, *Team*
 
 
-// Best regards,
-// Broom Service Team",
+            //             [
+            //                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM,
+            //                 'description' => 'Client meeting schedule reminder message template',
+            //                 'message_en' => "Hello, *Team*
 
-//                 'message_heb' => "שלום, *צוות*
 
-// הלקוח :client_name עדיין לא שלח תמונות או סרטון של האזור הנדרש לניקוי.
+            // Best regards,
+            // Broom Service Team",
 
-// אנא עקבו אחר הלקוח לבדיקת סטטוס והשלמת הפרטים לצורך מתן הצעת המחיר.
+            //                 'message_heb' => "שלום, *צוות*
 
-// פרטי הלקוח:
-//   • שם:  :client_name
-//   • טלפון:  :client_contact
+            // הלקוח :client_name עדיין לא שלח תמונות או סרטון של האזור הנדרש לניקוי.
 
-// בברכה,
-// ברום סרוויס צוות",
-//                 'message_spa' => '',
-//                 'message_ru' => "",
-//             ],
+            // אנא עקבו אחר הלקוח לבדיקת סטטוס והשלמת הפרטים לצורך מתן הצעת המחיר.
+
+            // פרטי הלקוח:
+            //   • שם:  :client_name
+            //   • טלפון:  :client_contact
+
+            // בברכה,
+            // ברום סרוויס צוות",
+            //                 'message_spa' => '',
+            //                 'message_ru' => "",
+            //             ],
 
 
 

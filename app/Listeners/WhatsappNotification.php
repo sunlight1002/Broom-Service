@@ -55,6 +55,9 @@ class WhatsappNotification
     private function replaceClientFields($text, $clientData, $eventData)
     {
         $placeholders = [];
+
+        $lng = isset($eventData['worker']) && isset($eventData['worker']['lng']) ? $eventData['worker']['lng'] : 'en';
+
         if (isset($clientData) && !empty($clientData)) {
             $addresses = [];
 
@@ -82,9 +85,16 @@ class WhatsappNotification
 
             // Concatenate all addresses into a single string, separated by a comma
             $fullAddress = implode(', ', $addresses);
+            $clientName = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''));
+
+
+            $ClientNametranslation = $this->translateClient->translate($clientName, [
+                'target' => $lng,
+            ]);
 
             // Replaceable values
             $placeholders = [
+                'translated_client_name' => $ClientNametranslation['text'],
                 ':client_name' => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')),
                 ':client_contact' => '+' . ($clientData['phone'] ?? ''),
                 ':service_requested' => '',
