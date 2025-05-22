@@ -59,6 +59,9 @@ export default function OfferServiceModal({
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
     );
 
+    console.log("offerServiceTmp", offerServiceTmp);
+
+
     useEffect(() => {
         if (!isAdd && Array.isArray(tmpFormValues) && tmpFormValues.length > 0) {
             setOfferServiceTmp(tmpFormValues);
@@ -74,6 +77,8 @@ export default function OfferServiceModal({
     }, [isAdd, tmpFormValues]);
 
     const [toggleOtherService, setToggleOtherService] = useState([]);
+    console.log("toggleOtherService", toggleOtherService);
+
     const [subServiceState, setSubServiceState] = useState({}); // Store selected subservices per index
 
     const [toggleAirbnbService, setToggleAirbnbService] = useState([]);
@@ -684,7 +689,7 @@ export default function OfferServiceModal({
                                 </div>
                             )}
 
-                            {toggleOtherService[index] || offerServiceTmp[index]?.other_title && (
+                            {(toggleOtherService[index] || offerServiceTmp[index]?.other_title !== "") && (
                                 <div className="form-group mt-2">
                                     <textarea
                                         type="text"
