@@ -473,7 +473,6 @@ class WhatsappNotification
                 $status = isset($eventData['job']) && ucfirst($eventData['job']['status'] ?? "");
                 $commentBy = "עבודה מסומנת בתור $status";
             }
-            \Log::info($eventData['start_date']);
             $placeholders = [
                 ':team_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
                     ? $eventData['team']['name']
@@ -3077,7 +3076,6 @@ class WhatsappNotification
                         break;
                 }
             }
-            $receiverNumber = "918000318833";
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);

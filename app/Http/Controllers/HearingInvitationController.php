@@ -352,7 +352,7 @@ class HearingInvitationController extends Controller
             App::setlocale($worker->lng == "heb" ? "heb" : "en");
 
             Mail::send('/Mails/worker/WorkerHearingMail', ["data" => $notificationData], function ($message) use ($notificationData, $worker) {
-                $message->to("pratik.panchal@spexiontechnologies.com");
+                $message->to($worker->email);
                 $message->bcc(config('services.mail.default'));
                 $message->subject(__('mail.hearing.subject'));
             });
