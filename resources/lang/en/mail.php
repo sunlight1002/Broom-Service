@@ -962,4 +962,13 @@ return [
         "safety_and_gear" => "Safety and equipment",
         "insurance" => "Insurance",
     ],
+    "hearing" => [
+        'subject' => 'Hearing Schedule',
+        'salutation' => "Hello, :worker_name",
+        'body' => "Just a friendly reminder that your hearing :team_name on :date between :start_time to :end_time has been scheduled.",
+        'accpet_reject' => "Accept/Reject",
+        'regards' => "Best Regards,",
+        'signature' => "Broom Service Team"
+    ]
+
 ];

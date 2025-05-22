@@ -16,6 +16,9 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use PDF;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\App;
+
 
 class HearingInvitationController extends Controller
 {
@@ -46,7 +49,7 @@ class HearingInvitationController extends Controller
     public function store(Request $request)
     {
         \Log::info($request->all());
-       
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
             'team_id' => 'nullable|integer',
@@ -90,20 +93,20 @@ class HearingInvitationController extends Controller
         }
 
         $team = Admin::find($request->input('team_id'));
-        if(!$team){
+        if (!$team) {
             return response()->json(['error' => 'Team not found'], 404);
         }
         $worker = User::find($request->input('user_id'));
-        if(!$worker){
+        if (!$worker) {
             return response()->json(['error' => 'Worker not found'], 404);
         }
 
         $teamId = $team->id ?? null;
         $teamName = $team->name ?? null;
 
-        if($worker && $worker->lng == "heb"){
+        if ($worker && $worker->lng == "heb") {
             $teamName = $team ? $team->heb_name : null;
-        }else{
+        } else {
             $teamName = $team ? $team->name : null;
         }
 
@@ -133,8 +136,8 @@ class HearingInvitationController extends Controller
             'meet_link' => $request->input('meet_link'),
             'purpose' => $formattedPurposes,
         ]);
-        
-        
+
+
         $htmlContent = '';
         switch ($worker->lng) {
             case 'heb':
@@ -213,8 +216,8 @@ class HearingInvitationController extends Controller
                     </div>
                 </body>
                 </html>';
-            break;
-            
+                break;
+
 
             case 'ru':
                 $purposes = $request->input('purpose');
@@ -223,11 +226,11 @@ class HearingInvitationController extends Controller
                     $purposes = preg_split('/[.,]/', $purposes);
                     $purposes = array_filter(array_map('trim', $purposes));
                 }
-                
+
                 $purposeListHtml = implode('', array_map(function ($text, $i) {
                     return '<li>' . htmlspecialchars($text) . '</li>';
                 }, $purposes, array_keys($purposes)));
-                
+
                 $htmlContent = '
                 <html>
                 <head>
@@ -260,8 +263,8 @@ class HearingInvitationController extends Controller
                     </div>
                 </body>
                 </html>';
-            break;
-                
+                break;
+
             default:
                 $purposes = $request->input('purpose');
 
@@ -269,11 +272,11 @@ class HearingInvitationController extends Controller
                     $purposes = preg_split('/[.,]/', $purposes);
                     $purposes = array_filter(array_map('trim', $purposes));
                 }
-                
+
                 $purposeListHtml = implode('', array_map(function ($text, $i) {
                     return '<li>' . htmlspecialchars($text) . '</li>';
                 }, $purposes, array_keys($purposes)));
-            
+
                 $htmlContent = '
                 <html>
                 <head>
@@ -331,19 +334,28 @@ class HearingInvitationController extends Controller
                     'lng' => $worker->lng,
                     'firstname' => $worker->firstname,
                     'lastname' => $worker->lastname,
-                ], 
+                ],
                 'start_date' => $request->input('start_date'),
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'purpose' => $request->input('purpose'),
-                'team_name' => $teamName,
+                'team' => $team,
                 'id' => $invitation->id,
             ];
-            \Log::info('Notification data: ' . json_encode($notificationData));
+            \Log::info($teamName);
+            \Log::info($notificationData);
             event(new WhatsappNotificationEvent([
                 'type' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
                 'notificationData' => $notificationData
-            ]));         
+            ]));
+
+            App::setlocale($worker->lng == "heb" ? "heb" : "en");
+
+            Mail::send('/Mails/worker/WorkerHearingMail', ["data" => $notificationData], function ($message) use ($notificationData, $worker) {
+                $message->to("pratik.panchal@spexiontechnologies.com");
+                $message->bcc(config('services.mail.default'));
+                $message->subject(__('mail.hearing.subject'));
+            });
         }
 
         return response()->json(['message' => 'Hearing Invitation created successfully', 'data' => $invitation], 201);
@@ -385,20 +397,20 @@ class HearingInvitationController extends Controller
         }
 
         $team = Admin::find($request->input('team_id'));
-        if(!$team){
+        if (!$team) {
             return response()->json(['error' => 'Team not found'], 404);
         }
         $worker = User::find($request->input('user_id'));
-        if(!$worker){
+        if (!$worker) {
             return response()->json(['error' => 'Worker not found'], 404);
         }
 
         $teamId = $team->id ?? null;
         $teamName = $team->name ?? null;
 
-        if($worker && $worker->lng == "heb"){
+        if ($worker && $worker->lng == "heb") {
             $teamName = $team ? $team->heb_name : null;
-        }else{
+        } else {
             $teamName = $team ? $team->name : null;
         }
 
@@ -417,7 +429,7 @@ class HearingInvitationController extends Controller
         } else {
             $formattedPurposes = $purposes;
         }
-        
+
 
         $invitation = HearingInvitation::find($id);
 
@@ -466,7 +478,7 @@ class HearingInvitationController extends Controller
             'purpose' => $formattedPurposes,
             'booking_status' => $request->input('booking_status'),
             'address_id' => $request->input('address_id'),
-        ]);    
+        ]);
 
         $htmlContent = '';
         switch ($worker->lng) {
@@ -546,8 +558,8 @@ class HearingInvitationController extends Controller
                     </div>
                 </body>
                 </html>';
-            break;
-            
+                break;
+
 
             case 'ru':
                 $purposes = $request->input('purpose');
@@ -556,11 +568,11 @@ class HearingInvitationController extends Controller
                     $purposes = preg_split('/[.,]/', $purposes);
                     $purposes = array_filter(array_map('trim', $purposes));
                 }
-                
+
                 $purposeListHtml = implode('', array_map(function ($text, $i) {
                     return '<li>' . htmlspecialchars($text) . '</li>';
                 }, $purposes, array_keys($purposes)));
-                
+
                 $htmlContent = '
                 <html>
                 <head>
@@ -593,8 +605,8 @@ class HearingInvitationController extends Controller
                     </div>
                 </body>
                 </html>';
-            break;
-                
+                break;
+
             default:
                 $purposes = $request->input('purpose');
 
@@ -602,11 +614,11 @@ class HearingInvitationController extends Controller
                     $purposes = preg_split('/[.,]/', $purposes);
                     $purposes = array_filter(array_map('trim', $purposes));
                 }
-                
+
                 $purposeListHtml = implode('', array_map(function ($text, $i) {
                     return '<li>' . htmlspecialchars($text) . '</li>';
                 }, $purposes, array_keys($purposes)));
-            
+
                 $htmlContent = '
                 <html>
                 <head>
@@ -664,7 +676,7 @@ class HearingInvitationController extends Controller
                     'lng' => $worker->lng,
                     'firstname' => $worker->firstname,
                     'lastname' => $worker->lastname,
-                ], 
+                ],
                 'start_date' => $request->input('start_date'),
                 'start_time' => $startTime,
                 'end_time' => $endTime,
@@ -676,7 +688,7 @@ class HearingInvitationController extends Controller
             event(new WhatsappNotificationEvent([
                 'type' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
                 'notificationData' => $notificationData
-            ]));         
+            ]));
         }
 
         return response()->json(['message' => 'Hearing Invitation updated successfully', 'data' => $invitation], 200);
@@ -761,14 +773,14 @@ class HearingInvitationController extends Controller
     public function getScheduledHearings($id)
     {
         $hearing = HearingInvitation::find($id);
-    
+
         if (!$hearing) {
             return response()->json(['message' => 'Hearing Invitation not found'], 404);
         }
-    
+
         return response()->json($hearing);
     }
-    
+
     public function destroy($id)
     {
         $invitation = HearingInvitation::find($id);

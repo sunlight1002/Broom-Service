@@ -2587,7 +2587,7 @@ Equipo de Broom Service",
                 'description' => 'Send job reminder to worker on new job assign',
                 'message_en' => "Hello, *:worker_name*
 
-Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been scheduled.
+Just a friendly reminder that your hearing *:team_name* on *:hearing_date* between *:start_time* to *:end_time* has been scheduled.
 
 Accept/Reject :worker_hearing
 
@@ -2596,7 +2596,7 @@ Broom Service Team",
 
                 'message_heb' => "שלום, *:worker_name*
 
-רק תזכורת ידידותית לכך שהפגישה שלך *:team_name* ב-*:date* בין *:start_time* עד *:end_time* נקבעה.
+רק תזכורת ידידותית לכך שנקבע מועד לשימוע שלך עם *:team_name* לתאריך *:hearing_date* בין *:start_time* ל-*:end_time*.
 
 קבל/דחה :שמוע_עובד
 
@@ -2605,7 +2605,7 @@ Broom Service Team",
 
                 'message_spa' => "Hola, *:worker_name*
 
-Solo un recordatorio amistoso de que su reunión *:team_name* para el *:date* entre *:start_time* y *:end_time* ha sido programada.
+Solo un recordatorio amistoso de que su audiencia *:team_name* el *:hearing_date* entre *:start_time* y *:end_time* ha sido programada.
 
 Aceptar/Rechazar :worker_hearing
 
@@ -2614,7 +2614,7 @@ Equipo de Broom Service",
 
                 'message_ru' => "Привет, *:worker_name*
 
-Просто дружеское напоминание, что ваша встреча *:team_name* на *:date* между *:start_time* и *:end_time* запланирована.
+Просто дружеское напоминание о том, что слушание вашей команды *:team_name* на *:hearing_date* запланировано на период с *:start_time* по *:end_time*.
 
 Принять/Отклонить :worker_hearing
 

@@ -12,7 +12,7 @@ import HearingCustomCalendar from "./Form101/inputElements/HearingCustomCalendar
 
 function ThankYouHearingSchedule() {
     const [status, setStatus] = useState([]);
-    const [actionStatus, setActionStatus] = useState(""); 
+    const [actionStatus, setActionStatus] = useState("");
     const [rescheduleMode, setRescheduleMode] = useState(false);
     const [newDate, setNewDate] = useState(null);
     const param = useParams();
@@ -46,38 +46,66 @@ function ThankYouHearingSchedule() {
 
     // Function to handle meeting update actions
     const updateMeeting = (action) => {
-        let responseUrl;
-        if (action === "accept") {
-            responseUrl = "/api/admin/accept-hearing";
-        } else if (action === "reject") {
-            responseUrl = "/api/admin/reject-hearing";
-        }else if (action === "reschedule") {
-            responseUrl = "/api/admin/reschedule-hearing";
-        }
+        const urlMap = {
+            accept: "/api/admin/accept-hearing",
+            reject: "/api/admin/reject-hearing",
+            reschedule: "/api/admin/reschedule-hearing",
+        };
+
+        const responseUrl = urlMap[action];
+        if (!responseUrl) return;
 
         const postData = {
             id: Base64.decode(param.id),
             ...(action === "reschedule" && { start_date: newDate }),
         };
 
-        axios
-            .post(responseUrl, postData)
-            .then(() => {
-                Swal.fire({
-                    title: "Success!",
-                    text: `Meeting ${action}ed successfully`,
-                    icon: "success",
-                });
-                setActionStatus(action);
-            })
-            .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response?.data?.message || "Something went wrong!",
-                    icon: "error",
-                });
+        const onSuccess = () => {
+            Swal.fire({
+                title: "Success!",
+                text: `Meeting ${action}ed successfully`,
+                icon: "success",
             });
+            setActionStatus(action);
+        };
+
+        const onError = (e) => {
+            Swal.fire({
+                title: "Error!",
+                text: e.response?.data?.message || "Something went wrong!",
+                icon: "error",
+            });
+        };
+
+        if (action === "reject") {
+            handleRejectConfirmation(() => {
+                sendMeetingRequest(responseUrl, postData, onSuccess, onError);
+            });
+        } else {
+            sendMeetingRequest(responseUrl, postData, onSuccess, onError);
+        }
     };
+
+    const sendMeetingRequest = (url, data, onSuccess, onError) => {
+        axios.post(url, data).then(onSuccess).catch(onError);
+    };
+
+    const handleRejectConfirmation = (onConfirm) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "If you reject the hearing invitation, it means you give up your chance to be at the hearing and to state your claims. The decision of the company will be made based on the information we have and without your presence.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                onConfirm();
+            }
+        });
+    };
+
 
     const dt = useMemo(() => {
         if (!meeting) {
@@ -86,6 +114,7 @@ function ThankYouHearingSchedule() {
 
         return moment(meeting.start_date).format("DD-MM-Y");
     }, [meeting]);
+
 
     const timeFormat = (intime) => {
         if (intime != undefined) {
@@ -113,18 +142,18 @@ function ThankYouHearingSchedule() {
 
                 {actionStatus === "accept" ? (
                     <div>
-                        <h3>{t("This meeting is already accepted.")}</h3>
+                        <h3>{t("This Hearing is already accepted.")}</h3>
                         <p>{t("Please write us an email if you have any queries.")}</p>
                         <a className="btn btn-pink" href="mailto:office@broomservice.co.il">
                             Write Email
                         </a>
                     </div>
-                )  : actionStatus === "reject" ? (
+                ) : actionStatus === "reject" ? (
                     <div>
                         <h3>{t("res_txt")}</h3>
                         <p>May I know the reason for rejection?</p>
                         <p>
-                            If you have any query/suggestions or would like to reschedule the meeting, please write us on email. We will get back to you shortly.
+                            If you have any query/suggestions or would like to reschedule the Hearing, please write us on email. We will get back to you shortly.
                         </p>
                         <a className="btn btn-pink" href="mailto:office@broomservice.co.il">
                             Write Email
@@ -140,28 +169,28 @@ function ThankYouHearingSchedule() {
                     </div>
                 ) : rescheduleMode ? (
                     <div>
-                       <h1>
-                        {t("meet_stat.with")} {teamName}
-                    </h1>
-                    <ul className="list-unstyled">
-                        {meeting.start_date && (
-                            <>
-                                <li>
-                                    {t("meet_stat.date")}: <span>{dt}</span>
-                                </li>
-                                <li>
-                                    {t("meet_stat.time")}:{" "}
-                                    <span>
-                                        {timeFormat(meeting.start_time)}{" "}
-                                        {t("meet_stat.to")}{" "}
-                                        {timeFormat(meeting.end_time)}
-                                    </span>
-                                </li>
-                            </>
-                        )}
-                    </ul>
+                        <h1>
+                            {t("meet_stat.with")} {teamName}
+                        </h1>
+                        <ul className="list-unstyled">
+                            {meeting.start_date && (
+                                <>
+                                    <li>
+                                        {t("meet_stat.date")}: <span>{dt}</span>
+                                    </li>
+                                    <li>
+                                        {t("meet_stat.time")}:{" "}
+                                        <span>
+                                            {timeFormat(meeting.start_time)}{" "}
+                                            {t("meet_stat.to")}{" "}
+                                            {timeFormat(meeting.end_time)}
+                                        </span>
+                                    </li>
+                                </>
+                            )}
+                        </ul>
 
-                    <HearingCustomCalendar meeting={meeting} />
+                        <HearingCustomCalendar meeting={meeting} />
                     </div>
                 ) : (
                     <div>

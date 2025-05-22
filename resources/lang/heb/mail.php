@@ -1014,5 +1014,13 @@ return [
         'company' => 'ברום סרוויס',
         'company_team' => 'צוות ברום סרוויס',
         'company_meeting' => 'פגישה עם צוות ברום סרוויס',
+    ],
+    "hearing" => [
+        'subject' => 'לוח זמנים לשימוע',
+        'salutation' => "שלום, :worker_name",
+        'body' => "רק תזכורת ידידותית לכך שהשימוע שלך :team_name לתאריך :date בין :start_time ל- :end_time נקבע.",
+        'accpet_reject' => "אישור/דחייה",
+        'regards' => "בברכה,",
+        'signature' => "ברום סרוויס צוות"
     ]
 ];

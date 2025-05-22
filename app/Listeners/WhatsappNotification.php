@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 
 class WhatsappNotification
 {
-    protected $twilioAccountSid ,$twilioAuthToken, $twilioPhoneNumber, $twilioWorkerLeadWhatsappNumber, $twilio;
+    protected $twilioAccountSid, $twilioAuthToken, $twilioPhoneNumber, $twilioWorkerLeadWhatsappNumber, $twilio;
     protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken, $whapiWorkerJobApiToken, $translateClient;
 
     /**
@@ -68,15 +68,15 @@ class WhatsappNotification
             }
 
 
-            if(isset($clientData['id']) && !empty($clientData['id'])) {
+            if (isset($clientData['id']) && !empty($clientData['id'])) {
                 $leadDetailLink = generateShortUrl(url("admin/leads/view/" . $clientData['id']), 'admin');
                 $clientJobsLink = generateShortUrl(url("client/jobs"), 'client');
                 $clientDetailsLink = generateShortUrl(url("admin/clients/view/" . $clientData['id']), 'admin');
                 $clientCardLink = generateShortUrl(url("client/settings"), 'client');
-                $adminClientCardLink = generateShortUrl(url("admin/clients/view/" .$clientData['id'] ."?=card"), 'admin');
+                $adminClientCardLink = generateShortUrl(url("admin/clients/view/" . $clientData['id'] . "?=card"), 'admin');
                 $testimonialsLink = generateShortUrl(url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'));
                 $brromBrochureLink = generateShortUrl($clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"));
-                $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''), 'client');
+                $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($clientData['id']) . "?type=client" ?? ''), 'client');
             }
 
 
@@ -106,7 +106,6 @@ class WhatsappNotification
                 ':admin_add_client_card' => $adminClientCardLink ?? '',
                 ':client_card' => $clientCardLink ?? '',
             ];
-
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
@@ -114,18 +113,18 @@ class WhatsappNotification
     private function replaceWorkerFields($text, $workerData, $eventData)
     {
         $placeholders = [];
-        if(isset($workerData) && !empty($workerData)) {
+        if (isset($workerData) && !empty($workerData)) {
 
-            if(isset($workerData['id']) && !empty($workerData['id'])) {
+            if (isset($workerData['id']) && !empty($workerData['id'])) {
                 $workerFormsLink = generateShortUrl(url("worker-forms/" . base64_encode($workerData['id'])), 'worker');
                 $form101Link = generateShortUrl(
                     isset($workerData['id'], $workerData['formId'])
-                    ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
-                    : '',
+                        ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
+                        : '',
                     'worker'
                 );
                 $workerViewLink = generateShortUrl(url("admin/workers/view/" . $workerData['id']), 'worker');
-                $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']). "?type=worker" ?? ''), 'worker');
+                $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']) . "?type=worker" ?? ''), 'worker');
                 $workerLeadFormsLink = generateShortUrl(url("worker-forms/" . base64_encode($workerData['id']) . "?type=lead" ?? ''), 'worker');
             }
             $placeholders = [
@@ -170,7 +169,7 @@ class WhatsappNotification
     private function replaceJobFields($text, $jobData, $workerData = null, $commentData = null)
     {
         $placeholders = [];
-        if(isset($jobData) && !empty($jobData)) {
+        if (isset($jobData) && !empty($jobData)) {
             $commentsText = null;
             if (!empty($jobData['comments'])) {
                 foreach ($jobData['comments'] as $comment) {
@@ -178,7 +177,7 @@ class WhatsappNotification
                 }
             }
 
-            if(isset($jobData['id']) && !empty($jobData['id'])) {
+            if (isset($jobData['id']) && !empty($jobData['id'])) {
                 $adminJobViewLink = generateShortUrl(url("admin/jobs/view/" . $jobData['id']), 'admin');
                 $clientJobsReviewLink = generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
                 $teamJobActionLink = generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
@@ -188,7 +187,7 @@ class WhatsappNotification
                 $contactManager = generateShortUrl(url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
                 $leaveForWork = generateShortUrl(url("worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
                 $finishJobByWorker = generateShortUrl(url("worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
-                
+
                 $workerApproveJob = generateShortUrl(
                     isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
                     'worker'
@@ -228,23 +227,23 @@ class WhatsappNotification
             if (!empty($jobData['property_address']['geo_address'])) {
                 $addressParts[] = $jobData['property_address']['geo_address'];
             }
-            
+
             if (!empty($jobData['property_address']['apt_no'])) {
                 $addressParts[] = 'Apt ' . $jobData['property_address']['apt_no'];
             }
-            
+
             if (!empty($jobData['property_address']['floor'])) {
                 $addressParts[] = 'Floor ' . $jobData['property_address']['floor'];
             }
-            
+
             if (!empty($jobData['property_address']['city'])) {
                 $addressParts[] = $jobData['property_address']['city'];
             }
-            
+
             if (!empty($jobData['property_address']['zipcode'])) {
                 $addressParts[] = $jobData['property_address']['zipcode'];
             }
-            
+
             $fullAddress = implode(', ', $addressParts);
 
             $decodedAddress = html_entity_decode($fullAddress, ENT_QUOTES, 'UTF-8');
@@ -274,7 +273,7 @@ class WhatsappNotification
                 ':worker_job_link' => $workerJobViewLink ?? '',
                 ':leave_for_work' => $leaveForWork ?? '',
                 ':finish_job_by_worker' => $finishJobByWorker ?? '',
-                ':comment_worker_job_link' => $commentsText ? "\n".$commentLinkText . " " . $workerJobViewLink : '',
+                ':comment_worker_job_link' => $commentsText ? "\n" . $commentLinkText . " " . $workerJobViewLink : '',
                 ':client_view_job_link' => $clientJobViewLink ?? '',
                 ':team_job_action_link' => $teamJobActionLink ?? '',
                 ':job_status' => ucfirst($jobData['status']) ?? '',
@@ -284,11 +283,10 @@ class WhatsappNotification
                 ':review' => $jobData['review'] ?? "",
                 ':job_accept_url' => $workerApproveJob ?? '',
                 ':job_contact_manager_link' => $contactManager ?? '',
-                ':job_hours' => isset($jobData['jobservice']['duration_minutes']) 
-                    ? ($jobData['jobservice']['duration_minutes'] / 60) 
+                ':job_hours' => isset($jobData['jobservice']['duration_minutes'])
+                    ? ($jobData['jobservice']['duration_minutes'] / 60)
                     : '',
             ];
-
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
@@ -307,17 +305,17 @@ class WhatsappNotification
             }
         }
 
-        if(isset($eventData)) {
+        if (isset($eventData)) {
             $meetingRescheduleLink = generateShortUrl(isset($eventData['id']) ? url("meeting-schedule/" . base64_encode($eventData['id'])) : '');
             $meetingFileUploadLink = generateShortUrl(isset($eventData['id']) ? url("meeting-files/" . base64_encode($eventData['id'])) : '');
             $uploadedFilesLink = generateShortUrl(isset($eventData["file_name"]) ? url("storage/uploads/ClientFiles/" . $eventData["file_name"]) : '', 'admin');
-            $meetingAcceptLink = generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/accept") : "");
-            $meetingRejectLink = generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/reject") : "");
+            $meetingAcceptLink = generateShortUrl(isset($eventData['id']) ? url("thankyou/" . base64_encode($eventData['id']) . "/accept") : "");
+            $meetingRejectLink = generateShortUrl(isset($eventData['id']) ? url("thankyou/" . base64_encode($eventData['id']) . "/reject") : "");
         }
 
         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
-           // Calculate 'today_tommarow_or_date' field
+        // Calculate 'today_tommarow_or_date' field
         $startDate = isset($eventData['start_date']) ? Carbon::parse($eventData['start_date']) : null;
         $todayTomorrowOrDate = '';
         if ($startDate) {
@@ -371,7 +369,7 @@ class WhatsappNotification
         $serviceNamesString = implode(", ", $serviceNames);
 
 
-        if(isset($offerData["services"])) {
+        if (isset($offerData["services"])) {
             $offerDetailLink = generateShortUrl(isset($offerData['id']) ? url("admin/offered-price/edit/" . ($offerData['id'] ?? '')) : '', 'admin');
             $priceOfferLink = generateShortUrl(isset($offerData['id']) ? url("price-offer/" . base64_encode($offerData['id'])) : '', 'client');
         }
@@ -405,9 +403,9 @@ class WhatsappNotification
     private function replaceContractFields($text, $contractData, $eventData)
     {
         $placeholders = [];
-        if($contractData) {
+        if ($contractData) {
 
-            if(isset($contractData["contract_id"]) || $contractData["id"]) {
+            if (isset($contractData["contract_id"]) || $contractData["id"]) {
                 $teamViewContract = generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
                 $createJobLink = generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
                 $clientContractLink = generateShortUrl((isset($contractData['contract_id']) || isset($contractData['unique_hash'])) ? url("work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash'])) : '', 'client');
@@ -417,7 +415,7 @@ class WhatsappNotification
                 // ':property_person_name' => $property_person_name  ?? '',
                 ':client_contract_link' => $clientContractLink ?? '',
                 ':team_contract_link' => $teamViewContract ?? '',
-                ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at']?? '')->format('M d Y H:i') : '',
+                ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'] ?? '')->format('M d Y H:i') : '',
                 ':create_job' => $createJobLink ?? '',
 
             ];
@@ -428,7 +426,7 @@ class WhatsappNotification
     private function replaceOrderFields($text, $eventData)
     {
         $placeholders = [];
-        if($eventData) {
+        if ($eventData) {
             $placeholders = [
                 ':order_id' => isset($eventData['order_id']) ? $eventData['order_id'] : $eventData['order']['order_id'] ?? '',
                 ':discount' => $eventData['discount'] ?? '',
@@ -445,10 +443,10 @@ class WhatsappNotification
     private function replaceOtherFields($text, $eventData)
     {
         $placeholders = [];
-        if($eventData || $eventData['activity'] || ($eventData['old_worker'] && $eventData['old_job'])) {
+        if ($eventData || $eventData['activity'] || ($eventData['old_worker'] && $eventData['old_job'])) {
             $by = isset($eventData['by']) ? $eventData['by'] : 'client';
 
-            if(isset($eventData)) {
+            if (isset($eventData)) {
                 $workerHearingLink = generateShortUrl(isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '', 'worker');
             }
 
@@ -475,12 +473,12 @@ class WhatsappNotification
                 $status = isset($eventData['job']) && ucfirst($eventData['job']['status'] ?? "");
                 $commentBy = "עבודה מסומנת בתור $status";
             }
-
+            \Log::info($eventData['start_date']);
             $placeholders = [
-               ':team_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
-                                ? $eventData['team']['name']
-                                : ' ',
-                ':date'          => Carbon::parse($eventData['start_date']?? "00-00-0000")->format('d-m-Y'),
+                ':team_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
+                    ? $eventData['team']['name']
+                    : ' ',
+                ':hearing_date' => !empty($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
                 ':start_time'    => date("H:i", strtotime($eventData['start_time'] ?? "00-00")),
                 ':end_time'      => date("H:i", strtotime($eventData['end_time'] ?? "00-00")),
                 ':purpose'       => $eventData['purpose'] ?? "No purpose provided",
@@ -567,7 +565,7 @@ class WhatsappNotification
                         //     "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
                         //     "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
                         // ];
-                        
+
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
@@ -584,7 +582,7 @@ class WhatsappNotification
                         // $isTwilio = true;
 
                         break;
-                               
+
                     case WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
@@ -613,7 +611,7 @@ class WhatsappNotification
                         //     "7" => isset($workerData['id']) ? "worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve" : '',
                         //     "8" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
                         // ];
-                        
+
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
@@ -631,7 +629,7 @@ class WhatsappNotification
 
 
                         break;
-                               
+
                     case WhatsappMessageTemplateEnum::REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
@@ -658,7 +656,7 @@ class WhatsappNotification
                         //     "5" => "worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         //     "6" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")
                         // ];
-                        
+
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
@@ -676,18 +674,18 @@ class WhatsappNotification
 
 
                         break;
-                               
+
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_CONFIRMING_ON_MY_WAY:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXea6defca05c0a344e5f7631750268faa";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX09160733422044b146ec7b7e983a2c20";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXa261df15b21b2d46adf68cf5c1440da3";
-                        }else{
+                        } else {
                             $sid = "HX6ecf04405ebc100c8221158b3d4db89d";
                         }
 
@@ -696,12 +694,12 @@ class WhatsappNotification
                             "2" => "worker/jobs/view/" . $jobData['id'],
                             "3" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -714,7 +712,7 @@ class WhatsappNotification
 
 
                         break;
-                                                
+
                     case WhatsappMessageTemplateEnum::WORKER_START_THE_JOB:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
@@ -735,7 +733,7 @@ class WhatsappNotification
                             "spa" => "- *Instrucciones especiales:*",
                             "rus" => "- *Особые инструкции:*",
                         ];
-            
+
                         $commentInstructions = [
                             "en" => "- *Click Here to Confirm Comments are Done*",
                             "heb" => "- *לחץ כאן לאישור שהמשימות בוצעו*",
@@ -748,13 +746,13 @@ class WhatsappNotification
                         $diffInHours = $currentTime->diffInHours($endTime, false);
                         $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX1cc4f8bfec22f2a71cb23071838b9799";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HXf889705a6e3dad76e0d521fcf41660b3";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX4042d35f763308e61c04660b2f02861a";
-                        }else{
+                        } else {
                             $sid = "HXee912fda54b92b8a99523eda74b2ebb0";
                         }
 
@@ -775,18 +773,18 @@ class WhatsappNotification
                             "7" => "worker/jobs/view/" . $jobData['id'],
                             "8" => "worker/jobs/" . ($jobData['uuid'] ?? "")
                         ];
-                        
-                        
+
+
                         try {
                             \Log::info("Sending message via Twilio...");
-                            
+
                             $twi = $this->twilio->messages->create(
-                                "whatsapp:+". $receiverNumber,
+                                "whatsapp:+" . $receiverNumber,
                                 [
-                                    "from" => $this->twilioWhatsappNumber, 
+                                    "from" => $this->twilioWhatsappNumber,
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-    
+
                                 ]
                             );
 
@@ -795,36 +793,35 @@ class WhatsappNotification
                             \Log::info("Twilio message sent successfully!");
                         } catch (\Exception $e) {
                             \Log::error("Twilio API Error: " . $e->getMessage());
-
                         }
 
                         break;
-                             
+
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXd222d3357b0b612cc1ff525e6ff6629a";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX478a2737303b0dff4db377a8a1fe09a3";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXf1e97c07a1fb7a16fe04d82b8eefc991";
-                        }else{
+                        } else {
                             $sid = "HXd3d13c1e209af3ece911061db1d211f5";
                         }
 
                         $variables = [
                             "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => "worker/jobs/view/". $jobData['id'],
+                            "2" => "worker/jobs/view/" . $jobData['id'],
                             "3" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -840,13 +837,13 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXb1b580f3c631bcf941a70e49579028d7";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX101caae38bf3ba26a0c58aa70c001b6d";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXae7060a8729e5afdea06a4268f1af91a";
-                        }else{
+                        } else {
                             $sid = "HX8aa74ae6e0bf5194b6c91df987ac5c70";
                         }
 
@@ -859,15 +856,15 @@ class WhatsappNotification
                             "2" => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
                             "3" => $address,
                             "4" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                            "5" => "worker/jobs/view/". $jobData['id'],
+                            "5" => "worker/jobs/view/" . $jobData['id'],
                             "6" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -877,28 +874,28 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
-                                      
+
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX6090f1738d31f9ae6c0d64f5037dccf4";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX05257c9dd4ca558d421f112a77d90134";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX2304b0453defc7f0aba9f513a3a23beb";
-                        }else{
+                        } else {
                             $sid = "HXdab8de810d8e981955d6a1026f74e996";
                         }
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
@@ -939,7 +936,7 @@ class WhatsappNotification
                         //     "4" => "worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         //     "5" => "worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : ""),
                         // ];
-                        
+
 
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
@@ -962,25 +959,25 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX659f2ce678448280c28968bcc7dc2702";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX6ee778cc861e06acf54f8d9ae05160da";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX44d7ebaae0914acd6c5cd19587ea959b";
-                        }else{
+                        } else {
                             $sid = "HX25c30905195cfd2b747818f710e4371f";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -993,31 +990,31 @@ class WhatsappNotification
 
 
                         break;
-                               
+
                     case WhatsappMessageTemplateEnum::WORKER_FORMS:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX833a10f4f0e6101d10182ffb93a8307e";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX4dff3cef86c76ce228a95e84b495036e";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX54fb9be645633a669c8a71390db936ad";
-                        }else{
+                        } else {
                             $sid = "HX017483cf367bef17c5c0f42be9ab2214";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                           "2" => "worker-forms/" . base64_encode($workerData['id'])
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "2" => "worker-forms/" . base64_encode($workerData['id'])
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1029,33 +1026,33 @@ class WhatsappNotification
                         $isTwilio = true;
 
                         break;
-                               
+
                     case WhatsappMessageTemplateEnum::FORM101:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXe6ed46927c37c23f8c534b8f5a690ecb";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX5096dcd0811c4b50a3130656d2ca9580";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX052be35abfed395d402e8c668396a607";
-                        }else{
+                        } else {
                             $sid = "HX174f6f4e015c00be9803d908471196c5";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                           "2" => isset($workerData['id'], $workerData['formId'])
-                           ? "form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])
-                           : '',
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "2" => isset($workerData['id'], $workerData['formId'])
+                                ? "form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])
+                                : '',
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1067,18 +1064,18 @@ class WhatsappNotification
                         $isTwilio = true;
 
                         break;
-                              
+
                     case WhatsappMessageTemplateEnum::NEW_JOB:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXa21f75242dad793cda764d2b56e65f6a";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX8354d3ed3e7912ca8d832623759f61cf";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX10a8c45cf2302b028323375e0d8cab69";
-                        }else{
+                        } else {
                             $sid = "HX2dcae427f9cf5ae3377b0a8fa62b49f4";
                         }
 
@@ -1087,21 +1084,21 @@ class WhatsappNotification
                         $address = str_replace(['"', "'"], ' ', $address);
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                             "2" => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
                             "3" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                             "4" => (($lng ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? ''),
                             "5" => $address,
                             "6" => ucfirst($jobData['status']) ?? '',
-                            "7" => "worker/jobs/view/". $jobData['id'],
+                            "7" => "worker/jobs/view/" . $jobData['id'],
                             "8" => "",
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1114,36 +1111,36 @@ class WhatsappNotification
 
 
                         break;
-                                                
+
                     case WhatsappMessageTemplateEnum::WORKER_UNASSIGNED:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX850ed2ea4e4b37effb23ff24d9f0afe6";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX43a738ad7a192420c93589df04d298d4";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXccb27cb1e1382fdd7349e67ca67cf3b2";
-                        }else{
+                        } else {
                             $sid = "HX5e643484aa08151853a654e83faba3eb";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                           "2" => Carbon::parse($eventData['old_job']['start_date'] ?? "00-00-0000")->format('M d Y'),
-                           "3" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "2" => Carbon::parse($eventData['old_job']['start_date'] ?? "00-00-0000")->format('M d Y'),
+                            "3" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                             "4" => ($eventData['old_worker']['lng'] ?? 'en') == 'heb'
                                 ? (($eventData['job']['jobservice']['heb_name'] ?? '') . ', ')
                                 : (($eventData['job']['jobservice']['name'] ?? '') . ', '),
                             "5" => Carbon::parse($eventData['old_job']['start_time'] ?? "00:00")->format('H:i')
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1154,27 +1151,27 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
                         break;
-                                   
+
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX24fe788eb0d9689e454597cd5f75855a";
-                        }else{
+                        } else {
                             $sid = "HX0d47df5629c69747c7ffc6f023333e2f";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                           "2" => $eventData['refundclaim']['status'] ?? "",
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "2" => $eventData['refundclaim']['status'] ?? "",
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1185,28 +1182,28 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
                         break;
-                              
+
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX75c211007206b80c6dabed250804a1d7";
-                        }else{
+                        } else {
                             $sid = "HX3a54285010d608e08f81801b26220d05";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                           "2" => $eventData['refundclaim']['status'] ?? "",
-                           "3" => $eventData['refundclaim']['rejection_comment'] ?? ""
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "2" => $eventData['refundclaim']['status'] ?? "",
+                            "3" => $eventData['refundclaim']['rejection_comment'] ?? ""
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1217,31 +1214,31 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
                         break;
-                              
+
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXe9d2a2e986dd67996d53bfe0f6cc140b";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX6be650cc10b1fc882306a6b9d2e09ba4";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX704959e6c268569d7d606a05974882c4";
-                        }else{
+                        } else {
                             $sid = "HXea9186248377b32ff27a1cce7d697feb";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                           "2" => $workerData['renewal_visa'] ?? "",
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "2" => $workerData['renewal_visa'] ?? "",
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1254,27 +1251,27 @@ class WhatsappNotification
 
 
                         break;
-                              
+
                     case WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX0ea9239bbdf99de574c8626b61609590";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX1997a89a36d6f61c20f7fb9348f998a5";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXb49025961705979ca2fd1b26f6886fd0";
-                        }else{
+                        } else {
                             $sid = "HX0ecb9b0a4aa779fca29e227753d32297";
                         }
 
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -1290,20 +1287,20 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX1a3d85d04e28486f060019999b5152a6";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX238d3c1465b25574acc462421fac5c92";
-                        }else{
+                        } else {
                             $sid = "HX03827c371075fe94b840c9adfc66b0fa";
                         }
 
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -1313,25 +1310,25 @@ class WhatsappNotification
                         $isTwilio = true;
 
                         break;
-                        
+
                     case WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX492d26962fe009a4b25157f5fd8bc226";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX8de41c8b676432f67d3aefd96f7b8648";
-                        }else{
+                        } else {
                             $sid = "HXa2369d2bfc34c47637bb42c319197ea4";
                         }
 
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -1340,30 +1337,30 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
                         break;
-                        
+
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX7b45e614c0ad4dbe513a37a14b305d04";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX2010e79fde4a4800f28e90b4d9b5da7b";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXf866857bc100d0df044be54c9ca3fb31";
-                        }else{
+                        } else {
                             $sid = "HX61716a714052e9c45181435bb35f8064";
                         }
 
                         $variables = [
-                           "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                         ];
-                        
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1374,7 +1371,7 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
                         break;
-                              
+
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_TEAM:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
@@ -1384,13 +1381,13 @@ class WhatsappNotification
                         $diffInHours = $currentTime->diffInHours($endTime, false);
                         $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX17b075ef1b8e2b5468496fe61ab0d380";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX6e287b595f61c979046d245a53cdf883";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HXabd4c46aada73e7d1b82471bbfe73ab2";
-                        }else{
+                        } else {
                             $sid = "HXa467d131b65a6a361a59c551d71f6cf6";
                         }
 
@@ -1407,13 +1404,13 @@ class WhatsappNotification
                             "6" => $address,
                             "7" => "worker/jobs/view/" . $jobData['id'],
                         ];
-                        
-                        
-                            
+
+
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1424,7 +1421,7 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
                         break;
-                             
+
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
@@ -1435,13 +1432,13 @@ class WhatsappNotification
                         $diffInHours = $currentTime->diffInHours($endTime, false);
                         $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXf8c6499b644fe3fe94448eb036e51650";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX22763afe782277cfb599759e56a2f0a3";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX75061df5d63a93579f6b02ca63b719f8";
-                        }else{
+                        } else {
                             $sid = "HX649912dff0ed81e7243a46e43ff78323";
                         }
 
@@ -1483,13 +1480,13 @@ class WhatsappNotification
                             "7" => "worker/jobs/view/" . $jobData['id'],
                             "8" => $cancellationFee
                         ];
-                        
-                        
-                            
+
+
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1500,20 +1497,20 @@ class WhatsappNotification
                         $data = $twi->toArray();
                         $isTwilio = true;
 
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXa95cc010d40732b58054e5755693ffd7";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX46ebc598f6b41d94aacd1cef2af93c59";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX6b93fe644d388f45d099a44a0ee9d658";
-                        }else{
+                        } else {
                             $sid = "HX44eed8d310442e71666f3ff8eb9f3a9c";
                         }
 
@@ -1530,42 +1527,42 @@ class WhatsappNotification
                             "6" => $address,
                             "7" => "worker/jobs/view/" . $jobData['id'],
                         ];
-                        
-                        
+
+
                         try {
                             \Log::info("Sending message via Twilio...");
-                            
+
                             $twi = $this->twilio->messages->create(
-                                "whatsapp:+". $receiverNumber,
+                                "whatsapp:+" . $receiverNumber,
                                 [
-                                    "from" => $this->twilioWhatsappNumber, 
+                                    "from" => $this->twilioWhatsappNumber,
                                     "contentSid" => $sid,
                                     "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-    
+
                                 ]
                             );
 
                             $data = $twi->toArray();
                             $isTwilio = true;
-                        
+
                             \Log::info("Twilio message sent successfully!");
                         } catch (\Exception $e) {
                             \Log::error("Twilio API Error: " . $e->getMessage());
                         }
 
                         break;
-                             
+
                     case WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX3e4c5c7160088e38eb064cbd6752ec47";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX4efa1d9982eb2f54a0bb3422b0c9a36e";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX960ec603e30b1bc3cd4314b90b637713";
-                        }else{
+                        } else {
                             $sid = "HX9a3675e53007de5cd1c70bca2bdcdbfc";
                         }
 
@@ -1573,13 +1570,13 @@ class WhatsappNotification
                             "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                             "2" => "worker-forms/" . base64_encode($workerData['id'])
                         ];
-                        
-                        
-                            
+
+
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
@@ -1588,29 +1585,29 @@ class WhatsappNotification
 
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HXd08482f0b51c466cf4620a07fd63c863";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX37c26e0fbf3e4c6e7db0cb26d4f0141f";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX47b7ff605aaf54bcb2081119e865258c";
-                        }else{
+                        } else {
                             $sid = "HXa378ee35b317a4650073663895786900";
                         }
-                        
-                        
-                            
+
+
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber,
                                 "contentSid" => $sid,
 
                             ]
@@ -1618,36 +1615,36 @@ class WhatsappNotification
                         $data = $twi->toArray();
 
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] == "ru" ? "ru" : 'en';
 
-                        if($lng == "heb"){
+                        if ($lng == "heb") {
                             $sid = "HX97f8e43c66e05be83b1542de31e98b73";
-                        }elseif($lng == "spa"){
+                        } elseif ($lng == "spa") {
                             $sid = "HX28f81c7e432890076bc0aa302d5afbb9";
-                        }elseif($lng == "ru"){
+                        } elseif ($lng == "ru") {
                             $sid = "HX91920b97a285a7dc9de4c45d94b522e4";
-                        }else{
+                        } else {
                             $sid = "HXe7eb20fbbe66441964829cdcab68a468";
                         }
-                        
-                        
-                            
+
+
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWorkerLeadWhatsappNumber, 
+                                "from" => $this->twilioWorkerLeadWhatsappNumber,
                                 "contentSid" => $sid,
 
                             ]
                         );
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING:
@@ -1655,41 +1652,42 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if($lng == "heb"){
-                            $sid = "HX161d40f9cd389eef365117c0d19f0fb6";
-                        }elseif($lng == "spa"){
-                            $sid = "HXe8f508aa80d12d1b03fdcfa209b63ae5";
-                        }elseif($lng == "ru"){
-                            $sid = "HXb1591545679bd7fcea367db3848d00e3";
-                        }else{
-                            $sid = "HX81bf0ac1c8218b1d0b6b339523142c14";
-                        }
+                        // if($lng == "heb"){
+                        //     $sid = "HX161d40f9cd389eef365117c0d19f0fb6";
+                        // }elseif($lng == "spa"){
+                        //     $sid = "HXe8f508aa80d12d1b03fdcfa209b63ae5";
+                        // }elseif($lng == "ru"){
+                        //     $sid = "HXb1591545679bd7fcea367db3848d00e3";
+                        // }else{
+                        //     $sid = "HX81bf0ac1c8218b1d0b6b339523142c14";
+                        // }
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => isset($eventData['team']) && !empty($eventData['team']['name'])
-                                    ? $eventData['team']['name']
-                                    : '',
-                            "3" => isset($eventData['date']) ? Carbon::parse($eventData['date'])->format('M d Y') : '',
-                            "4" => date("H:i", strtotime($eventData['start_time'] ?? "00-00")),
-                            "5" => date("H:i", strtotime($eventData['end_time'] ?? "00-00")),
-                            "6" => isset($eventData['id']) ? "hearing-schedule/" . base64_encode($eventData['id']) : ''
-                        ];
-                        
-                        
-                            
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => isset($eventData['team']) && !empty($eventData['team']['name'])
+                        //             ? $eventData['team']['name']
+                        //             : '',
+                        //     "3" => isset($eventData['date']) ? Carbon::parse($eventData['date'])->format('M d Y') : '',
+                        //     "4" => date("H:i", strtotime($eventData['start_time'] ?? "00-00")),
+                        //     "5" => date("H:i", strtotime($eventData['end_time'] ?? "00-00")),
+                        //     "6" => isset($eventData['id']) ? "hearing-schedule/" . base64_encode($eventData['id']) : ''
+                        // ];
 
-                            ]
-                        );
-                        $data = $twi->toArray();
-                        $isTwilio = true;
-                        
+
+
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+". "918000318833",
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //         "statusCallback" => "https://efc4-2405-201-2022-10c3-ded9-9a3e-2ed7-5304.ngrok-free.app/twilio/status-callback"
+
+                        //     ]
+                        // );
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
+
                         break;
 
                     case WhatsappMessageTemplateEnum::TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM:
@@ -1754,7 +1752,7 @@ class WhatsappNotification
                     // case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
                     // case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::INQUIRY_RESPONSE:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1762,12 +1760,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXf6bb2621f02900daeb0b63cc4b31e374" :"HX5596d68e908a51847aca1e3ac60108a2";
+                        $sid = $lng == "heb" ? "HXf6bb2621f02900daeb0b63cc4b31e374" : "HX5596d68e908a51847aca1e3ac60108a2";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -1782,7 +1780,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1795,11 +1793,11 @@ class WhatsappNotification
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$receiverNumber",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                                ]) 
+                                ])
                             ]
                         );
 
@@ -1810,7 +1808,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1830,7 +1828,7 @@ class WhatsappNotification
                         $receiverNumber = $clientData['phone'] ?? null;
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXf5b5a1c437fdd8ba04498df919a95c57" :"HX2844b528b4f5ececf2c2a633fb3ab5df";
+                        $sid = $lng == "heb" ? "HXf5b5a1c437fdd8ba04498df919a95c57" : "HX2844b528b4f5ececf2c2a633fb3ab5df";
 
                         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
@@ -1842,16 +1840,16 @@ class WhatsappNotification
                             "2" => isset($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
                             "3" => isset($eventData['start_time']) ? date("H:i", strtotime($eventData['start_time'])) : '',
                             "4" => isset($eventData['end_time']) ? date("H:i", strtotime($eventData['end_time'])) : '',
-                            "5" => trim($address),                 
+                            "5" => trim($address),
                             "6" => $purpose ? $purpose : '',
                             "7" => isset($eventData['id']) ? "meeting-schedule/" . base64_encode($eventData['id']) : '',
                             "8" => isset($eventData['id']) ? "meeting-files/" . base64_encode($eventData['id']) : ''
                         ];
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                             ]
@@ -1864,7 +1862,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1872,13 +1870,13 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXe75478323d1897dfe660aa0efd68afa8" :"HX7a0c41761ad3a45cad1d68c64132afb3";
-                        
+                        $sid = $lng == "heb" ? "HXe75478323d1897dfe660aa0efd68afa8" : "HX7a0c41761ad3a45cad1d68c64132afb3";
+
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -1895,7 +1893,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::DELETE_MEETING:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1903,18 +1901,18 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX7c7ebf4918b9d70c9d8d54b605d6869c" :"HX1e69e897935c69355e757a0c9ab6fc92";
+                        $sid = $lng == "heb" ? "HX7c7ebf4918b9d70c9d8d54b605d6869c" : "HX1e69e897935c69355e757a0c9ab6fc92";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
                                     "2" => isset($eventData['team']) && !empty($eventData['team']['name'])
-                                    ? $eventData['team']['name']
-                                    : '',
+                                        ? $eventData['team']['name']
+                                        : '',
                                     "3" => isset($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
                                     "4" => isset($eventData['start_time']) ? date("H:i", strtotime($eventData['start_time'])) : '',
                                     "5" => isset($eventData['end_time']) ? date("H:i", strtotime($eventData['end_time'])) : '',
@@ -1930,7 +1928,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_CLIENT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1938,12 +1936,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXcd415330409802536916a5a0d7d7c64c" :"HXc483bf4d5368b797cb1348e771453460";
+                        $sid = $lng == "heb" ? "HXcd415330409802536916a5a0d7d7c64c" : "HXc483bf4d5368b797cb1348e771453460";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -1960,7 +1958,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE: // pending
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1968,12 +1966,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX7d9934dd573d787c256c4c6895db1be6" :"HX25228efdbe967b43697f7fa3f1aec959";
+                        $sid = $lng == "heb" ? "HX7d9934dd573d787c256c4c6895db1be6" : "HX25228efdbe967b43697f7fa3f1aec959";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -1988,7 +1986,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -1996,12 +1994,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXfad16bdb4d3824122222f6ec0d554392" :"HX7bb23b6f6a7a05ada325608f0d61ef97";
+                        $sid = $lng == "heb" ? "HXfad16bdb4d3824122222f6ec0d554392" : "HX7bb23b6f6a7a05ada325608f0d61ef97";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -2016,7 +2014,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2037,7 +2035,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXc426082cce146b5a3fcabbfbbc71b7d6" :"HX0f435a73787206064bbd017964c0aff6";
+                        $sid = $lng == "heb" ? "HXc426082cce146b5a3fcabbfbbc71b7d6" : "HX0f435a73787206064bbd017964c0aff6";
 
                         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
@@ -2057,9 +2055,9 @@ class WhatsappNotification
 
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                             ]
@@ -2072,7 +2070,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::UNANSWERED_LEAD:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2080,12 +2078,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX21394a2e7d50529efe397629f74c02cc" :"HX4426be78542a3b79ad4e47d77747423a";
+                        $sid = $lng == "heb" ? "HX21394a2e7d50529efe397629f74c02cc" : "HX4426be78542a3b79ad4e47d77747423a";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -2100,7 +2098,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::PAST:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2108,12 +2106,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXf7156d7ae827e519d663be86048c46fe" :"HX704c95d691f1fc99e269a35c0d81c05d";
+                        $sid = $lng == "heb" ? "HXf7156d7ae827e519d663be86048c46fe" : "HX704c95d691f1fc99e269a35c0d81c05d";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -2129,7 +2127,7 @@ class WhatsappNotification
 
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
                         \Log::info("FOLLOW_UP_ON_OUR_CONVERSATION");
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2137,12 +2135,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXc38fe7044317f43f6329bd03340a584f" :"HX579c271765c269bd53b23a918b3aaab3";
+                        $sid = $lng == "heb" ? "HXc38fe7044317f43f6329bd03340a584f" : "HX579c271765c269bd53b23a918b3aaab3";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -2159,7 +2157,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2167,7 +2165,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX9ca3ce938fb8e84c6444208fed4e6cc1" :"HXe4b7a2b9fbe06fbd8cee946c5034e312";
+                        $sid = $lng == "heb" ? "HX9ca3ce938fb8e84c6444208fed4e6cc1" : "HXe4b7a2b9fbe06fbd8cee946c5034e312";
 
                         $variables = [
                             "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2179,12 +2177,12 @@ class WhatsappNotification
 
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                
+
                             ]
                         );
 
@@ -2195,7 +2193,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2206,7 +2204,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX415bf1b37ef5073097aa2fb19674089e" :"HX03f556cd581d9ee30eafb1a434a23a9d";
+                        $sid = $lng == "heb" ? "HX415bf1b37ef5073097aa2fb19674089e" : "HX03f556cd581d9ee30eafb1a434a23a9d";
 
                         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
@@ -2225,12 +2223,12 @@ class WhatsappNotification
 
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                                
+
                             ]
                         );
 
@@ -2241,7 +2239,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_NOT_IN_SYSTEM_OR_NO_OFFER:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2250,9 +2248,9 @@ class WhatsappNotification
                         $lng = $clientData['lng'] ?? 'heb';
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => "HXc8ccae82c125e06ff7f030d653a42b58",
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2267,7 +2265,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_HAS_OFFER_BUT_NO_SIGNED_OR_NO_CONTRACT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2276,9 +2274,9 @@ class WhatsappNotification
                         $lng = $clientData['lng'] ?? 'heb';
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => "HX37b9ce6142bcd1f316ee043460a5342f",
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2293,7 +2291,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_1_DAY:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2301,12 +2299,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX8a685c980a510a7b278fc265f0288cbe" :"HXdc2ab379e4b93829fba65c4d2ed16fec";
+                        $sid = $lng == "heb" ? "HX8a685c980a510a7b278fc265f0288cbe" : "HXdc2ab379e4b93829fba65c4d2ed16fec";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2321,7 +2319,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2329,12 +2327,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX32f076e8f30f12cea3821b4d1c76a6a8" :"HX8f1f514ac4f6223ebe16ef22ebd66ad9";
+                        $sid = $lng == "heb" ? "HX32f076e8f30f12cea3821b4d1c76a6a8" : "HX8f1f514ac4f6223ebe16ef22ebd66ad9";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2349,7 +2347,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_4_DAYS:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2357,12 +2355,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXd63618ac0eabed00076b272556f14b2f" :"HX4856598b33204fc97b32520d2d0c54d7";
+                        $sid = $lng == "heb" ? "HXd63618ac0eabed00076b272556f14b2f" : "HX4856598b33204fc97b32520d2d0c54d7";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2376,7 +2374,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2384,12 +2382,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX06bf4c9fe0dfd0271e428d0fbe6cc674" :"HX08c50d92acabf7489cf41aa62a2f70f0";
+                        $sid = $lng == "heb" ? "HX06bf4c9fe0dfd0271e428d0fbe6cc674" : "HX08c50d92acabf7489cf41aa62a2f70f0";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2407,20 +2405,20 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
                         $receiverNumber = $clientData['phone'] ?? null;
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXbc9e464f7aeb7fb3a0b7ddd0cb1f13c4" :"HXaa623e74462fd8c47fcd5e7217879d7e";
+                        $sid = $lng == "heb" ? "HXbc9e464f7aeb7fb3a0b7ddd0cb1f13c4" : "HXaa623e74462fd8c47fcd5e7217879d7e";
 
-                        
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2436,7 +2434,7 @@ class WhatsappNotification
 
 
                     case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2446,12 +2444,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX0f881391f84de7e6f7e6ecefb7d39b79" :"HX6c29549b8ef911fa12e24b5e564c5e94";
+                        $sid = $lng == "heb" ? "HX0f881391f84de7e6f7e6ecefb7d39b79" : "HX6c29549b8ef911fa12e24b5e564c5e94";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
@@ -2467,22 +2465,22 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION://done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                    case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION: //done
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
                         $receiverNumber = $clientData['phone'] ?? null;
-                
+
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXa6e44032033c312788542917ae418814" :"HX0a72361a6fab0f2638e1f356185956e9";
+                        $sid = $lng == "heb" ? "HXa6e44032033c312788542917ae418814" : "HX0a72361a6fab0f2638e1f356185956e9";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2494,25 +2492,25 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
                         $receiverNumber = $clientData['phone'] ?? null;
-                
+
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXaa24f00d053af3783dfa0b909c011024" :"HXc8daa6f607d4272d67b29c541e32fe20";
+                        $sid = $lng == "heb" ? "HXaa24f00d053af3783dfa0b909c011024" : "HXc8daa6f607d4272d67b29c541e32fe20";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null,
@@ -2526,11 +2524,11 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::OFFER_PRICE: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2552,12 +2550,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXb6e5cc838db80bceb45fdd82cf40e554" :"HX145bf177046bc6a61737f70371de196d";
+                        $sid = $lng == "heb" ? "HXb6e5cc838db80bceb45fdd82cf40e554" : "HX145bf177046bc6a61737f70371de196d";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name ?? '',
@@ -2570,11 +2568,11 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2611,9 +2609,9 @@ class WhatsappNotification
                         $sid = $lng == "heb" ? "HX1dbaaf43664f0afe089e01a656f521ae" : "HXb5cc24fa86df27e3e70ba3ebf9ccd8f6";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
@@ -2627,11 +2625,11 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2656,15 +2654,15 @@ class WhatsappNotification
                         $sid = $lng == "heb" ? "HX16c5aa3bc5897d5c90697b8e2c0cdb1b" : "HX2259d760f26db145e5c841b782ec6e5f";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
-                                    "2" => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at']?? '')->format('M d Y H:i') : '',
-                                    "3" => (isset($contractData['contract_id']) || isset($contractData['unique_hash'])) 
-                                        ? "work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash']) 
+                                    "2" => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'] ?? '')->format('M d Y H:i') : '',
+                                    "3" => (isset($contractData['contract_id']) || isset($contractData['unique_hash']))
+                                        ? "work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash'])
                                         : "",
                                 ])
                             ]
@@ -2673,11 +2671,11 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2702,9 +2700,9 @@ class WhatsappNotification
                         $sid = $lng == "heb" ? "HX473ceaea93af7896f9f1cb87d1ce9cd3" : "HX28deed9e746319b527f11298ac237ef3";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
@@ -2715,11 +2713,11 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::CONTRACT: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2741,16 +2739,16 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        if(in_array($clientData['id'], [88, 21, 1660])){
-                            $sid = $lng == "heb" ? "HX1065d9f2b2d6424a17367a1ff72c709e" :"HX03fd91b1d53e8e3833efbc7476c39f70";
-                        }else{
-                            $sid = $lng == "heb" ? "HX3885b7a64e902bfdd02c790bad694721" :"HXe4a6b7fdb4e5a82f55003f9956a9f169";
+                        if (in_array($clientData['id'], [88, 21, 1660])) {
+                            $sid = $lng == "heb" ? "HX1065d9f2b2d6424a17367a1ff72c709e" : "HX03fd91b1d53e8e3833efbc7476c39f70";
+                        } else {
+                            $sid = $lng == "heb" ? "HX3885b7a64e902bfdd02c790bad694721" : "HXe4a6b7fdb4e5a82f55003f9956a9f169";
                         }
-                        
+
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
@@ -2762,11 +2760,11 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
-                        
+
                         break;
 
                     case WhatsappMessageTemplateEnum::CREATE_JOB: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2788,9 +2786,9 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        
 
-                        $sid = $lng == "heb" ? "HXb1d2ed5e977018e2488d428531d48389" :"HX9391bb3e7f827f0b24813d17bccfc00b";
+
+                        $sid = $lng == "heb" ? "HXb1d2ed5e977018e2488d428531d48389" : "HX9391bb3e7f827f0b24813d17bccfc00b";
 
                         $variables = [
                             "1" => $property_person_name,
@@ -2801,9 +2799,9 @@ class WhatsappNotification
                         ];
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                             ]
@@ -2816,7 +2814,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2838,12 +2836,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXc632938113f6ceccf9244a970b0bc078" :"HXd8a8f402984ddec0473666b7a24a8ca6";
+                        $sid = $lng == "heb" ? "HXc632938113f6ceccf9244a970b0bc078" : "HXd8a8f402984ddec0473666b7a24a8ca6";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
@@ -2857,9 +2855,9 @@ class WhatsappNotification
                         $isTwilio = true;
 
                         break;
-                        
+
                     case WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION: //done
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2885,7 +2883,7 @@ class WhatsappNotification
                             $cancellationFee = isset($eventData['job']['cancellation_fee_amount'])
                                 ? ($eventData['job']['cancellation_fee_amount'] . " ILS")
                                 : null;
-            
+
                             if (isset($eventData['client']) && $eventData['client']['lng'] === 'en') {
                                 $commentBy = "Client changed the Job status to $status.";
                                 if ($cancellationFee) {
@@ -2905,12 +2903,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX635f65014d14b31877ebdabf86b31464" :"HX17a4cbb43cd201be896f958d7486c018";
+                        $sid = $lng == "heb" ? "HX635f65014d14b31877ebdabf86b31464" : "HX17a4cbb43cd201be896f958d7486c018";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $property_person_name,
@@ -2928,9 +2926,9 @@ class WhatsappNotification
                         $isTwilio = true;
 
                         break;
-                        
+
                     case WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2949,12 +2947,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX0bc765375b88af4339ae184e6786dbb5" :"HX18f4f53c412e97618f6fb1df4648f5e3";
+                        $sid = $lng == "heb" ? "HX0bc765375b88af4339ae184e6786dbb5" : "HX18f4f53c412e97618f6fb1df4648f5e3";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -2969,7 +2967,7 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
-                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
                             return;
                         }
@@ -2988,12 +2986,12 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX64602821f84177f06957a7c14791280a" :"HX9d6876b57d72631a4c2f220752224567";
+                        $sid = $lng == "heb" ? "HX64602821f84177f06957a7c14791280a" : "HX9d6876b57d72631a4c2f220752224567";
 
                         $twi = $this->twilio->messages->create(
-                            "whatsapp:+". $receiverNumber,
+                            "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
@@ -3043,7 +3041,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE:
                     case WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED:
                     case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM:
-                    // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
+                        // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';
                         break;
@@ -3058,7 +3056,6 @@ class WhatsappNotification
                 $text = $this->replaceContractFields($text, $contractData, $eventData);
                 $text = $this->replaceOrderFields($text, $eventData);
                 $text = $this->replaceOtherFields($text, $eventData);
-
             } else {
                 switch ($eventType) {
 
@@ -3080,6 +3077,7 @@ class WhatsappNotification
                         break;
                 }
             }
+            $receiverNumber = "918000318833";
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
@@ -3087,18 +3085,18 @@ class WhatsappNotification
 
                 $token = $this->whapiApiToken;
 
-                if($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')){
+                if ($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')) {
                     $token = $this->whapiWorkerApiToken;
-                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE || $eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE){
+                } else if ($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE || $eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE) {
                     $token = $this->whapiClientApiToken;
-                }else if(
+                } else if (
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM ||
                     $eventType == WhatsappMessageTemplateEnum::REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER
-                ){
+                ) {
                     $token = $this->whapiWorkerJobApiToken;
-                }else if(
+                } else if (
                     $eventType == WhatsappMessageTemplateEnum::FORM101 ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_FORMS ||
                     $eventType == WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS ||
@@ -3108,49 +3106,49 @@ class WhatsappNotification
                     $eventType == WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM ||
                     $eventType == WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM
-                ){
+                ) {
                     $token = $this->whapiWorkerApiToken;
-                }else {
+                } else {
                     $token = $this->whapiApiToken;
                 }
-                
-                if(!$isTwilio){
+
+                if (!$isTwilio) {
                     \Log::info("Sending message $isTwilio");
 
                     $response = Http::withToken($token)
-                    ->post($this->whapiApiEndpoint . 'messages/text', [
-                        'to' => $receiverNumber,
-                        'body' => $text
-                    ]);
+                        ->post($this->whapiApiEndpoint . 'messages/text', [
+                            'to' => $receiverNumber,
+                            'body' => $text
+                        ]);
 
-                    if(in_array($eventType, [
-                        WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT, 
+                    if (in_array($eventType, [
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,
                         WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
                         WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
                         WhatsappMessageTemplateEnum::WORKER_FORMS,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
-                        ])){
+                    ])) {
                         StoreWorkerWebhookResponse($text, $receiverNumber, $data);
-                    }else{
+                    } else {
                         StoreWebhookResponse($text, $receiverNumber, $data);
                     }
 
                     Log::info($response->json());
-                }else{
-                    if(in_array($eventType, [
-                        WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT, 
+                } else {
+                    if (in_array($eventType, [
+                        WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,
                         WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
                         WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
                         WhatsappMessageTemplateEnum::WORKER_FORMS,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
-                        ])){
+                    ])) {
                         StoreWorkerWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
-                    }else{
+                    } else {
                         StoreWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
                     }
-                    
+
                     \Log::info("twilio message $isTwilio");
                 }
             }
