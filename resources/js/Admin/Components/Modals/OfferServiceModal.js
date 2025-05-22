@@ -59,9 +59,6 @@ export default function OfferServiceModal({
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
     );
 
-    console.log("offerServiceTmp", offerServiceTmp);
-
-
     useEffect(() => {
         if (!isAdd && Array.isArray(tmpFormValues) && tmpFormValues.length > 0) {
             setOfferServiceTmp(tmpFormValues);
