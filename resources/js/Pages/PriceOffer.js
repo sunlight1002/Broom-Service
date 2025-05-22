@@ -25,7 +25,7 @@ export default function PriceOffer() {
     const [allTemplates, setAllTemplates] = useState([]);
     const [status, setStatus] = useState("");
     const [subService, setSubService] = useState([])
-    const [clientLng, setClientLng] = useState("")
+    const [clientLng, setClientLng] = useState("he")
     const [loading, setLoading] = useState(false)
     const [mobileView, setMobileView] = useState(false);
     const windowWidth = useWindowWidth();

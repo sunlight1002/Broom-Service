@@ -373,7 +373,7 @@ export default function WorkerHours() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">{t("admin.leads.sortBy")}</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
                                 <option value="0">{t("admin.leads.AddLead.AddLeadClient.jobMenu.WorkerName")}</option>
                             </select>
                         </div>

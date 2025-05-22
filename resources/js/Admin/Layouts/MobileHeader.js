@@ -7,7 +7,8 @@ import axios from "axios";
 import "./mobile.css"
 import { useTranslation } from "react-i18next";
 import { LuShuffle } from "react-icons/lu";
-
+import { IoIosLogOut } from "react-icons/io";
+import { GiReceiveMoney } from "react-icons/gi";
 
 export default function MobileHeader() {
     const { t } = useTranslation();
@@ -240,7 +241,12 @@ export default function MobileHeader() {
                                             {t("admin.sidebar.pending_request")}
                                         </a>
                                     </li>
-
+                                    <li className="nav-item">
+                                        <a href="/admin/expanses" onClick={(e) => handleClick(e, "/admin/expanses")}>
+                                            <GiReceiveMoney className="font-20 mr-2" />
+                                            {t("global.expenses")}
+                                        </a>
+                                    </li>
                                     <li className="nav-item">
                                         <a href="/admin/facebook-insights" onClick={(e) => handleClick(e, "/admin/facebook-insights")}>
                                             <i className="fa-brands fa-facebook"></i>
@@ -390,12 +396,13 @@ export default function MobileHeader() {
                             </div>
                         </li>
                     </ul>
-                    <div className="sideLogout">
+                   <div className="sideLogout ml-3">
                         <div className="logoutBtn">
                             <button
-                                className="btn btn-danger"
+                                className="btn btn-danger d-flex align-items-center"
                                 onClick={HandleLogout}
                             >
+                                <IoIosLogOut className="me-4" style={{ fontSize: '24px' }} />
                                 {t("admin.sidebar.logout")}
                             </button>
                         </div>

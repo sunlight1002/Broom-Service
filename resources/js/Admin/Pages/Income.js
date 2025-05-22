@@ -309,7 +309,7 @@ export default function income() {
                                                 setSelectedDateRange(t("global.year"));
                                             }}
                                         >
-                                            {t("global.month")}
+                                            {t("global.year")}
                                         </button>
                                         <button
                                             className="dropdown-item"

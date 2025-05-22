@@ -29,7 +29,7 @@ export default function EditWorker() {
     const [loading, setLoading] = useState(false);
     const [contactPerson, setContactPerson] = useState({
         contact_person_name: "",
-        contact_person_phone: "",
+        contact_person_phone: "972",
     })
 
     const alert = useAlert();
@@ -475,7 +475,7 @@ export default function EditWorker() {
                                             <div className="d-flex flex-column w-100">
                                                 <PhoneInput
                                                     country={'il'}
-                                                    value={contactPerson.contact_person_phone}
+                                                    value={contactPerson.contact_person_phone || "972"}
                                                     onChange={(phone, country) => {
                                                         const dialCode = country.dialCode;
                                                         let formattedPhone = phone;
@@ -484,7 +484,7 @@ export default function EditWorker() {
                                                         }
                                                         setContactPerson({
                                                             ...contactPerson,
-                                                            contact_person_phone: formattedPhone,
+                                                            contact_person_phone: formattedPhone || "972",
                                                         });
                                                     }}
                                                     inputClass="form-control"
@@ -492,6 +492,13 @@ export default function EditWorker() {
                                                         name: 'phone',
                                                     }}
                                                 />
+                                                {errors.contact_person_phone ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.contact_person_phone}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                     </div>

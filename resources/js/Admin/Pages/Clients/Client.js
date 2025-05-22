@@ -793,7 +793,7 @@ export default function Clients() {
                         className="btn btn-pink"
                         onClick={handleImportSubmit}
                     >
-                        {t("global.submit")}
+                        {t("admin.client.Submit")}
                     </Button>
                 </Modal.Footer>
             </Modal>
