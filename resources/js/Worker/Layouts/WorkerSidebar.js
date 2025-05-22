@@ -40,6 +40,7 @@ export default function WorkerSidebar() {
         try {
             const res2 = await axios.get(`/api/schedule`, { headers });
             const hasData = res2.data?.data?.length > 0;
+            console.log("Has Data for hearing:", hasData);
             setHearing(hasData);
             localStorage.setItem("worker-hearing", hasData ? "true" : "false");
         } catch (err) {
@@ -107,26 +108,26 @@ export default function WorkerSidebar() {
                         {t("worker.sidebar.jobs")}
                     </NavLink>
                 </li>
-                {
-                    hearing && (
+                {/* {
+                    hearing && ( */}
                         <li className="list-group-item">
                             <NavLink to="/worker/hearing">
                                 <i className="fa-solid fa-calendar-check font-12"></i>
                                 {t("worker.sidebar.hearing")}
                             </NavLink>
                         </li>
-                    )
-                }
-                {
-                    protocol && (
+                    {/* )
+                } */}
+                {/* {
+                    protocol && ( */}
                         <li className="list-group-item">
                             <NavLink to="/worker/protocol">
                                 <i className="fa-solid fa-file-alt"></i>
                                 {t("worker.sidebar.protocol")}
                             </NavLink>
                         </li>
-                    )
-                }
+                    {/* )
+                } */}
                 <li className="list-group-item">
                     <NavLink to="/worker/schedule">
                         <i className="fa-solid fa-calendar-days"></i>

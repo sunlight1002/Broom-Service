@@ -9,7 +9,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import FullPageLoader from "../../../Components/common/FullPageLoader";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import Sidebar from "../../Layouts/Sidebar";
 
@@ -215,7 +214,11 @@ function ViewHearing() {
         getWorker();
         getTime();
         getTeams();
-        getSchedule(); 
+        if (hid != null) {
+            setTimeout(() => {
+                getSchedule();
+            }, 500);
+        }
     }, [workerId, hid]);
 
     useEffect(() => {
@@ -344,20 +347,20 @@ function ViewHearing() {
         return "";
     }, [selectedDate]);
 
-       const timeSlots = useMemo(() => {
-            return startTimeOptions
-                .map((i) => moment(i, "kk:mm").format("hh:mm A")) // format time as hh:mm A
-                .filter((t) => {
-                    const todayFormattedDate = moment().format("MMMM, dddd, DD");
-    
-                    if (formattedSelectedDate === todayFormattedDate) {
-                        // Check if the time slot is in the future
-                        return moment(t, "hh:mm A").isAfter(moment());
-                    }
-    
-                    return true;
-                });
-        }, [startTimeOptions, formattedSelectedDate]);
+    const timeSlots = useMemo(() => {
+        return startTimeOptions
+            .map((i) => moment(i, "kk:mm").format("hh:mm A")) // format time as hh:mm A
+            .filter((t) => {
+                const todayFormattedDate = moment().format("MMMM, dddd, DD");
+
+                if (formattedSelectedDate === todayFormattedDate) {
+                    // Check if the time slot is in the future
+                    return moment(t, "hh:mm A").isAfter(moment());
+                }
+
+                return true;
+            });
+    }, [startTimeOptions, formattedSelectedDate]);
 
     const handleCreateClaim = () => {
         navigate(`/admin/workers/view/${workerId}/hearing-invitation/${hid}/create-claim`, {
@@ -546,57 +549,42 @@ function ViewHearing() {
                                 <h4>
                                     {t("admin.hearing.hearingTimeAndDate")}
                                 </h4>
-
                                 <div className="mx-auto mt-5 custom-calendar">
                                     <div className="border">
                                         <h5 className="mt-3 ml-3">
                                             {t("global.selectDateAndTimeRange")}
                                         </h5>
                                         <div
-                                            className="d-flex gap-3 p-3 flex-wrap justify-content-center"
-                                            style={{ overflowX: "auto" }}
+                                            className="d-flex flex-column flex-md-row gap-3 pt-2 justify-content-around"
                                         >
-                                            <div>
+                                            <div className="datepicker-container mx-auto mx-md-0">
                                                 <DatePicker
                                                     selected={selectedDate}
-                                                    onChange={(date) =>
-                                                        handleDateChange(date)
-                                                    }
+                                                    onChange={(date) => handleDateChange(date)}
                                                     autoFocus
                                                     shouldCloseOnSelect={false}
                                                     inline
                                                     minDate={new Date()}
                                                 />
                                             </div>
-                                            <div className="mt-1 ">
-                                                <h6 className="time-slot-date">
+                                            <div className="time-picker-container mx-auto mx-md-0 mt-3 mt-md-1">
+                                                <h6 className="time-slot-date text-center text-md-start">
                                                     {formattedSelectedDate}
                                                 </h6>
-                                                <ul className="list-unstyled mt-4 timeslot">
+
+                                                <ul className="list-unstyled mt-4 timeslot d-flex flex-row flex-md-column flex-wrap justify-content-center">
                                                     {timeSlots.length > 0 ? (
-                                                        timeSlots.map(
-                                                            (t, index) => {
-                                                                return (
-                                                                    <li
-                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${selectedTime ===
-                                                                            t
-                                                                            ? "bg-primary text-white"
-                                                                            : "text-primary"
-                                                                            }`}
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                        onClick={() => {
-                                                                            handleTimeChange(
-                                                                                t
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        {t}
-                                                                    </li>
-                                                                );
-                                                            }
-                                                        )
+                                                        timeSlots.map((t, index) => (
+                                                            <li
+                                                                className={`py-2 px-3 border mb-2 mx-1 mx-md-0 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
+                                                                    }`}
+                                                                key={index}
+                                                                onClick={() => handleTimeChange(t)}
+                                                                style={{ minWidth: "80px" }}
+                                                            >
+                                                                {t}
+                                                            </li>
+                                                        ))
                                                     ) : (
                                                         <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
                                                             {t("global.noTimeSlot")}
