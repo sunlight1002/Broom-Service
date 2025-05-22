@@ -1292,8 +1292,8 @@ export default function TotalJobs() {
                             </div>
                         </div>
 
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
-                            <div className="d-flex align-items-center">
+                        <div className="col-md-12 justify-content-between my-2">
+                            <div className="d-flex align-items-center flex-wrap">
                                 <div className="form-check form-check-inline">
                                     <input
                                         className="form-check-input"
