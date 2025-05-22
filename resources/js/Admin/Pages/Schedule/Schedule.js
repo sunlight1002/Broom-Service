@@ -33,6 +33,9 @@ export default function Schedule() {
         end_date: "",
     });
 
+    const [selectedDateRange, setSelectedDateRange] = useState("Day");
+    const [selectedDateStep, setSelectedDateStep] = useState("Current");
+
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
     const filterRef = useRef(null);
@@ -382,6 +385,93 @@ export default function Schedule() {
         $(tableRef.current).DataTable().draw();
     }, [filter, dateRange]);
 
+
+    useEffect(() => {
+        let _startMoment = Moment();
+        let _endMoment = Moment();
+        if (selectedDateRange == "Day") {
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "day");
+                _endMoment.subtract(1, "day");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "day");
+                _endMoment.add(1, "day");
+            }
+        } else if (selectedDateRange == "Week") {
+            _startMoment.startOf("week");
+            _endMoment.endOf("week");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "week");
+                _endMoment.subtract(1, "week");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "week");
+                _endMoment.add(1, "week");
+            }
+        } else if (selectedDateRange == "Month") {
+            _startMoment.startOf("month");
+            _endMoment.endOf("month");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "month");
+                _endMoment.subtract(1, "month");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "month");
+                _endMoment.add(1, "month");
+            }
+        } else if (selectedDateRange == "Year") {
+            _startMoment.startOf("year");
+            _endMoment.endOf("year");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "year");
+                _endMoment.subtract(1, "year");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "year");
+                _endMoment.add(1, "year");
+            }
+        } else {
+            _startMoment = Moment("2000-01-01");
+        }
+
+        setDateRange({
+            start_date: _startMoment.format("YYYY-MM-DD"),
+            end_date: _endMoment.format("YYYY-MM-DD"),
+        });
+    }, [selectedDateRange, selectedDateStep]);
+
+    useEffect(() => {
+        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Day") {
+            localStorage.setItem("selectedDateRange", "Day");
+        }
+        if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
+            localStorage.setItem("selectedDateStep", "Current");
+        }
+        const storedDateRange = localStorage.getItem("dateRange");
+        if (storedDateRange) {
+            setDateRange(JSON.parse(storedDateRange)); // Parse JSON string back into an object
+        }
+
+        const storedFilter = localStorage.getItem("selectedDateRange") || "Day"; // Default to "Day" if no value is set
+        setSelectedDateRange(storedFilter);
+
+        const storedFilter2 = localStorage.getItem("selectedDateStep") || "Current"; // Default to "Day" if no value is set
+        setSelectedDateStep(storedFilter2);
+
+    }, [selectedDateRange, selectedDateStep]);
+
+    const resetLocalStorage = () => {
+        localStorage.removeItem("selectedDateRange");
+        localStorage.removeItem("selectedDateStep");
+        localStorage.removeItem("dateRange");
+        setSelectedDateRange("Week");
+        setSelectedDateStep("Current");
+        setDateRange({ start_date: "", end_date: "" });
+        alert.success("Filters reset successfully");
+        // localStorage.setItem(
+        //     "dateRange",
+        //     JSON.stringify({ start_date: "", end_date: "" })
+        // );
+
+    }
+
     return (
         <div id="container">
             <Sidebar />
@@ -403,7 +493,7 @@ export default function Schedule() {
                         </div> */}
                     </div>
                 </div>
-                <div className=" mb-2 d-none d-lg-block">
+                <div className="d-none d-lg-block">
                     <div className="row">
                         <div
                             style={{
@@ -490,6 +580,173 @@ export default function Schedule() {
                             </div>
                         </div>
                     </div>
+                    <div className="col-md-12 d-none d-lg-block justify-content-between mt-2">
+                        <div className="d-flex align-items-center">
+                            <div
+                                style={{ fontWeight: "bold" }}
+                                className="mr-2"
+                            >
+                                {t("global.date_period")}
+                            </div>
+                            {/* {Object.entries(timeIntervals).map(([key, value]) => (
+                                    <FilterButtons
+                                        text={value}
+                                        name={key}
+                                        className="px-3 mr-1"
+                                        key={key}
+                                        selectedFilter={selectedDateRange}
+                                        setselectedFilter={(status) => setSelectedDateRange(status)}
+                                    />
+                                ))} */}
+                            <FilterButtons
+                                text={t("global.day")}
+                                className="px-4 mr-1"
+                                selectedFilter={selectedDateRange}
+                                setselectedFilter={setSelectedDateRange}
+                            />
+                            <FilterButtons
+                                text={t("global.week")}
+                                className="px-4 mr-1"
+                                selectedFilter={selectedDateRange}
+                                setselectedFilter={setSelectedDateRange}
+                            />
+
+                            <FilterButtons
+                                text={t("global.month")}
+                                className="px-4 mr-3"
+                                selectedFilter={selectedDateRange}
+                                setselectedFilter={setSelectedDateRange}
+                            />
+
+                            <FilterButtons
+                                text={t("client.previous")}
+                                className="px-3 mr-1"
+                                selectedFilter={selectedDateStep}
+                                setselectedFilter={setSelectedDateStep}
+                            />
+                            <FilterButtons
+                                text={t("global.current")}
+                                className="px-3 mr-1"
+                                selectedFilter={selectedDateStep}
+                                setselectedFilter={setSelectedDateStep}
+                            />
+                            <FilterButtons
+                                text={t("global.next")}
+                                className="px-3"
+                                selectedFilter={selectedDateStep}
+                                setselectedFilter={setSelectedDateStep}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-sm-12 mt-2 pl-2 d-flex d-lg-none">
+                        <div className="search-data m-0">
+                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                <div
+                                    className=" mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("global.date_period")}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <span className="ml-2" style={{
+                                    padding: "6px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px"
+                                }}>{selectedDateRange || t("admin.leads.All")}</span>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateRange("Day");
+                                            localStorage.setItem("selectedDateRange", "Day");
+                                        }}
+                                    >
+                                        {t("global.day")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateRange("Week");
+                                            localStorage.setItem("selectedDateRange", "Week");
+                                        }}
+                                    >
+                                        {t("global.week")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateRange("Month");
+                                            localStorage.setItem("selectedDateRange", "Month");
+                                        }}
+                                    >
+                                        {t("global.month")}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                        <div className="search-data mt-2">
+                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                <div
+                                    className=" mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("global.date_period")}{t("global.type")}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <span className="ml-2" style={{
+                                    padding: "6px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px"
+                                }}>{selectedDateStep || t("admin.leads.All")}</span>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateStep("Previous");
+                                            localStorage.setItem("selectedDateStep", "Previous");
+                                        }}
+                                    >
+                                        {t("client.previous")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateStep("Current");
+                                            localStorage.setItem("selectedDateStep", "Current");
+                                        }}
+                                    >
+                                        {t("global.current")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateStep("Next");
+                                            localStorage.setItem("selectedDateStep", "Next");
+                                        }}
+                                    >
+                                        {t("global.next")}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div
                     style={{
@@ -550,17 +807,7 @@ export default function Schedule() {
                             style={{
                                 padding: ".195rem .6rem",
                             }}
-                            onClick={() => {
-                                const updatedDateRange = {
-                                    start_date: "",
-                                    end_date: "",
-                                };
-                                setDateRange(updatedDateRange);
-                                localStorage.setItem(
-                                    "dateRange",
-                                    JSON.stringify(updatedDateRange)
-                                );
-                            }}
+                            onClick={() => resetLocalStorage()}
                         >
                             Reset
                         </button>

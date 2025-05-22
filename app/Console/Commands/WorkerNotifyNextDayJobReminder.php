@@ -50,7 +50,7 @@ class WorkerNotifyNextDayJobReminder extends Command
     {
         $tomorrow = Carbon::tomorrow()->toDateString();
 
-        $job = Job::query()
+        $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
             ->whereIn('worker_id', ['209', '185', '67'])
             ->whereNotNull('worker_id')
@@ -63,55 +63,56 @@ class WorkerNotifyNextDayJobReminder extends Command
             ->whereNull('worker_approved_at')
             ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
             ->whereDate('start_date', $tomorrow)
-            ->first();
+            ->orderBy('start_time') // gets the earliest job for that day
+            ->get();
 
-        if (!$job) {
-            $this->info("No matching job found for tomorrow.");
-            return 0;
-        }
-        // foreach ($jobs as $key => $job) {
-        $worker = $job->worker;
-        $client = $job->client;
-        if ($worker) {
-            App::setLocale($worker['lng'] ?? 'en');
-            $notificationData = array(
-                'job'  => $job->toArray(),
-                'worker'  => $worker->toArray(),
-                'client'  => $client->toArray(),
-            );
-            if (isset($notificationData['job']['worker']) && !empty($notificationData['job']['worker']['phone'])) {
+
+        // Group jobs by worker_id and get the first job per worker
+        $uniqueJobs = $jobs->groupBy('worker_id')->map->first();
+
+        foreach ($uniqueJobs as $job) {
+            $worker = $job->worker;
+            $client = $job->client;
+            if ($worker) {
+                App::setLocale($worker['lng'] ?? 'en');
+                $notificationData = array(
+                    'job'  => $job->toArray(),
+                    'worker'  => $worker->toArray(),
+                    'client'  => $client->toArray(),
+                );
+                if (isset($notificationData['job']['worker']) && !empty($notificationData['job']['worker']['phone'])) {
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM,
+                        "notificationData" => $notificationData
+                    ]));
+                }
+
+                Notification::create([
+                    'user_id' => $worker->id,
+                    'user_type' => get_class($worker),
+                    'type' => NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
+                    'status' => 'not-approved',
+                    'job_id' => $job->id
+                ]);
+
                 event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM,
+                    "type" => WhatsappMessageTemplateEnum::TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM,
                     "notificationData" => $notificationData
                 ]));
+
+
+                WorkerMetas::create([
+                    'worker_id' => $worker->id,
+                    'job_id' => $job->id,
+                    'key' => 'next_day_job_reminder_at_6_pm',
+                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
+                ]);
+
+                $job->update([
+                    'is_worker_reminded' => true
+                ]);
             }
-
-            Notification::create([
-                'user_id' => $worker->id,
-                'user_type' => get_class($worker),
-                'type' => NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
-                'status' => 'not-approved',
-                'job_id' => $job->id
-            ]);
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM,
-                "notificationData" => $notificationData
-            ]));
-
-
-            WorkerMetas::create([
-                'worker_id' => $worker->id,
-                'job_id' => $job->id,
-                'key' => 'next_day_job_reminder_at_6_pm',
-                'value' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]);
-
-            $job->update([
-                'is_worker_reminded' => true
-            ]);
         }
-        // }
 
         return 0;
     }

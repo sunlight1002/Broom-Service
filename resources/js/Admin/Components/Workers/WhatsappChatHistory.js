@@ -137,9 +137,9 @@ const WhatsappChatHistory = ({
 
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
-            if (cl > c.length) {
-                scroller();
-            }
+            // if (cl > c.length) {
+            //     scroller();
+            // }
             setChatName(res?.data?.clientName)
 
             localStorage.setItem("chatLen", c.length);

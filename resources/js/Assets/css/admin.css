@@ -1054,7 +1054,7 @@ table tr td .dropdown-item {
     padding-left: 0px;
   }
   .titleBox .addButton{
-    margin-top: 24px !important;
+    margin-top: 24px;
   }
 }
 

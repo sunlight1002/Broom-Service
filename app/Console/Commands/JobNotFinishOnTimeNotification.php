@@ -28,7 +28,7 @@ class JobNotFinishOnTimeNotification extends Command
      *
      * @var string
      */
-    protected $description = 'Notification to Worker (sent 30 minute after scheduled job completion time)';
+    protected $description = 'Notification to Worker (sent 1 minute after scheduled job completion time)';
 
     /**
      * Create a new command instance.
@@ -52,10 +52,6 @@ class JobNotFinishOnTimeNotification extends Command
             ->whereIn('worker_id', ['209','185', '67'])
             ->whereNotNull('worker_id')
             ->whereHas('worker')
-            // ->whereDoesntHave('workerMetas', function ($query) {
-            //     $query->where('worker_id', DB::raw('jobs.worker_id'));
-            //     $query->where('key', 'worker_notify_on_job_time_over');
-            // })
             ->whereDoesntHave('workerMetas', function ($query) {
                 $query->whereColumn('job_id', 'jobs.id') // Match by job_id
                       ->whereColumn('worker_id', 'jobs.worker_id') 

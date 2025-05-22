@@ -1235,7 +1235,7 @@ export default function chat({
 
                                                                                         {groupedMessages[date].map((m, i) => {
                                                                                             const chatId = parsedData(m.data);
-
+                                                                                            let reviewLink = "https//www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl";
                                                                                             if (m.message !== "restart") {
                                                                                                 return (
                                                                                                     <li className={m.flex === "C" ? "clearfix" : "clearfix odd"} key={i}>
@@ -1309,6 +1309,7 @@ export default function chat({
                                                                                                                                 <br />
                                                                                                                                 <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', wordBreak: 'break-word' }}>
                                                                                                                                     {m.message}
+                                                                                                                                    {/* {m?.message?.replace(reviewLink, "--review-link--")} */}
                                                                                                                                 </pre>                                                                                                                            </>
                                                                                                                         )}
                                                                                                                     </div>

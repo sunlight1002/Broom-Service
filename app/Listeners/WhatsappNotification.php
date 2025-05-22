@@ -1796,7 +1796,10 @@ class WhatsappNotification
                             "whatsapp:+$receiverNumber",
                             [
                                 "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                                ]) 
                             ]
                         );
 
