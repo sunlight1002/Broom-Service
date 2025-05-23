@@ -187,6 +187,9 @@ class WhatsappNotification
                 }
             }
 
+            $latitude = $jobData['property_address']['latitude'] ?? null;
+            $longitude = $jobData['property_address']['longitude'] ?? null;
+
             if (isset($jobData['id']) && !empty($jobData['id'])) {
                 $adminJobViewLink = generateShortUrl(url("admin/jobs/view/" . $jobData['id']), 'admin');
                 $clientJobsReviewLink = generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
@@ -203,7 +206,15 @@ class WhatsappNotification
                     'worker'
                 );
                 $teamSkipComment = generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
-                $googleAddress = generateShortUrl(url("https://maps.google.com?q=" . ($jobData['property_address']['geo_address'] ?? '')), 'worker');
+
+                if ($latitude && $longitude) {
+                    $googleMapsUrl = "https://maps.google.com?q={$latitude},{$longitude}";
+                } else {
+                    $geoAddress = $jobData['property_address']['geo_address'] ?? '';
+                    $googleMapsUrl = "https://maps.google.com?q=" . urlencode($geoAddress);
+                }
+
+                $googleAddress = generateShortUrl(url($googleMapsUrl), 'worker');
             }
 
             $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
