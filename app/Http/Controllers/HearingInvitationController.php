@@ -352,7 +352,7 @@ class HearingInvitationController extends Controller
             $attachFile = storage_path('app/public/' . $invitation->file);
 
             Mail::send('/Mails/worker/WorkerHearingMail', ["data" => $notificationData], function ($message) use ($attachFile, $worker) {
-                $message->to("pratik.panchal@spexiontechnologies.com");
+                $message->to($worker->email);
                 $message->bcc(config('services.mail.default'));
                 $message->subject(__('mail.hearing.subject'));
                 if($attachFile){
