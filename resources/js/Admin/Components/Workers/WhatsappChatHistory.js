@@ -59,9 +59,6 @@ const WhatsappChatHistory = ({
 
 
     const fromNumber = process.env.MIX_TWILIO_WHATSAPP_NUMBER;
-    console.log(fromNumber, "fromNumber");
-
-
     const windowWidth = useWindowWidth();
 
     useEffect(() => {
@@ -461,7 +458,7 @@ const WhatsappChatHistory = ({
                                                                         >
                                                                             {m?.message != null && m?.message?.startsWith("Replying to:") && (
                                                                                 // <span className="replying-text" >{m.message}</span>
-                                                                                <pre className="replying-text" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                                                                                <pre className="replying-text" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', wordBreak: 'break-word' }}>
                                                                                     {m.message}
                                                                                 </pre>
                                                                             )}
@@ -510,9 +507,10 @@ const WhatsappChatHistory = ({
                                                                                         />
                                                                                     )}
                                                                                     <br />
-                                                                                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                                                                                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', wordBreak: 'break-word' }}>
                                                                                         {m.message}
-                                                                                    </pre>                                                                                                                            </>
+                                                                                    </pre>
+                                                                                </>
                                                                             )}
                                                                         </div>
                                                                         <div className="message-info">

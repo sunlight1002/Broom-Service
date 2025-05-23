@@ -341,6 +341,7 @@ class HearingInvitationController extends Controller
                 'purpose' => $request->input('purpose'),
                 'team' => $team,
                 'id' => $invitation->id,
+                'attach_file_name' => $invitation->file
             ];
             \Log::info($teamName);
             \Log::info($notificationData);

@@ -24,78 +24,83 @@ class PriceOfferReminder extends Command
 
     public function handle()
     {
-        $dates = [
-            Carbon::now()->subDay(1)->toDateString(),
-            Carbon::now()->subDays(3)->toDateString(),
-            Carbon::now()->subDays(7)->toDateString(),
+        $timeIntervals = [
+            '24hours' => [
+                'date' => Carbon::now()->subDay(1)->toDateString(),
+                'label' => '24 שעות'
+            ],
+            '3days' => [
+                'date' => Carbon::now()->subDays(3)->toDateString(),
+                'label' => '3 ימים'
+            ],
+            '7days' => [
+                'date' => Carbon::now()->subDays(7)->toDateString(),
+                'label' => '7 ימים'
+            ]
         ];
 
-        $offers = Offer::with('client')
-            ->where('status', 'sent')
-            ->whereDate('created_at', '>=', '2024-10-11')
-            ->whereIn(DB::raw('DATE(created_at)'), $dates)
-            ->get();
-        // Loop through each offer to check how many days it has been in 'sent' status
-        foreach ($offers as $offer) {
-            $client = $offer->client;
-            $daysDiff = Carbon::now()->diffInDays(Carbon::parse($offer->created_at));
-            \Log::info($daysDiff);
+        foreach ($timeIntervals as $key => $info) {
+            $offers = Offer::with('client')
+                ->where('status', 'sent')
+                ->whereDate('created_at', '>=', '2024-10-11')
+                ->whereDate('created_at', $info['date'])
+                ->get();
 
-            if ($daysDiff <= 1) {
-                $offer->offer_pending_since = '24 שעות'; // 24 hours
-            } elseif ($daysDiff >= 3) {
-                $offer->offer_pending_since = '3 ימים'; // 3 days
-            } elseif ($daysDiff >= 7) {
-                $offer->offer_pending_since = '7 ימים'; // 7 days
-            } else {
-                $offer->offer_pending_since = '7 ימים'; // Or any default value
+            if ($offers->isEmpty()) {
+                continue;
             }
-            if ($client) {
+
+            // Send single team notification for this time interval
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED,
+                "notificationData" => [
+                    'pending_offer_count' => $offers->count(),
+                    'time_interval' => $info['label']
+                ]
+            ]));
+
+            foreach ($offers as $offer) {
+                $client = $offer->client;
+
+                if (!$client) {
+                    continue;
+                }
+
+                $offer->offer_pending_since = $info['label'];
+
                 $offerArr = $offer->toArray();
                 $services = json_decode($offerArr['services']);
-                
+
+                $s_names = '';
+                $s_templates_names = '';
+
                 if (isset($services)) {
-                    $s_names = '';
-                    $s_templates_names = '';
                     foreach ($services as $k => $service) {
-                        if ($k != count($services) - 1 && $service->template != "others") {
-                            $s_names .= $service->name . ", ";
-                            $s_templates_names .= $service->template . ", ";
-                        } else if ($service->template == "others") {
-                            if ($k != count($services) - 1) {
-                                $s_names .= $service->other_title . ", ";
-                                $s_templates_names .= $service->template . ", ";
-                            } else {
-                                $s_names .= $service->other_title;
-                                $s_templates_names .= $service->template;
-                            }
+                        $name = $service->template !== "others"
+                            ? $service->name
+                            : ($service->other_title ?? $service->name);
+
+                        $template = $service->template ?? '';
+
+                        if ($k != count($services) - 1) {
+                            $s_names .= $name . ", ";
+                            $s_templates_names .= $template . ", ";
                         } else {
-                            $s_names .= $service->name;
-                            $s_templates_names .= $service->template;
+                            $s_names .= $name;
+                            $s_templates_names .= $template;
                         }
                     }
                 }
+
                 $offerArr['services'] = $services;
                 $offerArr['service_names'] = $s_names;
                 $offerArr['service_template_names'] = $s_templates_names;
 
                 $property = null;
 
-                $addressId = $services[0]->address;
-                if (isset($addressId)) {
-                    $address = ClientPropertyAddress::find($addressId);
-                    if (isset($address)) {
-                        $property = $address;
-                    }
+                if (!empty($services[0]->address)) {
+                    $property = ClientPropertyAddress::find($services[0]->address);
                 }
-                
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'offer' => $offer->toArray()
-                    ]
-                ]));
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,

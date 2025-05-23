@@ -8,6 +8,7 @@ use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Events\ClientPaymentPaid;
 use App\Models\Client;
+use App\Models\ClientPropertyAddress;
 use App\Models\Invoices;
 use App\Models\Notification;
 use App\Models\Order;
@@ -17,7 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
-
+use Illuminate\Support\Facades\Http;
+use App\Traits\ICountDocument;
 
 class iCountController extends Controller
 {
@@ -195,25 +197,40 @@ class iCountController extends Controller
                                             ->where('invoice_id', $data['docnum'])
                                             ->first();
 
-                                            \Log::info(["orderData" => $orderData]);
-                                            
-                                            $clientData = [
-                                                'client' => [
-                                                    'id'       => $orderData['doc_info']['client_id'] ?? null,
-                                                    'phone'    => $client->phone ?? null,
-                                                    'lng'      => $client->lng ?? 'heb',
-                                                    'firstname'     => $orderData['doc_info']['client_name'] ?? null,
-                                                    'client_address'  => $orderData['doc_info']['client_address'] ?? null,
-                                                ]
-                                            ];                                            
-                                            
-                                            \Log::info(["data" => $clientData]);
-                                            if (!$invoice) {
-                                                $invoice = Invoices::create([
-                                                    'invoice_id'            => $data['docnum'],
+                                        \Log::info(["orderData" => $orderData]);
+
+                                        $clientData = [
+                                            'client' => [
+                                                'id'       => $orderData['doc_info']['client_id'] ?? null,
+                                                'phone'    => $client->phone ?? null,
+                                                'lng'      => $client->lng ?? 'heb',
+                                                'firstname'     => $orderData['doc_info']['client_name'] ?? null,
+                                                'client_address'  => $orderData['doc_info']['client_address'] ?? null,
+                                            ]
+                                        ];
+
+                                        \Log::info(["data" => $clientData]);
+                                        if (!$invoice) {
+                                            $invoice = Invoices::create([
+                                                'invoice_id'            => $data['docnum'],
+                                                'order_id'              => $order->id,
+                                                'type'                  => 'invrec',
+                                                'client_id'             => $client->id,
+                                                'doc_url'               => $invrecData['doc_info']['doc_url'],
+                                                'response'              => $webhookJson,
+                                                'amount'                => $invrecData['doc_info']['totalsum'],
+                                                'discount_amount'       => $invrecData['doc_info']['discount'] ?? 0,
+                                                'total_amount'          => $invrecData['doc_info']['afterdiscount'],
+                                                'paid_amount'           => $paid_amount,
+                                                'amount_with_tax'       => $invrecData['doc_info']['totalwithvat'],
+                                                'status'                => $status,
+                                                'invoice_icount_status' => $invoice_icount_status,
+                                                'is_webhook_created'    => true
+                                            ]);
+                                        } else {
+                                            if ($invoice->is_webhook_created) {
+                                                $invoice->update([
                                                     'order_id'              => $order->id,
-                                                    'type'                  => 'invrec',
-                                                    'client_id'             => $client->id,
                                                     'doc_url'               => $invrecData['doc_info']['doc_url'],
                                                     'response'              => $webhookJson,
                                                     'amount'                => $invrecData['doc_info']['totalsum'],
@@ -223,45 +240,30 @@ class iCountController extends Controller
                                                     'amount_with_tax'       => $invrecData['doc_info']['totalwithvat'],
                                                     'status'                => $status,
                                                     'invoice_icount_status' => $invoice_icount_status,
-                                                    'is_webhook_created'    => true
                                                 ]);
-                                            } else {
-                                                if ($invoice->is_webhook_created) {
-                                                    $invoice->update([
-                                                        'order_id'              => $order->id,
-                                                        'doc_url'               => $invrecData['doc_info']['doc_url'],
-                                                        'response'              => $webhookJson,
-                                                        'amount'                => $invrecData['doc_info']['totalsum'],
-                                                        'discount_amount'       => $invrecData['doc_info']['discount'] ?? 0,
-                                                        'total_amount'          => $invrecData['doc_info']['afterdiscount'],
-                                                        'paid_amount'           => $paid_amount,
-                                                        'amount_with_tax'       => $invrecData['doc_info']['totalwithvat'],
-                                                        'status'                => $status,
-                                                        'invoice_icount_status' => $invoice_icount_status,
-                                                    ]);
-                                                }
                                             }
-                                            
-                                            // Trigger event if invoice is paid
-                                            if ($invoice->status == InvoiceStatusEnum::PAID) {
-                                                Notification::create([
-                                                    'user_id' => $client->id ?? null,
-                                                    'user_type' => get_class($client),
-                                                    'type' => NotificationTypeEnum::PAYMENT_PAID,
-                                                    'data' => [
-                                                        'amount' => $paid_amount
-                                                    ],
-                                                    'status' => 'paid'
-                                                ]);
-                                        
-                                                event(new WhatsappNotificationEvent([
-                                                    "type" => WhatsappMessageTemplateEnum::PAYMENT_PAID,
-                                                    "notificationData" => [
-                                                        'client' => $clientData['client'],
-                                                        'amount' => $paid_amount
-                                                    ]
-                                                ]));
-                                            }                                            
+                                        }
+
+                                        // Trigger event if invoice is paid
+                                        if ($invoice->status == InvoiceStatusEnum::PAID) {
+                                            Notification::create([
+                                                'user_id' => $client->id ?? null,
+                                                'user_type' => get_class($client),
+                                                'type' => NotificationTypeEnum::PAYMENT_PAID,
+                                                'data' => [
+                                                    'amount' => $paid_amount
+                                                ],
+                                                'status' => 'paid'
+                                            ]);
+
+                                            event(new WhatsappNotificationEvent([
+                                                "type" => WhatsappMessageTemplateEnum::PAYMENT_PAID,
+                                                "notificationData" => [
+                                                    'client' => $clientData['client'],
+                                                    'amount' => $paid_amount
+                                                ]
+                                            ]));
+                                        }
 
                                         if ($invoice) {
                                             $order->update([
@@ -367,10 +369,61 @@ class iCountController extends Controller
     {
         $data = $request->all();
         $client = Client::where('email', $data['customer_email'])->first();
-        if($client){
+        if ($client) {
             $client->update([
                 "icount_client_id" => $data['customer_id']
             ]);
+            $address = ClientPropertyAddress::where('client_id', $client->id)->first();
+            if ($client->icount_client_id) {
+                $data = [
+                    'icount_client_id' => $client->icount_client_id,
+                    'bus_street' => $address->geo_address,
+                    'bus_city' => $address->city ?? null,
+                    'bus_zip' => $address->zipcode ?? null,
+                ];
+            }
+
+            $this->updateClientIcount($data);
         }
+    }
+
+    private function updateClientIcount($data)
+    {
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/client/update';
+
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_id' => $data['icount_client_id'] ?? 0,
+            'bus_street' => $data['bus_street'] ?? null,
+            'bus_city' => $data['bus_city'] ?? null,
+            'bus_zip' => $data['bus_zip'] ?? null,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error: Failed to create or update user');
+        }
+        // return $data;
     }
 }

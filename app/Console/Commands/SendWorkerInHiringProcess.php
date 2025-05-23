@@ -33,26 +33,18 @@ class SendWorkerInHiringProcess extends Command
     public function handle()
     {
         // Fetch worker leads with 'hiring' status
-        $workerLeads = WorkerLeads::where('status', 'hiring')->get();
+        $workerLeads = WorkerLeads::where('status', 'hiring')->count();
 
-        // Loop through each worker lead
-        foreach ($workerLeads as $workerLead) {
-            try {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM,
-                    "notificationData" => [
-                        'worker' => $workerLead->toArray(),
-                    ]
-                ]));
-
-                Log::info("Notification sent to Team WorkerLead ID: {$workerLead->id}, Phone: {$workerLead->phone_number}");
-
-            } catch (\Exception $e) {
-                // Log error for debugging
-                Log::error("Failed to send notification to Team WorkerLead ID: {$workerLead->id}. Error: {$e->getMessage()}");
-            }
+        if ($workerLeads == 0) {
+            return 0;
         }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM,
+            "notificationData" => [
+                'worker_lead_count' => $workerLeads,
+            ]
+        ]));
 
         return 0;
     }

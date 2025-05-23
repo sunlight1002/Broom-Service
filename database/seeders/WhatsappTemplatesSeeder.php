@@ -942,24 +942,33 @@ office@broomservice.co.il
             ],
 
 
+//             [
+//                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
+//                 'description' => 'Notification to Team - Lead Pending Over 24 Hours-every 24h',
+//                 'message_en' => '',
+//                 'message_heb' => 'שלום צוות,
+// ספירת הלידים הבאה נמצאת במצב "בהמתנה" במשך למעלה מ-24 שעות. אנא בדקו ועדכנו את הסטטוס בהתאם.
+ 
+// קיימים :pending_lead_count במערכת נכון להיום
+// :leads_link
+
+// בברכה,
+// צוות השירות של ברום',
+//                 'message_spa' => '',
+//                 'message_ru' => '',
+//             ],
+
             [
                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
                 'description' => 'Notification to Team - Lead Pending Over 24 Hours-every 24h',
                 'message_en' => '',
                 'message_heb' => 'שלום צוות,
-הליד הבא נמצא במצב "ממתין" במשך למעלה מ-24 שעות. נא לבדוק ולעדכן את הסטטוס בהתאם.
-
-פרטי ליד:
-שם ליד: *:client_name*
-טלפון ליד: :client_phone_number
-תאריך יצירת ליד: :client_create_date
-
-אפשרויות:
-עדכון סטטוס ליד :lead_detail_url
-צור קשר עם ליד :client_phone_number
+ 
+קיימים :pending_lead_count במערכת נכון להיום
+:leads_link
 
 בברכה,
-צוות ברום סרוויס',
+צוות השירות של ברום',
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -970,22 +979,31 @@ office@broomservice.co.il
                 'message_en' => '',
                 'message_heb' => 'שלום צוות,
 
-חלפו :offer_pending_since מאז שנשלחה הצעת המחיר ללקוח הבא. נא לעיין בפרטי ההצעה ולעדכן את הסטטוס בהתאם או ליצור קשר עם הלקוח להמשך.
-
-פרטי לקוח:
-שם לקוח: *:client_name*
-טלפון לקוח: :client_phone_number
-תאריך הצעת המחיר: :offer_sent_date
-
-אפשרויות:
-עדכון סטטוס הצעת המחיר :offer_detail_url
-צור קשר עם לקוח :client_phone_number
+קיימים :pending_offer_count נכון להיום 
+:offers_link
 
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
                 'message_ru' => '',
             ],
+
+            //             [
+            //                 'key' => WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED,
+            //                 'description' => 'Reminder to Team - Price Offer Sent (24 Hours, 3 Days, 7 Days)',
+            //                 'message_en' => '',
+            //                 'message_heb' => 'שלום צוות,
+
+            // חלפו :time_interval מאז שנשלחה הצעת המחיר ללקוח הבא. נא לעיין בפרטי ההצעה ולעדכן את הסטטוס בהתאם או ליצור קשר עם הלקוח להמשך.
+
+            // קיימים :pending_offer_count נכון להיום 
+            // :offers_link
+
+            // בברכה,
+            // צוות ברום סרוויס',
+            //                 'message_spa' => '',
+            //                 'message_ru' => '',
+            //             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
@@ -1069,23 +1087,34 @@ office@broomservice.co.il
                 'message_ru' => '',
             ],
 
+//             [
+//                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
+//                 'description' => 'Reminder to Team - Agreement Pending Signature (After 24 Hours, 3 Days, and 7 Days)',
+//                 'message_en' => '',
+//                 'message_heb' => 'שלום צוות,
+
+// חוזה נשלח ללקוחות ועדיין ממתין לחתימה מאת :time_interval.
+
+// קיימים :pending_contracts_count חוזים ממתינים לאישור 
+// :contracts_link
+
+// בברכה,
+// צוות שירות מטאטאים',
+//                 'message_spa' => '',
+//                 'message_ru' => '',
+//             ],
+
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
                 'description' => 'Reminder to Team - Agreement Pending Signature (After 24 Hours, 3 Days, and 7 Days)',
                 'message_en' => '',
                 'message_heb' => 'שלום צוות,
 
-הסכם התקשרות נשלח ללקוח *:client_name* בתאריך :contract_sent_date ועדיין ממתין לחתימתו.
-אנא עקבו אחר הסטטוס ובדקו אם נדרשת פעולה נוספת.
-
-פרטי הלקוח:
-- שם: *:client_name*
-- טלפון: :client_phone_number
-
-לחץ כאן לצפייה בהסכם :team_contract_link
+קיימים :pending_contracts_count חוזים ממתינים לאישור 
+:contracts_link
 
 בברכה,
-צוות ברום סרוויס',
+צוות שירות מטאטאים',
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -2261,27 +2290,49 @@ Equipo de Broom Service",
                 'description' => 'Send message to client when Contract is verified',
                 'message_en' => "Hello *:property_person_name*
 
-Your agreement has been successfully confirmed. We will contact you soon to schedule your service.
+We’re happy to let you know that your agreement has been successfully verified! 
+How exciting 🤗 
+We’ll contact you shortly to schedule your first visit. 
 
-Best regards,
-Broom Service Team 🌹
-www.broomservice.co.il
-Telephone: 03-525-70-60
-office@broomservice.co.il
+In the meantime, you’re welcome to browse our service brochure to explore the full range of services we offer: 
+Click here to view our brochure 
 
-If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+On the last page of the brochure, you’ll find a recommended checklist of materials and supplies to prepare in advance – so we can deliver the best, most professional experience from day one. 
+
+If you have any questions – we’re always here for you: 
+📞 +972 3-525-70-60 
+📧 office@broomservice.co.il 
+🌐 www.broomservice.co.il 
+
+We look forward to providing you with an exceptional and uncompromising cleaning experience. 
+
+Best regards, 
+The Broom Service Team 🌹 
+
+To stop receiving messages, reply with ‘STOP’ at any time. ",
 
                 'message_heb' => "שלום *:property_person_name*',
 
-ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.
+שמחים לעדכן כי ההסכם שלך אומת בהצלחה! 
+איזו התרגשות 🤗 
+ניצור איתך קשר בקרוב לתיאום מועד הביקור הראשון. 
 
-בברכה,
-צוות ברום סרוויס🌹
-www.broomservice.co.il
-טלפון: 03-525-70-60
-office@broomservice.co.il
+בינתיים, כדי שתוכל להתרשם מכלל השירותים שאנחנו מציעים, מצורפת חוברת השירותים שלנו: 
+לחץ כאן לעיון בחוברת השירותים שלנו 
 
-אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+בעמוד האחרון של החוברת תמצא רשימת חומרים וציוד שאנו ממליצים להכין מראש – כדי שנוכל להעניק לך את השירות הטוב, היעיל והמקצועי ביותר כבר מהביקור הראשון. 
+לכל שאלה נוספת – אנחנו תמיד כאן לשירותך: 
+
+📞 03-525-70-60 
+📧 office@broomservice.co.il 
+🌐 www.broomservice.co.il 
+
+נשמח להעניק לך חוויית ניקיון אחרת, מקצועית ובלתי מתפשרת. 
+
+בברכה, 
+צוות ברום סרוויס 🌹 
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא השב ‘הפסק’ בכל עת. ",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -2587,39 +2638,51 @@ Equipo de Broom Service",
                 'description' => 'Send job reminder to worker on new job assign',
                 'message_en' => "Hello, *:worker_name*
 
-Just a friendly reminder that your hearing *:team_name* on *:hearing_date* between *:start_time* to *:end_time* has been scheduled.
+This is a reminder that your hearing with :team_name has been scheduled for :hearing_date, between :start_time and :end_time. 
 
-Accept/Reject :worker_hearing
+📎 Please review the attached hearing invitation letter. 
+ 
+To confirm your availability, click the following button: 
+Accept / Reject: :worker_hearing 
 
-Best regards,
-Broom Service Team",
+Best regards, 
+Broom Service Team ",
 
                 'message_heb' => "שלום, *:worker_name*
 
-רק תזכורת ידידותית לכך שנקבע מועד לשימוע שלך עם *:team_name* לתאריך *:hearing_date* בין *:start_time* ל-*:end_time*.
+זוהי תזכורת כי נקבע לך שימוע עם :team_name ביום :hearing_date בין השעות :start_time ל-:end_time. 
 
-קבל/דחה :שמוע_עובד
+📎 מצ\"ב מכתב הזימון לשימוע לעיונך. 
 
-בברכה,
-ברום סרוויס צוות",
+לאישור או דחיית המועד, נא לחצו על הקישור: 
+קבל / דחה: :worker_hearing 
 
-                'message_spa' => "Hola, *:worker_name*
+בברכה, 
+וות ברום סרוויס",
 
-Solo un recordatorio amistoso de que su audiencia *:team_name* el *:hearing_date* entre *:start_time* y *:end_time* ha sido programada.
+                'message_spa' => "Hola, :worker_name 
 
-Aceptar/Rechazar :worker_hearing
+Este es un recordatorio de que tu audiencia con :team_name está programada para el :hearing_date entre las :start_time y las :end_time. 
 
-Saludos cordiales,
-Equipo de Broom Service",
+📎 Por favor revisa la carta de invitación adjunta. 
 
-                'message_ru' => "Привет, *:worker_name*
+Para confirmar o rechazar tu participación, haz clic en el siguiente enlace: 
+Aceptar / Rechazar: :worker_hearing 
 
-Просто дружеское напоминание о том, что слушание вашей команды *:team_name* на *:hearing_date* запланировано на период с *:start_time* по *:end_time*.
+Saludos cordiales, 
+Equipo de Broom Service ",
 
-Принять/Отклонить :worker_hearing
+                'message_ru' => "Здравствуйте, :worker_name 
 
-С уважением,
-Команда Broom Service",
+Напоминаем вам, что ваше слушание с :team_name назначено на :hearing_date с :start_time до :end_time. 
+ 
+📎 Пожалуйста, ознакомьтесь с прикреплённым письмом-приглашением. 
+
+Чтобы подтвердить или отклонить участие, нажмите на ссылку ниже: 
+Принять / Отклонить: :worker_hearing 
+
+С уважением, 
+Команда Broom Service ",
             ],
 
             [
@@ -3857,25 +3920,25 @@ Equipo de Broom Service 🌹",
             [
                 'key' => WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM,
                 'description' => 'new lead not hiried daily reminder to team',
-                'message_en' => "⚠️ Reminder: Please confirm completion of hiring for: :worker_lead_phone.
-Thank you! 😊
+                'message_en' => "⚠️ Reminder: Please confirm completion of hiring for: :worker_lead_count.
+:worker_leads_link
 
 Best Regards,
 Broom Service Team 🌹",
 
-                'message_heb' => "⚠️ תזכורת: אנא אשר את השלמת הגיוס עבור: :worker_lead_phone.
-תודה לך! 😊
+                'message_heb' => "⚠️ תזכורת: אנא אשר את השלמת הגיוס עבור: :worker_lead_count.
+:worker_leads_link
 
 בברכה,
 צוות שירות מטאטא 🌹",
-                'message_spa' => "⚠️ Recordatorio: Confirme la finalización de la contratación para: :worker_lead_phone.
-¡Gracias! 😊
+                'message_spa' => "⚠️ Recordatorio: Confirme la finalización de la contratación para: :worker_lead_count.
+:worker_leads_link
 
 Saludos cordiales,
 Broom Service Team 🌹",
 
-                'message_ru' => "⚠️ Напоминание: Пожалуйста, подтвердите завершение найма: +972 52-123-4567.
-Спасибо! 😊
+                'message_ru' => "⚠️ Напоминание: Пожалуйста, подтвердите завершение найма: worker_lead_count.
+:worker_leads_link
 
 С наилучшими пожеланиями,
 Команда Broom Service 🌹",
@@ -4074,25 +4137,29 @@ https://www.facebook.com/JobinIsraelforubr
             [
                 'key' => WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
                 'description' => 'Alex reply lead UNANSWERED to lead',
-                'message_en' => "🌟 Hi again!
+                'message_en' => "🌟 Hi again! 
 
-Alex, our manager, tried contacting you but couldn’t reach you.
-Please call him back at: +972 52-848-0808.
+Galina from our team tried contacting you but couldn’t reach you. 
+Please call her back at: +972 55-564-9446. 
 
-We look forward to hearing from you! 😊
+We look forward to hearing from you! 
 
-Best Regards,
-Broom Service Team 🌹",
+Best Regards, 
+Job4Service Team 
+🌐 job4service.com 
+📧 officejob4service@gmail.com ",
 
-                'message_heb' => "🌟 היי שוב!
+                'message_heb' => "🌟 שלום שוב! 
 
-אלכס, המנהל שלנו, ניסה ליצור איתך קשר אך לא הצליח להשיג אותך.
-נא להתקשר אליו בחזרה למספר: +972 52-848-0808.
+גלינה מהצוות שלנו ניסתה ליצור איתך קשר אך לא הצליחה להשיג אותך. 
+נשמח אם תחזיר לה שיחה למספר: +972 55-564-9446. 
 
-נשמח לשמוע ממך! 😊
+מחכים לשמוע ממך! 
 
-בברכה,
-צוות שירות מטאטא 🌹",
+בברכה, 
+צוות Job4Service 
+🌐 job4service.com 
+📧 officejob4service@gmail.com ",
                 'message_spa' => "🌟 ¡Hola de nuevo!
 
 Alex, nuestro gerente, intentó comunicarse contigo pero no pudo comunicarse contigo.
@@ -4102,15 +4169,17 @@ Por favor, vuelve a llamarlo al: +972 52-848-0808.
 
 Saludos cordiales,
 Equipo de Broom Service 🌹",
-                'message_ru' => "🌟 Привет снова!
+                'message_ru' => "🌟 Здравствуйте снова! 
 
-Алекс, наш менеджер, пытался с вами связаться.
-Пожалуйста, перезвоните ему по номеру: +972 52-848-0808.
+Галина из нашей команды пыталась с вами связаться, но не смогла дозвониться. 
+Пожалуйста, перезвоните ей по номеру: +972 55-564-9446. 
 
-Ждем вашего ответа! 😊
+Будем рады вашему звонку! 
 
-С наилучшими пожеланиями,
-Команда Broom Service 🌹",
+С уважением, 
+Команда Job4Service 
+🌐 job4service.com 
+📧 officejob4service@gmail.com ",
             ],
 
             [

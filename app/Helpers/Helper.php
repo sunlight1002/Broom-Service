@@ -303,8 +303,6 @@ if (!function_exists('sendWhatsappFileMessage')) {
         $number,
         $mediaPath,
         $caption = '',
-        $lang = 'he',
-        $replyId = null
     ) {
 
         if (!file_exists($mediaPath)) {
@@ -323,8 +321,6 @@ if (!function_exists('sendWhatsappFileMessage')) {
                 'Content-Type' => $fileMimeType,
             ])->withBody(file_get_contents($mediaPath), $fileMimeType)
                 ->post(config('services.whapi.url') . 'media');
-
-            Log::info('WhatsApp media upload response: ', $response->json());
 
             if (!$response->successful()) {
                 Log::error('Error uploading WhatsApp media: ', $response->json());
@@ -352,11 +348,9 @@ if (!function_exists('sendWhatsappFileMessage')) {
                 'to' => $number,
                 'media' => $mediaId,
                 'caption' => $caption ?? '',
-                'mime_type' => $fileMimeType
+                'mime_type' => $fileMimeType,
+                'filename' => $fileName
             ]);
-
-            // Log the message response for debugging
-            Log::info('WhatsApp send message response: ', $messageResponse->json());
 
             // Check the response status
             if ($messageResponse->successful()) {

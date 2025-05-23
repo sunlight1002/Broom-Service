@@ -31,30 +31,47 @@ class ContractReminder extends Command
             '3days' => Carbon::now()->subDays(3)->toDateString(),
             '7days' => Carbon::now()->subDays(7)->toDateString(),
         ];
+        $hebKey = null;
+        foreach ($timeIntervals as $key => $date) {
+            $contracts = Contract::with(['client', 'offer'])
+                ->where('status', 'not-signed')
+                ->whereDate('created_at', '>=', $staticDate)
+                ->whereDate('created_at', $date)
+                ->get();
 
-        $contracts = Contract::with('client')
-            ->where('status', 'not-signed')
-            ->whereDate('created_at', '>=', $staticDate)
-            ->whereIn(DB::raw('DATE(created_at)'), $timeIntervals)
-            ->get();
-
-        foreach ($contracts as $contract) {
-            $client = $contract->client;
-
-            if (!$client) {
-                continue;
+            if ($key == '24hours') {
+                $hebKey = '24 שעות';
+            } elseif ($key == '3days') {
+                $hebKey = '3 ימים';
+            } elseif ($key == '7days') {
+                $hebKey = '7 ימים';
             }
 
-            $offer = $contract->offer;
-            $services = $offer ? json_decode($offer->services, true) : [];
-            $serviceNames = $this->getServiceNames($services);
-            $property = $this->getProperty($services);
+            if ($contracts->count() > 0) {
+                // Send one team notification per time interval
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
+                    "notificationData" => [
+                        'pending_contracts_count' => $contracts->count(),
+                        'time_interval' => $hebKey
+                    ]
+                ]));
+            }
 
-            foreach ($timeIntervals as $key => $date) {
-                if ($contract->created_at->toDateString() === $date && !$this->notificationSent($client->id, $key)) {
-                    $this->sendNotifications($client, $contract, $offer, $serviceNames, $property, $key);
-                    $this->storeNotificationMeta($client->id, $key);
+            foreach ($contracts as $contract) {
+                $client = $contract->client;
+                $offer = $contract->offer;
+
+                if (!$client || $this->notificationSent($client->id, $key)) {
+                    continue;
                 }
+
+                $services = $offer ? json_decode($offer->services, true) : [];
+                $serviceNames = $this->getServiceNames($services);
+                $property = $this->getProperty($services);
+
+                $this->sendNotificationsToClient($client, $contract, $offer, $serviceNames, $property);
+                $this->storeNotificationMeta($client->id, $key);
             }
         }
 
@@ -91,7 +108,7 @@ class ContractReminder extends Command
         return ClientMetas::where('client_id', $clientId)->where('key', $metaKey)->exists();
     }
 
-    private function sendNotifications($client, $contract, $offer, $serviceNames, $property, $timeKey)
+    private function sendNotificationsToClient($client, $contract, $offer, $serviceNames, $property)
     {
         $offerArr = [
             'services' => $serviceNames,
@@ -106,15 +123,8 @@ class ContractReminder extends Command
                 'property' => $property,
             ]
         ]));
-
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
-            "notificationData" => [
-                'client' => $client->toArray(),
-                'contract' => $contract->toArray(),
-            ]
-        ]));
     }
+
 
     private function storeNotificationMeta($clientId, $timeKey)
     {

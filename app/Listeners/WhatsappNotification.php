@@ -469,6 +469,10 @@ class WhatsappNotification
 
             if (isset($eventData)) {
                 $workerHearingLink = generateShortUrl(isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '', 'worker');
+                $leadsLink = generateShortUrl(url("admin/leads"), 'admin');
+                $offersLink = generateShortUrl(url("admin/offered-price"), 'admin');
+                $contractsLink = generateShortUrl(url("admin/contracts"), 'admin');
+                $workerLeadsLink = generateShortUrl(url("admin/worker-leads"), 'admin');
             }
 
             $commentBy = "";
@@ -516,6 +520,15 @@ class WhatsappNotification
                 ':reschedule_call_time' => $eventData['activity']['reschedule_time'] ?? '',
                 ':activity_reason' => $eventData['activity']['reason'] ?? '',
                 ':cancellation_fee' => $cancellationFee ?? '',
+                ':leads_link' => $leadsLink ?? '',
+                ':offers_link' => $offersLink ?? '',
+                ':contracts_link' => $contractsLink ?? '',
+                ':worker_leads_link' => $workerLeadsLink ?? '',
+                ':pending_lead_count' => $eventData['pending_lead_count'] ?? '',
+                ':pending_offer_count' => $eventData['pending_offer_count'] ?? '',
+                ':pending_contracts_count' => $eventData['pending_contracts_count'] ?? '',
+                ':worker_lead_count' => $eventData['worker_lead_count'] ?? '',
+                ':time_interval' => $eventData['time_interval'] ?? '',
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];
@@ -537,6 +550,7 @@ class WhatsappNotification
             $eventData = $eventData->notificationData;
             $isTwilio = false;
             $data = null;
+            $attachFile = null;
 
             $headers = array();
             $url = "https://graph.facebook.com/v18.0/" . config('services.whatsapp_api.from_id') . "/messages";
@@ -1672,6 +1686,17 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
+                        $file = $eventData['attach_file_name'] ?? null;
+                        if ($file) {
+                            $attachFile = storage_path('app/public/' . $file);
+                        }
+
+                        // \Log::info($file);
+                        // if ($file) {
+                        //     $attachFile = asset("storage/" . $file);
+                        //     \Log::info($attachFile);
+                        // }
+
                         // if($lng == "heb"){
                         //     $sid = "HX161d40f9cd389eef365117c0d19f0fb6";
                         // }elseif($lng == "spa"){
@@ -2155,7 +2180,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HXc38fe7044317f43f6329bd03340a584f" : "HX579c271765c269bd53b23a918b3aaab3";
+                        $sid = $lng == "heb" ? "HX6479d8fbd0c980f54d5cc783a514de0f" : "HX01315524ec8acad1bbd75436bd0a9dd7";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+" . $receiverNumber,
@@ -2717,7 +2742,7 @@ class WhatsappNotification
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
 
-                        $sid = $lng == "heb" ? "HX473ceaea93af7896f9f1cb87d1ce9cd3" : "HX28deed9e746319b527f11298ac237ef3";
+                        $sid = $lng == "heb" ? "HX173db9ece76db28630dd2d641d591d01" : "HX2f086178179402d5e6b0ca3c75785de6";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+" . $receiverNumber,
@@ -3097,6 +3122,7 @@ class WhatsappNotification
                         break;
                 }
             }
+
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
@@ -3151,6 +3177,14 @@ class WhatsappNotification
                         StoreWorkerWebhookResponse($text, $receiverNumber, $data);
                     } else {
                         StoreWebhookResponse($text, $receiverNumber, $data);
+                    }
+
+                    if ($attachFile) {
+                        sendWhatsappFileMessage(
+                            $receiverNumber,
+                            $attachFile,
+                            ''
+                        );
                     }
 
                     Log::info($response->json());

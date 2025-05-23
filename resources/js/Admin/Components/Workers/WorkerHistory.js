@@ -14,7 +14,6 @@ import WhatsappChatHistory from "./WhatsappChatHistory";
 export default function WorkerHistory({ worker, getWorkerDetails }) {
     const { t } = useTranslation();
     const [days, setDays] = useState([]);
-    console.log(worker);
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",

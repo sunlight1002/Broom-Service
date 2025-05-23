@@ -58,7 +58,7 @@ class JobNotFinishOnTimeNotification extends Command
                       ->where('key', 'worker_notify_on_job_time_over');
             })
             ->whereDate('start_date', now())
-            ->whereRaw("STR_TO_DATE(end_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
+            ->whereRaw("STR_TO_DATE(end_time, '%H:%i:%s') < ?", [now()->format('H:i:s')])
             ->whereNotNull('job_opening_timestamp')
             ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
             ->get();

@@ -44,16 +44,20 @@ class NotifyTeamToUpdateLeadStatus extends Command
     {
         $clients = Client::where('created_at', '<=', Carbon::now()->subHours(24))->whereHas('lead_status', function ($q) {
             $q->whereIn('lead_status', ['pending']);
-        })->whereDate('created_at', '>=', Carbon::now()->subDays(30))->get();
+        })->whereDate('created_at', '>=', Carbon::now()->subDays(30))->count();
 
-        foreach ($clients as $client) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
+        \Log::info($clients);
+
+        if ($clients == 0) {
+            return 0;
         }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
+            "notificationData" => [
+                'pending_lead_count' => $clients,
+            ]
+        ]));
 
         return 0;
     }
