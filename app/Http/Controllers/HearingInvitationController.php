@@ -343,19 +343,21 @@ class HearingInvitationController extends Controller
                 'id' => $invitation->id,
                 'attach_file_name' => $invitation->file
             ];
-            \Log::info($teamName);
-            \Log::info($notificationData);
             event(new WhatsappNotificationEvent([
                 'type' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
                 'notificationData' => $notificationData
             ]));
 
-            App::setlocale($worker->lng == "heb" ? "heb" : "en");
+            App::setlocale($worker->lng);
+            $attachFile = storage_path('app/public/' . $invitation->file);
 
-            Mail::send('/Mails/worker/WorkerHearingMail', ["data" => $notificationData], function ($message) use ($notificationData, $worker) {
-                $message->to($worker->email);
+            Mail::send('/Mails/worker/WorkerHearingMail', ["data" => $notificationData], function ($message) use ($attachFile, $worker) {
+                $message->to("pratik.panchal@spexiontechnologies.com");
                 $message->bcc(config('services.mail.default'));
                 $message->subject(__('mail.hearing.subject'));
+                if($attachFile){
+                    $message->attach($attachFile);
+                }
             });
         }
 

@@ -1018,7 +1018,9 @@ return [
     "hearing" => [
         'subject' => 'לוח זמנים לשימוע',
         'salutation' => "שלום, :worker_name",
-        'body' => "רק תזכורת ידידותית לכך שהשימוע שלך :team_name לתאריך :date בין :start_time ל- :end_time נקבע.",
+        'body' => "זוהי תזכורת כי נקבע לך שימוע עם :team_name ביום :hearing_date בין השעות :start_time ל-:end_time.",
+        'attachment' => 'מצ\"ב מכתב הזימון לשימוע לעיונך.',
+        'confirm' => "לאישור או דחיית המועד, נא לחצו על הקישור",
         'accpet_reject' => "אישור/דחייה",
         'regards' => "בברכה,",
         'signature' => "ברום סרוויס צוות"

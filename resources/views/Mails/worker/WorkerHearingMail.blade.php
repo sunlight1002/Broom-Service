@@ -28,35 +28,23 @@
         <p style="text-align: center; font-size: 16px; line-height: 1.6; color: #444;">
             {{ __('mail.hearing.body', [
                 'team_name' => $data['team']['name'] ?? '-',
-                'date' => \Carbon\Carbon::parse($data['start_date'])->format('d-m-Y'),
+                'hearing_date' => \Carbon\Carbon::parse($data['start_date'])->format('d-m-Y'),
                 'start_time' => \Carbon\Carbon::parse($data['start_time'])->format('H:i'),
                 'end_time' => \Carbon\Carbon::parse($data['end_time'])->format('H:i')
             ]) }}
         </p>
 
-        <!-- <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+        <p style="font-size: 14px; margin-top: 10px; text-align: left; color: #444;">
+            {{ __('mail.hearing.attachment') }}
+        </p>
 
-        <table style="width: 100%; font-size: 15px; color: #333;">
-            <tr>
-                <td style="padding: 10px 0;"><strong>{{ __('Purpose') }}:</strong></td>
-                <td style="padding: 10px 0;">{{ $data['purpose'] ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px 0;"><strong>{{ __('Team') }}:</strong></td>
-                <td style="padding: 10px 0;">{{ $data['team'] ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px 0;"><strong>{{ __('Date') }}:</strong></td>
-                <td style="padding: 10px 0;">{{ \Carbon\Carbon::parse($data['start_date'])->format('d-m-Y') }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px 0;"><strong>{{ __('Time') }}:</strong></td>
-                <td style="padding: 10px 0;">
-                    {{ \Carbon\Carbon::parse($data['start_time'])->format('H:i') }} - 
-                    {{ \Carbon\Carbon::parse($data['end_time'])->format('H:i') }}
-                </td>
-            </tr>
-        </table> -->
+        <p style="font-size: 14px; margin-top: 10px; text-align: left; color: #444;">
+            {{ __('mail.hearing.confirm') }}
+        </p>
+        <div style="margin-top: 30px; text-align: center">
+            <a href='{{ url("hearing-schedule/".base64_encode($data['id']))}}' target="_blank"
+                style="padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 4px; cursor: pointer;">{{ __('mail.hearing.accpet_reject') }}</a>
+        </div>
 
         <p style="font-size: 14px; margin-top: 30px; text-align: left; color: black;">
             {{ __('mail.hearing.regards') }}

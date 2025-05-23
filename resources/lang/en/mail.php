@@ -965,7 +965,9 @@ return [
     "hearing" => [
         'subject' => 'Hearing Schedule',
         'salutation' => "Hello, :worker_name",
-        'body' => "Just a friendly reminder that your hearing :team_name on :date between :start_time to :end_time has been scheduled.",
+        'body' => "This is a reminder that your hearing with :team_name has been scheduled for :hearing_date, between :start_time and :end_time.",
+        'attachment' => 'Please review the attached hearing invitation letter.',
+        'confirm' => "To confirm your availability, click the following button",
         'accpet_reject' => "Accept/Reject",
         'regards' => "Best Regards,",
         'signature' => "Broom Service Team"

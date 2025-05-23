@@ -565,6 +565,15 @@ return [
         'expiration' => 'Por favor, utiliza este OTP para continuar con tu inicio de sesión. El OTP expirará en 10 minutos.',
     ],
 
-
+    "hearing" => [
+        'subject' => 'Calendario de audiencias',
+        'salutation' => "Hola, :worker_name",
+        'body' => "Este es un recordatorio de que tu audiencia con :team_name está programada para el :hearing_date entre las :start_time y las :end_time.",
+        'attachment' => 'Por favor revisa la carta de invitación adjunta. ',
+        'confirm' => "Para confirmar o rechazar tu participación, haz clic en el siguiente enlace",
+        'accpet_reject' => "Aceptar / Rechazar",
+        'regards' => "Saludos cordiales,",
+        'signature' => "Equipo de Broom Service"
+    ]
     
 ];
