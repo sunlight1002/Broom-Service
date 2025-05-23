@@ -379,7 +379,7 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                                     value={claimText}
                                     onChange={(e) => setClaimText(e.target.value)}
                                     placeholder="Enter claim details here..."
-                                    required
+                                    required                                    
                                 />
                             </div>
                         </div>
@@ -397,7 +397,7 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                     <Button
                         type="button"
                         onClick={handleClaimSubmit}
-                        className="btn btn-primary"
+                        className="btn btn-primary"                                                     
                     >
                         {t("global.send")}
                     </Button>

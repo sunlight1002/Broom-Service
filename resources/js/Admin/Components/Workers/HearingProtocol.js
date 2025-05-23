@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';                                                 
+import axios from 'axios';                                                      
 import Sidebar from '../../Layouts/Sidebar';
 import { useParams } from 'react-router-dom';
 
 const HearingProtocol = () => {
-    const [file, setFile] = useState(null);
-    const [responses, setResponses] = useState('');
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const params = useParams();
@@ -22,12 +20,14 @@ const HearingProtocol = () => {
         if (workerId) {
             axios.get(`/api/admin/hearing-protocol/comments?worker_id=${workerId}`, { headers })
                 .then(response => {
-                    if (response.data && response.data.comments) {
-                        // Populate the messages with comments
-                        setMessages(response.data.comments.map(comment => ({
-                            type: 'comment',
-                            content: comment,
-                        })));
+                    if (response.data && response.data.comment) {
+                        setMessages(prev => [
+                            ...prev,
+                            {
+                                type: 'comment',
+                                content: response.data.comment,
+                            }
+                        ]);
                     }
                 })
                 .catch(error => {
@@ -36,47 +36,46 @@ const HearingProtocol = () => {
                 });
         }
     }, [workerId]);
+    
 
-    const handleAdminSubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-
-        if (file) {
-            if (file.type !== 'application/pdf') {
-                setError('Please upload a valid PDF file.');
-                return;
-            }
-            formData.append('file', file);
-        } else {
-            setError('No file selected. Please select a file to upload.');
-            return;
-        }
-
-        if (workerId) {
-            formData.append('worker_id', workerId);
-        } else {
+    const handleGenerateDocument = async () => {
+        if (!workerId) {
             setError('Worker ID is missing.');
             return;
         }
-
+    
         try {
-            await axios.post('/api/admin/hearing-protocol', formData, { headers });
-            setMessages((prev) => [...prev, { type: 'admin', content: file.name }]);
-            setFile(null);
+            
+            const invitationResponse = await axios.get(
+                `/api/admin/hearing-protocol/latest-invitation?worker_id=${workerId}`,
+                { headers }
+            );
+    
+            const hearingInvitationId = invitationResponse.data.hearing_invitation_id;    
+
+            const response = await axios.post(
+                '/api/admin/hearing-protocol',
+                {
+                    worker_id: workerId,
+                    hearing_invitation_id: hearingInvitationId,
+                    pdf_name: 'Protocol_' + workerId,
+                },
+                { headers }
+            );
+    
+            const filePath = response.data.path;
+    
+            setMessages((prev) => [
+                ...prev,
+                {
+                    type: 'admin',
+                    content: `${filePath}`,
+                },
+            ]);
             setError('');
         } catch (error) {
-            console.error("Error submitting document:", error);
-            setError('Failed to submit document. Please try again.');
-        }
-    };
-
-    const handleWorkerSubmit = (e) => {
-        e.preventDefault();
-        if (responses.trim()) {
-            setMessages((prev) => [...prev, { type: 'worker', content: responses }]);
-            setResponses('');
-        } else {
-            setError('Response cannot be empty.');
+            console.error("Error generating document:", error);
+            setError('Failed to generate protocol document.');
         }
     };
 
@@ -88,30 +87,21 @@ const HearingProtocol = () => {
             <div className="sch-meet">
                 <div className="row mt-4">
                     <div className="col-sm-6">
-                        <div className="flex space-x-6">
-                            <div className="w-1/2 border-r pr-4">
-                                <p className="text-lg font-semibold mb-2">Upload Document</p>
-                                <form onSubmit={handleAdminSubmit} className="space-y-4">
-                                    <input
-                                        type="file"
-                                        className="border rounded w-full p-2"
-                                        onChange={(e) => setFile(e.target.files[0])}
-                                        required
-                                    />
-                                    <button type="submit" className="navyblue text-white px-4 py-2 rounded mt-2">
-                                        Send Document
-                                    </button>
-                                </form>
-                                {error && <p className="mt-4 text-red-500">{error}</p>}
-                            </div>
-                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleGenerateDocument}
+                            className="navyblue text-white px-4 py-2 rounded mt-2"
+                        >
+                            Generate Protocol Document
+                        </button>
 
                         <div className="form-group mt-4">
                             {messages.map((msg, index) => (
                                 <div key={index} className={`flex ${msg.type === 'admin' ? 'justify-start' : msg.type === 'worker' ? 'justify-end' : 'justify-center'}`}>
                                     <div className={`p-3 rounded-lg max-w-xs ${msg.type === 'admin' ? 'bg-blue-100 text-left' : msg.type === 'worker' ? 'bg-green-100 text-right' : 'bg-gray-100 text-left'}`}>
                                         {msg.type === 'admin' ? (
-                                            <span>Document Uploaded: {msg.content}</span>
+                                            <span>Document Generated: {msg.content}</span>
                                         ) : msg.type === 'worker' ? (
                                             <span>Worker response: {msg.content}</span>
                                         ) : (
@@ -126,7 +116,6 @@ const HearingProtocol = () => {
             </div>
         </div>
     </div>
-
     );
 };
 

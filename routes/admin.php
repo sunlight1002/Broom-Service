@@ -48,6 +48,7 @@ use App\Http\Controllers\HearingProtocolController;
 use App\Http\Controllers\ScheduleChangeController;
 use App\Http\Controllers\HearingCommentController;
 use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\DecisionController;
 use App\Http\Controllers\WhapiController;
 // use App\Http\Controllers\Admin\ChangeWorkerController;
 
@@ -426,11 +427,18 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/scheduled-hearings/{id}', [HearingInvitationController::class, 'getScheduledHearings']);
     Route::delete('/hearing/{id}', [HearingInvitationController::class, 'destroy']);
 
+    Route::get('/hearing-protocol/latest-invitation', [HearingProtocolController::class, 'latestHearingInvitation']);
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
     Route::get('/hearing-protocol/comments', [HearingCommentController::class, 'getComments']);
+    
+    Route::get('/hearing-protocol/latest_invitation', [DecisionController::class, 'latest_Hearing_Invitation']);
+    Route::post('/final-decision', [DecisionController::class, 'store']);
+
+    // Route::post('/final-letter', [DecisionController::class, 'generateFinalLetter']);
 
     Route::post('/claims', [ClaimController::class, 'store']);
     Route::get('/claims/{workerId}', [ClaimController::class, 'showWorkerClaims']);
+    
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);

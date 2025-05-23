@@ -14,6 +14,9 @@ export default function Document({ worker, getWorkerDetails }) {
     const [documents, setDocuments] = useState([]);
     const [isOpenDocumentModal, setIsOpenDocumentModal] = useState(false);
 
+    const params = useParams();
+    const workerId = params.id;
+    
     const alert = useAlert();
 
     const headers = {
@@ -87,6 +90,37 @@ export default function Document({ worker, getWorkerDetails }) {
 
         setIsOpenDocumentModal(true);
     };
+
+    // const handleFinalLetter = async () => {
+    //     if (!workerId) {
+    //         setError('Worker ID is missing.');
+    //         return;
+    //     }
+    
+    //     try {
+    //         const response = await axios.post(
+    //             '/api/admin/final-letter',
+    //             {
+    //                 worker_id: workerId,
+    //             },
+    //             { headers }
+    //         );
+    
+    //         const filePath = response.data.path;
+    
+    //         setMessages((prev) => [
+    //             ...prev,
+    //             {
+    //                 type: 'admin',
+    //                 content: `${filePath}`,
+    //             },
+    //         ]);
+    //         setError('');
+    //     } catch (error) {
+    //         console.error("Error generating document:", error);
+    //         setError('Failed to generate final letter.');
+    //     }
+    // };  
 
     const handleDocSubmit = (data) => {
         save(data);
@@ -255,6 +289,14 @@ export default function Document({ worker, getWorkerDetails }) {
                 >
                     {t("global.addDocument")}
                 </button>
+
+                {/* <button
+                    type="button"
+                    onClick={handleFinalLetter}
+                    className="btn btn-success m-3"
+                >
+                    Final Letter
+                </button> */}
 
             </div>
             <DocumentList

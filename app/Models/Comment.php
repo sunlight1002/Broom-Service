@@ -13,6 +13,7 @@ class Comment extends Model
         'relation_type',
         'relation_id',
         'comment',
+        'user_id',
         'commenter_type',
         'commenter_id',
         'valid_till'

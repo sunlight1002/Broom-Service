@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\HearingProtocol;
+use App\Models\Comment;
 
 class HearingCommentController extends Controller
 {
@@ -15,16 +16,21 @@ class HearingCommentController extends Controller
             'comment' => 'required|string|max:500',
         ]);
 
-        $protocol = HearingProtocol::where('worker_id', $request->worker_id)
-            ->latest()
-            ->first();
+        // $protocol = HearingProtocol::where('worker_id', $request->worker_id)
+        //     ->latest()
+        //     ->first();
 
-        if (!$protocol) {
-            return response()->json(['message' => 'Protocol not found.'], 404);
-        }
+        // if (!$protocol) {
+        //     return response()->json(['message' => 'Protocol not found.'], 404);
+        // }
 
-        $protocol->comment = $request->comment;
-        $protocol->save();
+        // $protocol->comment = $request->comment;
+        // $protocol->save();
+
+        Comment::create([
+            'user_id' => $request->worker_id,
+            'comment' => $request->comment,
+        ]);
 
         return response()->json(['message' => 'Comment submitted successfully!'], 200);
     }
@@ -35,14 +41,14 @@ class HearingCommentController extends Controller
             'worker_id' => 'required|exists:users,id',
         ]);
 
-        $protocol = HearingProtocol::where('worker_id', $request->worker_id)
-            ->latest()
-            ->first();
+        $comment = Comment::where('user_id', $request->worker_id)
+        ->latest()
+        ->first();
 
-        if (!$protocol) {
-            return response()->json(['message' => 'Protocol not found.'], 404);
+        if (!$comment) {
+            return response()->json(['message' => 'No comment found.'], 404);
         }
 
-        return response()->json(['comments' => [$protocol->comment]], 200);
+        return response()->json(['comment' => $comment->comment], 200);
     }
 }

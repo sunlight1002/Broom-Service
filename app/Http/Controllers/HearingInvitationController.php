@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 
-
 class HearingInvitationController extends Controller
 {
     /**
@@ -48,7 +47,7 @@ class HearingInvitationController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info($request->all());
+        Log::info($request->all());
 
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
@@ -217,8 +216,7 @@ class HearingInvitationController extends Controller
                 </body>
                 </html>';
                 break;
-
-
+            
             case 'ru':
                 $purposes = $request->input('purpose');
 
@@ -227,43 +225,77 @@ class HearingInvitationController extends Controller
                     $purposes = array_filter(array_map('trim', $purposes));
                 }
 
-                $purposeListHtml = implode('', array_map(function ($text, $i) {
-                    return '<li>' . htmlspecialchars($text) . '</li>';
-                }, $purposes, array_keys($purposes)));
+                $purposeListHtml = '';
+                if (!empty($purposes)) {
+                    foreach ($purposes as $text) {
+                        $purposeListHtml .= '<li>' . htmlspecialchars($text) . '</li>';
+                    }
+                } else {
+                    for ($i = 1; $i <= 4; $i++) {
+                        $purposeListHtml .= '<li>__________________________</li>';
+                    }
+                }
 
                 $htmlContent = '
                 <html>
                 <head>
+                    <meta charset="UTF-8">
                     <style>
-                        body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.7; }
-                        .header { text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 25px; }
-                        .content { margin: 20px; }
-                        .content p { margin-bottom: 10px; }
-                        .footer { margin-top: 40px; text-align: left; }
-                        .date { text-align: right; }
-                        .honor { text-align: left; }
-                        ol { margin-left: 20px; }
+                        body {
+                            font-family: DejaVu Sans, Arial, sans-serif;
+                            font-size: 11pt;
+                            line-height: 1.7;
+                            direction: ltr;
+                            text-align: left;
+                        }
+                        .header {
+                            text-align: center;
+                            font-size: 16pt;
+                            font-weight: bold;
+                            margin: 25px 0;
+                        }
+                        .content {
+                            margin: 30px;
+                        }
+                        .content p {
+                            margin-bottom: 12px;
+                        }
+                        .right {
+                            text-align: right;
+                        }
+                        ol {
+                            margin-left: 20px;
+                            list-style-position: inside;
+                        }
                     </style>
                 </head>
                 <body>
                     <div class="content">
-                        <p class="date">Дата: ' . $request->input('start_date') . '</p>
-                        <p class="honor">В честь: ' . ($worker->firstname . ' ' . $worker->lastname) . '</p>
+                        <p class="right"><strong>Дата:</strong> ' . ($request->input('start_date') ?? '__________') . '</p>
+                        <p><strong>В честь:</strong> ' . ($worker->firstname . ' ' . $worker->lastname ?? '______________') . '</p>
+
                         <div class="header">Вызов на слушание</div>
-                        <p>Мы хотели бы сообщить вам, что ' . $request->input('start_date') . ', в ' . $startTime . ', перед г-жой/г-ном ' . ($teamName ?? 'Не указано') . ', ' . ($teamName ? 'руководитель команды' : 'Должность не указана') . ', в офисе компании будет проведено слушание для рассмотрения вашего дальнейшего трудоустройства в компании по следующим причинам:</p>
-                        <ol style="direction: ltr; text-align: left; list-style-position: inside; padding-left: 7px; margin-left: 0;">
+
+                        <p>Мы хотели бы сообщить вам, что ' . ($request->input('start_date') ?? '________') . ', в ' . ($startTime ?? '______') . ', перед г-жой/г-ном ' . ($teamName ?? '___________') . ', ' . ($teamName ? 'руководитель команды' : '_________') . ', в офисе компании будет проведено слушание для рассмотрения вашего дальнейшего трудоустройства в компании. следующие причины:</p>
+
+                        <ol>
                             ' . $purposeListHtml . '
                         </ol>
+
                         <p>К вашему сведению, кредитор/юрист также может участвовать в слушании от вашего имени. Кроме того, вы можете ответить в письменном виде на то, что утверждается в этом письме, и приложить любой документ, подтверждающий ваши аргументы.</p>
+
                         <p>Слушание будет проводиться открыто и добросовестно, и мы учтем ваши запросы/претензии, насколько это возможно.</p>
-                    </div>
-                    <div class="footer">
-                        <p>Искренне,</p>
-                        <p>' . ($teamName ?? 'Не указано') . '</p>
+
+                        <br><br>
+                        <div class="right">
+                            <p>Искренне,</p>
+                            <p>' . ($teamName ?? 'Team One') . '</p>
+                        </div>
                     </div>
                 </body>
                 </html>';
                 break;
+
 
             default:
                 $purposes = $request->input('purpose');
