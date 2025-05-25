@@ -2426,21 +2426,27 @@ Your message has been forwarded to the team for further handling. Thank you for 
         }
 
         $phone = $request->phone;
-        $phone = preg_replace('/\D/', '', $phone);
 
-        // Check if the phone number starts with '0'
-        if (strpos($phone, '0') === 0) {
-            // Remove the leading '0' and prepend '972'
-            $phone = '972' . substr($phone, 1);
-        } elseif (strpos($phone, '972') === 0) {
-            // If the phone already starts with '972', leave it as is
-            // Ensure no leading '+'
-            $phone = ltrim($phone, '+');
-        } elseif (strpos($phone, '+') === 0) {
-            // If the phone starts with '+', remove the '+'
-            $phone = substr($phone, 1);
-        } else {
-            // If no country code is present, prepend '972'
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // 2. If there's any string or invalid characters in the phone, extract the digits
+        if (preg_match('/\d+/', $phone, $matches)) {
+            $phone = $matches[0]; // Extract the digits
+
+            // Reapply rules on extracted phone number
+            // If the phone number starts with 0, add 972 and remove the first 0
+            if (strpos($phone, '0') === 0) {
+                $phone = '972' . substr($phone, 1);
+            }
+
+            // If the phone number starts with +, remove the +
+            if (strpos($phone, '+') === 0) {
+                $phone = substr($phone, 1);
+            }
+        }
+
+        $phoneLength = strlen($phone);
+        if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
             $phone = '972' . $phone;
         }
 
