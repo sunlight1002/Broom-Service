@@ -1104,7 +1104,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                 - Kfar Shmaryahu
                                 - Rishpon
                                 - Herzliya
-    
+
                                 To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
                                 'he' => 'אנו מספקים שירות באזור 🗺️:
                                 - תל אביב
@@ -1116,7 +1116,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                 - כפר שמריהו
                                 - רשפון
                                 - הרצליה
-    
+
                                 לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
@@ -2458,6 +2458,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
             $lead->lng = 'heb';
             $lead->password = Hash::make(Str::random(20));
             $lead->passcode = $phone;
+            $lead->source = 'website';
             $lead->save();
 
             $lead->lead_status()->updateOrCreate(
@@ -2538,6 +2539,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     ]);
 
                     $lead->status = 0;
+                    $lead->source = 'website';
                     $lead->save();
 
                     // Create a notification

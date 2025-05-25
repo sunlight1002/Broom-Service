@@ -53,7 +53,7 @@ class FetchFacebookLeads extends Command
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->twilioAccountSid = config('services.twilio.twilio_id');
         $this->twilioAuthToken = config('services.twilio.twilio_token');
         $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
@@ -93,7 +93,7 @@ class FetchFacebookLeads extends Command
             }
 
             $pagesData = $pagesResponse->json();
-            
+
             foreach ($pagesData['data'] as $page) {
                 $pageId = $page['id'];
                 $pageName = $page['name'];
@@ -163,7 +163,7 @@ class FetchFacebookLeads extends Command
                         if ($afterCursor) {
                             $leadsParams['after'] = $afterCursor;
                         }
-                        
+
                         $leadsResponse = Http::withToken($pageAccessToken)
                             ->get($baseUrl . "$formId/leads", $leadsParams);
 
@@ -214,7 +214,7 @@ class FetchFacebookLeads extends Command
                             $client = Client::where('phone', $phone)
                                 ->first();
                             if ($client) {
-                               
+
                                  // Check if the client has a "verified" contract
                                 $hasVerifiedContract = $client->contract()->where('status', 'verified')->exists();
 
@@ -225,12 +225,12 @@ class FetchFacebookLeads extends Command
 
                                 if ($client->lead_status) {
                                     $leadStatus = $client->lead_status;
-                                    $leadUpdatedAt = $leadStatus->updated_at; 
-                                    $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING 
+                                    $leadUpdatedAt = $leadStatus->updated_at;
+                                    $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING
                                         && $leadUpdatedAt->diffInDays(now()) > 2;
 
                                     $isLeadStatus = !in_array($leadStatus->lead_status, ['active client', 'freeze client', 'pending client']);
-                                
+
                                     if ($isPendingForMoreThanTwoDays || $isLeadStatus) {
                                         $client->lead_status()->updateOrCreate(
                                             [],
@@ -244,10 +244,11 @@ class FetchFacebookLeads extends Command
                                             'changes_status' => LeadStatusEnum::PENDING,
                                             'reason' => "Facebook lead arrived",
                                         ]);
-                                
+
                                         $client->status = 0;
+                                        $client->source = "fblead";
                                         $client->save();
-                                
+
                                         // Create a notification
                                         Notification::create([
                                             'user_id' => $client->id,
@@ -255,9 +256,9 @@ class FetchFacebookLeads extends Command
                                             'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
                                             'status' => 'created'
                                         ]);
-                                
+
                                         $client->load('property_addresses');
-                                        
+
                                         // Trigger WhatsApp notification
                                         event(new WhatsappNotificationEvent([
                                             "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
@@ -268,7 +269,7 @@ class FetchFacebookLeads extends Command
                                         ]));
                                     }
                                 }
-                                
+
 
                                 // Update the existing client
                                 // $client->update([
@@ -317,8 +318,8 @@ class FetchFacebookLeads extends Command
                                         $twi = $this->twilio->messages->create(
                                             "whatsapp:+$client->phone",
                                             [
-                                                "from" => $this->twilioWhatsappNumber, 
-                                                "contentSid" => $sid, 
+                                                "from" => $this->twilioWhatsappNumber,
+                                                "contentSid" => $sid,
                                             ]
                                         );
                                         StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
@@ -379,10 +380,10 @@ class FetchFacebookLeads extends Command
                                 // Update lead_count for the campaign
                                 $facebookInsight->increment('lead_count', 1);
 
-                                
+
                             }
 
-                     
+
                         }
 
                         // Check for pagination
