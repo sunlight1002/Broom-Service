@@ -346,7 +346,8 @@ export default function Contract() {
 
         $(tableRef.current).on("click", ".dt-client-contract-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/work-contract/${_id}`);
+            const url = `/work-contract/${_id}`;
+            window.open(url, '_blank');
         });
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
