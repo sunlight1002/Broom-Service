@@ -338,7 +338,12 @@
         "sub_filter": "Sub Filter",
         "select_date_to_change": "Select Date To Change",
         "select_client": "Select Client",
-        "change_shift": "Change Shift"
+        "change_shift": "Change Shift",
+        "supervisor": "Supervisor",
+        "assign_supervisor": "Assign Supervisor",
+        "assign_supervisor_jobs": "Assign Supervisor Jobs",
+        "assign_job_to_supervisor": "Assign Job To Supervisor",
+        "supervisor_jobs": "Supervisor Jobs"
     },
     "modal": {
         "title": "Modal",

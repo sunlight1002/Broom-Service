@@ -42,42 +42,42 @@ export default function AdminHeader() {
         });
     };
 
-axios.interceptors.response.use(
-    response => response,
-    error => {
-        if (error.response) {
-            const url = error.config?.url;
-            console.log("Axios Interceptor caught an error:", url);
-            console.log("Status:", error.response.status);
+    axios.interceptors.response.use(
+        response => response,
+        error => {
+            if (error.response) {
+                const url = error.config?.url;
+                console.log("Axios Interceptor caught an error:", url);
+                console.log("Status:", error.response.status);
 
-            // List of URLs where a 401 should NOT trigger logout
-            const skipLogoutUrls = ['/api/admin/notice', '/api/admin/seen'];
+                // List of URLs where a 401 should NOT trigger logout
+                const skipLogoutUrls = ['/api/admin/notice', '/api/admin/seen'];
 
-            const shouldSkip = skipLogoutUrls.some(skipUrl =>
-                url?.includes(skipUrl)
-            );
+                const shouldSkip = skipLogoutUrls.some(skipUrl =>
+                    url?.includes(skipUrl)
+                );
 
-            if (error.response.status === 401 && !shouldSkip) {
-                console.warn("401 Unauthorized - clearing admin localStorage");
+                if (error.response.status === 401 && !shouldSkip) {
+                    console.warn("401 Unauthorized - clearing admin localStorage");
 
-                localStorage.removeItem('admin-token');
-                localStorage.removeItem('admin-name');
-                localStorage.removeItem('admin-id');
-                localStorage.removeItem('admin-email');
-                localStorage.removeItem('admin-lng');
-                localStorage.removeItem('admin-role');
-                localStorage.removeItem('i18nextLng');
+                    localStorage.removeItem('admin-token');
+                    localStorage.removeItem('admin-name');
+                    localStorage.removeItem('admin-id');
+                    localStorage.removeItem('admin-email');
+                    localStorage.removeItem('admin-lng');
+                    localStorage.removeItem('admin-role');
+                    localStorage.removeItem('i18nextLng');
 
-                // Only redirect if not already on login
-                if (!window.location.pathname.includes('/admin/login')) {
-                    window.location.href = '/admin/login';
+                    // Only redirect if not already on login
+                    if (!window.location.pathname.includes('/admin/login')) {
+                        window.location.href = '/admin/login';
+                    }
                 }
             }
-        }
 
-        return Promise.reject(error);
-    }
-);
+            return Promise.reject(error);
+        }
+    );
 
 
 

@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 
 class WhatsappNotification
 {
-    protected $twilioAccountSid, $twilioAuthToken, $twilioPhoneNumber, $twilioWorkerLeadWhatsappNumber, $twilio;
+    protected $twilioAccountSid, $twilioAuthToken, $twilioWhatsappNumber, $twilioWorkerLeadWhatsappNumber, $twilio;
     protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $whapiClientApiToken, $whapiWorkerJobApiToken, $translateClient;
 
     /**

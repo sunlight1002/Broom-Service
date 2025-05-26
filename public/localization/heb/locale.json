@@ -333,7 +333,12 @@
         "sub_filter": "סינון משנה",
         "select_date_to_change": "בחר תאריך לשינוי",
         "select_client": "בחר לקוח",
-        "change_shift": "החלפת משמרת"
+        "change_shift": "החלפת משמרת",
+        "supervisor": "מפקח",
+        "assign_supervisor": "הקצה מפקח",
+        "assign_supervisor_jobs": "הקצה עבודות מפקח",
+        "assign_job_to_supervisor": "הקצה עבודה למפקח",
+        "supervisor_jobs": "עבודות מפקח"
     },
     "modal": {
         "title": "מודל",

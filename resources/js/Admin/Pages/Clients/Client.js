@@ -75,7 +75,7 @@ export default function Clients() {
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "/api/admin/clients",
+                    url: "/api/admin/clients?role=" + role,
                     type: "GET",
                     beforeSend: function (request) {
                         request.setRequestHeader(
@@ -84,9 +84,10 @@ export default function Clients() {
                         );
                     },
                     // data: function (d) {
-                    //     d.type = type;
-                    //     // d.action = filters.action;
-                    //     d.lead_status = filter === "All" ? "" : filter;
+                    //     // d.type = type;
+                    //     // // d.action = filters.action;
+                    //     // d.lead_status = filter === "All" ? "" : filter;
+                    //     d.role = role;
                     // },
                 },
                 order: [[0, "desc"]],
@@ -130,18 +131,22 @@ export default function Clients() {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            if (row.has_contract == 1) {
-                                _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
-                            }
+                            if (role == "supervisor") {
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+                            } else {
+                                if (row.has_contract == 1) {
+                                    _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+                                }
 
-                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
 
-                            if(role == "superadmin") {
-                                _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                                if (role == "superadmin") {
+                                    _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                                }
                             }
 
                             _html += "</div> </div>";
@@ -253,10 +258,12 @@ export default function Clients() {
             navigate(`/admin/clients/view/${_id}`);
         });
 
-        $(tableRef.current).on("click", ".dt-change-status-btn", function () {
-            const _id = $(this).data("id");
-            toggleChangeStatusModal(_id);
-        });
+        if (role != "supervisor") {
+            $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+                const _id = $(this).data("id");
+                toggleChangeStatusModal(_id);
+            });
+        }
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
@@ -326,6 +333,7 @@ export default function Clients() {
     };
 
     useEffect(() => {
+
         if (type == "past") {
             $(tableRef.current).DataTable().column(4).search(filters.action).draw();
         } else if (type == null) {
@@ -458,42 +466,48 @@ export default function Clients() {
                                 {t("admin.sidebar.clients")}
                             </h1>
                             <div className="search-data">
-                                <div
-                                    className="App"
-                                    style={{ display: "none" }}
-                                >
-                                    <CSVLink {...csvReport} id="csv">
-                                        {t("admin.global.Export")}
-                                    </CSVLink>
-                                </div>
-                                <div className="mt-4 mr-2">
-                                    <button
-                                        className="btn navyblue"
-                                        onClick={handleShow}
-                                    >
-                                        {t("admin.global.Import")}
-                                    </button>
-                                </div>
-                                <div className=" mt-4 mr-2 d-none d-lg-block">
-                                    <button
-                                        className="btn navyblue ml-2"
-                                        onClick={(e) => handleReport(e)}
-                                    >
-                                        {t("admin.client.Export")}
-                                    </button>
-                                </div>
-                                <div className="mr-2">
-                                    <Link
-                                        to="/admin/clients/create"
-                                        className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
-                                    >
-                                        <i className="btn-icon fas fa-plus-circle"></i>
-                                        {t("admin.client.AddNew")}
-                                    </Link>
-                                </div>
+                                {
+                                    role !== "supervisor" && (
+                                        <>
+                                            <div
+                                                className="App"
+                                                style={{ display: "none" }}
+                                            >
+                                                <CSVLink {...csvReport} id="csv">
+                                                    {t("admin.global.Export")}
+                                                </CSVLink>
+                                            </div>
+                                            <div className="mt-4 mr-2">
+                                                <button
+                                                    className="btn navyblue"
+                                                    onClick={handleShow}
+                                                >
+                                                    {t("admin.global.Import")}
+                                                </button>
+                                            </div>
+                                            <div className=" mt-4 mr-2 d-none d-lg-block">
+                                                <button
+                                                    className="btn navyblue ml-2"
+                                                    onClick={(e) => handleReport(e)}
+                                                >
+                                                    {t("admin.client.Export")}
+                                                </button>
+                                            </div>
+                                            <div className="mr-2">
+                                                <Link
+                                                    to="/admin/clients/create"
+                                                    className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
+                                                >
+                                                    <i className="btn-icon fas fa-plus-circle"></i>
+                                                    {t("admin.client.AddNew")}
+                                                </Link>
+                                            </div>
+                                        </>
+                                    )
+                                }
 
                                 {
-                                    type == "past" && (
+                                    (type == "past" && role !== "supervisor") && (
                                         <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
                                             <button
                                                 type="button"
@@ -587,7 +601,7 @@ export default function Clients() {
                     </div>
                 </div>
                 {
-                    type == "past" && (
+                    (type == "past" && role !== "supervisor") && (
                         <div className="row mb-2 d-none d-lg-block">
                             <div className="col-sm-12 d-flex align-items-center">
                                 <div className="mr-3" style={{ fontWeight: "bold" }}>
@@ -655,7 +669,7 @@ export default function Clients() {
                 }
                 {/* Integrating new FilterButtons section here */}
                 {
-                    type != "past" && type == null && (
+                    (type != "past" && type == null && role !== "supervisor") && (
                         <>
                             <div className="col-sm-12 d-none d-lg-flex align-items-center">
                                 <FilterButtons
@@ -750,7 +764,7 @@ export default function Clients() {
                     )
                 }
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body px-0">
+                    <div className={`card-body px-0 ${role == "supervisor" ? "pt-0" : ""}`}>
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

@@ -51,6 +51,7 @@ class WorkerController extends Controller
         $isMyCompany = $request->get('is_my_company');
         $isFreelancer = $request->get('is_freelancer');
         $isManpower = $request->get('is_manpower');
+        $role = $request->get('role');
 
         $query = User::query()
             ->when($status == "active", function ($q) {
@@ -78,6 +79,10 @@ class WorkerController extends Controller
             ->when($isFreelancer == 'true', function ($q) {
                 return $q->where('company_type', 'freelancer');
             })
+            ->when($role === 'supervisor', function ($q) {
+                $q->where('status', 1)
+                    ->where('created_at', '>=', now()->subMonth());
+            })
             // ->when($status && !$manpowerCompanyID, function ($q) {
             //     return $q->where('company_type', 'my-company');
             // })
@@ -94,7 +99,6 @@ class WorkerController extends Controller
                                 ->orWhere('users.email', 'like', "%" . $keyword . "%")
                                 ->orWhere('users.phone', 'like', "%" . $keyword . "%")
                                 ->orWhere('users.address', 'like', "%" . $keyword . "%");
-
                         });
                     }
                 }
@@ -325,13 +329,13 @@ class WorkerController extends Controller
 
                 $dates = array();
                 foreach ($worker->jobs as $job) {
-                        $slotInfo = [
-                            'job_id' => $job->id,
-                            'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
-                            'slot' => $job->shifts
-                        ];
-    
-                        $dates[$job->start_date][] = $slotInfo;
+                    $slotInfo = [
+                        'job_id' => $job->id,
+                        'client_name' => $job->client->firstname . ' ' . $job->client->lastname,
+                        'slot' => $job->shifts
+                    ];
+
+                    $dates[$job->start_date][] = $slotInfo;
                 }
 
                 $freezeDates = $worker->freezeDates()->where(function ($q) use ($start_date, $end_date) {
@@ -445,30 +449,30 @@ class WorkerController extends Controller
 
         $role = $request->role;
         $lng = $request->lng;
-        if($role == 'cleaner'){
+        if ($role == 'cleaner') {
             if ($lng == "heb") {
                 $role = "מנקה";
-            }elseif ($lng == "en") {
+            } elseif ($lng == "en") {
                 $role = "Cleaner";
-            }elseif ($lng == "ru") {
+            } elseif ($lng == "ru") {
                 $role = "уборщик";
-            }else{
+            } else {
                 $role = "limpiador";
             }
-        }else if($role == 'general_worker'){
+        } else if ($role == 'general_worker') {
             if ($lng == "heb") {
                 $role = "עובד כללי";
-            }elseif ($lng == "en") {
+            } elseif ($lng == "en") {
                 $role = "General worker";
-            }elseif ($lng == "ru") {
+            } elseif ($lng == "ru") {
                 $role = "Общий рабочий";
-            }else{
+            } else {
                 $role = "Trabajador general";
             }
-        }else{
+        } else {
             $role = $request->role;
         }
-        
+
 
         $worker = User::create([
             'firstname'     => $request->firstname,
@@ -578,7 +582,7 @@ class WorkerController extends Controller
         $role = "";
 
         $cleanerRoles = ['Cleaner', 'уборщик', 'מנקה', 'limpiador'];
-    
+
         // Define possible roles for general worker
         $generalWorkerRoles = ['General worker', 'Общий рабочий', 'עובד כללי', 'Trabajador general'];
 
@@ -658,27 +662,27 @@ class WorkerController extends Controller
 
         $role = $request->role;
         $lng = $request->lng;
-        if($role == 'cleaner'){
+        if ($role == 'cleaner') {
             if ($lng == "heb") {
                 $role = "מנקה";
-            }elseif ($lng == "en") {
+            } elseif ($lng == "en") {
                 $role = "Cleaner";
-            }elseif ($lng == "ru") {
+            } elseif ($lng == "ru") {
                 $role = "уборщик";
-            }else{
+            } else {
                 $role = "limpiador";
             }
-        }else if($role == 'general_worker'){
+        } else if ($role == 'general_worker') {
             if ($lng == "heb") {
                 $role = "עובד כללי";
-            }elseif ($lng == "en") {
+            } elseif ($lng == "en") {
                 $role = "General worker";
-            }elseif ($lng == "ru") {
+            } elseif ($lng == "ru") {
                 $role = "Общий рабочий";
-            }else{
+            } else {
                 $role = "Trabajador general";
             }
-        }else{
+        } else {
             $role = $request->role;
         }
 
@@ -1338,7 +1342,8 @@ class WorkerController extends Controller
         return Excel::download(new WorkerSampleExport, 'worker-import-sheet.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
-    public function changeStatus(Request $request){
+    public function changeStatus(Request $request)
+    {
 
         $data = $request->all();
         $worker = User::find($data['workerID']);

@@ -9,6 +9,8 @@ export default function ViewWorker() {
     const { t } = useTranslation();
     const [worker, setWorker] = useState(null);
 
+    const role = localStorage.getItem("admin-role");
+
     const params = useParams();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -45,17 +47,21 @@ export default function ViewWorker() {
                         <div className="col-sm-6">
                             <h1 className="page-title">{t("worker.viewWorker")}</h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <Link
-                                    to={`/admin/workers/edit/${params.id}`}
-                                    className="btn navyblue no-hover addButton"
-                                >
-                                    <i className="btn-icon fas fa-pencil"></i>
-                                    {t("admin.global.Edit")}
-                                </Link>
-                            </div>
-                        </div>
+                        {
+                            role != "supervisor" && (
+                                <div className="col-sm-6">
+                                    <div className="search-data">
+                                        <Link
+                                            to={`/admin/workers/edit/${params.id}`}
+                                            className="btn navyblue no-hover addButton"
+                                        >
+                                            <i className="btn-icon fas fa-pencil"></i>
+                                            {t("admin.global.Edit")}
+                                        </Link>
+                                    </div>
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
                 {worker && (

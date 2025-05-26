@@ -74,6 +74,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
+        $role = $request->query('role');
 
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
@@ -86,6 +87,11 @@ class ClientController extends Controller
             ->whereNotIn('leadstatus.lead_status', ['potential client', 'potential', 'uninterested'])
             ->when($action == 'notbooked', function ($q) {
                 return $q->whereDoesntHave('jobs');
+            })
+            ->when($role === 'supervisor', function ($q) {
+                $q->where('clients.status', 2)
+                    ->whereIn('leadstatus.lead_status', ['active client', 'unhappy'])
+                    ->where('leadstatus.updated_at', '>=', now()->subMonth());
             })
             ->select(
                 'clients.id',
@@ -153,7 +159,7 @@ class ClientController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
-    
+
 
     public function AllClients()
     {
@@ -175,10 +181,10 @@ class ClientController extends Controller
     public function AllActiveClients()
     {
         $clients = Client::where('status', 2)
-        ->whereHas('lead_status', function ($query) {
-            $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
-        })
-        ->get();
+            ->whereHas('lead_status', function ($query) {
+                $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
+            })
+            ->get();
 
         if (!empty($clients)) {
             foreach ($clients as $i => $res) {
@@ -193,7 +199,8 @@ class ClientController extends Controller
         ]);
     }
 
-    public function handledNotifications(Request $request){
+    public function handledNotifications(Request $request)
+    {
         $client = Client::find($request->id);
         $client->disable_notification = $request->disable_notification;
         $client->review_notification = $request->review_notification;
@@ -241,7 +248,7 @@ class ClientController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'invoicename' => ['required', 'string', 'max:255'],
             'vat_number' => ['nullable', 'string', 'max:50'],
-            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(),'unique:clients'],
+            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(), 'unique:clients'],
             'status' => ['required'],
             'passcode' => ['required', 'string', 'min:6'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
@@ -258,7 +265,7 @@ class ClientController extends Controller
         $input = $request->data;
         $input['password'] = Hash::make($input['passcode']);
         $input['source'] = 'CRM';
-        
+
         $client = Client::create($input);
 
         // Create user in iCount
@@ -291,29 +298,29 @@ class ClientController extends Controller
             }
         }
 
-        if($request->send_bot_message) {
+        if ($request->send_bot_message) {
             try {
                 $sid = $client->lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
 
                 $message = $twilio->messages->create(
                     "whatsapp:+$client->phone",
                     [
-                        "from" => "$twilioWhatsappNumber", 
-                        "contentSid" => $sid, 
+                        "from" => "$twilioWhatsappNumber",
+                        "contentSid" => $sid,
                     ]
                 );
                 \Log::info($message->sid);
-                
+
                 $m = $this->botMessages['main-menu']['heb'];
 
                 // $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
 
-        //         WhatsAppBotClientState::updateOrCreate([
-        //             'client_id' => $client->id,
-        //         ], [
-        //             'menu_option' => 'main_menu',
-        //             'language' => 'he',
-        //         ]);
+                //         WhatsAppBotClientState::updateOrCreate([
+                //             'client_id' => $client->id,
+                //         ], [
+                //             'menu_option' => 'main_menu',
+                //             'language' => 'he',
+                //         ]);
 
                 $response = WebhookResponse::create([
                     'status'        => 1,
@@ -751,10 +758,10 @@ class ClientController extends Controller
         // Handle iCount response
         $iCountData = $iCountResponse->json();
 
-       // Handle iCount response
-       if ($iCountResponse->status() != 200) {
-           return response()->json(['error' => 'Failed to delete user in iCount'], 500);
-       }
+        // Handle iCount response
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to delete user in iCount'], 500);
+        }
 
 
         return response()->json([
@@ -1053,7 +1060,7 @@ class ClientController extends Controller
     public function addContactsToClient(Request $request, $clientId)
     {
         \Log::info($request->all());
-    
+
         $request->validate([
             '*.name' => 'required|string|max:255',
             '*.phone' => 'required|string|max:20',
@@ -1062,7 +1069,7 @@ class ClientController extends Controller
             '*.addresses' => 'array',
             '*.addresses.*' => 'exists:client_property_addresses,id',
         ]);
-    
+
         try {
             foreach ($request->all() as $contact) {
                 if (!empty($contact['address_notification']) && !empty($contact['addresses'])) {
@@ -1076,7 +1083,7 @@ class ClientController extends Controller
                         }
                     }
                 }
-    
+
                 if (!empty($contact['payment_notification'])) {
                     $client = Client::find($clientId);
                     if ($client) {
@@ -1087,7 +1094,7 @@ class ClientController extends Controller
                     }
                 }
             }
-    
+
             return response()->json([
                 'message' => 'Contacts added successfully.'
             ], 200);
@@ -1104,28 +1111,28 @@ class ClientController extends Controller
     public function getContactsByClient($id)
     {
         $client = Client::with('property_addresses')->find($id);
-    
+
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found!',
             ], 404);
         }
-    
+
         $propertyAddresses = $client->property_addresses;
         $clientName = $client->contact_person_name;
         $clientPhone = $client->contact_person_phone;
-    
+
         $response = [
-            'exist' => null, 
+            'exist' => null,
             'matched_addresses' => [], // IDs of addresses where details match client
             'unique_addresses' => []   // IDs of addresses with unique details
         ];
-    
+
         // If client contact details exist, mark "exist" as "client"
         if (!empty($clientName) && !empty($clientPhone)) {
             $response['exist'] = 'client';
         }
-    
+
         foreach ($propertyAddresses as $address) {
             if (!empty($address->contact_person_name) && !empty($address->contact_person_phone)) {
                 if ($address->contact_person_name === $clientName && $address->contact_person_phone === $clientPhone) {
@@ -1135,16 +1142,16 @@ class ClientController extends Controller
                 }
             }
         }
-    
+
         return response()->json($response);
     }
-    
 
-    
+
+
     public function clienStatusLog(Request $request)
     {
         $data = $request->all();
-    
+
         $statusArr = [
             LeadStatusEnum::PENDING => 0,
             LeadStatusEnum::POTENTIAL => 0,
@@ -1164,7 +1171,7 @@ class ClientController extends Controller
             LeadStatusEnum::ONE_TIME => 2,
             LeadStatusEnum::PAST => 2,
         ];
-    
+
         $client = Client::find($data['id']);
         if (!$client) {
             return response()->json([
@@ -1173,18 +1180,18 @@ class ClientController extends Controller
         }
         $client->status = $statusArr[$data['status']];
         $client->save();
-    
+
         $newLeadStatus = $data['status'];
-    
+
         if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => $newLeadStatus]
             );
-    
+
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
         }
-    
+
         $client->logs()->create([
             'status' => $statusArr[$data['status']],
             'reason' => $data['reason'],
@@ -1193,7 +1200,7 @@ class ClientController extends Controller
             // 'voice_bot_call_date' => $data['reason'] == 'voice bot' ? $data['reschedule_date'] :  null,
             // 'voice_bot_call_time' => $data['reason'] == 'voice bot' ? $data['reschedule_time'] : null
         ]);
-    
+
         // Log the status change in LeadActivity
         $activity = LeadActivity::create([
             'client_id' => $data['id'],
@@ -1207,13 +1214,13 @@ class ClientController extends Controller
             'voice_bot_call_time' => $data['status'] == 'voice bot' ? $data['reschedule_time'] : null,
             'changed_by' => auth()->user()->id
         ]);
-    
+
         if ($data['status'] == LeadStatusEnum::RESCHEDULE_CALL) {
             // Check if reschedule date is set or use today's date
             $rescheduleDate = isset($data['reschedule_date']) ? Carbon::parse($data['reschedule_date']) : Carbon::today();
             $rescheduleTime = Carbon::createFromFormat('H:i', $data['reschedule_time']);
             $endTime = $rescheduleTime->copy()->addMinutes(30);
-        
+
             $notificationData = [
                 "schedule" => [
                     "id" => $activity->id,
@@ -1229,16 +1236,16 @@ class ClientController extends Controller
                     ],
                 ]
             ];
-        
+
             // Check if today is a holiday or Saturday
             $today = Carbon::today();
             $holidays = Holiday::whereDate('start_date', '<=', $today)
                 ->whereDate('end_date', '>=', $today)
                 ->get();
-        
+
             // Ensure $today is a Carbon instance
             $today = Carbon::today();
-        
+
             // Check if today is a holiday or Saturday
             if ($today->isSaturday() || $holidays->contains(fn($holiday) => $today->between($holiday->start_date, $holiday->end_date))) {
                 // Move notification to the next day (Saturday or holiday)
@@ -1258,20 +1265,20 @@ class ClientController extends Controller
                     "activity" => $activity->toArray(),
                 ]
             ]));
-        
+
             // Dispatch the jobs to save Google calendar event and send notification
             SaveGoogleCalendarCallJob::dispatch($notificationData);
-        
+
             NotifyClientForCallAfterHoliday::dispatch($client, $activity)
                 ->delay($notificationDate->diffInSeconds(now()));
         }
-        
-    
+
+
         return response()->json([
             'message' => 'Status has been changed successfully!',
         ]);
     }
-    
+
 
     public function deleteClientMetaIfExists($clientId)
     {
@@ -1306,5 +1313,4 @@ class ClientController extends Controller
             ]);
         }
     }
-
 }

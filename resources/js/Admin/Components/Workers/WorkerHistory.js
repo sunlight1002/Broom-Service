@@ -14,6 +14,8 @@ import WhatsappChatHistory from "./WhatsappChatHistory";
 export default function WorkerHistory({ worker, getWorkerDetails }) {
     const { t } = useTranslation();
     const [days, setDays] = useState([]);
+    const role = localStorage.getItem("admin-role");
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -36,55 +38,58 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
     return (
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-availability"
-                        className="nav-link active"
-                        data-toggle="tab"
-                        href="#tab-worker-availability"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        {t("client.jobs.change.worker_availability")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="current-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-current-job"
-                        aria-selected="true"
-                        role="tab"
-                    >
-                        {t("worker.jobs.current_jobs")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="past-job"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-past-job"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.dashboard.past_jobs")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-forms"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-forms"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.forms")}
-                    </a>
-                </li>
-                {/* <li className="nav-item" role="presentation">
+                {
+                    role != "supervisor" ? (
+                        <>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-availability"
+                                    className="nav-link active"
+                                    data-toggle="tab"
+                                    href="#tab-worker-availability"
+                                    aria-selected="true"
+                                    role="tab"
+                                >
+                                    {t("client.jobs.change.worker_availability")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="current-job"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-current-job"
+                                    aria-selected="true"
+                                    role="tab"
+                                >
+                                    {t("worker.jobs.current_jobs")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="past-job"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-past-job"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.dashboard.past_jobs")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-forms"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-worker-forms"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.forms")}
+                                </a>
+                            </li>
+                            {/* <li className="nav-item" role="presentation">
                     <a
                         id="worker-not-availability"
                         className="nav-link"
@@ -96,104 +101,137 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         Not Available Date
                     </a>
                 </li> */}
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-documents"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-documents"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.manage_form")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-loans"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-loans"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.advance")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-termination"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-termination"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.termination")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-pending"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-pending"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.pending Request")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="chat-history"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-chat-history"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.wa_chat_history")}
-                    </a>
-                </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-documents"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-worker-documents"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.manage_form")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-loans"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-worker-loans"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.advance")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-termination"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-worker-termination"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.termination")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-pending"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-worker-pending"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.pending Request")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="chat-history"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-chat-history"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.wa_chat_history")}
+                                </a>
+                            </li>
+                        </>
+                    ) : (
+                        <>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="worker-pending"
+                                    className="nav-link active"
+                                    data-toggle="tab"
+                                    href="#tab-worker-pending"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.pending Request")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="chat-history"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-chat-history"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("worker.settings.wa_chat_history")}
+                                </a>
+                            </li>
+                        </>
+                    )
+                }
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
-                <div
-                    id="tab-worker-availability"
-                    className="tab-pane active show"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    <WorkerAvailabilty days={days} />
-                </div>
-                <div
-                    id="tab-current-job"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    <CurrentJob />
-                </div>
-                <div
-                    id="tab-past-job"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="past-job"
-                >
-                    <PastJob />
-                </div>
-                <div
-                    id="tab-worker-forms"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-forms"
-                >
-                    <WorkerForms
-                        worker={worker}
-                        getWorkerDetails={getWorkerDetails}
-                    />
-                </div>
-                {/* <div
+                {
+                    role != "supervisor" ? (
+                        <>
+                            <div
+                                id="tab-worker-availability"
+                                className="tab-pane active show"
+                                role="tab-panel"
+                                aria-labelledby="current-job"
+                            >
+                                <WorkerAvailabilty days={days} />
+                            </div>
+                            <div
+                                id="tab-current-job"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="current-job"
+                            >
+                                <CurrentJob />
+                            </div>
+                            <div
+                                id="tab-past-job"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="past-job"
+                            >
+                                <PastJob />
+                            </div>
+                            <div
+                                id="tab-worker-forms"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="worker-forms"
+                            >
+                                <WorkerForms
+                                    worker={worker}
+                                    getWorkerDetails={getWorkerDetails}
+                                />
+                            </div>
+                            {/* <div
                     id="tab-worker-not-availability"
                     className="tab-pane"
                     role="tab-panel"
@@ -201,52 +239,74 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                 >
                     <WorkerNotAvailabilty />
                 </div> */}
-                <div
-                    id="tab-worker-documents"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="forms"
-                >
-                    <Document
-                        worker={worker}
-                        getWorkerDetails={getWorkerDetails}
-                    />
-                </div>
-                <div
-                    id="tab-worker-loans"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-loans"
-                >
-                    <WorkerAdvance worker={worker} />
-                </div>
-                <div
-                    id="tab-worker-termination"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-termination"
-                >
-                    <WorkerTermination
-                        worker={worker}
-                        getWorkerDetails={getWorkerDetails}
-                    />
-                </div>
-                <div
-                    id="tab-worker-pending"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-pending"
-                >
-                    <WorkerPendingRequest workerId={worker.id}/>
-                </div>
-                <div
-                    id="tab-chat-history"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="chat-history"
-                >
-                    <WhatsappChatHistory workerId={worker.id} worker={worker} />
-                </div>
+                            <div
+                                id="tab-worker-documents"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="forms"
+                            >
+                                <Document
+                                    worker={worker}
+                                    getWorkerDetails={getWorkerDetails}
+                                />
+                            </div>
+                            <div
+                                id="tab-worker-loans"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="worker-loans"
+                            >
+                                <WorkerAdvance worker={worker} />
+                            </div>
+                            <div
+                                id="tab-worker-termination"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="worker-termination"
+                            >
+                                <WorkerTermination
+                                    worker={worker}
+                                    getWorkerDetails={getWorkerDetails}
+                                />
+                            </div>
+                            <div
+                                id="tab-worker-pending"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="worker-pending"
+                            >
+                                <WorkerPendingRequest workerId={worker.id} />
+                            </div>
+                            <div
+                                id="tab-chat-history"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="chat-history"
+                            >
+                                <WhatsappChatHistory workerId={worker.id} worker={worker} />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div
+                                id="tab-worker-pending"
+                                className="tab-pane active show"
+                                role="tab-panel"
+                                aria-labelledby="worker-pending"
+                            >
+                                <WorkerPendingRequest workerId={worker.id} />
+                            </div>
+                            <div
+                                id="tab-chat-history"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="chat-history"
+                            >
+                                <WhatsappChatHistory workerId={worker.id} worker={worker} />
+                            </div>
+                        </>
+                    )
+                }
             </div>
         </div>
     );

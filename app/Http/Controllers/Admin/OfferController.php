@@ -485,7 +485,7 @@ class OfferController extends Controller
 
             if (!$hasAcceptedOffer) {
                 Notification::create([
-                    'user_id' => $offerArr['client']['id'],
+                    'user_id' => $client->id,
                     'user_type' => get_class($client),
                     'type' => NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER,
                     'offer_id' => $offer->id,

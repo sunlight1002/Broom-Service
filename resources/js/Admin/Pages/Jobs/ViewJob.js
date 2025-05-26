@@ -19,6 +19,7 @@ export default function ViewJob() {
     const [client, setClient] = useState([]);
     const [worker, setWorker] = useState([]);
     const [address, setAddress] = useState({});
+    const role = localStorage.getItem("admin-role");
 
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
     const handleCancel = () => {
@@ -88,7 +89,7 @@ export default function ViewJob() {
                                                         "admin.schedule.jobs.Cancelled"
                                                     )}
                                                 </h4>
-                                            ) : (
+                                            ) : role != "supervisor" && (
                                                 <button
                                                     className="btn btn-danger float-right mt-2"
                                                     onClick={(e) =>

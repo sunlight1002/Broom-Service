@@ -49,6 +49,8 @@ export default function AllWorkers() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const role = localStorage.getItem("admin-role");
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -56,7 +58,7 @@ export default function AllWorkers() {
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "/api/admin/workers",
+                    url: "/api/admin/workers?role=" + role,
                     type: "GET",
                     beforeSend: function (request) {
                         request.setRequestHeader(
@@ -65,11 +67,11 @@ export default function AllWorkers() {
                         );
                     },
                     data: function (d) {
-                        d.status = statusRef.current.value;
-                        d.manpower_company_id = manpowerCompanyRef.current.value;
-                        d.is_my_company = isMyCompanyRef.current.value;
-                        d.is_manpower = isManpowerRef.current.value;
-                        d.is_freelancer = isFreelancerRef.current.value;
+                        d.status = statusRef.current.value ? statusRef.current.value : null;
+                        d.manpower_company_id = manpowerCompanyRef.current.value ? manpowerCompanyRef.current.value : null;
+                        d.is_my_company = isMyCompanyRef.current.value ? isMyCompanyRef.current.value : null;
+                        d.is_manpower = isManpowerRef.current.value ? isManpowerRef.current.value : null;
+                        d.is_freelancer = isFreelancerRef.current.value ? isFreelancerRef.current.value : null;
                     },
                 },
                 order: [[0, "desc"]],
@@ -128,17 +130,21 @@ export default function AllWorkers() {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+                            if (role == "supervisor") {
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+                            } else {
+                                _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-worker-forms-btn" data-id="${Base64.encode(row.id.toString())}">View Worker Forms</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-worker-forms-btn" data-id="${Base64.encode(row.id.toString())}">View Worker Forms</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("modal.leave_job")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("modal.leave_job")}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                            }
 
                             _html += "</div> </div>";
 
@@ -266,15 +272,13 @@ export default function AllWorkers() {
             handleDelete(_id);
         });
 
-        $(tableRef.current).on("click", ".dt-status", function () {
-            const _id = $(this).data("id");
-            console.log("asdasd");
-
-            console.log(_id);
-
-            setSelectedWorkerId(_id);
-            setIsOpen(true);
-        });
+        if (role != "supervisor") {
+            $(tableRef.current).on("click", ".dt-status", function () {
+                const _id = $(this).data("id");
+                setSelectedWorkerId(_id);
+                setIsOpen(true);
+            });
+        }
 
         // Handle language changes
         i18n.on("languageChanged", () => {
@@ -438,384 +442,399 @@ export default function AllWorkers() {
                             </h1>
 
                         </div>
-                        <div className="search-data">
-                            <button
-                                className="btn navyblue mt-4 mr-2 no-hover"
-                                onClick={handleShow}
-                            >
-                                {t("admin.global.Import")}
-                            </button>
-                            <Link
-                                to="/admin/workers/working-hours"
-                                className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
-                            >
-                                {t("price_offer.worker_hours")}
-                            </Link>
-                            <Link
-                                to="/admin/add-worker"
-                                className="btn navyblue d-none d-md-block mx-1 addButton no-hover"
-                            >
-                                <i className="btn-icon fas fa-plus-circle"></i>
-                                {t("admin.leads.AddNew")}
-                            </Link>
-                            <Link
-                                to="/admin/add-worker"
-                                className="btn ml-2 navyblue d-block d-md-none addButton no-hover align-content-center"
-                            >
-                                <i className="btn-icon fas fa-plus-circle"></i>
-                                {t("admin.leads.AddNew")}
-                            </Link>
-                        </div>
+                        {
+                            role != "supervisor" && (
+                                <div className="search-data">
+                                    <button
+                                        className="btn navyblue mt-4 mr-2 no-hover"
+                                        onClick={handleShow}
+                                    >
+                                        {t("admin.global.Import")}
+                                    </button>
+                                    <Link
+                                        to="/admin/workers/working-hours"
+                                        className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
+                                    >
+                                        {t("price_offer.worker_hours")}
+                                    </Link>
+                                    <Link
+                                        to="/admin/add-worker"
+                                        className="btn navyblue d-none d-md-block mx-1 addButton no-hover"
+                                    >
+                                        <i className="btn-icon fas fa-plus-circle"></i>
+                                        {t("admin.leads.AddNew")}
+                                    </Link>
+                                    <Link
+                                        to="/admin/add-worker"
+                                        className="btn ml-2 navyblue d-block d-md-none addButton no-hover align-content-center"
+                                    >
+                                        <i className="btn-icon fas fa-plus-circle"></i>
+                                        {t("admin.leads.AddNew")}
+                                    </Link>
+                                </div>
+                            )
+                        }
                     </div>
 
-                    <div className="col-sm-6 mt-2 pl-0">
-                        <div className="search-data">
-                            <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
+                    {
+                        role != "supervisor" && (
+                            <>
+                                <div className="col-sm-6 mt-2 pl-0">
+                                    <div className="search-data">
+                                        <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
+                                            <button
+                                                type="button"
+                                                className="btn btn-default navyblue dropdown-toggle"
+                                                data-toggle="dropdown"
+                                            >
+                                                <i className="fa fa-filter"></i>
+                                            </button>
+                                            <span className="ml-2" style={{
+                                                padding: "6px",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "5px"
+                                            }}>{filters.status || t("admin.leads.All")}</span>
+
+                                            <div className="dropdown-menu dropdown-menu-right">
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        setFilters({
+                                                            ...filters,
+                                                            status: "active",
+                                                        });
+                                                        localStorage.setItem("worker-status", "active");
+                                                    }}
+                                                >
+                                                    {t("admin.global.active")}
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        setFilters({
+                                                            ...filters,
+                                                            status: "inactive",
+                                                        });
+                                                        localStorage.setItem("worker-status", "inactive");
+                                                    }}
+                                                >
+                                                    {t("admin.global.inactive")}
+
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        setFilters({
+                                                            ...filters,
+                                                            status: "past",
+                                                        });
+                                                        localStorage.setItem("worker-status", "past");
+                                                    }}
+                                                >
+                                                    {t("admin.global.past")}
+
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        setFilters({
+                                                            ...filters,
+                                                            status: "",
+                                                        });
+                                                        localStorage.setItem("worker-status", "");
+                                                    }}
+                                                >
+                                                    {t("global.all")}
+
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-sm-6 hidden-xl mt-4">
+                                    <select
+                                        className="form-control"
+                                        onChange={(e) => sortTable(e.target.value)}
+                                    >
+                                        <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                        <option value="0">{t("admin.leads.Options.ID")}</option>
+                                        <option value="1">{t("admin.leads.Options.Name")}</option>
+                                        <option value="2">{t("admin.leads.Options.Email")}</option>
+                                        <option value="3">{t("admin.leads.Options.Phone")}</option>
+                                        <option value="4">{t("admin.leads.AddLead.addAddress.Address")}</option>
+                                    </select>
+                                </div>
+                            </>
+                        )
+                    }
+                </div>
+                {
+                    role != "supervisor" && (
+                        <div className="row mb-2 d-none d-lg-block">
+                            <div className="col-sm-12 d-flex align-items-center">
+                                <div className="mr-3" style={{ fontWeight: "bold" }}>
+                                    {t("admin.global.Status")}
+                                </div>
                                 <button
-                                    type="button"
-                                    className="btn btn-default navyblue dropdown-toggle"
-                                    data-toggle="dropdown"
+                                    className={`btn border rounded px-3 mr-1`}
+                                    style={
+                                        filters.status === "active"
+                                            ? { background: "white" }
+                                            : {
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
+                                    }
+                                    onClick={() => {
+                                        setFilters({
+                                            ...filters,
+                                            status: "active",
+                                        });
+                                        localStorage.setItem("worker-status", "active");
+                                    }}
                                 >
-                                    <i className="fa fa-filter"></i>
+                                    {t("admin.global.active")}
                                 </button>
-                                <span className="ml-2" style={{
-                                    padding: "6px",
-                                    border: "1px solid #ccc",
-                                    borderRadius: "5px"
-                                }}>{filters.status || t("admin.leads.All")}</span>
+                                <button
+                                    className={`btn border rounded px-3 mr-1`}
+                                    style={
+                                        filters.status === "inactive"
+                                            ? { background: "white" }
+                                            : {
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
+                                    }
+                                    onClick={() => {
+                                        setFilters({
+                                            ...filters,
+                                            status: "inactive",
+                                        });
+                                        localStorage.setItem("worker-status", "inactive");
+                                    }}
+                                >
+                                    {t("admin.global.inactive")}
+                                </button>
+                                <button
+                                    className={`btn border rounded px-3 mr-1`}
+                                    style={
+                                        filters.status === "past"
+                                            ? { background: "white" }
+                                            : {
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
+                                    }
+                                    onClick={() => {
+                                        setFilters({
+                                            ...filters,
+                                            status: "past",
+                                        });
+                                        localStorage.setItem("worker-status", "past");
+                                    }}
+                                >
+                                    {t("admin.global.past")}
+                                </button>
+                                <button
+                                    className={`btn border rounded px-3 mr-1`}
+                                    style={
+                                        filters.status === ""
+                                            ? { background: "white" }
+                                            : {
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
+                                    }
+                                    onClick={() => {
+                                        setFilters({
+                                            ...filters,
+                                            status: "",
+                                        });
+                                        localStorage.setItem("worker-status", "");
+                                    }}
+                                >
+                                    {t("global.all")}
+                                </button>
+                            </div>
+                            <div className="col-sm-12 d-flex mt-2">
+                                <div
+                                    className="mr-3 align-items-center"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("admin.global.manpower_company")}
+                                </div>
+                                <div className="d-flex">
+                                    <select
+                                        className="form-control"
+                                        onChange={(e) => {
+                                            setFilters({
+                                                ...filters,
+                                                manpower_company_id: e.target.value,
+                                                is_my_company: false,
+                                            });
+                                        }}
+                                        value={filters.manpower_company_id}
+                                    >
+                                        <option value="">--- Select ---</option>
 
-                                <div className="dropdown-menu dropdown-menu-right">
+                                        {manpowerCompanies?.map((company, _index) => (
+                                            <option key={_index} value={company.id}>
+                                                {" "}
+                                                {company.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <button
-                                        className="dropdown-item"
+                                        className={`btn border rounded px-3 mx-1`}
+                                        style={
+                                            filters.is_my_company === true
+                                                ? { background: "white" }
+                                                : {
+                                                    background: "#2c3f51",
+                                                    color: "white",
+                                                }
+                                        }
                                         onClick={() => {
                                             setFilters({
                                                 ...filters,
-                                                status: "active",
+                                                manpower_company_id: "",
+                                                is_my_company: true,
+                                                is_manpower: false,
+                                                is_freelancer: false
                                             });
-                                            localStorage.setItem("worker-status", "active");
+                                            const company = {
+                                                is_my_company: true,
+                                                is_manpower: false,
+                                                is_freelancer: false
+                                            };
+
+                                            localStorage.setItem("company", JSON.stringify(company));
                                         }}
                                     >
-                                        {t("admin.global.active")}
+                                        {t("admin.global.myCompany")}
                                     </button>
                                     <button
-                                        className="dropdown-item"
+                                        className={`btn border rounded px-3 mx-1`}
+                                        style={
+                                            filters.is_manpower === true
+                                                ? { background: "white" }
+                                                : {
+                                                    background: "#2c3f51",
+                                                    color: "white",
+                                                }
+                                        }
                                         onClick={() => {
                                             setFilters({
                                                 ...filters,
-                                                status: "inactive",
+                                                manpower_company_id: "",
+                                                is_manpower: true,
+                                                is_my_company: false,
+                                                is_freelancer: false
                                             });
-                                            localStorage.setItem("worker-status", "inactive");
+                                            const company = {
+                                                is_my_company: false,
+                                                is_manpower: true,
+                                                is_freelancer: false
+                                            };
+
+                                            localStorage.setItem("company", JSON.stringify(company));
                                         }}
                                     >
-                                        {t("admin.global.inactive")}
-
+                                        {t("admin.global.manpower_company")}
                                     </button>
                                     <button
-                                        className="dropdown-item"
+                                        className={`btn border rounded px-3 mx-1`}
+                                        style={
+                                            filters.is_freelancer === true
+                                                ? { background: "white" }
+                                                : {
+                                                    background: "#2c3f51",
+                                                    color: "white",
+                                                }
+                                        }
                                         onClick={() => {
                                             setFilters({
                                                 ...filters,
-                                                status: "past",
+                                                manpower_company_id: "",
+                                                is_freelancer: true,
+                                                is_my_company: false,
+                                                is_manpower: false
                                             });
-                                            localStorage.setItem("worker-status", "past");
+                                            const company = {
+                                                is_my_company: false,
+                                                is_manpower: false,
+                                                is_freelancer: true
+                                            };
+
+                                            localStorage.setItem("company", JSON.stringify(company));
                                         }}
                                     >
-                                        {t("admin.global.past")}
-
+                                        {t("admin.global.freelancer")}
                                     </button>
                                     <button
-                                        className="dropdown-item"
+                                        className={`btn border rounded px-3 mx-1`}
+                                        style={
+                                            (filters.is_my_company !== true) && (filters.is_freelancer !== true) && (filters.is_manpower !== true) &&
+                                                filters.manpower_company_id === ""
+                                                ? { background: "white" }
+                                                : {
+                                                    background: "#2c3f51",
+                                                    color: "white",
+                                                }
+                                        }
                                         onClick={() => {
                                             setFilters({
                                                 ...filters,
-                                                status: "",
+                                                manpower_company_id: "",
+                                                is_my_company: false,
+                                                is_manpower: false,
+                                                is_freelancer: false,
                                             });
-                                            localStorage.setItem("worker-status", "");
+                                            const company = {
+                                                is_my_company: false,
+                                                is_manpower: false,
+                                                is_freelancer: false
+                                            };
+
+                                            localStorage.setItem("company", JSON.stringify(company));
                                         }}
                                     >
-                                        {t("global.all")}
-
+                                        {t("admin.global.All")}
                                     </button>
                                 </div>
+
                             </div>
                         </div>
-                    </div>
-                    <div className="col-sm-6 hidden-xl mt-4">
-                        <select
-                            className="form-control"
-                            onChange={(e) => sortTable(e.target.value)}
-                        >
-                            <option value="">{t("admin.leads.Options.sortBy")}</option>
-                            <option value="0">{t("admin.leads.Options.ID")}</option>
-                            <option value="1">{t("admin.leads.Options.Name")}</option>
-                            <option value="2">{t("admin.leads.Options.Email")}</option>
-                            <option value="3">{t("admin.leads.Options.Phone")}</option>
-                            <option value="4">{t("admin.leads.AddLead.addAddress.Address")}</option>
-                        </select>
-                    </div>
-                </div>
-                <div className="row mb-2 d-none d-lg-block">
-                    <div className="col-sm-12 d-flex align-items-center">
-                        <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            {t("admin.global.Status")}
-                        </div>
-                        <button
-                            className={`btn border rounded px-3 mr-1`}
-                            style={
-                                filters.status === "active"
-                                    ? { background: "white" }
-                                    : {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }
-                            }
-                            onClick={() => {
-                                setFilters({
-                                    ...filters,
-                                    status: "active",
-                                });
-                                localStorage.setItem("worker-status", "active");
-                            }}
-                        >
-                            {t("admin.global.active")}
-                        </button>
-                        <button
-                            className={`btn border rounded px-3 mr-1`}
-                            style={
-                                filters.status === "inactive"
-                                    ? { background: "white" }
-                                    : {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }
-                            }
-                            onClick={() => {
-                                setFilters({
-                                    ...filters,
-                                    status: "inactive",
-                                });
-                                localStorage.setItem("worker-status", "inactive");
-                            }}
-                        >
-                            {t("admin.global.inactive")}
-                        </button>
-                        <button
-                            className={`btn border rounded px-3 mr-1`}
-                            style={
-                                filters.status === "past"
-                                    ? { background: "white" }
-                                    : {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }
-                            }
-                            onClick={() => {
-                                setFilters({
-                                    ...filters,
-                                    status: "past",
-                                });
-                                localStorage.setItem("worker-status", "past");
-                            }}
-                        >
-                            {t("admin.global.past")}
-                        </button>
-                        <button
-                            className={`btn border rounded px-3 mr-1`}
-                            style={
-                                filters.status === ""
-                                    ? { background: "white" }
-                                    : {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }
-                            }
-                            onClick={() => {
-                                setFilters({
-                                    ...filters,
-                                    status: "",
-                                });
-                                localStorage.setItem("worker-status", "");
-                            }}
-                        >
-                            {t("global.all")}
-                        </button>
-                    </div>
-                    <div className="col-sm-12 d-flex mt-2">
-                        <div
-                            className="mr-3 align-items-center"
-                            style={{ fontWeight: "bold" }}
-                        >
-                            {t("admin.global.manpower_company")}
-                        </div>
-                        <div className="d-flex">
-                            <select
-                                className="form-control"
-                                onChange={(e) => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: e.target.value,
-                                        is_my_company: false,
-                                    });
-                                }}
-                                value={filters.manpower_company_id}
-                            >
-                                <option value="">--- Select ---</option>
+                    )
+                }
 
-                                {manpowerCompanies?.map((company, _index) => (
-                                    <option key={_index} value={company.id}>
-                                        {" "}
-                                        {company.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <button
-                                className={`btn border rounded px-3 mx-1`}
-                                style={
-                                    filters.is_my_company === true
-                                        ? { background: "white" }
-                                        : {
-                                            background: "#2c3f51",
-                                            color: "white",
-                                        }
-                                }
-                                onClick={() => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: "",
-                                        is_my_company: true,
-                                        is_manpower: false,
-                                        is_freelancer: false
-                                    });
-                                    const company = {
-                                        is_my_company: true,
-                                        is_manpower: false,
-                                        is_freelancer: false
-                                    };
+                <input
+                    type="hidden"
+                    value={filters.status}
+                    ref={statusRef}
+                />
 
-                                    localStorage.setItem("company", JSON.stringify(company));
-                                }}
-                            >
-                                {t("admin.global.myCompany")}
-                            </button>
-                            <button
-                                className={`btn border rounded px-3 mx-1`}
-                                style={
-                                    filters.is_manpower === true
-                                        ? { background: "white" }
-                                        : {
-                                            background: "#2c3f51",
-                                            color: "white",
-                                        }
-                                }
-                                onClick={() => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: "",
-                                        is_manpower: true,
-                                        is_my_company: false,
-                                        is_freelancer: false
-                                    });
-                                    const company = {
-                                        is_my_company: false,
-                                        is_manpower: true,
-                                        is_freelancer: false
-                                    };
+                <input
+                    type="hidden"
+                    value={filters.manpower_company_id}
+                    ref={manpowerCompanyRef}
+                />
 
-                                    localStorage.setItem("company", JSON.stringify(company));
-                                }}
-                            >
-                                {t("admin.global.manpower_company")}
-                            </button>
-                            <button
-                                className={`btn border rounded px-3 mx-1`}
-                                style={
-                                    filters.is_freelancer === true
-                                        ? { background: "white" }
-                                        : {
-                                            background: "#2c3f51",
-                                            color: "white",
-                                        }
-                                }
-                                onClick={() => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: "",
-                                        is_freelancer: true,
-                                        is_my_company: false,
-                                        is_manpower: false
-                                    });
-                                    const company = {
-                                        is_my_company: false,
-                                        is_manpower: false,
-                                        is_freelancer: true
-                                    };
-
-                                    localStorage.setItem("company", JSON.stringify(company));
-                                }}
-                            >
-                                {t("admin.global.freelancer")}
-                            </button>
-                            <button
-                                className={`btn border rounded px-3 mx-1`}
-                                style={
-                                    (filters.is_my_company !== true) && (filters.is_freelancer !== true) && (filters.is_manpower !== true) &&
-                                        filters.manpower_company_id === ""
-                                        ? { background: "white" }
-                                        : {
-                                            background: "#2c3f51",
-                                            color: "white",
-                                        }
-                                }
-                                onClick={() => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: "",
-                                        is_my_company: false,
-                                        is_manpower: false,
-                                        is_freelancer: false,
-                                    });
-                                    const company = {
-                                        is_my_company: false,
-                                        is_manpower: false,
-                                        is_freelancer: false
-                                    };
-
-                                    localStorage.setItem("company", JSON.stringify(company));
-                                }}
-                            >
-                                {t("admin.global.All")}
-                            </button>
-                        </div>
-
-                        <input
-                            type="hidden"
-                            value={filters.status}
-                            ref={statusRef}
-                        />
-
-                        <input
-                            type="hidden"
-                            value={filters.manpower_company_id}
-                            ref={manpowerCompanyRef}
-                        />
-
-                        <input
-                            type="hidden"
-                            value={filters.is_my_company}
-                            ref={isMyCompanyRef}
-                        />
-                        <input
-                            type="hidden"
-                            value={filters.is_manpower}
-                            ref={isManpowerRef}
-                        />
-                        <input
-                            type="hidden"
-                            value={filters.is_freelancer}
-                            ref={isFreelancerRef}
-                        />
-                    </div>
-                </div>
+                <input
+                    type="hidden"
+                    value={filters.is_my_company}
+                    ref={isMyCompanyRef}
+                />
+                <input
+                    type="hidden"
+                    value={filters.is_manpower}
+                    ref={isManpowerRef}
+                />
+                <input
+                    type="hidden"
+                    value={filters.is_freelancer}
+                    ref={isFreelancerRef}
+                />
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">

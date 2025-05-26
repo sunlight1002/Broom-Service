@@ -13,6 +13,7 @@ export default function WorkerTiming({ job }) {
     const params = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const role = localStorage.getItem("admin-role");
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -161,10 +162,10 @@ export default function WorkerTiming({ job }) {
             .then((res) => {
                 setFilename(
                     job.start_date +
-                        " | " +
-                        job.shifts +
-                        " | " +
-                        job.jobservice.name
+                    " | " +
+                    job.shifts +
+                    " | " +
+                    job.jobservice.name
                 );
                 setAllData(res.data.job_hours);
                 document.querySelector("#csv").click();
@@ -189,42 +190,46 @@ export default function WorkerTiming({ job }) {
                             {t("admin.schedule.jobs.WorkTime")}
                         </h2>
                     </div>
-                    <div className="col-sm-6">
-                        <div className="inline-buttons">
-                            <div className="App" style={{ display: "none" }}>
-                                <CSVLink {...csvReport} id="csv">
-                                    Export to CSV
-                                    {t(
-                                        "admin.schedule.jobs.workerTiming.ExportToCSV"
-                                    )}
-                                </CSVLink>
+                    {
+                        role != "supervisor" && (
+                            <div className="col-sm-6">
+                                <div className="inline-buttons">
+                                    <div className="App" style={{ display: "none" }}>
+                                        <CSVLink {...csvReport} id="csv">
+                                            Export to CSV
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.ExportToCSV"
+                                            )}
+                                        </CSVLink>
+                                    </div>
+                                    <div className="ml-2">
+                                        <button
+                                            type="button"
+                                            className="btn btn-success"
+                                            onClick={(e) => handleReport(e)}
+                                            style={{ height: "38px" }}
+                                        >
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.ExportReport"
+                                            )}
+                                        </button>
+                                    </div>
+                                    <div className="ml-2">
+                                        <button
+                                            type="button"
+                                            className="btn btn-pink"
+                                            data-toggle="modal"
+                                            data-target="#add-work-time"
+                                        >
+                                            {t(
+                                                "admin.schedule.jobs.workerTiming.AddTiming"
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="ml-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-success"
-                                    onClick={(e) => handleReport(e)}
-                                    style={{ height: "38px" }}
-                                >
-                                    {t(
-                                        "admin.schedule.jobs.workerTiming.ExportReport"
-                                    )}
-                                </button>
-                            </div>
-                            <div className="ml-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-pink"
-                                    data-toggle="modal"
-                                    data-target="#add-work-time"
-                                >
-                                    {t(
-                                        "admin.schedule.jobs.workerTiming.AddTiming"
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        )
+                    }
                 </div>
                 {job_time.length > 0 ? (
                     <Table
@@ -258,9 +263,9 @@ export default function WorkerTiming({ job }) {
                                 job_time.map((item, index) => {
                                     let w_t = item.end_time
                                         ? time_difference(
-                                              item.start_time,
-                                              item.end_time
-                                          )
+                                            item.start_time,
+                                            item.end_time
+                                        )
                                         : "";
                                     return (
                                         <Tr key={index}>

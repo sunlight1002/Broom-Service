@@ -18,7 +18,7 @@ export default function Sidebar() {
     const location = useLocation();
     const alert = useAlert();
     const navigate = useNavigate();
-    const [role, setRole] = useState(null);
+    // const [role, setRole] = useState(null);
     const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -28,9 +28,25 @@ export default function Sidebar() {
     const adminLng = localStorage.getItem("admin-lng");
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
     const [isClientDropdownOpen, setClientDropdownOpen] = useState(false); // Clients dropdown
-    const [chatDropdown, setChatDropdown] = useState(false);    
+    const [chatDropdown, setChatDropdown] = useState(false);
     const [isWorkerDropdownOpen, setWorkerDropdownOpen] = useState(false);
 
+    const role = localStorage.getItem("admin-role");
+
+    useEffect(() => {
+        axios.get('/api/admin/details', { headers })
+            .then(res => {
+                if (res.data.success.role !== role) {
+                    localStorage.removeItem("admin-token");
+                    localStorage.removeItem("admin-name");
+                    localStorage.removeItem("admin-id");
+                    localStorage.removeItem("admin-email");
+                    localStorage.removeItem("admin-lng");
+                    localStorage.removeItem("admin-role");
+                    navigate('/admin/login');
+                }
+            });
+    }, [role]);
 
     // Toggle the dropdown
     const toggleDropdown = () => {
@@ -57,14 +73,6 @@ export default function Sidebar() {
     const isChatDropdownActive = [`/admin/chat`, `/admin/worker-lead-chat`].includes(location.pathname);
     const isClientDropdownActive = ["/admin/clients", "/admin/clients?type=pending%20client", "/admin/clients?type=active%20client", "/admin/clients?type=freeze%20client", "/admin/clients?type=past"].includes(fullUrl);
     const isWorkerDropdownActive = ["/admin/workers", "/admin/workers-leaves", "/admin/workers-refund", "/admin/task"].includes(location.pathname);
-    const getAdmin = () => {
-        axios.get(`/api/admin/details`, { headers }).then((res) => {
-            setRole(res.data.success.role);
-        });
-    };
-
-    console.log(isChatDropdownActive);
-
 
     const HandleLogout = (e) => {
         fetch("/api/admin/logout", {
@@ -109,10 +117,6 @@ export default function Sidebar() {
         task: "/admin/task",
     };
 
-    const settings ={
-
-    }
-
     const isActive = (path) => location.pathname === path;
     const isActiveClient = (path) => fullUrl === path;
 
@@ -128,19 +132,6 @@ export default function Sidebar() {
         });
     };
 
-
-    // const isSettingsParentActive = () => {
-    //     return Object.values(routes).some((route) => isActiveClient(route));
-    // };
-
-    // console.log(lng);
-
-    useEffect(() => {
-        // i18next.changeLanguage(adminLng);
-        getAdmin();
-    }, []);
-
-
     return (
         <div id="column-left">
             <div className="sideLogo">
@@ -151,23 +142,27 @@ export default function Sidebar() {
                         xmlns="http://www.w3.org/2000/svg"
                         xmlnsXlink="http://www.w3.org/1999/xlink"
                     >
-                        <image xlinkHref={logo} width="190" height="77"></image>
-                    </svg>
-                </Link>
-            </div>
+                        <image xlinkHref={logo} width="190" height="77"></image >
+                    </svg >
+                </Link >
+            </div >
             <ul className="list-group">
 
-                <li className="list-group-item">
-                    <NavLink to="/admin/dashboard"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="d-flex align-items-center">
-                            <HiOutlineSquares2X2 className="font-28" />
-                        </i>{t("admin.sidebar.dashboard")}
-                    </NavLink>
-                </li>
                 {
-                    role !== "hr" && (
+                    role !== "supervisor" && (
+                        <li className="list-group-item">
+                            <NavLink to="/admin/dashboard"
+                                className="d-flex align-items-center"
+                            >
+                                <i className="d-flex align-items-center">
+                                    <HiOutlineSquares2X2 className="font-28" />
+                                </i>{t("admin.sidebar.dashboard")}
+                            </NavLink>
+                        </li>
+                    )
+                }
+                {
+                    (role !== "hr" && role !== "supervisor") ? (
                         <>
                             <li className="list-group-item">
                                 <NavLink to="/admin/leads"
@@ -227,221 +222,230 @@ export default function Sidebar() {
                                 </div>
                             </li>
                         </>
+                    ) : (
+                        <li className="list-group-item">
+                            <NavLink to="/admin/clients"
+                                className="d-flex align-items-center"
+                            >
+                                <i className="fa-solid fa-user-tie font-28"></i>{t("admin.sidebar.clients")}
+                            </NavLink>
+                        </li>
                     )
                 }
 
-                {/* <li className="list-group-item">
-                    <NavLink to="/admin/workers"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.workers")}
-                    </NavLink>
-                </li> */}
-                <li className={`list-group-item ${isWorkerDropdownActive ? "active" : ""}`}>
-                    <div className="fence commonDropdown">
-                        <div >
-                            <a
-                                href="#"
-                                className={`text-left ${isWorkerDropdownActive ? "text-white active" : ""} `}
-                                data-toggle="collapse"
-                                onClick={toggleWorkerDropdown}
-                                aria-expanded={isWorkerDropdownOpen}
-                                data-target="#worker"
-                                aria-controls="worker"
-                            >
-                                <i className={`fa-solid fa-users font-20 ${isWorkerDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.workers")}{" "}
-                                <i className={`fa-solid fa-angle-down ${isWorkerDropdownOpen ? "text-white rotate-180" : ""}`}
-                                    style={{
-                                        rotate: isWorkerDropdownOpen ? "180deg" : ""
-                                    }}
-                                ></i>
-                            </a>
-                        </div>
-                        <div
-                            id="worker"
-                            className={`collapse ${isParentActive(["workersLeaves", "task", "workersRefund"]) ? "show" : ""}`}
-                            aria-labelledby="worker"
-                            data-parent="#worker"
-                        >
-                            <div className="card-body">
-                                <ul className="list-group">
 
-                                    <li className={`list-group-item ${isActive(routes.workersLeaves) ? "active" : ""}`}>
-                                        <Link to={routes.workersLeaves} style={isActive(routes.workersLeaves) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className={`fa-solid fa-calendar-minus font-20 ${isActive(routes.workersLeaves) ? "text-white" : ""}`}></i>{" "}{t("admin.sidebar.workerLeave")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.task) ? "active" : ""}`}>
-                                        <Link to={routes.task} style={isActive(routes.task) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className={`fa-solid fa-list-check ${isActive(routes.task) ? "text-white" : ""}`}></i>{" "}{t("admin.sidebar.task_management")}
-                                        </Link>
-                                    </li>
-                                    <li className={`list-group-item ${isActive(routes.workersRefund) ? "active" : ""}`}>
-                                        <Link to={routes.workersRefund} style={isActive(routes.workersRefund) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className={`fa-solid fa-undo-alt font-20 ${isActive(routes.workersRefund) ? "text-white" : ""}`}></i>{" "}{t("worker.worker_refund")}
-                                        </Link>
-                                    </li>
-                                </ul>
+                {
+                    role !== "supervisor" ? (
+                        <li className={`list-group-item ${isWorkerDropdownActive ? "active" : ""}`}>
+                            <div className="fence commonDropdown">
+                                <div >
+                                    <a
+                                        href="#"
+                                        className={`text-left ${isWorkerDropdownActive ? "text-white active" : ""} `}
+                                        data-toggle="collapse"
+                                        onClick={toggleWorkerDropdown}
+                                        aria-expanded={isWorkerDropdownOpen}
+                                        data-target="#worker"
+                                        aria-controls="worker"
+                                    >
+                                        <i className={`fa-solid fa-users font-20 ${isWorkerDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.workers")}{" "}
+                                        <i className={`fa-solid fa-angle-down ${isWorkerDropdownOpen ? "text-white rotate-180" : ""}`}
+                                            style={{
+                                                rotate: isWorkerDropdownOpen ? "180deg" : ""
+                                            }}
+                                        ></i>
+                                    </a>
+                                </div>
+                                <div
+                                    id="worker"
+                                    className={`collapse ${isParentActive(["workersLeaves", "task", "workersRefund"]) ? "show" : ""}`}
+                                    aria-labelledby="worker"
+                                    data-parent="#worker"
+                                >
+                                    <div className="card-body">
+                                        <ul className="list-group">
+
+                                            <li className={`list-group-item ${isActive(routes.workersLeaves) ? "active" : ""}`}>
+                                                <Link to={routes.workersLeaves} style={isActive(routes.workersLeaves) ? { color: "white" } : { color: "#757589" }}>
+                                                    <i className={`fa-solid fa-calendar-minus font-20 ${isActive(routes.workersLeaves) ? "text-white" : ""}`}></i>{" "}{t("admin.sidebar.workerLeave")}
+                                                </Link>
+                                            </li>
+                                            <li className={`list-group-item ${isActive(routes.task) ? "active" : ""}`}>
+                                                <Link to={routes.task} style={isActive(routes.task) ? { color: "white" } : { color: "#757589" }}>
+                                                    <i className={`fa-solid fa-list-check ${isActive(routes.task) ? "text-white" : ""}`}></i>{" "}{t("admin.sidebar.task_management")}
+                                                </Link>
+                                            </li>
+                                            <li className={`list-group-item ${isActive(routes.workersRefund) ? "active" : ""}`}>
+                                                <Link to={routes.workersRefund} style={isActive(routes.workersRefund) ? { color: "white" } : { color: "#757589" }}>
+                                                    <i className={`fa-solid fa-undo-alt font-20 ${isActive(routes.workersRefund) ? "text-white" : ""}`}></i>{" "}{t("worker.worker_refund")}
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </li>
-                {/* <li className="list-group-item">
-                    <NavLink to="/admin/workers-leaves"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-calendar-minus font-20"></i>{t("admin.sidebar.workerLeave")}
-                    </NavLink>
-                </li> */}
-                {/* <li className="list-group-item">
-                    <NavLink to="/admin/task"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
-                    </NavLink>
-                </li> */}
-                <li className="list-group-item">
-                    <NavLink to="/admin/worker-leads"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.worker_lead")}
-                    </NavLink>
-                </li>
-                {/* <li className="list-group-item">
-                    <NavLink to="/admin/workers-refund"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-undo-alt font-20"></i>{t("worker.worker_refund")}
-                    </NavLink>
-                </li> */}
-                {/* <li className="list-group-item">
-                    <NavLink to="/admin/workers-hearing"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.workerHearing")}
-                    </NavLink>
-                </li> */}
+                        </li>
+                    ) : (
+                        <li className="list-group-item">
+                            <NavLink to="/admin/workers"
+                                className="d-flex align-items-center"
+                            >
+                                <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.workers")}
+                            </NavLink>
+                        </li>
+                    )
+                }
+                {
+                    role !== "supervisor" && (
+                        <li className="list-group-item">
+                            <NavLink to="/admin/worker-leads"
+                                className="d-flex align-items-center"
+                            >
+                                <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.worker_lead")}
+                            </NavLink>
+                        </li>
+                    )
+                }
                 {
                     role !== "hr" && (
                         <>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/schedule"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.meetings")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/offered-price"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="fa-solid fa-tags font-20"></i>{t("admin.sidebar.offers")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/contracts"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="fa-solid fa-clipboard-list font-20"></i>{t("admin.sidebar.contracts")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/jobs"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/conflicts"
-                                    className="d-flex align-items-center"
-                                >
-                                    <LuShuffle className="font-20 mr-2" />{t("admin.sidebar.conflicts")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/schedule-requests"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/expanses"
-                                    className="d-flex align-items-center"
-                                >
-                                    <GiReceiveMoney className="font-20 mr-2" /> {t("global.expenses")}
-                                </NavLink>
-                            </li>
-                            <li className="list-group-item">
-                                <NavLink to="/admin/facebook-insights"
-                                    className="d-flex align-items-center"
-                                >
-                                    <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2" />{t("admin.sidebar.fb_insights")}
-                                </NavLink>
-                            </li>
-                            {/* <li className="list-group-item">
+                            {
+                                role == "supervisor" ? (
+                                    <li className="list-group-item">
+                                        <NavLink to="/admin/jobs"
+                                            className="d-flex align-items-center"
+                                        >
+                                            <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
+                                        </NavLink>
+                                    </li>
+                                ) : (
+                                    <>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/schedule"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.meetings")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/offered-price"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <i className="fa-solid fa-tags font-20"></i>{t("admin.sidebar.offers")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/contracts"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <i className="fa-solid fa-clipboard-list font-20"></i>{t("admin.sidebar.contracts")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/jobs"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/conflicts"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <LuShuffle className="font-20 mr-2" />{t("admin.sidebar.conflicts")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/schedule-requests"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/expanses"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <GiReceiveMoney className="font-20 mr-2" /> {t("global.expenses")}
+                                            </NavLink>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <NavLink to="/admin/facebook-insights"
+                                                className="d-flex align-items-center"
+                                            >
+                                                <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2" />{t("admin.sidebar.fb_insights")}
+                                            </NavLink>
+                                        </li>
+                                        {/* <li className="list-group-item">
                                 <NavLink to="/admin/chat"
                                     className="d-flex align-items-center"
                                 >
                                     <i className="fa-solid fa-message font-20"></i>{t("admin.sidebar.whatsapp")}
                                 </NavLink>
                             </li> */}
+                                    </>
+                                )
+                            }
+
                         </>
                     )
                 }
 
-                <li className={`list-group-item ${isChatDropdownActive ? "active" : ""}`}>
-                    <div className="fence commonDropdown">
-                        <div >
-                            <a
-                                href="#"
-                                className={`text-left ${isChatDropdownActive ? "active" : ""} `}
-                                data-toggle="collapse"
-                                onClick={toggleChatDropdown}
-                                aria-expanded={chatDropdown}
-                                data-target="#chat"
-                                aria-controls="chat"
-                            >
-                                <i className={`fa-solid fa-message font-20 ${isChatDropdownActive ? "text-white" : ""}`}></i> {t("admin.sidebar.whatsapp")}{" "}
-                                <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
-                                    style={{
-                                        rotate: chatDropdown ? "180deg" : ""
-                                    }}
-                                ></i>
-                            </a>
-                        </div>
-                        <div
-                            id="chat"
-                            className={`collapse ${isParentActive(["client_worker_chat", "worker_lead_chat"]) ? "show" : ""}`}
-                            aria-labelledby="chat"
-                            data-parent="#chat"
-                        >
-                            <div className="card-body">
-                                <ul className="list-group">
-                                    {
-                                        role !== "hr" && (
-                                            <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
-                                                <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
+                {
+                    role !== "supervisor" && (
+                        <li className={`list-group-item ${isChatDropdownActive ? "active" : ""}`}>
+                            <div className="fence commonDropdown">
+                                <div >
+                                    <a
+                                        href="#"
+                                        className={`text-left ${isChatDropdownActive ? "active" : ""} `}
+                                        data-toggle="collapse"
+                                        onClick={toggleChatDropdown}
+                                        aria-expanded={chatDropdown}
+                                        data-target="#chat"
+                                        aria-controls="chat"
+                                    >
+                                        <i className={`fa-solid fa-message font-20 ${isChatDropdownActive ? "text-white" : ""}`}></i> {t("admin.sidebar.whatsapp")}{" "}
+                                        <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
+                                            style={{
+                                                rotate: chatDropdown ? "180deg" : ""
+                                            }}
+                                        ></i>
+                                    </a>
+                                </div>
+                                <div
+                                    id="chat"
+                                    className={`collapse ${isParentActive(["client_worker_chat", "worker_lead_chat"]) ? "show" : ""}`}
+                                    aria-labelledby="chat"
+                                    data-parent="#chat"
+                                >
+                                    <div className="card-body">
+                                        <ul className="list-group">
+                                            {
+                                                role !== "hr" && (
+                                                    <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
+                                                        <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                            <i className="fa fa-angle-right"></i>{" "}
+                                                            Clients/Workers Chat
+                                                        </Link>
+                                                    </li>
+                                                )
+                                            }
+                                            <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
+                                                <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
                                                     <i className="fa fa-angle-right"></i>{" "}
-                                                    Clients/Workers Chat
+                                                    Worker Leads Chat
                                                 </Link>
                                             </li>
-                                        )
-                                    }
-                                    <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
-                                        <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            Worker Leads Chat
-                                        </Link>
-                                    </li>
-                                </ul>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </li>
+                        </li>
+                    )
+                }
 
-                {role !== "hr" && (
+                {(role !== "hr" && role !== "supervisor") && (
                     <>
 
                         <li className="list-group-item">
@@ -465,7 +469,7 @@ export default function Sidebar() {
                 )
                 }
 
-                {role !== "member" && role !== "hr" && (
+                {(role !== "member" && role !== "hr" && role !== "supervisor") && (
                     <li className="list-group-item">
                         <NavLink to="/admin/income">
                             <i className="fa-solid fa-ils font-20"></i>{t("admin.sidebar.earnings")}
@@ -473,7 +477,7 @@ export default function Sidebar() {
                     </li>
                 )}
                 {
-                    role !== "hr" && (
+                    (role !== "hr" && role !== "supervisor") && (
                         <li className="list-group-item">
                             <NavLink to="/admin/notifications">
                                 <i className="fa-solid fa-bullhorn font-20"></i>{t("admin.sidebar.notification")}
@@ -510,7 +514,7 @@ export default function Sidebar() {
                         >
                             <div className="card-body">
                                 <ul className="list-group">
-                                    {role !== "member" && role !== "hr" && (
+                                    {(role !== "member" && role !== "hr" && role !== "supervisor") && (
                                         <li className={`list-group-item ${isActive(routes.manageTeam) ? "active" : ""}`}>
                                             <Link to={routes.manageTeam} style={isActive(routes.manageTeam) ? { color: "white" } : { color: "#757589" }}>
                                                 <i className="fa fa-angle-right"></i>{" "}
@@ -519,7 +523,7 @@ export default function Sidebar() {
                                         </li>
                                     )}
                                     {
-                                        role !== "hr" && (
+                                        (role !== "hr" && role !== "supervisor") && (
                                             <>
                                                 <li className={`list-group-item ${isActive(routes.services) ? "active" : ""}`}>
                                                     <Link to={routes.services} style={isActive(routes.services) ? { color: "white" } : { color: "#757589" }}>
@@ -593,5 +597,6 @@ export default function Sidebar() {
                 </div>
             </div>
         </div >
+
     );
 }

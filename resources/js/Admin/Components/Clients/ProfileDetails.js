@@ -55,7 +55,7 @@ export default function ProfileDetails({
         disable_notification: client.disable_notification ? true : false,
     })
 
-
+    const role = localStorage.getItem("admin-role");
 
     const handleNotification = async (event) => {
         const data = {
@@ -169,43 +169,47 @@ export default function ProfileDetails({
                         <span>#{client.id}</span>{" "}
                         {client.firstname + " " + client.lastname}
                     </h1>
-                    <div className="form-group w-100 mb-0 d-flex justify-content-end flex-wrap">
-                        <Link to={`/admin/schedule/view/${param.id}`}
-                            style={{ borderRadius: "5px", padding: "10px" }}
-                            className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
-                        >
-                            <i className="fas fa-hand-point-right mr-2"></i>
+                    {
+                        role != "supervisor" && (
+                            <div className="form-group w-100 mb-0 d-flex justify-content-end flex-wrap">
+                                <Link to={`/admin/schedule/view/${param.id}`}
+                                    style={{ borderRadius: "5px", padding: "10px" }}
+                                    className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
+                                >
+                                    <i className="fas fa-hand-point-right mr-2"></i>
 
-                            {scheduleStatus == "Not Sent" ||
-                                scheduleStatus == "sent"
-                                ? t("admin.schedule.scheduleMetting")
-                                : t("admin.schedule.reSchedule")}
-                        </Link>
-                        <Link to={`/admin/offers/create?c=${param.id}`}
-                            style={{ borderRadius: "5px", padding: "10px" }}
-                            className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
-                        >
-                            <i className="fas fa-hand-point-right mr-2"></i>
-                            {offerStatus == "Not Sent" ||
-                                offerStatus == "sent"
-                                ? t("admin.schedule.sendOffer")
-                                : ("Re-" + t("admin.schedule.sendOffer"))}
-                        </Link>
-                        <Link
-                            to={`/admin/create-client-job/${param.id}`}
-                            id="bookBtn"
-                            style={{ display: "none", borderRadius: "5px", padding: "10px" }}
-                            className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
-                        >
-                            <i className="fas fa-hand-point-right mr-2"></i>{t("admin.schedule.bookClient")}
-                        </Link>
-                        <Link
-                            className="btn navyblue no-hover mt-2 "
-                            to={`/admin/clients/${param.id}/edit`}
-                        >
-                            {t("admin.global.Edit")}
-                        </Link>
-                    </div>
+                                    {scheduleStatus == "Not Sent" ||
+                                        scheduleStatus == "sent"
+                                        ? t("admin.schedule.scheduleMetting")
+                                        : t("admin.schedule.reSchedule")}
+                                </Link>
+                                <Link to={`/admin/offers/create?c=${param.id}`}
+                                    style={{ borderRadius: "5px", padding: "10px" }}
+                                    className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
+                                >
+                                    <i className="fas fa-hand-point-right mr-2"></i>
+                                    {offerStatus == "Not Sent" ||
+                                        offerStatus == "sent"
+                                        ? t("admin.schedule.sendOffer")
+                                        : ("Re-" + t("admin.schedule.sendOffer"))}
+                                </Link>
+                                <Link
+                                    to={`/admin/create-client-job/${param.id}`}
+                                    id="bookBtn"
+                                    style={{ display: "none", borderRadius: "5px", padding: "10px" }}
+                                    className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
+                                >
+                                    <i className="fas fa-hand-point-right mr-2"></i>{t("admin.schedule.bookClient")}
+                                </Link>
+                                <Link
+                                    className="btn navyblue no-hover mt-2 "
+                                    to={`/admin/clients/${param.id}/edit`}
+                                >
+                                    {t("admin.global.Edit")}
+                                </Link>
+                            </div>
+                        )
+                    }
                 </div>
                 <div className="row d-inline">
                     <div className="">
@@ -337,22 +341,26 @@ export default function ProfileDetails({
                                                 <p className="word-break">
                                                     <span>{t("admin.client.Options.Email")}:</span> {email}
                                                 </p>
-                                                <p>
-                                                    <span>{t("admin.client.Options.Password")}:</span>
-                                                    {pass == null ? (
-                                                        <span
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                            data-toggle="modal"
-                                                            data-target="#exampleModalPass"
-                                                        >
-                                                            ******** &#128274;
-                                                        </span>
-                                                    ) : (
-                                                        <span>{pass}</span>
-                                                    )}
-                                                </p>
+                                                {
+                                                    role != "supervisor" && (
+                                                        <p>
+                                                            <span>{t("admin.client.Options.Password")}:</span>
+                                                            {pass == null ? (
+                                                                <span
+                                                                    style={{
+                                                                        cursor: "pointer",
+                                                                    }}
+                                                                    data-toggle="modal"
+                                                                    data-target="#exampleModalPass"
+                                                                >
+                                                                    ******** &#128274;
+                                                                </span>
+                                                            ) : (
+                                                                <span>{pass}</span>
+                                                            )}
+                                                        </p>
+                                                    )
+                                                }
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
@@ -411,96 +419,102 @@ export default function ProfileDetails({
 
                                         </div>
                                     </div>
-                                    <label className="control-label navyblueColor mt-2" >
-                                        <b>{t("global.disable_notification")}:</b>
-                                    </label>
-                                    <div className="row">
-                                        <div className="col-sm">
-                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
-                                                <label htmlFor="review_notification" className="control-label navyblueColor" >
-                                                    {t("global.review_notification")}
+                                    {
+                                        role != "supervisor" && (
+                                            <>
+                                                <label className="control-label navyblueColor mt-2" >
+                                                    <b>{t("global.disable_notification")}:</b>
                                                 </label>
-                                                <input
-                                                    type="checkbox"
-                                                    id="review_notification"
-                                                    className="mx-2"
-                                                    checked={notifications.review_notification}
-                                                    onChange={(e) => setNotifications({
-                                                        ...notifications,
-                                                        review_notification: e.target.checked
-                                                    })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-sm">
-                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
-                                                <label htmlFor="monday_notification" className="control-label navyblueColor" >
-                                                    {t("global.monday_notification")}
-                                                </label>
-                                                <input
-                                                    type="checkbox"
-                                                    id="monday_notification"
-                                                    className="mx-2"
-                                                    checked={notifications.monday_notification}
-                                                    onChange={(e) => setNotifications({
-                                                        ...notifications,
-                                                        monday_notification: e.target.checked
-                                                    })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-sm">
-                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
-                                                <label htmlFor="wednesday_notification" className="control-label navyblueColor" >
-                                                    {t("global.wednesday_notification")}
-                                                </label>
-                                                <input
-                                                    type="checkbox"
-                                                    id="wednesday_notification"
-                                                    className="mx-2"
-                                                    checked={notifications.wednesday_notification}
-                                                    onChange={(e) => setNotifications({
-                                                        ...notifications,
-                                                        wednesday_notification: e.target.checked
-                                                    })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-sm">
-                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
-                                                <label htmlFor="s_bot_notification" className="control-label navyblueColor" >
-                                                    {t("global.s_bot_notification")}
-                                                </label>
-                                                <input
-                                                    type="checkbox"
-                                                    id="s_bot_notification"
-                                                    className="mx-2"
-                                                    checked={notifications.s_bot_notification}
-                                                    onChange={(e) => setNotifications({
-                                                        ...notifications,
-                                                        s_bot_notification: e.target.checked
-                                                    })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-sm">
-                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
-                                                <label htmlFor="all_notification" className="control-label navyblueColor" >
-                                                    {t("global.all_notification")}
-                                                </label>
-                                                <input
-                                                    type="checkbox"
-                                                    id="all_notification"
-                                                    className="mx-2"
-                                                    checked={notifications.disable_notification}
-                                                    onChange={(e) => setNotifications({
-                                                        ...notifications,
-                                                        disable_notification: e.target.checked
-                                                    })}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+                                                <div className="row">
+                                                    <div className="col-sm">
+                                                        <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                            <label htmlFor="review_notification" className="control-label navyblueColor" >
+                                                                {t("global.review_notification")}
+                                                            </label>
+                                                            <input
+                                                                type="checkbox"
+                                                                id="review_notification"
+                                                                className="mx-2"
+                                                                checked={notifications.review_notification}
+                                                                onChange={(e) => setNotifications({
+                                                                    ...notifications,
+                                                                    review_notification: e.target.checked
+                                                                })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-sm">
+                                                        <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                            <label htmlFor="monday_notification" className="control-label navyblueColor" >
+                                                                {t("global.monday_notification")}
+                                                            </label>
+                                                            <input
+                                                                type="checkbox"
+                                                                id="monday_notification"
+                                                                className="mx-2"
+                                                                checked={notifications.monday_notification}
+                                                                onChange={(e) => setNotifications({
+                                                                    ...notifications,
+                                                                    monday_notification: e.target.checked
+                                                                })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-sm">
+                                                        <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                            <label htmlFor="wednesday_notification" className="control-label navyblueColor" >
+                                                                {t("global.wednesday_notification")}
+                                                            </label>
+                                                            <input
+                                                                type="checkbox"
+                                                                id="wednesday_notification"
+                                                                className="mx-2"
+                                                                checked={notifications.wednesday_notification}
+                                                                onChange={(e) => setNotifications({
+                                                                    ...notifications,
+                                                                    wednesday_notification: e.target.checked
+                                                                })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-sm">
+                                                        <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                            <label htmlFor="s_bot_notification" className="control-label navyblueColor" >
+                                                                {t("global.s_bot_notification")}
+                                                            </label>
+                                                            <input
+                                                                type="checkbox"
+                                                                id="s_bot_notification"
+                                                                className="mx-2"
+                                                                checked={notifications.s_bot_notification}
+                                                                onChange={(e) => setNotifications({
+                                                                    ...notifications,
+                                                                    s_bot_notification: e.target.checked
+                                                                })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-sm">
+                                                        <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                            <label htmlFor="all_notification" className="control-label navyblueColor" >
+                                                                {t("global.all_notification")}
+                                                            </label>
+                                                            <input
+                                                                type="checkbox"
+                                                                id="all_notification"
+                                                                className="mx-2"
+                                                                checked={notifications.disable_notification}
+                                                                onChange={(e) => setNotifications({
+                                                                    ...notifications,
+                                                                    disable_notification: e.target.checked
+                                                                })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )
+                                    }
                                 </div>
 
                                 <div

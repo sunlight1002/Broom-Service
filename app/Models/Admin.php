@@ -84,7 +84,7 @@ class Admin extends Authenticatable
 
     public function tasks()
     {
-        return $this->morphToMany(TaskManagement::class, 'assignable','task_workers','assignable_id', 'task_management_id');
+        return $this->morphToMany(TaskManagement::class, 'assignable', 'task_workers', 'assignable_id', 'task_management_id');
     }
 
     public function tokens()
@@ -101,5 +101,9 @@ class Admin extends Authenticatable
     {
         $this->notify(new CustomResetPassword($token, "admin"));
     }
-    
+
+    public function jobs()
+    {
+        return $this->belongsToMany(Job::class, 'supervisors_jobs', 'supervisor_id', 'job_id');
+    }
 }

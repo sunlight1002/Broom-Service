@@ -41,7 +41,6 @@ export default function EditTeam() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setBankDetails((prevDetails) => ({
@@ -601,6 +600,21 @@ export default function EditTeam() {
                                         }
                                     />{" "}
                                     <label htmlFor="hr">Hr</label>
+                                    <input
+                                        type="radio"
+                                        name="role"
+                                        id="supervisor"
+                                        value="supervisor"
+                                        style={{
+                                            height: "unset",
+                                            marginLeft: "10px",
+                                        }}
+                                        checked={role == "supervisor"}
+                                        onChange={(e) =>
+                                            setRole(e.target.value)
+                                        }
+                                    />{" "}
+                                    <label htmlFor="supervisor">{t("global.supervisor")}</label>
                                 </div>
                                 <div className="form-group">
                                     <input

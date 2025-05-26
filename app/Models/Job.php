@@ -205,4 +205,9 @@ class Job extends Model
     {
         return $this->hasMany(Conflict::class, 'job_id');
     }
+
+    public function supervisors()
+    {
+        return $this->belongsToMany(Admin::class, 'supervisors_jobs', 'job_id', 'supervisor_id');
+    }
 }
