@@ -33,8 +33,8 @@ export default function Contract() {
         end_date: "",
     });
 
-    const [selectedDateRange, setSelectedDateRange] = useState("Day");
-    const [selectedDateStep, setSelectedDateStep] = useState("Current");
+    const [selectedDateRange, setSelectedDateRange] = useState("");
+    const [selectedDateStep, setSelectedDateStep] = useState("");
 
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
@@ -491,38 +491,50 @@ export default function Contract() {
             _startMoment = Moment("2000-01-01");
         }
 
-        setDateRange({
-            start_date: _startMoment.format("YYYY-MM-DD"),
-            end_date: _endMoment.format("YYYY-MM-DD"),
-        });
+        if (selectedDateRange == "" && selectedDateStep == "") {
+            setDateRange({
+                start_date: "",
+                end_date: "",
+            });
+        } else {
+            setDateRange({
+                start_date: _startMoment.format("YYYY-MM-DD"),
+                end_date: _endMoment.format("YYYY-MM-DD"),
+            });
+        }
     }, [selectedDateRange, selectedDateStep]);
 
     useEffect(() => {
-        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Day") {
-            localStorage.setItem("selectedDateRange", "Day");
+        if (!localStorage.getItem("selectedDateRangeContract") && selectedDateRange == "Day") {
+            localStorage.setItem("selectedDateRangeContract", "Day");
         }
-        if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
-            localStorage.setItem("selectedDateStep", "Current");
+        if (!localStorage.getItem("selectedDateStepContract") && selectedDateStep == "Current") {
+            localStorage.setItem("selectedDateStepContract", "Current");
         }
-        const storedDateRange = localStorage.getItem("dateRange");
+        const storedDateRange = localStorage.getItem("dateRangeContract");
         if (storedDateRange) {
             setDateRange(JSON.parse(storedDateRange)); // Parse JSON string back into an object
         }
 
-        const storedFilter = localStorage.getItem("selectedDateRange") || "Day"; // Default to "Day" if no value is set
+        const storedFilter = localStorage.getItem("selectedDateRangeContract") || ""; // Default to "Day" if no value is set
         setSelectedDateRange(storedFilter);
 
-        const storedFilter2 = localStorage.getItem("selectedDateStep") || "Current"; // Default to "Day" if no value is set
+        const storedFilter2 = localStorage.getItem("selectedDateStepContract") || ""; // Default to "Day" if no value is set
         setSelectedDateStep(storedFilter2);
+
+        const selectedFilterContract = localStorage.getItem("selectedFilterContract") || "All"; // Default to "Day" if no value is set
+        setFilter(selectedFilterContract);
 
     }, [selectedDateRange, selectedDateStep]);
 
     const resetLocalStorage = () => {
-        localStorage.removeItem("selectedDateRange");
-        localStorage.removeItem("selectedDateStep");
-        localStorage.removeItem("dateRange");
-        setSelectedDateRange("Week");
-        setSelectedDateStep("Current");
+        localStorage.removeItem("selectedDateRangeContract");
+        localStorage.removeItem("selectedDateStepContract");
+        localStorage.removeItem("dateRangeContract");
+        localStorage.removeItem("selectedFilterContract");
+        setSelectedDateRange("");
+        setSelectedDateStep("");
+        setFilter("All");
         setDateRange({ start_date: "", end_date: "" });
         alert.success("Filters reset successfully");
         // localStorage.setItem(
@@ -578,6 +590,12 @@ export default function Contract() {
                                     key={key}
                                     selectedFilter={filter}
                                     setselectedFilter={(status) => setFilter(status)}
+                                    onClick={() => {
+                                        localStorage.setItem(
+                                            "selectedFilterContract",
+                                            key
+                                        );
+                                    }}
                                 />
                             ))}
                             <input
@@ -611,12 +629,24 @@ export default function Contract() {
                             className="px-4 mr-1"
                             selectedFilter={selectedDateRange}
                             setselectedFilter={setSelectedDateRange}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "selectedDateRangeContract",
+                                    "Day"
+                                );
+                            }}
                         />
                         <FilterButtons
                             text={t("global.week")}
                             className="px-4 mr-1"
                             selectedFilter={selectedDateRange}
                             setselectedFilter={setSelectedDateRange}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "selectedDateRangeContract",
+                                    "Week"
+                                );
+                            }}
                         />
 
                         <FilterButtons
@@ -624,6 +654,12 @@ export default function Contract() {
                             className="px-4 mr-3"
                             selectedFilter={selectedDateRange}
                             setselectedFilter={setSelectedDateRange}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "selectedDateRangeContract",
+                                    "Month"
+                                );
+                            }}
                         />
 
                         <FilterButtons
@@ -631,18 +667,36 @@ export default function Contract() {
                             className="px-3 mr-1"
                             selectedFilter={selectedDateStep}
                             setselectedFilter={setSelectedDateStep}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "selectedDateStepContract",
+                                    "Previous"
+                                );
+                            }}
                         />
                         <FilterButtons
                             text={t("global.current")}
                             className="px-3 mr-1"
                             selectedFilter={selectedDateStep}
                             setselectedFilter={setSelectedDateStep}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "selectedDateStepContract",
+                                    "Current"
+                                );
+                            }}
                         />
                         <FilterButtons
                             text={t("global.next")}
                             className="px-3"
                             selectedFilter={selectedDateStep}
                             setselectedFilter={setSelectedDateStep}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "selectedDateStepContract",
+                                    "Next"
+                                );
+                            }}
                         />
                     </div>
                 </div>
@@ -674,6 +728,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setFilter("All");
+                                        localStorage.setItem("selectedFilterContract", "All");
                                     }}
                                 >
                                     {t("admin.leads.All")}
@@ -682,6 +737,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setFilter("verified");
+                                        localStorage.setItem("selectedFilterContract", "verified");
                                     }}
                                 >
                                     {t("global.verified")}
@@ -690,6 +746,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setFilter("un-verified");
+                                        localStorage.setItem("selectedFilterContract", "un-verified");
                                     }}
                                 >
                                     {t("global.unverified")}
@@ -698,6 +755,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setFilter("not-signed");
+                                        localStorage.setItem("selectedFilterContract", "not-signed");
                                     }}
                                 >
                                     {t("global.notSigned")}
@@ -706,6 +764,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setFilter("declined");
+                                        localStorage.setItem("selectedFilterContract", "declined");
                                     }}
                                 >
                                     {t("admin.schedule.options.meetingStatus.Declined")}
@@ -742,7 +801,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setSelectedDateRange("Day");
-                                        localStorage.setItem("selectedDateRange", "Day");
+                                        localStorage.setItem("selectedDateRangeContract", "Day");
                                     }}
                                 >
                                     {t("global.day")}
@@ -751,7 +810,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setSelectedDateRange("Week");
-                                        localStorage.setItem("selectedDateRange", "Week");
+                                        localStorage.setItem("selectedDateRangeContract", "Week");
                                     }}
                                 >
                                     {t("global.week")}
@@ -760,7 +819,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setSelectedDateRange("Month");
-                                        localStorage.setItem("selectedDateRange", "Month");
+                                        localStorage.setItem("selectedDateRangeContract", "Month");
                                     }}
                                 >
                                     {t("global.month")}
@@ -796,7 +855,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setSelectedDateStep("Previous");
-                                        localStorage.setItem("selectedDateStep", "Previous");
+                                        localStorage.setItem("selectedDateStepContract", "Previous");
                                     }}
                                 >
                                     {t("client.previous")}
@@ -805,7 +864,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setSelectedDateStep("Current");
-                                        localStorage.setItem("selectedDateStep", "Current");
+                                        localStorage.setItem("selectedDateStepContract", "Current");
                                     }}
                                 >
                                     {t("global.current")}
@@ -814,7 +873,7 @@ export default function Contract() {
                                     className="dropdown-item"
                                     onClick={() => {
                                         setSelectedDateStep("Next");
-                                        localStorage.setItem("selectedDateStep", "Next");
+                                        localStorage.setItem("selectedDateStepContract", "Next");
                                     }}
                                 >
                                     {t("global.next")}
@@ -849,7 +908,7 @@ export default function Contract() {
 
                                 setDateRange(updatedDateRange);
                                 localStorage.setItem(
-                                    "dateRange",
+                                    "dateRangeContract",
                                     JSON.stringify(updatedDateRange)
                                 );
                             }}
@@ -871,7 +930,7 @@ export default function Contract() {
                                 setDateRange(updatedDateRange);
                                 // Corrected: JSON.stringify instead of json.stringify
                                 localStorage.setItem(
-                                    "dateRange",
+                                    "dateRangeContract",
                                     JSON.stringify(updatedDateRange)
                                 );
                             }}

@@ -1,8 +1,6 @@
 
 
 const handleLocalStorage = (name) => {
-    console.log("Setting localStorage:", name);
-
     const validNames = ["Day", "Week", "Month"];
     const validTypes = ["Previous", "Next", "Current"];
     if (validNames.includes(name)) {
@@ -40,7 +38,7 @@ const FilterButtons = ({
         onClick={() => {
             onClick?.();
             setselectedFilter(name);
-            handleLocalStorage(name);
+            // handleLocalStorage(name);
         }}
     >
         {text}

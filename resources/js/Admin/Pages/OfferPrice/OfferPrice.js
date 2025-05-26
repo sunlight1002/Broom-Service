@@ -40,8 +40,8 @@ export default function OfferPrice() {
         end_date: "",
     });
 
-    const [selectedDateRange, setSelectedDateRange] = useState("Day");
-    const [selectedDateStep, setSelectedDateStep] = useState("Current");
+    const [selectedDateRange, setSelectedDateRange] = useState("");
+    const [selectedDateStep, setSelectedDateStep] = useState("");
 
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
@@ -437,45 +437,53 @@ export default function OfferPrice() {
             _startMoment = Moment("2000-01-01");
         }
 
-        setDateRange({
-            start_date: _startMoment.format("YYYY-MM-DD"),
-            end_date: _endMoment.format("YYYY-MM-DD"),
-        });
+        if (selectedDateRange == "" && selectedDateStep == "") {
+            setDateRange({
+                start_date: "",
+                end_date: "",
+            });
+        } else {
+            setDateRange({
+                start_date: _startMoment.format("YYYY-MM-DD"),
+                end_date: _endMoment.format("YYYY-MM-DD"),
+            });
+        }
     }, [selectedDateRange, selectedDateStep]);
 
     useEffect(() => {
-        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Day") {
-            localStorage.setItem("selectedDateRange", "Day");
+        if (!localStorage.getItem("selectedDateRangeOffer") && selectedDateRange == "Day") {
+            localStorage.setItem("selectedDateRangeOffer", "Day");
         }
-        if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
-            localStorage.setItem("selectedDateStep", "Current");
+        if (!localStorage.getItem("selectedDateStepOffer") && selectedDateStep == "Current") {
+            localStorage.setItem("selectedDateStepOffer", "Current");
         }
-        const storedDateRange = localStorage.getItem("dateRange");
+
+        const storedDateRange = localStorage.getItem("dateRangeOffer");
         if (storedDateRange) {
             setDateRange(JSON.parse(storedDateRange)); // Parse JSON string back into an object
         }
 
-        const storedFilter = localStorage.getItem("selectedDateRange") || "Day"; // Default to "Day" if no value is set
+        const storedFilter = localStorage.getItem("selectedDateRangeOffer") || ""; // Default to "Day" if no value is set
         setSelectedDateRange(storedFilter);
 
-        const storedFilter2 = localStorage.getItem("selectedDateStep") || "Current"; // Default to "Day" if no value is set
+        const storedFilter2 = localStorage.getItem("selectedDateStepOffer") || ""; // Default to "Day" if no value is set
         setSelectedDateStep(storedFilter2);
+
+        const selectedFilterOffer = localStorage.getItem("selectedFilterOffer") || "All"; // Default to "Day" if no value is set
+        setFilter(selectedFilterOffer);
 
     }, [selectedDateRange, selectedDateStep]);
 
     const resetLocalStorage = () => {
-        localStorage.removeItem("selectedDateRange");
-        localStorage.removeItem("selectedDateStep");
-        localStorage.removeItem("dateRange");
-        setSelectedDateRange("Week");
-        setSelectedDateStep("Current");
+        localStorage.removeItem("selectedDateRangeOffer");
+        localStorage.removeItem("selectedDateStepOffer");
+        localStorage.removeItem("dateRangeOffer");
+        localStorage.removeItem("selectedFilterOffer");
+        setSelectedDateRange("");
+        setSelectedDateStep("");
+        setFilter("All");
         setDateRange({ start_date: "", end_date: "" });
         alert.success("Filters reset successfully");
-        // localStorage.setItem(
-        //     "dateRange",
-        //     JSON.stringify({ start_date: "", end_date: "" })
-        // );
-
     }
 
     return (
@@ -525,6 +533,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setFilter("All");
+                                                localStorage.setItem("selectedFilterOffer", "All");
                                             }}
                                         >
                                             {t("admin.leads.All")}
@@ -533,6 +542,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setFilter("Sent");
+                                                localStorage.setItem("selectedFilterOffer", "Sent");
                                             }}
                                         >
                                             {t("global.sent")}
@@ -541,6 +551,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setFilter("Accepted");
+                                                localStorage.setItem("selectedFilterOffer", "Accepted");
                                             }}
                                         >
                                             {t("modal.accepted")}
@@ -549,6 +560,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setFilter("Declined");
+                                                localStorage.setItem("selectedFilterOffer", "Declined");
                                             }}
                                         >
                                             {t("admin.schedule.options.meetingStatus.Declined")}
@@ -584,8 +596,8 @@ export default function OfferPrice() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
+                                                localStorage.setItem("selectedDateRangeOffer", "Day");
                                                 setSelectedDateRange("Day");
-                                                localStorage.setItem("selectedDateRange", "Day");
                                             }}
                                         >
                                             {t("global.day")}
@@ -593,8 +605,8 @@ export default function OfferPrice() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
+                                                localStorage.setItem("selectedDateRangeOffer", "Week");
                                                 setSelectedDateRange("Week");
-                                                localStorage.setItem("selectedDateRange", "Week");
                                             }}
                                         >
                                             {t("global.week")}
@@ -602,8 +614,8 @@ export default function OfferPrice() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
+                                                localStorage.setItem("selectedDateRangeOffer", "Month");
                                                 setSelectedDateRange("Month");
-                                                localStorage.setItem("selectedDateRange", "Month");
                                             }}
                                         >
                                             {t("global.month")}
@@ -639,7 +651,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setSelectedDateStep("Previous");
-                                                localStorage.setItem("selectedDateStep", "Previous");
+                                                localStorage.setItem("selectedDateStepOffer", "Previous");
                                             }}
                                         >
                                             {t("client.previous")}
@@ -648,7 +660,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setSelectedDateStep("Current");
-                                                localStorage.setItem("selectedDateStep", "Current");
+                                                localStorage.setItem("selectedDateStepOffer", "Current");
                                             }}
                                         >
                                             {t("global.current")}
@@ -657,7 +669,7 @@ export default function OfferPrice() {
                                             className="dropdown-item"
                                             onClick={() => {
                                                 setSelectedDateStep("Next");
-                                                localStorage.setItem("selectedDateStep", "Next");
+                                                localStorage.setItem("selectedDateStepOffer", "Next");
                                             }}
                                         >
                                             {t("global.next")}
@@ -704,6 +716,9 @@ export default function OfferPrice() {
                                     key={key}
                                     selectedFilter={filter}
                                     setselectedFilter={(status) => setFilter(status)}
+                                    onClick={() => {
+                                        localStorage.setItem("selectedFilterOffer", key);
+                                    }}
                                 />
                             ))}
                         </div>
@@ -732,12 +747,18 @@ export default function OfferPrice() {
                             className="px-4 mr-1"
                             selectedFilter={selectedDateRange}
                             setselectedFilter={setSelectedDateRange}
+                            onClick={() => {
+                                localStorage.setItem("selectedDateRangeOffer", "Day");
+                            }}
                         />
                         <FilterButtons
                             text={t("global.week")}
                             className="px-4 mr-1"
                             selectedFilter={selectedDateRange}
                             setselectedFilter={setSelectedDateRange}
+                            onClick={() => {
+                                localStorage.setItem("selectedDateRangeOffer", "Week");
+                            }}
                         />
 
                         <FilterButtons
@@ -745,6 +766,9 @@ export default function OfferPrice() {
                             className="px-4 mr-3"
                             selectedFilter={selectedDateRange}
                             setselectedFilter={setSelectedDateRange}
+                            onClick={() => {
+                                localStorage.setItem("selectedDateRangeOffer", "Month");
+                            }}
                         />
 
                         <FilterButtons
@@ -752,18 +776,27 @@ export default function OfferPrice() {
                             className="px-3 mr-1"
                             selectedFilter={selectedDateStep}
                             setselectedFilter={setSelectedDateStep}
+                            onClick={() => {
+                                localStorage.setItem("selectedDateStepOffer", "Previous");
+                            }}
                         />
                         <FilterButtons
                             text={t("global.current")}
                             className="px-3 mr-1"
                             selectedFilter={selectedDateStep}
                             setselectedFilter={setSelectedDateStep}
+                            onClick={() => {
+                                localStorage.setItem("selectedDateStepOffer", "Current");
+                            }}
                         />
                         <FilterButtons
                             text={t("global.next")}
                             className="px-3"
                             selectedFilter={selectedDateStep}
                             setselectedFilter={setSelectedDateStep}
+                            onClick={() => {
+                                localStorage.setItem("selectedDateStepOffer", "Next");
+                            }}
                         />
                     </div>
                 </div>
@@ -793,7 +826,7 @@ export default function OfferPrice() {
 
                                 setDateRange(updatedDateRange);
                                 localStorage.setItem(
-                                    "dateRange",
+                                    "dateRangeOffer",
                                     JSON.stringify(updatedDateRange)
                                 );
                             }}
@@ -815,7 +848,7 @@ export default function OfferPrice() {
                                 setDateRange(updatedDateRange);
                                 // Corrected: JSON.stringify instead of json.stringify
                                 localStorage.setItem(
-                                    "dateRange",
+                                    "dateRangeOffer",
                                     JSON.stringify(updatedDateRange)
                                 );
                             }}

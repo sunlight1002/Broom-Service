@@ -438,32 +438,37 @@ export default function Schedule() {
     }, [selectedDateRange, selectedDateStep]);
 
     useEffect(() => {
-        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Day") {
-            localStorage.setItem("selectedDateRange", "Day");
+        if (!localStorage.getItem("selectedDateRangeMeeting") && selectedDateRange == "Day") {
+            localStorage.setItem("selectedDateRangeMeeting", "Day");
         }
-        if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
-            localStorage.setItem("selectedDateStep", "Current");
+        if (!localStorage.getItem("selectedDateStepMeeting") && selectedDateStep == "Current") {
+            localStorage.setItem("selectedDateStepMeeting", "Current");
         }
-        const storedDateRange = localStorage.getItem("dateRange");
+        const storedDateRange = localStorage.getItem("dateRangeMeeting");
         if (storedDateRange) {
             setDateRange(JSON.parse(storedDateRange)); // Parse JSON string back into an object
         }
 
-        const storedFilter = localStorage.getItem("selectedDateRange") || "Day"; // Default to "Day" if no value is set
+        const storedFilter = localStorage.getItem("selectedDateRangeMeeting") || "Day"; // Default to "Day" if no value is set
         setSelectedDateRange(storedFilter);
 
-        const storedFilter2 = localStorage.getItem("selectedDateStep") || "Current"; // Default to "Day" if no value is set
+        const storedFilter2 = localStorage.getItem("selectedDateStepMeeting") || "Current"; // Default to "Day" if no value is set
         setSelectedDateStep(storedFilter2);
+
+        const storedFilter3 = localStorage.getItem("selectedFilterMeeting") || "All";
+        setFilter(storedFilter3);
 
     }, [selectedDateRange, selectedDateStep]);
 
     const resetLocalStorage = () => {
-        localStorage.removeItem("selectedDateRange");
-        localStorage.removeItem("selectedDateStep");
-        localStorage.removeItem("dateRange");
-        setSelectedDateRange("Week");
+        localStorage.removeItem("selectedDateRangeMeeting");
+        localStorage.removeItem("selectedDateStepMeeting");
+        localStorage.removeItem("dateRangeMeeting");
+        localStorage.removeItem("selectedFilterMeeting");
+        setSelectedDateRange("Day");
         setSelectedDateStep("Current");
-        setDateRange({ start_date: "", end_date: "" });
+        setFilter("All");
+        // setDateRange({ start_date: "", end_date: "" });
         alert.success("Filters reset successfully");
         // localStorage.setItem(
         //     "dateRange",
@@ -519,6 +524,9 @@ export default function Schedule() {
                                         key={_index}
                                         selectedFilter={filter}
                                         setselectedFilter={setFilter}
+                                        onClick={() => {
+                                            localStorage.setItem("selectedFilterMeeting", _status);
+                                        }}
                                     />
                                 );
                             })}
@@ -557,7 +565,8 @@ export default function Schedule() {
                                     <button
                                         className="dropdown-item"
                                         onClick={() => {
-                                            setFilter("Day");
+                                            setFilter("All");
+                                            localStorage.setItem("selectedFilterMeeting", "Day");
                                         }}
                                     >
                                         {t("admin.global.All")}
@@ -570,6 +579,7 @@ export default function Schedule() {
                                                 key={_index}
                                                 onClick={() => {
                                                     setFilter(_status);
+                                                    localStorage.setItem("selectedFilterMeeting", _status);
                                                 }}
                                             >
                                                 {_status}
@@ -603,12 +613,18 @@ export default function Schedule() {
                                 className="px-4 mr-1"
                                 selectedFilter={selectedDateRange}
                                 setselectedFilter={setSelectedDateRange}
+                                onClick={() => {
+                                    localStorage.setItem("selectedDateRangeMeeting", "Day");
+                                }}
                             />
                             <FilterButtons
                                 text={t("global.week")}
                                 className="px-4 mr-1"
                                 selectedFilter={selectedDateRange}
                                 setselectedFilter={setSelectedDateRange}
+                                onClick={() => {
+                                    localStorage.setItem("selectedDateRangeMeeting", "Week");
+                                }}
                             />
 
                             <FilterButtons
@@ -616,6 +632,9 @@ export default function Schedule() {
                                 className="px-4 mr-3"
                                 selectedFilter={selectedDateRange}
                                 setselectedFilter={setSelectedDateRange}
+                                onClick={() => {
+                                    localStorage.setItem("selectedDateRangeMeeting", "Month");
+                                }}
                             />
 
                             <FilterButtons
@@ -623,18 +642,27 @@ export default function Schedule() {
                                 className="px-3 mr-1"
                                 selectedFilter={selectedDateStep}
                                 setselectedFilter={setSelectedDateStep}
+                                onClick={() => {
+                                    localStorage.setItem("selectedDateStepMeeting", "Previous");
+                                }}
                             />
                             <FilterButtons
                                 text={t("global.current")}
                                 className="px-3 mr-1"
                                 selectedFilter={selectedDateStep}
                                 setselectedFilter={setSelectedDateStep}
+                                onClick={() => {
+                                    localStorage.setItem("selectedDateStepMeeting", "Current");
+                                }}
                             />
                             <FilterButtons
                                 text={t("global.next")}
                                 className="px-3"
                                 selectedFilter={selectedDateStep}
                                 setselectedFilter={setSelectedDateStep}
+                                onClick={() => {
+                                    localStorage.setItem("selectedDateStepMeeting", "Next");
+                                }}
                             />
                         </div>
                     </div>
@@ -666,7 +694,7 @@ export default function Schedule() {
                                         className="dropdown-item"
                                         onClick={() => {
                                             setSelectedDateRange("Day");
-                                            localStorage.setItem("selectedDateRange", "Day");
+                                            localStorage.setItem("selectedDateRangeMeeting", "Day");
                                         }}
                                     >
                                         {t("global.day")}
@@ -675,7 +703,7 @@ export default function Schedule() {
                                         className="dropdown-item"
                                         onClick={() => {
                                             setSelectedDateRange("Week");
-                                            localStorage.setItem("selectedDateRange", "Week");
+                                            localStorage.setItem("selectedDateRangeMeeting", "Week");
                                         }}
                                     >
                                         {t("global.week")}
@@ -684,7 +712,7 @@ export default function Schedule() {
                                         className="dropdown-item"
                                         onClick={() => {
                                             setSelectedDateRange("Month");
-                                            localStorage.setItem("selectedDateRange", "Month");
+                                            localStorage.setItem("selectedDateRangeMeeting", "Month");
                                         }}
                                     >
                                         {t("global.month")}
@@ -720,7 +748,7 @@ export default function Schedule() {
                                         className="dropdown-item"
                                         onClick={() => {
                                             setSelectedDateStep("Previous");
-                                            localStorage.setItem("selectedDateStep", "Previous");
+                                            localStorage.setItem("selectedDateStepMeeting", "Previous");
                                         }}
                                     >
                                         {t("client.previous")}
@@ -729,7 +757,7 @@ export default function Schedule() {
                                         className="dropdown-item"
                                         onClick={() => {
                                             setSelectedDateStep("Current");
-                                            localStorage.setItem("selectedDateStep", "Current");
+                                            localStorage.setItem("selectedDateStepMeeting", "Current");
                                         }}
                                     >
                                         {t("global.current")}
@@ -738,7 +766,7 @@ export default function Schedule() {
                                         className="dropdown-item"
                                         onClick={() => {
                                             setSelectedDateStep("Next");
-                                            localStorage.setItem("selectedDateStep", "Next");
+                                            localStorage.setItem("selectedDateStepMeeting", "Next");
                                         }}
                                     >
                                         {t("global.next")}
@@ -774,7 +802,7 @@ export default function Schedule() {
 
                                 setDateRange(updatedDateRange);
                                 localStorage.setItem(
-                                    "dateRange",
+                                    "dateRangeMeeting",
                                     JSON.stringify(updatedDateRange)
                                 );
                             }}
@@ -796,7 +824,7 @@ export default function Schedule() {
                                 setDateRange(updatedDateRange);
                                 // Corrected: JSON.stringify instead of json.stringify
                                 localStorage.setItem(
-                                    "dateRange",
+                                    "dateRangeMeeting",
                                     JSON.stringify(updatedDateRange)
                                 );
                             }}
