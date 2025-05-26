@@ -64,6 +64,9 @@ export default function TotalJobs() {
     const alert = useAlert();
     const navigate = useNavigate();
 
+    const shouldDisable = role === "supervisor";
+    const buttonAttributes = shouldDisable ? "disabled" : "";
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -330,7 +333,7 @@ export default function TotalJobs() {
                         width: "5%",
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input disabled="${role == "supervisor"}" type="checkbox" data-id="${row.id
+                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input ${buttonAttributes} type="checkbox" data-id="${row.id
                                 }" class="form-control dt-if-job-done-checkbox" ${row.is_job_done ? "checked" : ""
                                 } ${row.status == "cancel" || row.is_order_closed == 1
                                     ? "disabled"
@@ -373,14 +376,14 @@ export default function TotalJobs() {
 
                             let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center ">`;
 
-                            _html += `<button disabled="${role == "supervisor"}" type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
+                            _html += `<button ${buttonAttributes} type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
                                 }" data-hours="${_hours}" ${isOrderClosed ? "disabled" : ""
                                 } style="pointer-events: ${_hours === 0 ? "none" : "auto"
                                 }, opacity: ${_hours === 0 ? 0.5 : 1};"> - </button>`;
 
                             _html += `<span class="mx-1 time-counter" style="background-color: ${_timeBGColor}"> ${_hours} </span>`;
 
-                            _html += `<button disabled="${role == "supervisor"}" type="button" class="time-counter dt-time-counter-inc" ${isOrderClosed ? "disabled" : ""
+                            _html += `<button ${buttonAttributes} type="button" class="time-counter dt-time-counter-inc" ${isOrderClosed ? "disabled" : ""
                                 } data-id="${row.id
                                 }" data-hours="${_hours}"> + </button>`;
 
@@ -464,9 +467,9 @@ export default function TotalJobs() {
                                     _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
                                 }
 
-                                if(!row.is_assigned_to_supervisor){
+                                if (!row.is_assigned_to_supervisor) {
                                     _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">Assign Supervisor</button>`;
-                                }else{
+                                } else {
                                     _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">Remove job from assign</button>`;
                                 }
                             }
