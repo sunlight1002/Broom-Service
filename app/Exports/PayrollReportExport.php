@@ -20,7 +20,7 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Cell\Hyperlink;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Log;
 
 class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithStyles, WithStrictNullComparison, WithColumnFormatting,WithEvents
 {
@@ -73,6 +73,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
             'תשלום נטו/NET PAYMENT',
             'דוח הרופא/DOCTOR REPORT',
             '101 טופס/Form 101',
+            'Final Letter',
 
         ];
 
@@ -83,6 +84,9 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
     {
         $doctorReportUrl = $row['Doctor Report'] ? url(Storage::url($row['Doctor Report'])) : '';
         $form101Url = $row['Form 101'] ? url(Storage::url($row['Form 101'])) : '';
+        $finalLetterUrl = $row['Final Letter'] ? url(Storage::url($row['Final Letter'])) : '';
+
+        Log::info("FINAL LETTER URL IS:", $finalLetterUrl);
 
         $mappedRow = [
               $row['Number'],
@@ -99,7 +103,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
               $row['Total Days'],
               $row['Hourly Rate'] ,
               $row['Normal Payment'],
-              $row['125% Bonus Payment'] ,
+              $row['125% Bonus Payment'],
               $row['150% Bonus Payment' ],
               $row['Holiday Payment at 175%'],
               $row['Holiday Payment at 200%'],
@@ -112,6 +116,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
               $row['Net Payment'],
               $doctorReportUrl,
               $form101Url,
+              $finalLetterUrl,
         ];
 
             return $mappedRow;

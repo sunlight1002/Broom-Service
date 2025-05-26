@@ -1947,11 +1947,17 @@
         "hearing": {
             "title": "Hearings",
             "scheduleHearing": "Schedule Hearing",
+            "showClaims": "Show Claims",
+            "finalDecision": "Final Decision",
+            "generateAndSendFinalDecisionDocument": "Generate / Send Final Decision Document",
+            "documentGenerated": "Document Generated:",
             "reSchedule": "Re-schedule Hearing",
             "schedule": "Schedule",
             "sendOffer": "Send Offer",
             "bookClient": "Book Client",
             "joinedOn": "Joined On",
+            "sendMessage": "Send Message",
+            "claimDescription": "Claim Description",
             "offeredPrice": "Offered Price",
             "contract": "Contracts",
             "Jobs": "Jobs",
@@ -2064,6 +2070,26 @@
                     "Close": "Close",
                     "Cancel": "Cancel"
                 }
+            },
+            "protocol": {
+                "hearingprotocol": "Hearing Protocol",
+                "generateProtocolDocument": "Generate Protocol Document",
+                "documentGenerated": "Document Generated:",
+                "workerResponse": "Worker response:",
+                "comment": "Comment"
+            },
+            "email": {
+                "writeEmail": "Write Email",
+                "mayIknowthereasonforrejection": "May I know the reason for rejection?",
+                "suggestions": "If you have any query/suggestions or would like to reschedule the Hearing, please write us on email. We will get back to you shortly.",
+                "accept": "Accept",
+                "reject": "Reject",
+                "reschedule": "Reschedule"
+            },
+            "workerClaim": {
+                "claimForWorker": "Claim for Worker",
+                "claimDescription": "Claim Description",
+                "submitClaim": "Submit Claim"
             }
         },
         "holidays": {
@@ -2245,6 +2271,23 @@
             "status": "Status",
             "total": "Total",
             "action": "Action"
+        },
+        "hearing": {
+            "meeting": {
+                "attender": "Attender",
+                "address": "Address",
+                "scheduled": "Scheduled",
+                "purpose": "Purpose",
+                "status": "Status",
+                "document": "Document"
+            },
+            "protocol": {
+                "protocolDocument": "Protocol Document",
+                "viewClaim": "View Claim",
+                "viewProtocolDocument": "View Protocol Document",
+                "viewDecisionDocument": "View Decision Document",
+                "submitComment": "Submit Comment"
+            }
         },
         "jobs": {
             "noJobFound": "No Job found",

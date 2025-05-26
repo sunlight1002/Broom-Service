@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from "../../Layouts/WorkerSidebar";
 import axios from 'axios';
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 function Protocol() {
+    const { t, i18n } = useTranslation();
     const [protocolFile, setProtocolFile] = useState(null);
     const [DecisionFile, setDecisionFile] = useState(null);
     const [error, setError] = useState(null);
@@ -117,7 +119,7 @@ function Protocol() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Protocol Document</h1>
+                            <h1 className="page-title">{t("worker.hearing.protocol.protocolDocument")}</h1>
                         </div>
                     </div>
                 </div>
@@ -125,7 +127,7 @@ function Protocol() {
                 <div className="d-flex gap-2 mb-3">
                     {hasClaim && (
                         <button className="btn navyblue" onClick={handleFetchClaim}>
-                            View Claim
+                            {t("worker.hearing.protocol.viewClaim")}
                         </button>
                     )}
 
@@ -137,7 +139,7 @@ function Protocol() {
                             className="btn ml-2"
                             style={{ textDecoration: "none", background: "#2F4054", color: "white"}}
                         >
-                            View Protocol Document
+                            {t("worker.hearing.protocol.viewProtocolDocument")}
                         </a>
                     )}
 
@@ -149,7 +151,7 @@ function Protocol() {
                             className="btn ml-2"
                             style={{ textDecoration: "none", background: "#2F4054", color: "white"}}
                         >
-                        View Decision Document
+                            {t("worker.hearing.protocol.viewDecisionDocument")}
                         </a>
                     )}
 
@@ -176,7 +178,7 @@ function Protocol() {
                             onClick={handleSubmitComment} 
                             className="btn navyblue"
                         >
-                            Submit Comment
+                            {t("worker.hearing.protocol.submitComment")}
                         </button>
                     </div>
                 </div>

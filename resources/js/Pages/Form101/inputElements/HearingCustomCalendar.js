@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import moment from "moment";
 import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "./customCalendar.css";
@@ -14,6 +15,7 @@ function HearingCustomCalendar({ meeting }) {
     const [availableSlots, setAvailableSlots] = useState([]);
     const [bookedSlots, setBookedSlots] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const { t } = useTranslation();
 
     const alert = useAlert();
 
@@ -160,7 +162,7 @@ function HearingCustomCalendar({ meeting }) {
         <>
             <div className="mx-auto mt-5 custom-calendar">
                 <div className="border">
-                    <h5 className="mt-3">Select a Date & Time</h5>
+                    <h5 className="mt-3">{t("global.selectDateAndTimeRange")}</h5>
                     <div
                         className="d-flex gap-3 p-3"
                         style={{ overflowX: "auto" }}
@@ -215,7 +217,7 @@ function HearingCustomCalendar({ meeting }) {
                 onClick={handleSubmit}
                 disabled={isLoading}
             >
-                Submit
+                {t("global.Submit")}
             </button>
         </>
     );

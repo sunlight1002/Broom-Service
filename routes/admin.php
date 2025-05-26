@@ -436,7 +436,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/hearing-protocol/latest_invitation', [DecisionController::class, 'latest_Hearing_Invitation']);
     Route::post('/final-decision', [DecisionController::class, 'store']);
 
-    // Route::post('/final-letter', [DecisionController::class, 'generateFinalLetter']);
+    Route::post('/final-letter', [DecisionController::class, 'generateFinalLetter']);
+    Route::get('/workers/{worker}/documents', [DocumentController::class, 'getWorkerDocuments']);
+    Route::get('/workers/{workerId}/final-letter', [WorkerController::class, 'getFinalEmploymentLetter']);
 
     Route::post('/claims', [ClaimController::class, 'store']);
     Route::get('/claims/{workerId}', [ClaimController::class, 'showWorkerClaims']);

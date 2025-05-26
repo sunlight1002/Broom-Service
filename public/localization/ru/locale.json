@@ -1569,11 +1569,17 @@
         "hearing": {
             "title": "Слушания",
             "scheduleHearing": "Назначить Слушание",
+            "showClaims": "Показать претензии",
+            "finalDecision": "Окончательное решение",
+            "generateAndSendFinalDecisionDocument": "Создать / Отправить документ окончательного решения",
+            "documentGenerated": "Документ создан:",
             "reSchedule": "Переназначить Слушание",
             "schedule": "Назначить",
             "sendOffer": "Отправить Предложение",
             "bookClient": "Забронировать Клиента",
             "joinedOn": "Присоединился",
+            "sendMessage": "Отправить сообщение",
+            "claimDescription": "Описание претензии",
             "offeredPrice": "Предложенная Цена",
             "contract": "Контракты",
             "Jobs": "Работы",
@@ -1686,6 +1692,26 @@
                     "Close": "Закрыть",
                     "Cancel": "Отменить"
                 }
+            },
+            "protocol": {
+                "hearingprotocol": "Протокол слушания",
+                "generateProtocolDocument": "Создать документ протокола",
+                "documentGenerated": "Документ создан:",
+                "workerResponse": "Ответ работника:",
+                "comment": "Комментарий"
+            },
+            "email": {
+                "writeEmail": "Написать электронное письмо",
+                "mayIknowthereasonforrejection": "Могу ли я узнать причину отказа?",
+                "suggestions": "Если у вас есть вопросы/предложения или вы хотите перенести слушание, пожалуйста, напишите нам на электронную почту. Мы свяжемся с вами в ближайшее время.",
+                "accept": "Принять",
+                "reject": "Отклонить",
+                "reschedule": "Перенести"
+            },
+            "workerClaim": {
+                "claimForWorker": "Претензия к работнику",
+                "claimDescription": "Описание претензии",
+                "submitClaim": "Подать претензию"
             }
         },
         "sidebar": {
@@ -1781,6 +1807,23 @@
             "status": "Статус",
             "total": "Всего",
             "action": "Действие"
+        },
+        "hearing": {
+            "meeting": {
+                "attender": "Участник",
+                "address": "Адрес",
+                "scheduled": "Расписание",
+                "purpose": "Цель",
+                "status": "Статус",
+                "document": "Документ"
+            },
+            "protocol": {
+                "protocolDocument": "Документ протокола",
+                "viewClaim": "Просмотреть претензию",
+                "viewProtocolDocument": "Просмотреть документ протокола",
+                "viewDecisionDocument": "Просмотреть документ решения",
+                "submitComment": "Отправить комментарий"
+            }
         },
         "jobs": {
             "noJobFound": "Работы не найдены",

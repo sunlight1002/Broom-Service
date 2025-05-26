@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';                                                      
 import Sidebar from '../../Layouts/Sidebar';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 const HearingProtocol = () => {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const params = useParams();
     const workerId = params.id;
+    const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -83,7 +85,7 @@ const HearingProtocol = () => {
     <div id="container">
         <Sidebar />
         <div id="content pl-0">
-            <h1 className="page-title">Hearing Protocol</h1>
+            <h1 className="page-title">{t("admin.hearing.protocol.hearingprotocol")}</h1>
             <div className="sch-meet">
                 <div className="row mt-4">
                     <div className="col-sm-6">
@@ -93,7 +95,7 @@ const HearingProtocol = () => {
                             onClick={handleGenerateDocument}
                             className="navyblue text-white px-4 py-2 rounded mt-2"
                         >
-                            Generate Protocol Document
+                            {t("admin.hearing.protocol.generateProtocolDocument")}
                         </button>
 
                         <div className="form-group mt-4">
@@ -101,11 +103,11 @@ const HearingProtocol = () => {
                                 <div key={index} className={`flex ${msg.type === 'admin' ? 'justify-start' : msg.type === 'worker' ? 'justify-end' : 'justify-center'}`}>
                                     <div className={`p-3 rounded-lg max-w-xs ${msg.type === 'admin' ? 'bg-blue-100 text-left' : msg.type === 'worker' ? 'bg-green-100 text-right' : 'bg-gray-100 text-left'}`}>
                                         {msg.type === 'admin' ? (
-                                            <span>Document Generated: {msg.content}</span>
+                                            <span> {t("admin.hearing.protocol.documentGenerated")} {msg.content}</span>
                                         ) : msg.type === 'worker' ? (
-                                            <span>Worker response: {msg.content}</span>
+                                            <span>{t("admin.hearing.protocol.workerResponse")} {msg.content}</span>
                                         ) : (
-                                            <span>Comment: {msg.content}</span>
+                                            <span>{t("admin.hearing.protocol.comment")} {msg.content}</span>
                                         )}
                                     </div>
                                 </div>

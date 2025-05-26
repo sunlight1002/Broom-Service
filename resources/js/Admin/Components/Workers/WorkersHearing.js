@@ -295,22 +295,6 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                             <i className="fas fa-hand-point-right "></i>
                             {t("admin.hearing.scheduleHearing")}
                         </button>
-                        {/* <button 
-                                className="text-white navyblue text-left mr-2 w-full"
-                                style={{ padding: "5px", borderRadius: "5px" }}
-                                onClick={handleCreateClaim}
-                            >
-                                <i className="fas fa-upload"></i>
-                                Create Claim
-                            </button> */}
-                        {/* <button     
-                                className="text-white navyblue text-left mr-2 w-full"
-                                style={{ padding: "5px", borderRadius: "5px" }}
-                                onClick={handleUploadClaim}
-                            >
-                                <i className="fas fa-upload"></i>
-                                Upload Claim
-                            </button> */}
                     </div>
                 </div>
             </div>
@@ -364,14 +348,14 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                 backdrop="static"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Send Message</Modal.Title>
+                    <Modal.Title>{t("admin.hearing.sendMessage")}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-12">
                             <div className="form-group">
-                                <label htmlFor="claim">Claim Description</label>
+                                <label htmlFor="claim">{t("admin.hearing.claimDescription")}</label>
                                 <textarea
                                     id="claim"
                                     className="form-control"

@@ -65,7 +65,10 @@ export default function EditWorker() {
     const [longitude, setLongitude] = useState(151.2099);
     const [place, setPlace] = useState();
     const [payment, setPayment] = useState("");
-
+    const [worker, setWorker] = useState(null);
+    const [finalLetterGenerated, setFinalLetterGenerated] = useState(false);
+    const [documents, setDocuments] = useState([]);
+    const [error, setError] = useState('');
     const [employmentType, setEmploymentType] = useState("");
     const [salary, setSalary] = useState("");
 
@@ -88,6 +91,14 @@ export default function EditWorker() {
         lat: latitude,
         lng: longitude,
     };
+
+    useEffect(() => {
+        if (itemStatus === "0" && worker?.id && !finalLetterGenerated) {
+            handleFinalLetter();
+            setFinalLetterGenerated(true);
+        }
+    }, [itemStatus, worker]);
+    
 
     const handleFormValuesChange = (name, value) => {
         setFormValues(prev => ({
@@ -233,7 +244,7 @@ export default function EditWorker() {
                     full_name: _worker.full_name
                 })
                 setPayment(_worker.payment_type)
-
+                setWorker(_worker);
                 setEmploymentType(employment_type);
                 setSalary(salary);
                 setPassword(passcode);
@@ -278,6 +289,54 @@ export default function EditWorker() {
                 }
             });
     };
+
+    const handleFinalLetter = async () => {
+        if (!worker || !worker.id) {
+            setError('Worker ID is missing.');
+            return;
+        }
+    
+        try {
+            const response = await axios.post(
+                '/api/admin/final-letter',
+                {
+                    worker_id: worker.id,
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...headers,
+                    },
+                }
+            );
+    
+            const filePath = response.data.path;
+    
+            setMessages((prev) => [
+                ...prev,
+                {
+                    type: 'admin',
+                    content: `${filePath}`,
+                },
+            ]);
+
+            fetchWorkerDocuments();
+            setError('');
+        } catch (error) {
+            console.error("Error generating document:", error.response?.data || error.message);
+            setError('Failed to generate final letter.');
+        }
+    };
+
+    const fetchWorkerDocuments = async () => {
+        try {
+            const response = await axios.get(`/api/admin/workers/${worker.id}/documents`, { headers });
+            setDocuments(response.data.documents);
+        } catch (error) {
+            console.error("Error fetching documents:", error);
+        }
+    };
+    
     useEffect(() => {
         getWorker();
         getCountries();

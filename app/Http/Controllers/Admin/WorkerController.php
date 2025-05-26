@@ -1357,4 +1357,25 @@ class WorkerController extends Controller
             'message' => 'Worker status updated successfully',
         ]);
     }
+
+    public function getFinalEmploymentLetter($workerId)
+    {
+        $worker = User::findOrFail($workerId);
+
+        $document = $worker->documents()
+            ->whereHas('document_type', function ($q) {
+                $q->where('name', 'Final Employment Letter');
+            })
+            ->latest('created_at')
+            ->first();
+
+        if (!$document) {
+            return response()->json(['error' => 'Letter not found'], 404);
+        }
+
+        return response()->json([
+            'path' => Storage::url($document->file),
+        ]);
+    }
+
 }

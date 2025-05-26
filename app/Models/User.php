@@ -10,6 +10,7 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\CustomResetPassword;
+use App\Models\DocumentType;
 
 class User extends Authenticatable
 {
@@ -224,5 +225,10 @@ class User extends Authenticatable
     public function conflicts()
     {
         return $this->hasMany(Conflict::class, 'worker_id');
+    }
+
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentType::class, 'document_type_id');
     }
 }

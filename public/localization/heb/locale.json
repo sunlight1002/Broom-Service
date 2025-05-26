@@ -1974,11 +1974,17 @@
         "hearing": {
             "title": "שימועים",
             "scheduleHearing": "תזמן שימוע",
+            "showClaims": "הצג תביעות",
+            "finalDecision": "החלטה סופית",
+            "generateAndSendFinalDecisionDocument": "צור / שלח מסמך החלטה סופית",
+            "documentGenerated": "המסמך נוצר:",
             "reSchedule": "תזמן מחדש את השימוע",
             "schedule": "תזמן",
             "sendOffer": "שלח הצעה",
             "bookClient": "הזמן לקוח",
             "joinedOn": "הצטרף בתאריך",
+            "sendMessage": "שלח הודעה",
+            "claimDescription": "תיאור התביעה",
             "offeredPrice": "מחיר מוצע",
             "contract": "חוזים",
             "Jobs": "עבודות",
@@ -2091,6 +2097,26 @@
                     "Close": "סגור",
                     "Cancel": "בטל"
                 }
+            },
+            "protocol": {
+                "hearingprotocol": "פרוטוקול שימוע",
+                "generateProtocolDocument": "צור מסמך פרוטוקול",
+                "documentGenerated": "המסמך נוצר:",
+                "workerResponse": "תגובת העובד",
+                "comment": "הערה"
+            },
+            "email": {
+                "writeEmail": "כתוב אימייל",
+                "mayIknowthereasonforrejection": "האם אוכל לדעת את הסיבה לדחייה?",
+                "suggestions": "אם יש לכם שאלות/הצעות או שתרצו לקבוע מחדש את השימוע, אנא כתבו לנו במייל. נחזור אליכם בהקדם.",
+                "accept": "אשר",
+                "reject": "דחה",
+                "reschedule": "מועד אחר"
+            },
+            "workerClaim": {
+                "claimForWorker": "תביעה נגד העובד",
+                "claimDescription": "תיאור התביעה",
+                "submitClaim": "הגש תביעה"
             }
         },
         "holidays": {
@@ -2266,6 +2292,23 @@
             "status": "סטטוס",
             "total": "סה'כ",
             "action": "פעולה"
+        },
+        "hearing": {
+            "meeting": {
+                "attender": "משתתף",
+                "address": "כתובת",
+                "scheduled": "נקבע",
+                "purpose": "מטרה",
+                "status": "סטטוס",
+                "document": "המסמך"
+            },
+            "protocol": {
+                "protocolDocument": "מסמך פרוטוקול",
+                "viewClaim": "הצג תביעה",
+                "viewProtocolDocument": "הצג מסמך פרוטוקול",
+                "viewDecisionDocument": "הצג מסמך החלטה",
+                "submitComment": "שלח תגובה"
+            }
         },
         "jobs": {
             "noJobFound": "לא נמצאה משרה",

@@ -310,5 +310,15 @@ class DocumentController extends Controller
             'message' => 'Form not found!',
         ], 404);
     }
+
+    public function getWorkerDocuments($workerId)
+    {
+        $worker = User::with(['documents.documentType'])->findOrFail($workerId);
+
+        return response()->json([
+            'documents' => $worker->documents,
+            'worker' => $worker,
+        ]);
+}
     
 }
