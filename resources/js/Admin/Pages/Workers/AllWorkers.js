@@ -446,14 +446,14 @@ export default function AllWorkers() {
                             role != "supervisor" && (
                                 <div className="search-data">
                                     <button
-                                        className="btn navyblue mt-4 mr-2 no-hover"
+                                        className="btn navyblue addButton mr-2 mr-md-2 ml-auto no-hover"
                                         onClick={handleShow}
                                     >
                                         {t("admin.global.Import")}
                                     </button>
                                     <Link
                                         to="/admin/workers/working-hours"
-                                        className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
+                                        className="btn navyblue addButton mr-md-2 ml-auto no-hover"
                                     >
                                         {t("price_offer.worker_hours")}
                                     </Link>

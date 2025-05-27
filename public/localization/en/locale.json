@@ -2273,6 +2273,7 @@
             "action": "Action"
         },
         "hearing": {
+            "meeting_title": "Meetings",
             "meeting": {
                 "attender": "Attender",
                 "address": "Address",
@@ -2456,6 +2457,28 @@
             "invitation_for_hearing": "Schedule Hearing",
             "verification": "Two step Verification",
             "wa_chat_history": "Whatsapp chat history"
+        },
+        "advanceAndLoan": {
+            "advanceAndLoansTitle": "Advance/Loans",
+            "type": "Type",
+            "date": "Date",
+            "monthlyPayment": "Monthly Payment",
+            "amount": "Amount",
+            "paidAmount": "Paid Amount",
+            "pendingAmount": "Pending Amount",
+            "status": "Status"
+        },
+        "tasks": {
+            "tasksTitle": "Tasks",
+            "noTasksAvailable": "No tasks available"
+        },
+        "refundClaim": {
+            "refundClaimTitle": "Refund Claim",
+            "date": "Date",
+            "amount": "Amount",
+            "status": "Status",
+            "rejectReason": "Reject Reason",
+            "action": "Action"
         }
     },
     "worker_contract": {

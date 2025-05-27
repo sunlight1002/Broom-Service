@@ -2294,6 +2294,7 @@
             "action": "פעולה"
         },
         "hearing": {
+            "meeting_title": "פגישות",
             "meeting": {
                 "attender": "משתתף",
                 "address": "כתובת",
@@ -2472,6 +2473,28 @@
             "invitation_for_hearing": "לתאם שימוע",
             "verification": "אימות דו-שלבי",
             "wa_chat_history": "היסטוריית הצ'אט של וואטסאפ"
+        },
+        "advanceAndLoan": {
+            "advanceAndLoansTitle": "מקדמות / הלוואות",
+            "type": "סוג",
+            "date": "תאריך",
+            "monthlyPayment": "תשלום חודשי",
+            "amount": "סכום",
+            "paidAmount": "סכום ששולם",
+            "pendingAmount": "סכום לתשלום",
+            "status": "סטטוס"
+        },
+        "tasks": {
+            "tasksTitle": "משימות",
+            "noTasksAvailable": "אין משימות זמינות"
+        },
+        "refundClaim": {
+            "refundClaimTitle": "בקשת החזר",
+            "date": "תאריך",
+            "amount": "סכום",
+            "status": "סטטוס",
+            "rejectReason": "סיבת דחייה",
+            "action": "פעולה"
         }
     },
     "worker_contract": {

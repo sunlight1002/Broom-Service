@@ -126,7 +126,7 @@ export default function Hearing() {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
-                                {t("worker.common.meetings")}
+                                {t("worker.hearing.meeting_title")}
                             </h1>
                         </div>
                     </div>

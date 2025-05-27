@@ -1809,6 +1809,7 @@
             "action": "Действие"
         },
         "hearing": {
+            "meeting_title": "Встречи",
             "meeting": {
                 "attender": "Участник",
                 "address": "Адрес",
@@ -1972,6 +1973,28 @@
             "enterAccountnumber": "Введите номер счета",
             "hearing": "Слушание",
             "verification": "Двухэтапная проверка"
+        },
+        "advanceAndLoan": {
+            "advanceAndLoansTitle": "Авансы / Займы",
+            "type": "Тип",
+            "date": "Дата",
+            "monthlyPayment": "Ежемесячный платеж",
+            "amount": "Сумма",
+            "paidAmount": "Оплаченная сумма",
+            "pendingAmount": "Сумма к оплате",
+            "status": "Статус"
+        },
+        "tasks": {
+            "tasksTitle": "Задачи",
+            "noTasksAvailable": "Нет доступных задач"
+        },
+        "refundClaim": {
+            "refundClaimTitle": "Требование возврата средств",
+            "date": "Дата",
+            "amount": "Сумма",
+            "status": "Статус",
+            "rejectReason": "Причина отказа",
+            "action": "Действие"
         }
     },
     "worker_contract": {
