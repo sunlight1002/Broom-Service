@@ -88,7 +88,7 @@ export default function income() {
 
     const chartOptions = {
         title: {
-            text: "Overview",
+            text: t("global.overview"),
         },
         subtitles: [
             {
@@ -104,14 +104,14 @@ export default function income() {
         data: [
             {
                 type: "line",
-                name: "Income",
+                name: t("global.income"),
                 // showInLegend: true,
                 yValueFormatString: "₪ #,##0.##",
                 dataPoints: incomeDataPoints,
             },
             {
                 type: "line",
-                name: "Outcome",
+                name: t("global.outcome"),
                 // showInLegend: false,
                 yValueFormatString: "₪ #,##0.##",
                 dataPoints: outcomeDataPoints,

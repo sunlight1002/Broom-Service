@@ -135,7 +135,7 @@ export default function Clients() {
                                 _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
                             } else {
                                 if (row.has_contract == 1) {
-                                    _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">${t('admin.leads.AddLead.Options.CreateJob.title')}</button>`;
                                 }
 
                                 _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
@@ -673,7 +673,7 @@ export default function Clients() {
                         <>
                             <div className="col-sm-12 d-none d-lg-flex align-items-center">
                                 <FilterButtons
-                                    text={t("admin.leads.All")}
+                                    text={t("admin.leads.all")}
                                     name=""
                                     className="px-3 mr-1"
                                     selectedFilter={filter}
@@ -712,7 +712,7 @@ export default function Clients() {
                                             padding: "6px",
                                             border: "1px solid #ccc",
                                             borderRadius: "5px"
-                                        }}>{filter || t("admin.leads.All")}</span>
+                                        }}>{filter || t("admin.leads.all")}</span>
 
                                         <div className="dropdown-menu dropdown-menu-right">
 

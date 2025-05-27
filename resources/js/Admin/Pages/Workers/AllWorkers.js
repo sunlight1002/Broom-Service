@@ -135,7 +135,7 @@ export default function AllWorkers() {
                             } else {
                                 _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-worker-forms-btn" data-id="${Base64.encode(row.id.toString())}">View Worker Forms</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-worker-forms-btn" data-id="${Base64.encode(row.id.toString())}">${t("admin.leads.viewWorkerForms")}</button>`;
 
                                 _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
@@ -493,7 +493,7 @@ export default function AllWorkers() {
                                                 padding: "6px",
                                                 border: "1px solid #ccc",
                                                 borderRadius: "5px"
-                                            }}>{filters.status || t("admin.leads.All")}</span>
+                                            }}>{filters.status || t("admin.leads.all")}</span>
 
                                             <div className="dropdown-menu dropdown-menu-right">
                                                 <button

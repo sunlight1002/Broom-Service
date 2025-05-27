@@ -318,7 +318,7 @@ export default function Dashboard() {
                                 }}
                                 className="hide-scrollbar mx-2"
                             >
-                                <p className="date">Date Period</p>
+                                <p className="date">{t("admin.dashboard.datePeriod")}</p>
                                 <div className="d-flex align-items-center">
                                     <input
                                         className="form-control calender"
@@ -375,7 +375,7 @@ export default function Dashboard() {
                             }}
                             className="hide-scrollbar mx-2"
                         >
-                            <p className="date">General Search</p>
+                            <p className="date">{t("admin.dashboard.generalSearch")}</p>
                             <div className="position-relative" style={{ maxWidth: "300px" }}>
                                 <input
                                     type="text"
@@ -652,7 +652,7 @@ export default function Dashboard() {
                                                 ></img>
                                             </div>
                                             <div className="dashText">
-                                                <h3>{income.toFixed(2)} ILS</h3>
+                                                <h3>{income.toFixed(2)} {t("global.currency")}</h3>
                                                 <p>
                                                     {" "}
                                                     {t(

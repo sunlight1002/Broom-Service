@@ -182,7 +182,7 @@ export default function OfferPrice() {
                         },
                     },
                     {
-                        title: "Total",
+                        title: t("admin.global.total"),
                         data: "subtotal",
                         render: function (data, type, row, meta) {
                             return `${data} ILS + VAT`;
@@ -199,7 +199,7 @@ export default function OfferPrice() {
 
                             _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-client-offer-btn" data-id="${Base64.encode(row.id.toString())}">View Client Offer</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-client-offer-btn" data-id="${Base64.encode(row.id.toString())}">${t("admin.leads.viewClientOffer")}</button>`;
 
                             _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
@@ -808,7 +808,7 @@ export default function OfferPrice() {
                     }}
                     className="hide-scrollbar my-2"
                 >
-                    <p className="mr-2" style={{ fontWeight: "bold" }}>Date</p>
+                    <p className="mr-2" style={{ fontWeight: "bold" }}>{t("admin.schedule.date")}</p>
 
                     <div className="d-flex align-items-center flex-wrap">
                         <input
@@ -861,7 +861,7 @@ export default function OfferPrice() {
                             }}
                             onClick={() => resetLocalStorage()}
                         >
-                            Reset
+                            {t("admin.schedule.reset")}
                         </button>
                         <input
                             type="hidden"

@@ -45,29 +45,29 @@ export default function ManageTeam() {
                     visible: false,
                 },
                 {
-                    title: "Name",
+                    title: t("global.name"),
                     data: "name",
                 },
                 {
-                    title: "Email",
+                    title: t("global.Email"),
                     data: "email",
                 },
                 {
-                    title: "Phone",
+                    title: t("global.phone"),
                     data: "phone",
                     render: function(data) {
                         return `+${data}`;
                     }
                 },
                 {
-                    title: "Status",
+                    title: t("global.status"),
                     data: "status",
                     render: function (data, type, row, meta) {
                         return row.status == 1 ? "Active" : "Inactive";
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("global.action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

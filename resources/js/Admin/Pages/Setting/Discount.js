@@ -79,7 +79,7 @@ export default function Discount() {
                         <div className="col-lg-6 col-12">
                             <div className="dashBox p-0 p-md-4">
                                 <div className="form-group">
-                                    <label className="control-label">{t("global.Type")}</label>
+                                    <label className="control-label">{t("global.type")}</label>
                                     <select
                                         className="form-control"
                                         value={formValues.type}

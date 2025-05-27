@@ -45,22 +45,22 @@ export default function Services() {
                     visible: false,
                 },
                 {
-                    title: "Service - En",
+                    title: t("global.serviceInEn"),
                     data: "name",
                 },
                 {
-                    title: "Service - Heb",
+                    title: t("global.serviceInHeb"),
                     data: "heb_name",
                 },
                 {
-                    title: "Status",
+                    title: t("global.status"),
                     data: "status",
                     render: function (data, type, row, meta) {
                         return data == 0 ? "Inactive" : "Active";
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("global.action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

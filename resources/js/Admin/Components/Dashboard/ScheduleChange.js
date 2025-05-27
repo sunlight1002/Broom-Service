@@ -154,7 +154,7 @@ function ScheduleChange() {
                 order: [[0, "desc"]],
                 columns: [
                     {
-                        title: t("global.Type"),
+                        title: t("global.type"),
                         data: "user_type",
                         className: "text-center",
                         render: function (data) {
@@ -214,7 +214,7 @@ function ScheduleChange() {
                         },
                     },
                     {
-                        title: "Send Notification",
+                        title: t("global.sendNotification"),
                         data: null,
                         className: "text-center",
                         render: function (data, type, row, meta) {
@@ -516,7 +516,7 @@ function ScheduleChange() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setType("Both");
+                                                setType(t("admin.leads.AddLead.both"));
                                             }}
                                         >
                                             {t("admin.leads.AddLead.both")}
@@ -524,7 +524,7 @@ function ScheduleChange() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setType("Client");
+                                                setType(t("client.jobs.client"));
                                             }}
                                         >
                                             {t("client.jobs.client")}
@@ -532,7 +532,7 @@ function ScheduleChange() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setType("Worker");
+                                                setType(t("client.jobs.worker"));
                                             }}
                                         >
                                             {t("client.jobs.worker")}
@@ -617,7 +617,7 @@ function ScheduleChange() {
                                                 setFilter("completed");
                                             }}
                                         >
-                                            {t("admin.global.completed")}
+                                            {t("global.completed")}
                                         </button>
                                     </div>
                                 </div>
@@ -828,24 +828,24 @@ function ScheduleChange() {
                                     }}
                                     value={reason}
                                 >
-                                    <option value="All">All</option>
+                                    <option value="All">{t("global.all")}</option>
                                     <option value="Contact me urgently">
-                                        Contact me urgently
+                                        {t("global.contactMeUrgently")}
                                     </option>
                                     <option value="Invoice and accounting inquiry">
-                                        Invoice and accounting inquiry
+                                        {t("global.invoiceAndAccountingInquiry")}
                                     </option>
                                     <option value="Change or update schedule">
-                                        Change or update schedule
+                                        {t("global.changeorUpdateSchedule")}
                                     </option>
                                     <option value="additional information">
-                                        Additional information
+                                        {t("global.additionalInformation")}
                                     </option>
                                     <option value="Client Feedback">
-                                        Client Feedback
+                                        {t("global.clientFeedback")}
                                     </option>
                                     <option value="teleservice">
-                                        Teleservice
+                                        {t("global.teleService")}
                                     </option>
                                 </select>
                                 <input

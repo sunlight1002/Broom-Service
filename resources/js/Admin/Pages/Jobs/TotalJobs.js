@@ -997,7 +997,7 @@ export default function TotalJobs() {
                                                         localStorage.setItem("startTimeFilter", e.target.value);
                                                     }}
                                                 >
-                                                    <option value="">{t("modal.alltime")}</option>
+                                                    <option value="">{t("global.alltime")}</option>
                                                     <option value="morning">{t("global.morning")}</option>
                                                     <option value="noon">{t("global.noon")}</option>
                                                     <option value="afternoon">
@@ -1035,7 +1035,7 @@ export default function TotalJobs() {
                                                             }}
                                                             onClick={() => setProbbtn(prev => !prev)}
                                                         >
-                                                            Problems
+                                                            {t("global.problems")}
                                                         </button>
                                                     </>
                                                 )
@@ -1048,7 +1048,7 @@ export default function TotalJobs() {
                                                 }}
                                                 onClick={() => resetLocalStorage()}
                                             >
-                                                Reset Filters
+                                                {t("global.resetFilters")}
                                             </button>
                                         </div>
                                     </div>
@@ -1416,7 +1416,7 @@ export default function TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox3"
                                     >
-                                        Show all workers
+                                        {t("global.showAllWorkers")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1435,7 +1435,7 @@ export default function TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox4"
                                     >
-                                        Show Cancelled Jobs
+                                        {t("global.showCancelledJobs")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1454,7 +1454,7 @@ export default function TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox5"
                                     >
-                                        {role == "supervisor" ? "Show assigned Jobs" : "Supervisor assigned Jobs"}
+                                        {role == "supervisor" ? "Show assigned Jobs" : t("global.supervisorAssignedJobs")}
                                     </label>
                                 </div>
                             </div>
