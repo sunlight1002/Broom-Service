@@ -343,7 +343,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('notice', [DashboardController::class, 'Notice']);
     Route::post('seen', [DashboardController::class, 'seen'])->name('seen');
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
-
+    Route::get('search', [DashboardController::class, 'generalSearch']);
+    
     // View Password
     Route::post('viewpass', [DashboardController::class, 'viewPass']);
 
@@ -432,7 +433,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/hearing-protocol/latest-invitation', [HearingProtocolController::class, 'latestHearingInvitation']);
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
     Route::get('/hearing-protocol/comments', [HearingCommentController::class, 'getComments']);
-    
+
     Route::get('/hearing-protocol/latest_invitation', [DecisionController::class, 'latest_Hearing_Invitation']);
     Route::post('/final-decision', [DecisionController::class, 'store']);
 
@@ -442,7 +443,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     Route::post('/claims', [ClaimController::class, 'store']);
     Route::get('/claims/{workerId}', [ClaimController::class, 'showWorkerClaims']);
-    
+
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);
@@ -477,7 +478,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('refund-claims/{refund_claim}/approve', [RefundClaimController::class, 'approve']);
 
     //advance or loan amount
-     Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
+    Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
     Route::post('/advance-loans', [AdvanceLoanController::class, 'store']);
     Route::get('/advance-loans/{worker_id}', [AdvanceLoanController::class, 'show']);
     Route::post('/advance-loans/{id}', [AdvanceLoanController::class, 'update']);
@@ -511,8 +512,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/get-conversations/{chatId}', [WhapiController::class, 'getConversationsByNumber']);
     Route::get('/get-from-numbers', [WhapiController::class, 'getUniqueFromNumber']);
     Route::delete('/delete-message/{messageId}', [WhapiController::class, 'deleteMessage']);
-
-
 });
 
 

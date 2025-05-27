@@ -39,21 +39,73 @@ export default function Dashboard() {
     const [income, setIncome] = useState(0);
     const [expense, setExpense] = useState(0);
     const [loading, setLoading] = useState("Loading...");
-    // const [latestClient, setLatestClients] = useState([]);
-    // const [pageCount, setPageCount] = useState(0);
     const [role, setRole] = useState("");
     const [dateRange, setDateRange] = useState({
         start_date: "",
         end_date: "",
     });
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [searchResults, setSearchResults] = useState({
+        clients: [],
+        workers: [],
+        WorkerLeads: [],
+    });
     const [selected, setSelected] = useState("today");
-    // const navigate = useNavigate();
     const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const navigate = useNavigate();
+
+    // optionally: debounce search for performance
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            // call API or filter logic here
+            console.log("Search:", searchQuery);
+        }, 300);
+
+        return () => clearTimeout(timeout);
+    }, [searchQuery]);
+
+    const fetchSearchResults = async (query) => {
+        try {
+            const response = await axios.get("/api/admin/search", { params: { q: query }, headers });
+            console.log(response.data);
+
+            setSearchResults(response.data);
+        } catch (error) {
+            console.error("Search error:", error);
+            setSearchResults({
+                clients: [],
+                workers: [],
+                WorkerLeads: [],
+            });
+        }
+    };
+
+    const hasResults =
+        searchResults.clients.length ||
+        searchResults.workers.length ||
+        searchResults.WorkerLeads.length;
+
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        console.log(value);
+
+        setSearchQuery(value);
+        setShowDropdown(!!value);
+
+        if (value.trim()) {
+            fetchSearchResults(value);
+        } else {
+            setSearchResults({ clients: [], workers: [], leads: [] });
+        }
     };
 
     const getCompletedJobs = (
@@ -93,19 +145,19 @@ export default function Dashboard() {
             .then((res) => {
                 const profitArray = res.data?.graph?.data?.profit || [];
                 const expenseArray = res.data?.graph?.data?.expense || [];
-    
+
                 const totalProfit = Array.isArray(profitArray)
-                    ? profitArray.reduce((acc, val) =>{
+                    ? profitArray.reduce((acc, val) => {
                         return acc + val;
                     }, 0)
                     : 0;
 
-                        
+
                 const totalExpense = Array.isArray(expenseArray)
-                ? expenseArray.reduce((acc, val) =>{
-                    return acc + val;
-                }, 0)
-                : 0;
+                    ? expenseArray.reduce((acc, val) => {
+                        return acc + val;
+                    }, 0)
+                    : 0;
 
                 setIncome(totalProfit);
                 setExpense(totalExpense);
@@ -115,14 +167,14 @@ export default function Dashboard() {
                 setIncome(0); // fallback
             });
     };
-    
+
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
     };
-    
+
 
     useEffect(() => {
         getCompletedJobs();
@@ -201,125 +253,180 @@ export default function Dashboard() {
                             {t("admin.sidebar.dashboard")}
                         </h1>
                     </div>
-                    <div className="date-class">
-                        <div
-                            style={{
-                                display: "flex",
-                                overflowX: "scroll",
-                                marginBottom: "24px",
-                                alignItems: "center",
-                                scrollbarWidth: "none",
-                            }}
-                            className="hide-scrollbar"
-                        >
-                            <button
-                                type="button"
-                                className={`btn btn-default daybtn ${
-                                    selected === "today" ? "active" : ""
-                                }`}
-                                onClick={() => handleSelect("today")}
+                    <div className="date-class d-flex justify-content-between align-items-center flex-wrap">
+                        <div className="d-flex align-items-center flex-wrap my-2">
+                            <div
+                                style={{
+                                    display: "flex",
+                                    overflowX: "scroll",
+                                    // marginBottom: "24px",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                    scrollbarWidth: "none",
+                                }}
+                                className="hide-scrollbar flex-wrap"
                             >
-                                {t("admin.sidebar.day.today")}
-                            </button>
-                            <button
-                                type="button"
-                                className={`btn btn-default daybtn ${
-                                    selected === "this_week" ? "active" : ""
-                                }`}
-                                onClick={() => handleSelect("this_week")}
+                                <button
+                                    type="button"
+                                    className={`btn btn-default mx-1 my-1 daybtn ${selected === "today" ? "active" : ""
+                                        }`}
+                                    onClick={() => handleSelect("today")}
+                                >
+                                    {t("admin.sidebar.day.today")}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`btn btn-default mx-1 my-1 daybtn ${selected === "this_week" ? "active" : ""
+                                        }`}
+                                    onClick={() => handleSelect("this_week")}
+                                >
+                                    {t("admin.sidebar.day.this week")}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`btn btn-default mx-1 my-1 daybtn ${selected === "this_month" ? "active" : ""
+                                        }`}
+                                    onClick={() => handleSelect("this_month")}
+                                >
+                                    {t("admin.sidebar.day.this month")}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`btn btn-default mx-1 my-1 daybtn ${selected === "custom" ? "active" : ""
+                                        }`}
+                                    onClick={() => handleSelect("custom")}
+                                >
+                                    {t("admin.sidebar.day.custom")}
+                                </button>
+                                <button
+                                    type="button"
+                                    style={{ marginRight: "20px" }}
+                                    className={`btn btn-default mx-1 my-1 daybtn ${selected === "all_time" ? "active" : ""
+                                        }`}
+                                    onClick={() => handleSelect("all_time")}
+                                >
+                                    {t("admin.sidebar.day.all time")}
+                                </button>
+                            </div>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    // marginBottom: "24px",
+                                    overflowX: "scroll",
+                                    alignItems: "center",
+                                    scrollbarWidth: "none",
+                                }}
+                                className="hide-scrollbar mx-2"
                             >
-                                {t("admin.sidebar.day.this week")}
-                            </button>
-                            <button
-                                type="button"
-                                className={`btn btn-default daybtn ${
-                                    selected === "this_month" ? "active" : ""
-                                }`}
-                                onClick={() => handleSelect("this_month")}
-                            >
-                                {t("admin.sidebar.day.this month")}
-                            </button>
-                            <button
-                                type="button"
-                                className={`btn btn-default daybtn ${
-                                    selected === "custom" ? "active" : ""
-                                }`}
-                                onClick={() => handleSelect("custom")}
-                            >
-                                {t("admin.sidebar.day.custom")}
-                            </button>
-                            <button
-                                type="button"
-                                style={{ marginRight: "20px" }}
-                                className={`btn btn-default daybtn ${
-                                    selected === "all_time" ? "active" : ""
-                                }`}
-                                onClick={() => handleSelect("all_time")}
-                            >
-                                {t("admin.sidebar.day.all time")}
-                            </button>
+                                <p className="date">Date Period</p>
+                                <div className="d-flex align-items-center">
+                                    <input
+                                        className="form-control calender"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            const updatedDateRange = {
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            };
+
+                                            setDateRange(updatedDateRange);
+                                            setSelected("custom");
+                                            localStorage.setItem(
+                                                "dateRange",
+                                                JSON.stringify(updatedDateRange)
+                                            );
+                                        }}
+                                    />
+                                    <div className="mx-2">-</div>
+                                    <input
+                                        className="form-control calender"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to_filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            const updatedDateRange = {
+                                                start_date: dateRange.start_date,
+                                                end_date: e.target.value,
+                                            };
+
+                                            setDateRange(updatedDateRange);
+                                            setSelected("custom");
+                                            // Corrected: JSON.stringify instead of json.stringify
+                                            localStorage.setItem(
+                                                "dateRange",
+                                                JSON.stringify(updatedDateRange)
+                                            );
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div
                             style={{
                                 display: "flex",
-                                marginBottom: "24px",
-                                overflowX: "scroll",
                                 alignItems: "center",
                                 scrollbarWidth: "none",
                             }}
-                            className="hide-scrollbar"
+                            className="hide-scrollbar mx-2"
                         >
-                            <p className="date">Date Period</p>
-                            <div className="d-flex align-items-center">
+                            <p className="date">General Search</p>
+                            <div className="position-relative" style={{ maxWidth: "300px" }}>
                                 <input
-                                    className="form-control calender"
-                                    type="date"
-                                    placeholder="From date"
-                                    name="from filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.start_date}
-                                    onChange={(e) => {
-                                        const updatedDateRange = {
-                                            start_date: e.target.value,
-                                            end_date: dateRange.end_date,
-                                        };
-
-                                        setDateRange(updatedDateRange);
-                                        setSelected("custom");
-                                        localStorage.setItem(
-                                            "dateRange",
-                                            JSON.stringify(updatedDateRange)
-                                        );
-                                    }}
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search..."
+                                    value={searchQuery}
+                                    onChange={handleInputChange}
+                                    onFocus={() => searchQuery && setShowDropdown(true)}
+                                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                                 />
-                                <div className="mx-2">-</div>
-                                <input
-                                    className="form-control calender"
-                                    type="date"
-                                    placeholder="To date"
-                                    name="to_filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.end_date}
-                                    onChange={(e) => {
-                                        const updatedDateRange = {
-                                            start_date: dateRange.start_date,
-                                            end_date: e.target.value,
-                                        };
 
-                                        setDateRange(updatedDateRange);
-                                        setSelected("custom");
-                                        // Corrected: JSON.stringify instead of json.stringify
-                                        localStorage.setItem(
-                                            "dateRange",
-                                            JSON.stringify(updatedDateRange)
-                                        );
-                                    }}
-                                />
+                                {showDropdown && (
+                                    <div
+                                        className="dropdown-menu show w-100 mt-1 shadow"
+                                        style={{ maxHeight: "300px", overflowY: "auto" }}
+                                    >
+                                        {hasResults ? (
+                                            Object.entries(searchResults).map(([key, items]) =>
+                                                items.length > 0 ? (
+                                                    <React.Fragment key={key}>
+                                                        <h6 className="dropdown-header text-capitalize">{key}:</h6>
+                                                        {items.map((item) => (
+                                                            <button
+                                                                key={item.id}
+                                                                className="dropdown-item text-truncate"
+                                                                onClick={() => {
+                                                                    if (item.type === "client" && item.status == "2") {
+                                                                        navigate(`/admin/clients/view/${item.id}`);
+                                                                    } else if (item.type === "client" && item.status != "2") {
+                                                                        navigate(`/admin/leads/view/${item.id}`);
+                                                                    } else if (item.type === "workerlead") {
+                                                                        navigate(`/admin/worker-leads/view/${item.id}`);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {item.firstname + " " + item.lastname}
+                                                            </button>
+                                                        ))}
+                                                    </React.Fragment>
+                                                ) : null
+                                            )
+                                        ) : (
+                                            <div className="dropdown-item text-muted text-center">No results found</div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="row">
+                    <div className="row mt-3">
                         {role !== "hr" && (
                             <>
                                 <div className="col-lg-3 col-sm-6 col-xs-6">

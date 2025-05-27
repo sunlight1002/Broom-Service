@@ -1011,7 +1011,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     }
                 }
 
-
                 if(trim($row[23]) == "f") {
                    $order = isset($jobData->order) ? $jobData->order : null;
                    if($order && $order->total_amount != $jobData->total_amount) {
