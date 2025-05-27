@@ -2621,7 +2621,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 $listId = $data['ListId'] ?? $input;
                 $ButtonPayload = $data['ButtonPayload'] ?? null;
 
-                if (!empty($msgStatus) && ($ButtonPayload == '7' || $ButtonPayload == '8')) {
+                if (!empty($msgStatus)) {
                     \Log::info('Client already reviewed');
                     $this->clientReview($request);
                     die('Client already reviewed');
@@ -3881,6 +3881,21 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         Cache::forget('client_review_input2' . $client->id);
                         Cache::forget('client_review_sorry' . $client->id);
                         Cache::forget('client_review' . $client->id);
+                    } else {
+                        $scheduleChange = ScheduleChange::create(
+                            [
+                                'user_type' => get_class($client),
+                                'user_id' => $client->id,
+                                'comments' => $messageBody,
+                                "reason" => $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף",
+                            ]
+                        );
+                        $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                        // $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"" . '*' . $messageBody . '*' . "\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                        $teammsg = "שלום צוות, לקוח " . "*" . $clientName . "*" . " ביקש. בקשתו היא: " . "*" . trim($messageBody) . "*" . " אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+                        $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
+
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
                     }
                 }
             }
@@ -4223,6 +4238,22 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             // Clear the cache after the action is complete
                             Cache::forget('client_monday_msg_status_' . $client->id);
                         } else if (!in_array(strtolower(trim($messageBody)), ["stop", "הפסק"])) {
+
+                            $scheduleChange = ScheduleChange::create(
+                                [
+                                    'user_type' => get_class($client),
+                                    'user_id' => $client->id,
+                                    'comments' => $messageBody,
+                                    "reason" => $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף",
+                                ]
+                            );
+                            $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                            // $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"" . '*' . $messageBody . '*' . "\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                            $teammsg = "שלום צוות, לקוח " . "*" . $clientName . "*" . " ביקש. בקשתו היא: " . "*" . trim($messageBody) . "*" . " אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+                            $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
+
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
                             $follow_up_msg = $client->lng == 'heb'
                                 ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
                                 : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
@@ -4591,6 +4622,23 @@ office@broomservice.co.il';
                             // Clear the cache after the action is complete
                             Cache::forget('client_job_confirm_msg' . $client->id);
                         } else if (!in_array(strtolower(trim($messageBody)), ["stop", "הפסק"])) {
+
+                            $scheduleChange = ScheduleChange::create(
+                                [
+                                    'user_type' => get_class($client),
+                                    'user_id' => $client->id,
+                                    'comments' => $messageBody,
+                                    "reason" => $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף",
+                                ]
+                            );
+                            $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                            // $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"" . '*' . $messageBody . '*' . "\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                            $teammsg = "שלום צוות, לקוח " . "*" . $clientName . "*" . " ביקש. בקשתו היא: " . "*" . trim($messageBody) . "*" . " אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+                            $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
+
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
+
                             $follow_up_msg = $client->lng == 'heb'
                                 ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
                                 : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
