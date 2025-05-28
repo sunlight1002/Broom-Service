@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { SelectPicker } from "rsuite";
+import { useTranslation } from "react-i18next";
 
 export default function EditServiceSchedule() {
+    const { t } = useTranslation();
     const [name, setName] = useState([]);
     const [nameHeb, setNameHeb] = useState([]);
     const [cycle, setCycle] = useState([]);
@@ -86,14 +88,14 @@ export default function EditServiceSchedule() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Edit Schedule</h1>
+                    <h1 className="page-title addEmployer">{t("global.edit")} {t("global.schedule")}</h1>
                     <div className="card card-body" style={{boxShadow: "none"}}>
                         <form>
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            schedule - En*
+                                            {t("global.schedule")} - En *
                                         </label>
                                         <input
                                             type="text"
@@ -118,7 +120,7 @@ export default function EditServiceSchedule() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            schedule - Heb *
+                                            {t("global.schedule")} - Heb*
                                         </label>
                                         <input
                                             type="text"
@@ -143,7 +145,7 @@ export default function EditServiceSchedule() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Cycle *
+                                            {t("global.cycle")} *
                                         </label>
                                         <input
                                             type="number"
@@ -168,7 +170,7 @@ export default function EditServiceSchedule() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Period
+                                            {t("global.period")}
                                         </label>
 
                                         <SelectPicker
@@ -195,7 +197,7 @@ export default function EditServiceSchedule() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Status
+                                            {t("global.status")}
                                         </label>
                                         <select
                                             className="form-control"
@@ -204,9 +206,9 @@ export default function EditServiceSchedule() {
                                                 setStatus(e.target.value)
                                             }
                                         >
-                                            <option value="">--- Please select ---</option>
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="">{t("worker.settings.pleaseSelect")}</option>
+                                            <option value="1">{t("admin.global.active")}</option>
+                                            <option value="0">{t("admin.global.inactive")}</option>
                                         </select>
                                         {errors.status ? (
                                             <small className="text-danger mb-1">
@@ -222,6 +224,7 @@ export default function EditServiceSchedule() {
                                     <input
                                         type="submit"
                                         onClick={handleUpdate}
+                                        value={t("client.jobs.review.Submit")}                                                                                                                                              
                                         className="btn navyblue saveBtn"
                                     />
                                 </div>

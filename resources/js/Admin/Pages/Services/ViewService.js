@@ -125,7 +125,7 @@ export default function ViewService() {
                                             aria-selected="true"
                                             role="tab"
                                         >
-                                            Sub Services
+                                            {t("admin.global.subServices")}
                                         </a>
                                     </li>
                                 </ul>

@@ -485,7 +485,7 @@ export default function Clients() {
                                                     {t("admin.global.Import")}
                                                 </button>
                                             </div>
-                                            <div className=" mt-4 mr-2 d-none d-lg-block">
+                                            <div className=" mt-4 mr-2 d-lg-block">
                                                 <button
                                                     className="btn navyblue ml-2"
                                                     onClick={(e) => handleReport(e)}

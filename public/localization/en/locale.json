@@ -1288,6 +1288,9 @@
             "percentage": "Percentage",
             "jobExtra": "Job Extra",
             "changeWorker": "Change Worker",
+            "changeShift": "Change Shift",
+            "assignSupervisor": "Assign Supervisor",
+            "removeJobFromAssign": "Remove job from assign",
             "chatHistory": "Chat History",
             "chat": "Chat",
             "chats": "Chats",
@@ -1412,8 +1415,16 @@
             "worker_excludes": "Worker Excludes",
             "client_excludes": "Clients Excludes",
             "claim": "Claim",
-            "claim_request": "Claim Request"
-
+            "claim_request": "Claim Request",
+            "subServices": "Sub Services",
+            "addSubService": "Add Sub-service",
+            "servicesInEn": "Services-En",
+            "servicesInHeb": "Services-Heb",
+            "apartmentSize": "Apartment Size",
+            "price": "Price",
+            "actions": "Actions",
+            "nameInEn": "Name-en",
+            "nameInHeb": "Name-heb"
         },
         "dashboard": {
             "datePeriod": "Date Period",
@@ -1846,6 +1857,7 @@
                 "Password": "Password"
             },
             "createJob": "Create Job",
+            "viewClientContract": "View Client Contract",
             "Files": "Files",
             "language": "Language",
             "Login_details": "Login details",
@@ -2149,6 +2161,8 @@
             "contracts": "Contracts",
             "schedule_meet": "Scheduled",
             "whatsapp": "Whatsapp chat",
+            "clientsAndWorkersChat": "Clients/Workers Chat",
+            "workerLeadsChat": "Worker Leads Chat",
             "messenger": "Messenger chat",
             "payments": "Payments",
             "earnings": "Earnings",
@@ -2245,6 +2259,14 @@
             "recorvery_fee": "Recovery Fee (year of service)",
             "driving_fee_perDay": "Driving Fee (per day)",
             "driving_fee_perMonth": "Driving Fee (per month)"
+        },
+        "payment": {
+            "seeDocument": "See document",
+            "closeInvoiceWithReceipt": "Close invoice with receipt",
+            "updateNewCreditCard": "Update new Credit Card",
+            "closeForPayment": "Close for payment",
+            "generateInvoice": "Generate Invoice",
+            "closeWithoutPayment": "Close without payment"
         }
     },
     "worker": {

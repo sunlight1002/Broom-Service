@@ -493,7 +493,7 @@ export default function AllWorkers() {
                                                 padding: "6px",
                                                 border: "1px solid #ccc",
                                                 borderRadius: "5px"
-                                            }}>{filters.status || t("admin.leads.all")}</span>
+                                            }}>{filters.status || t("admin.leads.All")}</span>
 
                                             <div className="dropdown-menu dropdown-menu-right">
                                                 <button
@@ -803,6 +803,137 @@ export default function AllWorkers() {
                                     </button>
                                 </div>
 
+                            </div>
+                        </div>
+                    )
+                }
+
+                {
+                    role != "supervisor" && (
+                        <div className="row mb-2 d-block d-lg-none">
+                            <div className="col-sm-12 mt-2">
+                                <div
+                                    className="mb-2"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("admin.global.manpower_company")}
+                                </div>
+                                <select
+                                    className="form-control mb-2"
+                                    onChange={(e) => {
+                                        setFilters({
+                                            ...filters,
+                                            manpower_company_id: e.target.value,
+                                            is_my_company: false,
+                                        });
+                                    }}
+                                    value={filters.manpower_company_id}
+                                >
+                                    <option value="">--- Select ---</option>
+                                    {manpowerCompanies?.map((company, _index) => (
+                                        <option key={_index} value={company.id}>
+                                            {company.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <div className="d-flex flex-wrap gap-1">
+                                    <button
+                                        className="btn border rounded px-3"
+                                        style={filters.is_my_company
+                                            ? { background: "white" }
+                                            : { background: "#2c3f51", color: "white" }}
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                manpower_company_id: "",
+                                                is_my_company: true,
+                                                is_manpower: false,
+                                                is_freelancer: false
+                                            });
+                                            localStorage.setItem("company", JSON.stringify({
+                                                is_my_company: true,
+                                                is_manpower: false,
+                                                is_freelancer: false
+                                            }));
+                                        }}
+                                    >
+                                        {t("admin.global.myCompany")}
+                                    </button>
+
+                                    <button
+                                        className="btn border rounded px-3"
+                                        style={filters.is_manpower
+                                            ? { background: "white" }
+                                            : { background: "#2c3f51", color: "white" }}
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                manpower_company_id: "",
+                                                is_manpower: true,
+                                                is_my_company: false,
+                                                is_freelancer: false
+                                            });
+                                            localStorage.setItem("company", JSON.stringify({
+                                                is_my_company: false,
+                                                is_manpower: true,
+                                                is_freelancer: false
+                                            }));
+                                        }}
+                                    >
+                                        {t("admin.global.manpower_company")}
+                                    </button>
+
+                                    <button
+                                        className="btn border rounded px-3"
+                                        style={filters.is_freelancer
+                                            ? { background: "white" }
+                                            : { background: "#2c3f51", color: "white" }}
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                manpower_company_id: "",
+                                                is_freelancer: true,
+                                                is_my_company: false,
+                                                is_manpower: false
+                                            });
+                                            localStorage.setItem("company", JSON.stringify({
+                                                is_my_company: false,
+                                                is_manpower: false,
+                                                is_freelancer: true
+                                            }));
+                                        }}
+                                    >
+                                        {t("admin.global.freelancer")}
+                                    </button>
+
+                                    <button
+                                        className="btn border rounded px-3 ml-2 mt-1"
+                                        style={
+                                            (!filters.is_my_company &&
+                                                !filters.is_freelancer &&
+                                                !filters.is_manpower &&
+                                                filters.manpower_company_id === "")
+                                                ? { background: "white" }
+                                                : { background: "#2c3f51", color: "white" }}
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                manpower_company_id: "",
+                                                is_my_company: false,
+                                                is_manpower: false,
+                                                is_freelancer: false
+                                            });
+                                            localStorage.setItem("company", JSON.stringify({
+                                                is_my_company: false,
+                                                is_manpower: false,
+                                                is_freelancer: false
+                                            }));
+                                        }}
+                                    >
+                                        {t("admin.global.All")}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )

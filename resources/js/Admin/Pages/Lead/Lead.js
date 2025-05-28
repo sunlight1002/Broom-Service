@@ -472,8 +472,8 @@ export default function Lead() {
                         </div>
                     </div>
                 </div>
-                <div className="row mb-2 d-none d-lg-block">
-                    <div className="col-sm-12">
+                <div className="row mb-2">
+                    <div className="col-sm-12 d-none d-lg-block">
                         <FilterButtons
                             text={t("admin.leads.All")}
                             className="px-3 mr-1"
@@ -509,7 +509,7 @@ export default function Lead() {
                                     value={source}
                                 >
                                     <option value="">--- Select ---</option>
-                                    {sources.length > 0 && sources.map((source) => (
+                                    {sources.map((source) => (
                                         <option value={source} key={source}>
                                             {source}
                                         </option>

@@ -462,15 +462,15 @@ export default function TotalJobs() {
 
                                     _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
 
-                                    _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">Change Shift</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">${t("admin.global.changeShift")}</button>`;
 
                                     _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
                                 }
 
                                 if (!row.is_assigned_to_supervisor) {
-                                    _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">Assign Supervisor</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">${t("admin.global.assignSupervisor")}</button>`;
                                 } else {
-                                    _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">Remove job from assign</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">${t("admin.global.removeJobFromAssign")}</button>`;
                                 }
                             }
                             _html += "</div> </div>";

@@ -128,32 +128,32 @@ export default function Payments() {
                             _html +=
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            _html += `<button type="button" class="dropdown-item dt-see-document-btn" data-client-id="${row.client_id}">See document</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-see-document-btn" data-client-id="${row.client_id}">${t("admin.payment.seeDocument")}</button>`;
 
                             if (
                                 ["unpaid", "undone", "problem"].includes(
                                     _statusName
                                 )
                             ) {
-                                _html += `<button type="button" class="dropdown-item dt-close-invoice-with-receipt-btn" data-client-id="${row.client_id}">Close invoice with receipt</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-close-invoice-with-receipt-btn" data-client-id="${row.client_id}">${t("admin.payment.closeInvoiceWithReceipt")}</button>`;
                             }
 
                             if (_statusName == "problem") {
-                                _html += `<button type="button" class="dropdown-item dt-update-new-credit-card-btn" data-client-id="${row.client_id}">Update new Credit Card</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-update-new-credit-card-btn" data-client-id="${row.client_id}">${t("admin.payment.updateNewCreditCard")}</button>`;
                             }
 
                             if (_statusName != "paid") {
                                 if (row.payment_method == "cc") {
-                                    _html += `<button type="button" class="dropdown-item dt-close-for-payment-btn" data-client-id="${row.client_id}">Close for payment</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-close-for-payment-btn" data-client-id="${row.client_id}">${t("admin.payment.closeForPayment")}</button>`;
                                 }
 
                                 if (_statusName != "unpaid") {
-                                    _html += `<button type="button" class="dropdown-item dt-generate-invoice-btn" data-client-id="${row.client_id}">Generate Invoice</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-generate-invoice-btn" data-client-id="${row.client_id}">${t("admin.payment.generateInvoice")}</button>`;
                                 }
                             }
 
                             if (_statusName && _statusName != "paid") {
-                                _html += `<button type="button" class="dropdown-item dt-close-without-payment-btn" data-client-id="${row.client_id}">Close without payment</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-close-without-payment-btn" data-client-id="${row.client_id}">${t("admin.payment.closeWithoutPayment")}</button>`;
                             }
 
                             _html += "</div> </div>";

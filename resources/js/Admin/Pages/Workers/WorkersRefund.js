@@ -228,7 +228,7 @@ export default function WorkersRefund() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-12">
-                            <h1 className="page-title">{t("worker.refund_request")}</h1>
+                            <h1 className="page-title">{t("admin.global.refund_request")}</h1>
                         </div>
                     </div>
                 </div>

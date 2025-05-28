@@ -426,7 +426,7 @@ export default function Sidebar() {
                                                     <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
                                                         <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
                                                             <i className="fa fa-angle-right"></i>{" "}
-                                                            Clients/Workers Chat
+                                                            {t("admin.sidebar.clientsAndWorkersChat")}
                                                         </Link>
                                                     </li>
                                                 )
@@ -434,7 +434,7 @@ export default function Sidebar() {
                                             <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
                                                 <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
                                                     <i className="fa fa-angle-right"></i>{" "}
-                                                    Worker Leads Chat
+                                                    {t("admin.sidebar.workerLeadsChat")}
                                                 </Link>
                                             </li>
                                         </ul>

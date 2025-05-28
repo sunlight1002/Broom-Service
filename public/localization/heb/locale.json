@@ -1284,6 +1284,9 @@
             "percentage": "אחוז",
             "jobExtra": "תוספת עבודה",
             "changeWorker": "שנה עובד",
+            "changeShift": "שנה משמרת",
+            "assignSupervisor": "שייך מפקח",
+            "removeJobFromAssign": "הסר עבודה מהשמה",
             "chatHistory": "היסטוריית צ'אט",
             "chat": "צ'אט",
             "chats": "צ'אטים",
@@ -1408,7 +1411,16 @@
             "worker_excludes": "עובד לא כולל",
             "client_excludes": "לא כולל לקוחות",
             "claim": "תביעה",
-            "claim_request": "בקשת תביעה"
+            "claim_request": "בקשת תביעה",
+            "subServices": "תת-שירותים",
+            "addSubService": "הוסף תת-שירות",
+            "servicesInEn": "שירותים - אנגלית",
+            "servicesInHeb": "שירותים - עברית",
+            "apartmentSize": "גודל דירה",
+            "price": "מחיר",
+            "actions": "פעולות",
+            "nameInEn": "שם - אנגלית",
+            "nameInHeb": "שם - עברית"
         },
         "modal": {
             "title": "מודל",
@@ -1875,6 +1887,7 @@
                 "Password": "סיסמא"
             },
             "createJob": "צור עבודה",
+            "viewClientContract": "צפה בחוזה הלקוח",
             "Files": "קבצים",
             "language": "שפה",
             "Login_details": "פרטי התחברות",
@@ -2178,6 +2191,8 @@
             "jobs": "שירותים שהזמנתי",
             "schedule_meet": "פגישות",
             "whatsapp": "צ'אט וואטסאפ",
+            "clientsAndWorkersChat": "צ'אט לקוחות/עובדים",
+            "workerLeadsChat": "צ'אט לידים של עובדים",
             "messenger": "צ'אט מסנג'ר",
             "payments": "תשלומים",
             "earnings": "הכנסות",
@@ -2274,6 +2289,14 @@
             "recorvery_fee": "עמלת שחזור (שנת שירות)",
             "driving_fee_perDay": "עמלת נהיגה (ליום)",
             "driving_fee_perMonth": "עמלת נהיגה (לחודש)"
+        },
+        "payment": {
+            "seeDocument": "צפה במסמך",
+            "closeInvoiceWithReceipt": "סגור חשבונית עם קבלה",
+            "updateNewCreditCard": "עדכן כרטיס אשראי חדש",
+            "closeForPayment": "סגור לתשלום",
+            "generateInvoice": "צור חשבונית",
+            "closeWithoutPayment": "סגור ללא תשלום"
         }
     },
     "worker": {

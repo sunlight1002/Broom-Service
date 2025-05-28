@@ -204,7 +204,7 @@ export default function ManageHolidays() {
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select className="form-control" onChange={(e) => sortTable(e.target.value)}>
-                                <option value="">{t("admin.holidays.Options.sortBy")}</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
                                 <option value="1">{t("admin.holidays.holidayName")}</option>
                                 <option value="2">{t("admin.holidays.startDate")}</option>
                                 <option value="3">{t("admin.holidays.endDate")}</option>
