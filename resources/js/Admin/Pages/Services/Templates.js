@@ -74,7 +74,7 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>AirBnb</td>
+                                <td>{t("services.airBnb")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/airbnb-servce"

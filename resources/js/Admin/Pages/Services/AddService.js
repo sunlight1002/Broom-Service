@@ -135,7 +135,7 @@ export default function AddService() {
                                                 {t("services.polish")}
                                                 </option>
                                                 <option value="airbnb">
-                                                    AirBnb
+                                                {t("services.airBnb")}
                                                 </option>
                                                 <option value="others">
                                                 {t("services.others")}

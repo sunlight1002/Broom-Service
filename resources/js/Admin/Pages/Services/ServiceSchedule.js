@@ -48,22 +48,22 @@ export default function ServiceSchedule() {
                         visible: false,
                     },
                     {
-                        title: "Schedule - En",
+                        title: t("admin.global.scheduleEn"),
                         data: "name",
                     },
                     {
-                        title: "Schedule - Heb",
+                        title: t("admin.global.scheduleHeb"),
                         data: "name_heb",
                     },
                     {
-                        title: "Status",
+                        title: t("admin.global.status"),
                         data: "status",
                         render: function (data, type, row, meta) {
                             return data == 0 ? "Inactive" : "Active";
                         },
                     },
                     {
-                        title: "Action",
+                        title: t("admin.global.action"),
                         data: "action",
                         orderable: false,
                         responsivePriority: 1,
@@ -71,9 +71,9 @@ export default function ServiceSchedule() {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t("admin.global.Edit")}</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.global.Delete")}</button>`;
 
                             _html += "</div> </div>";
 

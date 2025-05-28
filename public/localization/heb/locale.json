@@ -1240,6 +1240,8 @@
             "NameHev": "שם - עברית",
             "status": "סטטוס",
             "action": "פעולה",
+            "scheduleEn": "לוח זמנים - אנ",
+            "scheduleHeb": "לוח זמנים - עבר",
             "view": "צפייה",
             "Edit": "עריכה",
             "Date": "תאריך",
@@ -1353,6 +1355,7 @@
             "no_record_found": "לא נמצאה רשומה",
             "trans_referId": "מזהה עסקה / הפניה",
             "amount": "כמות",
+            "bill": "חשבונית",
             "payment_mode": "מצב תשלום",
             "bank_transfer": "העברה בנקאית",
             "by_checque": "לפי צ'ק",
@@ -1498,7 +1501,7 @@
         },
         "leads": {
             "title": "ליד",
-            "all": "הכל",
+            "All": "הכל",
             "Potential": "פוטנציאלי",
             "Pending": "בהמתנה",
             "Uninterested": "לא מעוניין",
@@ -3430,6 +3433,7 @@
         "carpetCleaningService": "שירות ניקוי שטיחים",
         "afterRenovation": "אחרי שיפוץ",
         "polish": "ליטוש",
+        "airBnb": "איירבנב",
         "others": "אחרים"
     }
 }

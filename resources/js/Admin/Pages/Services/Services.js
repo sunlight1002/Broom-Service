@@ -68,11 +68,11 @@ export default function Services() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t("admin.global.Edit")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.global.view")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.global.Delete")}</button>`;
 
                         _html += "</div> </div>";
 

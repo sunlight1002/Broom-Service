@@ -673,7 +673,7 @@ export default function Clients() {
                         <>
                             <div className="col-sm-12 d-none d-lg-flex align-items-center">
                                 <FilterButtons
-                                    text={t("admin.leads.all")}
+                                    text={t("admin.leads.All")}
                                     name=""
                                     className="px-3 mr-1"
                                     selectedFilter={filter}
@@ -712,7 +712,7 @@ export default function Clients() {
                                             padding: "6px",
                                             border: "1px solid #ccc",
                                             borderRadius: "5px"
-                                        }}>{filter || t("admin.leads.all")}</span>
+                                        }}>{filter || t("admin.leads.All")}</span>
 
                                         <div className="dropdown-menu dropdown-menu-right">
 

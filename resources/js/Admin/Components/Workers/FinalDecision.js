@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../../Layouts/Sidebar';
 import { t } from 'i18next';
+import { useAlert } from 'react-alert';
 
 function FinalDecision() {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const params = useParams();
     const workerId = params.id;
+    const alert = useAlert();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -52,10 +54,11 @@ function FinalDecision() {
                     content: `${filePath}`,
                 },
             ]);
+            alert.success("Document Generated Successfully");
             setError('');
         } catch (error) {
-            console.error("Error generating document:", error);
             setError('Failed to generate protocol document.');
+            alert.error("Failed to generate document");
         }
     };  
 

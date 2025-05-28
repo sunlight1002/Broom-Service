@@ -3,6 +3,7 @@ import axios from 'axios';
 import Sidebar from '../../Layouts/Sidebar';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+import { useAlert } from "react-alert";
 
 const HearingProtocol = () => {
     const [messages, setMessages] = useState([]);
@@ -10,6 +11,7 @@ const HearingProtocol = () => {
     const params = useParams();
     const workerId = params.id;
     const { t } = useTranslation();
+    const alert = useAlert();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -74,10 +76,11 @@ const HearingProtocol = () => {
                     content: `${filePath}`,
                 },
             ]);
+            alert.success("Document Generated Successfully");
             setError('');
         } catch (error) {
-            console.error("Error generating document:", error);
             setError('Failed to generate protocol document.');
+            alert.error("Failed to generate document");
         }
     };
 
