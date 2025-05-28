@@ -208,14 +208,14 @@ class FetchFacebookLeads extends Command
                             if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
                                 $lng = 'en';
                             }
-                            if(empty($phone)) {
+                            if (empty($phone)) {
                                 continue;
                             }
                             $client = Client::where('phone', $phone)
                                 ->first();
                             if ($client) {
 
-                                 // Check if the client has a "verified" contract
+                                // Check if the client has a "verified" contract
                                 $hasVerifiedContract = $client->contract()->where('status', 'verified')->exists();
 
                                 if ($hasVerifiedContract) {
@@ -267,6 +267,30 @@ class FetchFacebookLeads extends Command
                                                 'type' => "meta"
                                             ]
                                         ]));
+
+                                        try {
+                                            if (!empty($phone)) {
+                                                $sid = null;
+
+                                                if ($client->lng == 'heb') {
+                                                    $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                                                } else {
+                                                    $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                                                }
+
+                                                $twi = $this->twilio->messages->create(
+                                                    "whatsapp:+$client->phone",
+                                                    [
+                                                        "from" => $this->twilioWhatsappNumber,
+                                                        "contentSid" => $sid,
+                                                    ]
+                                                );
+                                                StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
+                                                // sendWhatsappMessage($phone, array('name' => '', 'message' => $m), $lng == 'heb' ? 'he' : 'en');
+                                            }
+                                        } catch (\Throwable $th) {
+                                            \Log::error($th);
+                                        }
                                     }
                                 }
 
@@ -361,17 +385,17 @@ class FetchFacebookLeads extends Command
                                     'language' => 'he',
                                 ]);
 
-                                WebhookResponse::create([
-                                    'status'        => 1,
-                                    'name'          => 'whatsapp',
-                                    'message'       => $m,
-                                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                                    'number'        => $phone,
-                                    'read'          => 1,
-                                    'flex'          => 'A',
-                                ]);
+                                // WebhookResponse::create([
+                                //     'status'        => 1,
+                                //     'name'          => 'whatsapp',
+                                //     'message'       => $m,
+                                //     'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                                //     'number'        => $phone,
+                                //     'read'          => 1,
+                                //     'flex'          => 'A',
+                                // ]);
 
-                            //   // Step 4: Update or Create the FacebookInsights entry for the campaign
+                                //   // Step 4: Update or Create the FacebookInsights entry for the campaign
                                 $facebookInsight = FacebookInsights::firstOrCreate(
                                     ['campaign_id' => $mainCampaignId],
                                     ['campaign_name' => $campaignName] // Replace with actual campaign name
@@ -379,11 +403,7 @@ class FetchFacebookLeads extends Command
 
                                 // Update lead_count for the campaign
                                 $facebookInsight->increment('lead_count', 1);
-
-
                             }
-
-
                         }
 
                         // Check for pagination
