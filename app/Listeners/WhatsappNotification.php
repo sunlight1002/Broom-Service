@@ -756,83 +756,83 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        $commentsText = "";
-                        if (!empty($jobData['comments'])) {
-                            foreach ($jobData['comments'] as $comment) {
-                                if (!empty($comment['comment']) && !empty($comment['name'])) {
-                                    $commentsText .= "- " . $comment['comment'] . " (by " . ($comment['name'] ?? "") . ") \n";
-                                }
-                            }
-                        }
+                        // $commentsText = "";
+                        // if (!empty($jobData['comments'])) {
+                        //     foreach ($jobData['comments'] as $comment) {
+                        //         if (!empty($comment['comment']) && !empty($comment['name'])) {
+                        //             $commentsText .= "- " . $comment['comment'] . " (by " . ($comment['name'] ?? "") . ") \n";
+                        //         }
+                        //     }
+                        // }
 
 
-                        $instructions = [
-                            "en" => "- *Special Instructions:*",
-                            "heb" => "- *הוראות מיוחדות:*",
-                            "spa" => "- *Instrucciones especiales:*",
-                            "rus" => "- *Особые инструкции:*",
-                        ];
+                        // $instructions = [
+                        //     "en" => "- *Special Instructions:*",
+                        //     "heb" => "- *הוראות מיוחדות:*",
+                        //     "spa" => "- *Instrucciones especiales:*",
+                        //     "rus" => "- *Особые инструкции:*",
+                        // ];
 
-                        $commentInstructions = [
-                            "en" => "- *Click Here to Confirm Comments are Done*",
-                            "heb" => "- *לחץ כאן לאישור שהמשימות בוצעו*",
-                            "spa" => "- *Haga clic aquí para confirmar que las tareas están completadas*",
-                            "rus" => "- *Нажмите здесь, чтобы подтвердить выполнение задач*",
-                        ];
+                        // $commentInstructions = [
+                        //     "en" => "- *Click Here to Confirm Comments are Done*",
+                        //     "heb" => "- *לחץ כאן לאישור שהמשימות בוצעו*",
+                        //     "spa" => "- *Haga clic aquí para confirmar que las tareas están completadas*",
+                        //     "rus" => "- *Нажмите здесь, чтобы подтвердить выполнение задач*",
+                        // ];
 
-                        $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
-                        $endTime = Carbon::parse($jobData['end_time'] ?? '00:00:00');
-                        $diffInHours = $currentTime->diffInHours($endTime, false);
-                        $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
+                        // $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
+                        // $endTime = Carbon::parse($jobData['end_time'] ?? '00:00:00');
+                        // $diffInHours = $currentTime->diffInHours($endTime, false);
+                        // $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
 
-                        if ($lng == "heb") {
-                            $sid = "HX1cc4f8bfec22f2a71cb23071838b9799";
-                        } elseif ($lng == "spa") {
-                            $sid = "HXf889705a6e3dad76e0d521fcf41660b3";
-                        } elseif ($lng == "ru") {
-                            $sid = "HX4042d35f763308e61c04660b2f02861a";
-                        } else {
-                            $sid = "HXee912fda54b92b8a99523eda74b2ebb0";
-                        }
+                        // if ($lng == "heb") {
+                        //     $sid = "HX1cc4f8bfec22f2a71cb23071838b9799";
+                        // } elseif ($lng == "spa") {
+                        //     $sid = "HXf889705a6e3dad76e0d521fcf41660b3";
+                        // } elseif ($lng == "ru") {
+                        //     $sid = "HX4042d35f763308e61c04660b2f02861a";
+                        // } else {
+                        //     $sid = "HXee912fda54b92b8a99523eda74b2ebb0";
+                        // }
 
-                        $specialInstruction = $instructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
-                        $commentLinkText = $commentInstructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
+                        // $specialInstruction = $instructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
+                        // $commentLinkText = $commentInstructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
 
-                        $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        $address = str_replace(['"', "'"], ' ', $address);
+                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
+                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
+                        // $address = str_replace(['"', "'"], ' ', $address);
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => trim($address),
-                            "3" => $diffInHours . ':' . str_pad($diffInMinutes, 2, '0', STR_PAD_LEFT),
-                            "4" => Carbon::today()->setTimeFromTimeString($jobData['end_time'] ?? '00:00:00')->format('H:i'),
-                            "5" => trim((($workerData['lng'] ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? '')),
-                            "6" => !empty($commentsText) ? $specialInstruction . " " . trim($commentsText) : '',
-                            "7" => "worker/jobs/view/" . $jobData['id'],
-                            "8" => "worker/jobs/" . ($jobData['uuid'] ?? "")
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => trim($address),
+                        //     "3" => $diffInHours . ':' . str_pad($diffInMinutes, 2, '0', STR_PAD_LEFT),
+                        //     "4" => Carbon::today()->setTimeFromTimeString($jobData['end_time'] ?? '00:00:00')->format('H:i'),
+                        //     "5" => trim((($workerData['lng'] ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? '')),
+                        //     "6" => !empty($commentsText) ? $specialInstruction . " " . trim($commentsText) : '',
+                        //     "7" => "worker/jobs/view/" . $jobData['id'],
+                        //     "8" => "worker/jobs/" . ($jobData['uuid'] ?? "")
+                        // ];
 
 
-                        try {
-                            \Log::info("Sending message via Twilio...");
+                        // try {
+                        //     \Log::info("Sending message via Twilio...");
 
-                            $twi = $this->twilio->messages->create(
-                                "whatsapp:+" . $receiverNumber,
-                                [
-                                    "from" => $this->twilioWhatsappNumber,
-                                    "contentSid" => $sid,
-                                    "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //     $twi = $this->twilio->messages->create(
+                        //         "whatsapp:+" . $receiverNumber,
+                        //         [
+                        //             "from" => $this->twilioWhatsappNumber,
+                        //             "contentSid" => $sid,
+                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
-                                ]
-                            );
+                        //         ]
+                        //     );
 
-                            $data = $twi->toArray();
-                            $isTwilio = true;
-                            \Log::info("Twilio message sent successfully!");
-                        } catch (\Exception $e) {
-                            \Log::error("Twilio API Error: " . $e->getMessage());
-                        }
+                        //     $data = $twi->toArray();
+                        //     $isTwilio = true;
+                        //     \Log::info("Twilio message sent successfully!");
+                        // } catch (\Exception $e) {
+                        //     \Log::error("Twilio API Error: " . $e->getMessage());
+                        // }
 
                         break;
 
@@ -1543,51 +1543,51 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $sid = "HXa95cc010d40732b58054e5755693ffd7";
-                        } elseif ($lng == "spa") {
-                            $sid = "HX46ebc598f6b41d94aacd1cef2af93c59";
-                        } elseif ($lng == "ru") {
-                            $sid = "HX6b93fe644d388f45d099a44a0ee9d658";
-                        } else {
-                            $sid = "HX44eed8d310442e71666f3ff8eb9f3a9c";
-                        }
+                        // if ($lng == "heb") {
+                        //     $sid = "HXa95cc010d40732b58054e5755693ffd7";
+                        // } elseif ($lng == "spa") {
+                        //     $sid = "HX46ebc598f6b41d94aacd1cef2af93c59";
+                        // } elseif ($lng == "ru") {
+                        //     $sid = "HX6b93fe644d388f45d099a44a0ee9d658";
+                        // } else {
+                        //     $sid = "HX44eed8d310442e71666f3ff8eb9f3a9c";
+                        // }
 
-                        $address = trim($jobData['property_address']['geo_address'] ?? '');
-                        $address = json_encode($address, JSON_UNESCAPED_UNICODE);
-                        $address = str_replace(['"', "'"], ' ', $address);
+                        // $address = trim($jobData['property_address']['geo_address'] ?? '');
+                        // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
+                        // $address = str_replace(['"', "'"], ' ', $address);
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => Carbon::parse($jobData['start_date'] ?? "00-00-0000")->format('M d Y'),
-                            "3" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
-                            "4" => trim((($lng ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? '')),
-                            "5" => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
-                            "6" => $address,
-                            "7" => "worker/jobs/view/" . $jobData['id'],
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => Carbon::parse($jobData['start_date'] ?? "00-00-0000")->format('M d Y'),
+                        //     "3" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                        //     "4" => trim((($lng ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? '')),
+                        //     "5" => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
+                        //     "6" => $address,
+                        //     "7" => "worker/jobs/view/" . $jobData['id'],
+                        // ];
 
 
-                        try {
-                            \Log::info("Sending message via Twilio...");
+                        // try {
+                        //     \Log::info("Sending message via Twilio...");
 
-                            $twi = $this->twilio->messages->create(
-                                "whatsapp:+" . $receiverNumber,
-                                [
-                                    "from" => $this->twilioWhatsappNumber,
-                                    "contentSid" => $sid,
-                                    "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        //     $twi = $this->twilio->messages->create(
+                        //         "whatsapp:+" . $receiverNumber,
+                        //         [
+                        //             "from" => $this->twilioWhatsappNumber,
+                        //             "contentSid" => $sid,
+                        //             "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
-                                ]
-                            );
+                        //         ]
+                        //     );
 
-                            $data = $twi->toArray();
-                            $isTwilio = true;
+                        //     $data = $twi->toArray();
+                        //     $isTwilio = true;
 
-                            \Log::info("Twilio message sent successfully!");
-                        } catch (\Exception $e) {
-                            \Log::error("Twilio API Error: " . $e->getMessage());
-                        }
+                        //     \Log::info("Twilio message sent successfully!");
+                        // } catch (\Exception $e) {
+                        //     \Log::error("Twilio API Error: " . $e->getMessage());
+                        // }
 
                         break;
 
