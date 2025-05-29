@@ -836,7 +836,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     die("STOPPED");
                 }
 
-                if ($message === 'STOP' || $message === 'הפסק') {
+                if (strtolower($message) === 'stop' || $message === 'הפסק') {
                     if (!$client) {
                         return response()->json([
                             'message' => 'User not found'
@@ -864,7 +864,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 }
 
                 // Send main menu is last menu state not found
-                if (!$client_menus || $listId == '9') {
+                if (!$client_menus || $listId == '9' || $ButtonPayload == "menu") {
                     $sid = null;
 
                     if ($client->lng == 'heb') {
@@ -1128,14 +1128,14 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             ]
                         ],
                         '4' => [
-                            'title' => "Schedule an appointment for a quote",
+                            'title' => "coustomer_service",
                             'content' => [
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
-                                        You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
-                                        Enter your phone number or email address with which you registered for the service 📝',
+You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
+Enter your phone number or email address with which you registered for the service 📝',
                                 'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
-                                תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
-                                הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
+תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
+הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
                             ]
                         ],
                         '5' => [
@@ -2291,7 +2291,28 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             "whatsapp:+$from",
                             [
                                 "from" => $this->twilioWhatsappNumber,
-                                "contentSid" => $sid,
+                                // "contentSid" => $sid,
+                                "body" => $msg
+
+                            ]
+                        );
+                        \Log::info($twi);
+
+                        // WhatsAppBotActiveClientState::updateOrCreate(
+                        //     ["from" => $from],
+                        //     [
+                        //         'menu_option' => 'enter_phone',
+                        //         'lng' => $lng,
+                        //         "from" => $from,
+                        //     ]
+                        // );
+                    } elseif ($title == "coustomer_service") {
+                        $sid = $lng == "heb" ? "HXed45297ce585bd31b49119c8788edfb4" : "HX741b8e40f723e2ca14474a54f6d82ec2";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $msg
 
                             ]
                         );
@@ -2305,7 +2326,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                 "from" => $from,
                             ]
                         );
-                    } elseif ($title == "Service Areas") {
+                    } else if ($title == "Service Areas") {
                         $sid = $client->lng == "heb" ? "HXecc0eb8c4f810a84b1fc4f4d8642913c" : "HXc66fbd72c126251154ea831d3267ad31";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
@@ -2406,6 +2427,39 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     }
                     // Log::info('Send message: ' . $menus[$last_menu][$message]['title']);
                     die("Language switched to english");
+                }
+
+                if ((!in_array(strtolower($message), ['הפסק', 'stop']) 
+                && !in_array($flag, ['email_sent', 'verified', 'incorect_otp', 'failed_attempts', 'number_not_recognized']) 
+                && !in_array($last_menu,['enter_phone', 'customer_service']))
+                && (!$ButtonPayload || !$listId)) {
+
+                    \Log::info($message. ' - ' . $flag . ' - ' . $last_menu . ' - ' . $ButtonPayload . ' - ' . $listId);
+                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
+
+                    $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
+
+                        ]
+                    );
+                    \Log::info($twi);
+
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => $messageId,
+                        'message'       => $twi->body ?? '',
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($twi->toArray()),
+                    ]);
                 }
             }
         }
@@ -3697,7 +3751,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
             'data'          => json_encode($twi->toArray()),
         ]);
 
-        // return response()->json(['status' => 'success'], 200);
+        return response()->json(['status' => 'success'], 200);
     }
 
 

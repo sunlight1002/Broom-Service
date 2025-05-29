@@ -207,11 +207,16 @@ class WhatsappNotification
                 );
                 $teamSkipComment = generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
 
-                if ($latitude && $longitude) {
-                    $googleMapsUrl = "https://maps.google.com?q={$latitude},{$longitude}";
+                $geoAddress = $jobData['property_address']['geo_address'] ?? '';
+                $latitude = $jobData['property_address']['latitude'] ?? null;
+                $longitude = $jobData['property_address']['longitude'] ?? null;
+
+                if ($latitude && $longitude && $geoAddress) {
+                    $encodedAddress = urlencode($geoAddress);
+                    $zoom = 17;
+                    $googleMapsUrl = "https://www.google.com/maps/place/{$encodedAddress}/@{$latitude},{$longitude},{$zoom}z";
                 } else {
-                    $geoAddress = $jobData['property_address']['geo_address'] ?? '';
-                    $googleMapsUrl = "https://maps.google.com?q=" . urlencode($geoAddress);
+                    $googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=" . urlencode($geoAddress);
                 }
 
                 $googleAddress = generateShortUrl(url($googleMapsUrl), 'worker');
