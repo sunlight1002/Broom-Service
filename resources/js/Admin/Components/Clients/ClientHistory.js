@@ -380,7 +380,7 @@ export default function ClientHistory({
             </ul>
             <div className="tab-content border-0">
                 {
-                    role == "supervisor" ?
+                    role != "supervisor" ?
                         (
                             <>
                                 <div
