@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 export default function ViewLead() {
     const [lead, setLead] = useState(null);
+    const [campaignName, setCampaignName] = useState("");
 
     const param = useParams();
     const { t } = useTranslation();
@@ -23,8 +24,20 @@ export default function ViewLead() {
             .get(`/api/admin/leads/${param.id}/edit`, { headers })
             .then((res) => {
                 setLead(res.data.lead);
+                getCampaignName(res.data.lead.campaign_id);                
             });
     };
+
+    const getCampaignName = async (campaignId) => {
+        if (!campaignId) return;
+        try {
+            const response = await axios.get(`/api/admin/facebook-campaigns/${campaignId}`, { headers });
+            setCampaignName(response.data.campaign_name);
+        } catch (error) {
+            console.error("Error fetching campaign name:", error);
+        }
+    };
+    
     useEffect(() => {
         getLead();
     }, []);
@@ -45,7 +58,7 @@ export default function ViewLead() {
                 </div> */}
                 {lead && (
                     <div className="view-applicant">
-                        <LeadDetails lead={lead} />
+                        <LeadDetails lead={lead} campaignName={campaignName}/>
                         <div className="card mt-3" style={{boxShadow: "none"}}>
                             <div className="card-body">
                                 <LeadHistory client={lead} />

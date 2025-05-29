@@ -13,6 +13,7 @@ export default function ViewClient() {
     const [offerStatus, setOfferStatus] = useState([]);
     const [contracts, setContracts] = useState([]);
     const [latestContract, setLatestContract] = useState([]);
+    const [campaignName, setCampaignName] = useState("");
 
     const { t } = useTranslation();
 
@@ -54,7 +55,18 @@ export default function ViewClient() {
     const getClient = () => {
         axios.get(`/api/admin/clients/${param.id}`, { headers }).then((res) => {
             setClient(res.data.client);
+            getCampaignName(res.data.client.campaign_id);
         });
+    };
+
+    const getCampaignName = async (campaignId) => {
+        if (!campaignId) return;
+        try {
+            const response = await axios.get(`/api/admin/facebook-campaigns/${campaignId}`, { headers });
+            setCampaignName(response.data.campaign_name);
+        } catch (error) {
+            console.error("Error fetching campaign name:", error);
+        }
     };
 
     const getContract = () => {
@@ -102,6 +114,7 @@ export default function ViewClient() {
                             offerStatus={offerStatus}
                             scheduleStatus={scheduleStatus}
                             latestContract={latestContract}
+                            campaignName={campaignName}
                         />
                         <div className="card mt-3" style={{boxShadow: "none"}}>
                             <div className="card-body">

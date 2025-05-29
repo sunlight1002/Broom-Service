@@ -50,6 +50,7 @@ use App\Http\Controllers\HearingCommentController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\DecisionController;
 use App\Http\Controllers\WhapiController;
+use App\Http\Controllers\FacebookCampaignController;
 // use App\Http\Controllers\Admin\ChangeWorkerController;
 
 /*
@@ -151,6 +152,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //  Routes for Lead Activity
     Route::get('/lead-activities/{id}', [LeadActivityController::class, 'getLeadActivities']);
+    Route::get('/facebook-campaigns/{campaign_id}', [FacebookCampaignController::class, 'getCampaignName']);
+
     // Client Property Address Comments
     Route::get('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'getComments']);
     Route::post('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'saveComment']);

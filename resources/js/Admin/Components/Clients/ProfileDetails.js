@@ -18,6 +18,7 @@ export default function ProfileDetails({
     offerStatus,
     scheduleStatus,
     latestContract,
+    campaignName
 }) {
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -416,8 +417,17 @@ export default function ProfileDetails({
                                                     <p>{cstatus}</p>
                                                 )}
                                             </div>
-
                                         </div>
+                                        { campaignName && (
+                                            <div className="col-sm-4">
+                                                <div className="form-group navyblueColor">
+                                                    <label>
+                                                        {t("admin.leads.campaignName")}
+                                                        </label>
+                                                    <p>{campaignName}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                     {
                                         role != "supervisor" && (

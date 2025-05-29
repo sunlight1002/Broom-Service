@@ -7,7 +7,7 @@ import LeadActivityList from "../../Pages/LeadActivity/ViewLeadActivity";
 import Files from "../Clients/Files";
 import Notes from "./Notes";
 
-export default function LeadDetails({ lead }) {
+export default function LeadDetails({ lead, campaignName}) {
     const { t } = useTranslation();
     const generatedOn = useMemo(() => {
         return (
@@ -230,16 +230,27 @@ export default function LeadDetails({ lead }) {
                                                 <p>{generatedOn}</p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-12">
-                                            <div className="form-group navyblueColor">
-                                                <label>
-                                                    {" "}
-                                                    Source
-                                                </label>
-                                                <p>{lead.source}</p>
+                                        { lead.source && (
+                                            <div className="col-sm-12">
+                                                <div className="form-group navyblueColor">
+                                                    <label>
+                                                        {" "}
+                                                        {t("admin.leads.source")}
+                                                    </label>
+                                                    <p>{lead.source}</p>
+                                                </div>
                                             </div>
-                                        </div>
-
+                                        )}
+                                        { campaignName && (
+                                            <div className="col-xl-6">
+                                                <div className="form-group navyblueColor">
+                                                    <label>
+                                                        {t("admin.leads.campaignName")}
+                                                    </label>
+                                                    <p>{campaignName}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                         {/* <div className="col-sm-12">
                                             <div className="form-group navyblueColor">
                                                 <p>

@@ -1534,6 +1534,8 @@
             "PriceOfferSent": "הצעת מחיר נשלחה",
             "DeclinedPriceOffer": "הצעת מחיר נדחתה",
             "AddNew": "הוסף חדש",
+            "source": "מקור",
+            "campaignName": "שם הקמפיין",
             "leave_request": "עזוב בקשה",
             "not_respond_to_bot": "לא מגיב לבוט",
             "not_respond_to_messages": "לא מגיב להודעות",
