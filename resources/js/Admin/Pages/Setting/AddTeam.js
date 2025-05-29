@@ -152,25 +152,25 @@ export default function AddTeam() {
                                     <label className="control-label">
                                         {t("admin.global.Phone")}
                                     </label>
-                                        <PhoneInput
-                                            country={'il'}
-                                            value={phone}
-                                            onChange={(phone, country) => {
-                                                // Remove leading '0' after country code
-                                                const dialCode = country.dialCode;
-                                                let formattedPhone = phone;
-                                                if (phone.startsWith(dialCode + '0')) {
-                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
-                                                }
-                                                setPhone(formattedPhone);
-                                            }}
-                                            inputClass="form-control"
-                                            inputProps={{
-                                                name: 'phone',
-                                                required: true,
-                                                placeholder: "Enter phone",
-                                            }}
-                                        />
+                                    <PhoneInput
+                                        country={'il'}
+                                        value={phone}
+                                        onChange={(phone, country) => {
+                                            // Remove leading '0' after country code
+                                            const dialCode = country.dialCode;
+                                            let formattedPhone = phone;
+                                            if (phone.startsWith(dialCode + '0')) {
+                                                formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                            }
+                                            setPhone(formattedPhone);
+                                        }}
+                                        inputClass="form-control"
+                                        inputProps={{
+                                            name: 'phone',
+                                            required: true,
+                                            placeholder: "Enter phone",
+                                        }}
+                                    />
                                     {errors?.phone ? (
                                         <small className="text-danger mb-1">
                                             {errors?.phone}
@@ -495,7 +495,7 @@ export default function AddTeam() {
                                         }
                                     />{" "}
                                     <label htmlFor="member">
-                                    {t("worker.settings.makeMember")}
+                                        {t("worker.settings.makeMember")}
                                     </label>
                                     <input
                                         type="radio"
@@ -527,6 +527,21 @@ export default function AddTeam() {
                                         }
                                     />{" "}
                                     <label htmlFor="hr">Hr</label>
+                                    <input
+                                        type="radio"
+                                        name="role"
+                                        id="supervisor"
+                                        value="supervisor"
+                                        style={{
+                                            height: "unset",
+                                            marginLeft: "10px",
+                                        }}
+                                        checked={role == "supervisor"}
+                                        onChange={(e) =>
+                                            setRole(e.target.value)
+                                        }
+                                    />{" "}
+                                    <label htmlFor="supervisor">{t("global.supervisor")}</label>
                                 </div>
                                 <div className="form-group">
                                     <input

@@ -33,6 +33,7 @@ const PropertyAddress = memo(function PropertyAddress({
     language,
     newClient = true,
 }) {
+    const role = localStorage.getItem("admin-role");
     const params = useParams();
     const { t } = useTranslation();
     const headers = {
@@ -113,7 +114,7 @@ const PropertyAddress = memo(function PropertyAddress({
             lat.current.value = _place.geometry.location.lat();
             long.current.value = _place.geometry.location.lng();
             city.current.value = _place.vicinity;
-            
+
             const address_components = _place.address_components;
             $.each(address_components, function (index, component) {
                 var types = component.types;
@@ -223,7 +224,7 @@ const PropertyAddress = memo(function PropertyAddress({
             }
 
             console.log(addressVal);
-            
+
             if (params.id) {
                 axios
                     .post(
@@ -402,20 +403,24 @@ const PropertyAddress = memo(function PropertyAddress({
                 <div className="">
                     <h4 className="mt-2 mb-3">{heading}</h4>
                 </div>
-                <div className="text-right ">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setModalStatus(true);
-                            isAdd.current = true;
-                            resetForm();
-                        }}
-                        className="btn navyblue"
-                    >
-                        {" "}
-                        + {t("admin.leads.AddLead.addAddress.Add")}
-                    </button>
-                </div>
+                {
+                    role != "supervisor" && (
+                        <div className="text-right ">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setModalStatus(true);
+                                    isAdd.current = true;
+                                    resetForm();
+                                }}
+                                className="btn navyblue"
+                            >
+                                {" "}
+                                + {t("admin.leads.AddLead.addAddress.Add")}
+                            </button>
+                        </div>
+                    )
+                }
             </div>
             {isModalOpen && (
                 <div>
@@ -939,13 +944,16 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 "admin.leads.AddLead.addAddress.Allowed_workers"
                                             )}
                                         </Th> */}
+                                        {
+                                            role != "supervisor" && (
+                                                <Th>
 
-                                        <Th>
-
-                                            {t(
-                                                "admin.leads.AddLead.addAddress.Action"
-                                            )}
-                                        </Th>
+                                                    {t(
+                                                        "admin.leads.AddLead.addAddress.Action"
+                                                    )}
+                                                </Th>
+                                            )
+                                        }
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -1044,88 +1052,92 @@ const PropertyAddress = memo(function PropertyAddress({
 
                                                     </Td> */}
 
-                                                    <Td className="mb-3 d-flex">
-                                                        {" "}
-                                                        <div className="action-dropdown dropdown">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-default dropdown-toggle"
-                                                                data-toggle="dropdown"
-                                                            >
-                                                                <i className="fa fa-ellipsis-vertical"></i>
-                                                            </button>
-                                                            <div className="dropdown-menu">
-                                                                {addressMenu.map(
-                                                                    (
-                                                                        menu,
-                                                                        i
-                                                                    ) => {
-                                                                        return (
-                                                                            <button
-                                                                                type="button"
-                                                                                menutype={
-                                                                                    menu.key
-                                                                                }
-                                                                                className="dropdown-item"
-                                                                                key={
-                                                                                    menu.key
-                                                                                }
-                                                                                onClick={(
-                                                                                    e
-                                                                                ) => {
-                                                                                    e.preventDefault();
-                                                                                    handleMenu(
-                                                                                        e,
-                                                                                        {
-                                                                                            ...item,
-                                                                                            indexId:
-                                                                                                index,
-                                                                                            id: item.id,
+                                                    {
+                                                        role != "supervisor" && (
+                                                            <Td className="mb-3 d-flex">
+                                                                {" "}
+                                                                <div className="action-dropdown dropdown">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-default dropdown-toggle"
+                                                                        data-toggle="dropdown"
+                                                                    >
+                                                                        <i className="fa fa-ellipsis-vertical"></i>
+                                                                    </button>
+                                                                    <div className="dropdown-menu">
+                                                                        {addressMenu.map(
+                                                                            (
+                                                                                menu,
+                                                                                i
+                                                                            ) => {
+                                                                                return (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        menutype={
+                                                                                            menu.key
                                                                                         }
+                                                                                        className="dropdown-item"
+                                                                                        key={
+                                                                                            menu.key
+                                                                                        }
+                                                                                        onClick={(
+                                                                                            e
+                                                                                        ) => {
+                                                                                            e.preventDefault();
+                                                                                            handleMenu(
+                                                                                                e,
+                                                                                                {
+                                                                                                    ...item,
+                                                                                                    indexId:
+                                                                                                        index,
+                                                                                                    id: item.id,
+                                                                                                }
+                                                                                            );
+                                                                                        }}
+                                                                                    >
+                                                                                        {
+                                                                                            menu.label
+                                                                                        }
+                                                                                    </button>
+                                                                                );
+                                                                            }
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                {
+                                                                    !newClient && (
+                                                                        <>
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    handleAddComment(
+                                                                                        item.id
                                                                                     );
                                                                                 }}
+                                                                                className="mx-1"
+                                                                                data-tooltip-id="address-tooltip"
+                                                                                data-tooltip-content="Add Comment"
                                                                             >
-                                                                                {
-                                                                                    menu.label
-                                                                                }
+                                                                                <i className="fa fa-comment-medical"></i>
                                                                             </button>
-                                                                        );
-                                                                    }
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        {
-                                                            !newClient && (
-                                                                <>
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            handleAddComment(
-                                                                                item.id
-                                                                            );
-                                                                        }}
-                                                                        className="mx-1"
-                                                                        data-tooltip-id="address-tooltip"
-                                                                        data-tooltip-content="Add Comment"
-                                                                    >
-                                                                        <i className="fa fa-comment-medical"></i>
-                                                                    </button>
 
-                                                                    <button
-                                                                        className="mx-1"
-                                                                        onClick={() => {
-                                                                            handleShowComments(
-                                                                                item.id
-                                                                            );
-                                                                        }}
-                                                                        data-tooltip-id="address-tooltip"
-                                                                        data-tooltip-content="Comment List"
-                                                                    >
-                                                                        <i className="fa fa-comments"></i>
-                                                                    </button>
-                                                                </>
-                                                            )
-                                                        }
-                                                    </Td>
+                                                                            <button
+                                                                                className="mx-1"
+                                                                                onClick={() => {
+                                                                                    handleShowComments(
+                                                                                        item.id
+                                                                                    );
+                                                                                }}
+                                                                                data-tooltip-id="address-tooltip"
+                                                                                data-tooltip-content="Comment List"
+                                                                            >
+                                                                                <i className="fa fa-comments"></i>
+                                                                            </button>
+                                                                        </>
+                                                                    )
+                                                                }
+                                                            </Td>
+                                                        )
+                                                    }
                                                 </Tr>
                                             );
                                         })}

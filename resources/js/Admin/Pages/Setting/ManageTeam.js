@@ -45,29 +45,29 @@ export default function ManageTeam() {
                     visible: false,
                 },
                 {
-                    title: "Name",
+                    title: t("global.name"),
                     data: "name",
                 },
                 {
-                    title: "Email",
+                    title: t("global.Email"),
                     data: "email",
                 },
                 {
-                    title: "Phone",
+                    title: t("global.phone"),
                     data: "phone",
                     render: function(data) {
                         return `+${data}`;
                     }
                 },
                 {
-                    title: "Status",
+                    title: t("global.status"),
                     data: "status",
                     render: function (data, type, row, meta) {
                         return row.status == 1 ? "Active" : "Inactive";
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("global.action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,
@@ -75,11 +75,11 @@ export default function ManageTeam() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-availability-btn" data-id="${row.id}">Availability</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-availability-btn" data-id="${row.id}">${t("admin.availability")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t("admin.global.Edit")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.global.Delete")}</button>`;
 
                         _html += "</div> </div>";
 

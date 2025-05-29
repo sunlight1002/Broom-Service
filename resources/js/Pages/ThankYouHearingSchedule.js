@@ -145,18 +145,18 @@ function ThankYouHearingSchedule() {
                         <h3>{t("This Hearing is already accepted.")}</h3>
                         <p>{t("Please write us an email if you have any queries.")}</p>
                         <a className="btn btn-pink" href="mailto:office@broomservice.co.il">
-                            Write Email
+                            {t("admin.hearing.email.writeEmail")}
                         </a>
                     </div>
                 ) : actionStatus === "reject" ? (
                     <div>
                         <h3>{t("res_txt")}</h3>
-                        <p>May I know the reason for rejection?</p>
+                        <p>{t("admin.hearing.email.mayIknowthereasonforrejection")}</p>
                         <p>
-                            If you have any query/suggestions or would like to reschedule the Hearing, please write us on email. We will get back to you shortly.
+                            {t("admin.hearing.email.suggestions")}
                         </p>
                         <a className="btn btn-pink" href="mailto:office@broomservice.co.il">
-                            Write Email
+                            {t("admin.hearing.email.writeEmail")}
                         </a>
                     </div>
                 ) : actionStatus === "reschedule" ? (
@@ -164,7 +164,7 @@ function ThankYouHearingSchedule() {
                         <h3>{t("Your meeting has been rescheduled.")}</h3>
                         <p>{t("Please write us an email if you have any questions or further requests.")}</p>
                         <a className="btn btn-pink" href="mailto:office@broomservice.co.il">
-                            Write Email
+                            {t("admin.hearing.email.writeEmail")}
                         </a>
                     </div>
                 ) : rescheduleMode ? (
@@ -199,13 +199,13 @@ function ThankYouHearingSchedule() {
                                 <h3>{t("res_txt")}</h3>
                                 <div className="button-group">
                                     <button className="btn btn-success" onClick={() => updateMeeting("accept")}>
-                                        Accept
+                                        {t("admin.hearing.email.accept")}
                                     </button>
                                     <button className="btn btn-danger ml-2" onClick={() => updateMeeting("reject")}>
-                                        Reject
+                                        {t("admin.hearing.email.reject")}
                                     </button>
                                     <button className="btn btn-warning ml-2" onClick={() => setRescheduleMode(true)}>
-                                        Reschedule
+                                        {t("admin.hearing.email.reschedule")}
                                     </button>
                                 </div>
                             </div>

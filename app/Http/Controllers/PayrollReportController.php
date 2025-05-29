@@ -22,6 +22,10 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use App\Exports\MonthlyReportExport;
+use PhpOffice\PhpSpreadsheet\Cell\Hyperlink;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
 class PayrollReportController extends Controller
 {
@@ -143,13 +147,13 @@ class PayrollReportController extends Controller
                 }else{
                     $salary = $totalSalary;
                 }
-                \Log::info('Salary: ' . $salary);
+                Log::info('Salary: ' . $salary);
                 
             $normalPayment = 0;
             $holidayPayment175=0;
             $holidayPayment200=0;
             $annualRecoveryFee=0;
-            
+
             if ($totalMinutesWorked == 0) {
                 $reportData[] = [
                     'Number' => $user->id,
@@ -180,6 +184,7 @@ class PayrollReportController extends Controller
                     'Net Payment' => ' ',
                     'Doctor Report' => ' ',
                     'Form 101' => ' ', 
+                    'Final Letter' => ' ',
                 ];
                 continue;
             }
@@ -332,14 +337,35 @@ class PayrollReportController extends Controller
             ->whereYear('created_at', now()->year)
             ->orderBy('created_at', 'desc')
             ->first();
+
             $form101Display = 'Not available';
             
             if ($form101) {
                 $form101Path = $form101->pdf_name;        
                 if ($form101Path) {                     
                     $form101Link = url('storage/signed-docs/' . $form101Path);
-                    $form101Display = $form101Link;    
+                    $form101Display = $form101Link;   
                 }
+            }
+
+            $finalLetterDoc = $user->documents()
+            ->where('name', 'Final Employment Letter')
+            ->latest()
+            ->first();
+        
+            $finalLetterUrl = 'Not available';
+            
+            if ($finalLetterDoc) {
+                $filePath = $finalLetterDoc->file;
+                if (Storage::disk('public')->exists($filePath)) {
+                    // $finalLetterUrl = Storage::url($filePath);
+                    $finalLetterUrl =  url('storage/final_letters/' . $filePath);
+
+                } else {
+                    Log::warning("Final letter file not found in storage", ['path' => $filePath]);
+                }
+            } else {
+                Log::warning("No Final Employment Letter document found for user", ['user_id' => $user->id]);
             }
                                 
             // Store report data
@@ -372,6 +398,7 @@ class PayrollReportController extends Controller
                 'Net Payment' => round($netPayment, 2),
                 'Doctor Report' => $doctorReportDisplay,
                 'Form 101' => $form101Display, 
+                'Final Letter' => $finalLetterUrl,
             ];
         }
 

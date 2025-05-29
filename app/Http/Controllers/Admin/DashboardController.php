@@ -69,103 +69,150 @@ class DashboardController extends Controller
   //     'latest_jobs'        => $latest_jobs,
   //   ]);
   // }
+
+  public function generalSearch(Request $request)
+  {
+    $query = $request->input('q');
+
+    if (!$query) {
+      return response()->json([
+        'clients' => [],
+        'workers' => [],
+        'WorkerLeads' => [],
+      ]);
+    }
+
+    $clients = Client::where('firstname', 'like', "%{$query}%")
+      ->orWhere('lastname', 'like', "%{$query}%")
+      ->orWhereRaw('CONCAT(firstname, " ", lastname) LIKE ?', ["%{$query}%"])
+      ->get(['id', 'firstname', 'lastname', 'status']);
+
+    $clients->each(function ($client) {
+      $client->type = 'client';
+    });
+
+    $users = User::where('firstname', 'like', "%{$query}%")
+      ->orWhere('lastname', 'like', "%{$query}%")
+      ->orWhereRaw('CONCAT(firstname, " ", lastname) LIKE ?', ["%{$query}%"])
+      ->get(['id', 'firstname', 'lastname', 'status']);
+
+    $users->each(function ($user) {
+      $user->type = 'user';
+    });
+
+    $leads = WorkerLeads::where('firstname', 'like', "%{$query}%")
+      ->orWhere('lastname', 'like', "%{$query}%")
+      ->orWhereRaw('CONCAT(firstname, " ", lastname) LIKE ?', ["%{$query}%"])
+      ->get(['id', 'firstname', 'lastname', 'status']);
+
+    $leads->each(function ($lead) {
+      $lead->type = 'workerlead';
+    });
+
+    return response()->json([
+      'clients' => $clients,
+      'workers' => $users,
+      'WorkerLeads' => $leads,
+    ]);
+  }
+
   public function dashboard(Request $request)
   {
-      $filterType = $request->input('selected', 'today');
-      $today = Carbon::today();
-      $startDate = $endDate = null;
-  
-      switch ($filterType) {
-          case 'today':
-              $startDate = $today->copy()->startOfDay();
-              $endDate = $today->copy()->endOfDay();
-              break;
-          case 'this_week':
-              $startDate = Carbon::now()->startOfWeek();
-              $endDate = Carbon::now()->endOfWeek();
-              break;
-          case 'this_month':
-              $startDate = Carbon::now()->startOfMonth();
-              $endDate = Carbon::now()->endOfMonth();
-              break;
-          case 'custom':
-              $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
-              $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
-              break;
-          case 'all_time':
-              $startDate = $endDate = null; // Show all
-              break;
-      }
-  
-      $total_jobs = Job::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
-  
-      $total_new_clients = Client::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
-  
-      $total_new_workers = User::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
-  
-      $total_active_clients = Client::where('status', 2)
-          ->whereHas('lead_status', function ($query) {
-              $query->where('lead_status', "active client");
-          })
-          ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-            return $query->whereBetween('created_at', [$startDate, $endDate]);
-          })->count();
-  
-      $total_leads = Client::where('status', '!=', 2)
-          ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-              return $query->whereBetween('created_at', [$startDate, $endDate]);
-          })
-          ->count();
+    $filterType = $request->input('selected', 'today');
+    $today = Carbon::today();
+    $startDate = $endDate = null;
 
-        
-      $total_order_price = Order::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
-      $total_paid_order_price = Order::where('paid_status', 'paid')->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
-      $total_unpaid_order_price = Order::where('paid_status', 'unpaid')->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
-          \Log::info($total_order_price);
-          \Log::info($total_paid_order_price);
-          \Log::info($total_unpaid_order_price);
+    switch ($filterType) {
+      case 'today':
+        $startDate = $today->copy()->startOfDay();
+        $endDate = $today->copy()->endOfDay();
+        break;
+      case 'this_week':
+        $startDate = Carbon::now()->startOfWeek();
+        $endDate = Carbon::now()->endOfWeek();
+        break;
+      case 'this_month':
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+        break;
+      case 'custom':
+        $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+        $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+        break;
+      case 'all_time':
+        $startDate = $endDate = null; // Show all
+        break;
+    }
 
-      $total_workers = User::where('status', '1')->where(function ($q) use ($today) {
-          $q->whereNull('last_work_date')
-            ->orWhereDate('last_work_date', '>=', $today);
+    $total_jobs = Job::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
+
+    $total_new_clients = Client::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
+
+    $total_new_workers = User::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
+
+    $total_active_clients = Client::where('status', 2)
+      ->whereHas('lead_status', function ($query) {
+        $query->where('lead_status', "active client");
+      })
+      ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
       })->count();
-  
-      $total_schedules = Schedule::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
-      \Log::info($total_schedules);
-  
-      $total_offers = Offer::where('status', 'sent')
-          ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
-            return $q->whereBetween('created_at', [$startDate, $endDate]);
-          })->count();
-  
-      $total_worker_leads = WorkerLeads::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
-  
-      $total_contracts = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)
-          ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
-            return $q->whereBetween('created_at', [$startDate, $endDate]);
-          })->count();
-  
-      $latest_jobs = Job::with(['client', 'service', 'worker', 'jobservice'])
-          ->where('status', JobStatusEnum::COMPLETED)
-          ->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
-          ->orderBy('created_at', 'desc')
-          ->paginate(5);
-  
-      return response()->json([
-          'total_jobs' => $total_jobs,
-          'total_new_clients' => $total_new_clients,
-          'total_new_workers' => $total_new_workers,
-          'total_active_clients' => $total_active_clients,
-          'total_leads' => $total_leads,
-          'total_workers' => $total_workers,
-          'total_worker_leads' => $total_worker_leads,
-          'total_schedules' => $total_schedules,
-          'total_offers' => $total_offers,
-          'total_contracts' => $total_contracts,
-          'latest_jobs' => $latest_jobs,
-      ]);
+
+    $total_leads = Client::where('status', '!=', 2)
+      ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
+      })
+      ->count();
+
+
+    $total_order_price = Order::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
+    $total_paid_order_price = Order::where('paid_status', 'paid')->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
+    $total_unpaid_order_price = Order::where('paid_status', 'unpaid')->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->sum('amount_with_tax');
+    \Log::info($total_order_price);
+    \Log::info($total_paid_order_price);
+    \Log::info($total_unpaid_order_price);
+
+    $total_workers = User::where('status', '1')->where(function ($q) use ($today) {
+      $q->whereNull('last_work_date')
+        ->orWhereDate('last_work_date', '>=', $today);
+    })->count();
+
+    $total_schedules = Schedule::when($startDate && $endDate, fn($q) => $q->whereBetween('start_date', [$startDate, $endDate]))->count();
+    \Log::info($total_schedules);
+
+    $total_offers = Offer::where('status', 'sent')
+      ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+        return $q->whereBetween('created_at', [$startDate, $endDate]);
+      })->count();
+
+    $total_worker_leads = WorkerLeads::when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
+
+    $total_contracts = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)
+      ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+        return $q->whereBetween('created_at', [$startDate, $endDate]);
+      })->count();
+
+    $latest_jobs = Job::with(['client', 'service', 'worker', 'jobservice'])
+      ->where('status', JobStatusEnum::COMPLETED)
+      ->when($startDate && $endDate, fn($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
+      ->orderBy('created_at', 'desc')
+      ->paginate(5);
+
+    return response()->json([
+      'total_jobs' => $total_jobs,
+      'total_new_clients' => $total_new_clients,
+      'total_new_workers' => $total_new_workers,
+      'total_active_clients' => $total_active_clients,
+      'total_leads' => $total_leads,
+      'total_workers' => $total_workers,
+      'total_worker_leads' => $total_worker_leads,
+      'total_schedules' => $total_schedules,
+      'total_offers' => $total_offers,
+      'total_contracts' => $total_contracts,
+      'latest_jobs' => $latest_jobs,
+    ]);
   }
-  
+
 
   public function updateTime(Request $request)
   {
@@ -617,41 +664,41 @@ class DashboardController extends Controller
 
     // Determine dates based on selected filter
     switch ($selected) {
-        case 'today':
-            $start_date = Carbon::today()->startOfDay()->toDateTimeString();
-            $end_date = Carbon::today()->endOfDay()->toDateTimeString();
-            break;
+      case 'today':
+        $start_date = Carbon::today()->startOfDay()->toDateTimeString();
+        $end_date = Carbon::today()->endOfDay()->toDateTimeString();
+        break;
 
-        case 'this_week':
-            $start_date = Carbon::now()->startOfWeek()->toDateTimeString();
-            $end_date = Carbon::now()->endOfWeek()->toDateTimeString();
-            break;
+      case 'this_week':
+        $start_date = Carbon::now()->startOfWeek()->toDateTimeString();
+        $end_date = Carbon::now()->endOfWeek()->toDateTimeString();
+        break;
 
-        case 'this_month':
-            $start_date = Carbon::now()->startOfMonth()->toDateTimeString();
-            $end_date = Carbon::now()->endOfMonth()->toDateTimeString();
-            break;
+      case 'this_month':
+        $start_date = Carbon::now()->startOfMonth()->toDateTimeString();
+        $end_date = Carbon::now()->endOfMonth()->toDateTimeString();
+        break;
 
-        case 'all_time':
-            $start_date = Carbon::now()->startOfYear()->toDateTimeString();
-            $end_date = Carbon::now()->endOfYear()->toDateTimeString();
-            break;
+      case 'all_time':
+        $start_date = Carbon::now()->startOfYear()->toDateTimeString();
+        $end_date = Carbon::now()->endOfYear()->toDateTimeString();
+        break;
     }
 
     \Log::info("Start date: {$start_date}, End date: {$end_date}");
 
     $data = Job::query()
-    ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
-    ->where('jobs.status', JobStatusEnum::COMPLETED)
-    ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-      return $q->whereBetween('jobs.created_at', [$start_date, $end_date]);;
-    })
-    ->selectRaw('SUM(jobs.subtotal_amount) as income')
-    ->selectRaw('SUM(jobs.actual_time_taken_minutes) as actual_time_taken_minutes')
-    ->selectRaw('SUM(job_services.duration_minutes) as duration_minutes')
-    ->selectRaw('SUM(jobs.actual_time_taken_minutes - job_services.duration_minutes) as difference_minutes')
-    ->selectRaw('COUNT(jobs.id) as total_jobs')
-    ->first();
+      ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+      ->where('jobs.status', JobStatusEnum::COMPLETED)
+      ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
+        return $q->whereBetween('jobs.created_at', [$start_date, $end_date]);;
+      })
+      ->selectRaw('SUM(jobs.subtotal_amount) as income')
+      ->selectRaw('SUM(jobs.actual_time_taken_minutes) as actual_time_taken_minutes')
+      ->selectRaw('SUM(job_services.duration_minutes) as duration_minutes')
+      ->selectRaw('SUM(jobs.actual_time_taken_minutes - job_services.duration_minutes) as difference_minutes')
+      ->selectRaw('COUNT(jobs.id) as total_jobs')
+      ->first();
 
     $graph = [];
     if ($start_date && $end_date) {
@@ -675,7 +722,7 @@ class DashboardController extends Controller
         'pass' => $iCountPassword,
       ];
 
-      if(isset($start_date) && isset($end_date)) {
+      if (isset($start_date) && isset($end_date)) {
         $postData['start_date'] = $start_date;
         $postData['end_date'] = $end_date;
       }

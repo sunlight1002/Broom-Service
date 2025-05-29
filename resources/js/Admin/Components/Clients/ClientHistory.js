@@ -23,6 +23,7 @@ export default function ClientHistory({
     scheduleStatus,
     offerStatus,
 }) {
+    const role = localStorage.getItem("admin-role");
     const { hash } = useLocation();
     const { t } = useTranslation();
     const query = new URLSearchParams(location.search);
@@ -31,169 +32,172 @@ export default function ClientHistory({
     return (
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="schedule-meeting"
-                        className={
-                            `nav-link d-flex align-items-center ` +
-                            (!hash || hash === "#tab-schedule" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-schedule"
-                        aria-selected={
-                            !hash || hash === "#tab-schedule" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.scheduleMetting")}
-                        <div
-                            className="form-group ml-3 mb-0 d-flex"
-                            style={{
-                                padding: "3px",
-                                borderRadius: "7px",
-                                border: "1px solid #E5EBF1",
-                                backgroundColor: "#FAFBFC",
-                            }}
-                        >
-                            <span
-                                id="ms"
-                                className="d-flex ml-2 align-items-center"
-                                style={{
-                                    color: "#C83939",
-                                    fontWeight: "500",
-                                    cursor: "pointer",
-                                    fontSize: "16px",
-                                }}
-                            >
-                                <p
-                                    className="mr-2"
-                                    style={{
-                                        width: "7px",
-                                        height: "7px",
-                                        backgroundColor: "#C83939",
-                                        borderRadius: "100px",
-                                    }}
-                                ></p>
-                                {scheduleStatus}
-                            </span>
-                        </div>
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="offered-price"
-                        className={
-                            `nav-link d-flex align-items-center ` +
-                            (hash === "#tab-offered" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-offered"
-                        aria-selected={
-                            hash === "#tab-offered" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.offeredPrice")}
-                        <div
-                            className="form-group ml-3 mb-0 d-flex"
-                            style={{
-                                padding: "3px",
-                                borderRadius: "7px",
-                                border: "1px solid #E5EBF1",
-                                backgroundColor: "#FAFBFC",
-                            }}
-                        >
-                            <span
-                                id="os"
-                                className="d-flex ml-2 align-items-center"
-                                style={{
-                                    color: "#C83939",
-                                    fontWeight: "500",
-                                    cursor: "pointer",
-                                    fontSize: "16px",
-                                }}
-                            >
-                                <p
-                                    className="mr-2"
-                                    style={{
-                                        width: "7px",
-                                        height: "7px",
-                                        backgroundColor: "#C83939",
-                                        borderRadius: "100px",
-                                    }}
-                                ></p>
-                                {offerStatus}
-                            </span>
-                        </div>
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="contract"
-                        className={
-                            `nav-link d-flex align-items-center ` +
-                            (hash === "#tab-contract" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-contract"
-                        aria-selected={
-                            hash === "#tab-contract" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.contract")}
-                        <div
-                            className="form-group ml-3 mb-0 d-flex"
-                            style={{
-                                padding: "3px",
-                                borderRadius: "7px",
-                                border: "1px solid #E5EBF1",
-                                backgroundColor: "#FAFBFC",
-                            }}
-                        >
-                            <span
-                                id="os"
-                                className="d-flex ml-2 align-items-center"
-                                style={{
-                                    color: "#C83939",
-                                    fontWeight: "500",
-                                    cursor: "pointer",
-                                    fontSize: "16px",
-                                }}
-                            >
-                                <p
-                                    className="mr-2"
-                                    style={{
-                                        width: "7px",
-                                        height: "7px",
-                                        backgroundColor: "#C83939",
-                                        borderRadius: "100px",
-                                    }}
-                                ></p>
-                                {latestContract
-                                    ? latestContract.status
-                                    : "Not Sent"}
-                            </span>
-                        </div>
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="jobs-tab"
-                        className={
-                            `nav-link d-flex` +
-                            (hash === "#tab-jobs" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-jobs"
-                        aria-selected={hash === "#tab-jobs" ? "true" : "false"}
-                        role="tab"
-                    >
-                        {t("admin.schedule.Jobs")}
-                    </a>
-                </li>
+                {
+                    role != "supervisor" ? (
+                        <>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="schedule-meeting"
+                                    className={
+                                        `nav-link d-flex align-items-center ` +
+                                        (!hash || hash === "#tab-schedule" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-schedule"
+                                    aria-selected={
+                                        !hash || hash === "#tab-schedule" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.scheduleMetting")}
+                                    <div
+                                        className="form-group ml-3 mb-0 d-flex"
+                                        style={{
+                                            padding: "3px",
+                                            borderRadius: "7px",
+                                            border: "1px solid #E5EBF1",
+                                            backgroundColor: "#FAFBFC",
+                                        }}
+                                    >
+                                        <span
+                                            id="ms"
+                                            className="d-flex ml-2 align-items-center"
+                                            style={{
+                                                color: "#C83939",
+                                                fontWeight: "500",
+                                                cursor: "pointer",
+                                                fontSize: "16px",
+                                            }}
+                                        >
+                                            <p
+                                                className="mr-2"
+                                                style={{
+                                                    width: "7px",
+                                                    height: "7px",
+                                                    backgroundColor: "#C83939",
+                                                    borderRadius: "100px",
+                                                }}
+                                            ></p>
+                                            {scheduleStatus}
+                                        </span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="offered-price"
+                                    className={
+                                        `nav-link d-flex align-items-center ` +
+                                        (hash === "#tab-offered" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-offered"
+                                    aria-selected={
+                                        hash === "#tab-offered" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.offeredPrice")}
+                                    <div
+                                        className="form-group ml-3 mb-0 d-flex"
+                                        style={{
+                                            padding: "3px",
+                                            borderRadius: "7px",
+                                            border: "1px solid #E5EBF1",
+                                            backgroundColor: "#FAFBFC",
+                                        }}
+                                    >
+                                        <span
+                                            id="os"
+                                            className="d-flex ml-2 align-items-center"
+                                            style={{
+                                                color: "#C83939",
+                                                fontWeight: "500",
+                                                cursor: "pointer",
+                                                fontSize: "16px",
+                                            }}
+                                        >
+                                            <p
+                                                className="mr-2"
+                                                style={{
+                                                    width: "7px",
+                                                    height: "7px",
+                                                    backgroundColor: "#C83939",
+                                                    borderRadius: "100px",
+                                                }}
+                                            ></p>
+                                            {offerStatus}
+                                        </span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="contract"
+                                    className={
+                                        `nav-link d-flex align-items-center ` +
+                                        (hash === "#tab-contract" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-contract"
+                                    aria-selected={
+                                        hash === "#tab-contract" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.contract")}
+                                    <div
+                                        className="form-group ml-3 mb-0 d-flex"
+                                        style={{
+                                            padding: "3px",
+                                            borderRadius: "7px",
+                                            border: "1px solid #E5EBF1",
+                                            backgroundColor: "#FAFBFC",
+                                        }}
+                                    >
+                                        <span
+                                            id="os"
+                                            className="d-flex ml-2 align-items-center"
+                                            style={{
+                                                color: "#C83939",
+                                                fontWeight: "500",
+                                                cursor: "pointer",
+                                                fontSize: "16px",
+                                            }}
+                                        >
+                                            <p
+                                                className="mr-2"
+                                                style={{
+                                                    width: "7px",
+                                                    height: "7px",
+                                                    backgroundColor: "#C83939",
+                                                    borderRadius: "100px",
+                                                }}
+                                            ></p>
+                                            {latestContract
+                                                ? latestContract.status
+                                                : "Not Sent"}
+                                        </span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="jobs-tab"
+                                    className={
+                                        `nav-link d-flex` +
+                                        (hash === "#tab-jobs" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-jobs"
+                                    aria-selected={hash === "#tab-jobs" ? "true" : "false"}
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.Jobs")}
+                                </a>
+                            </li>
 
-                {/* <li className="nav-item" role="presentation">
+                            {/* <li className="nav-item" role="presentation">
                     <a
                         id="order-tab"
                         className={
@@ -212,24 +216,24 @@ export default function ClientHistory({
                     </a>
                 </li> */}
 
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="invoice-tab"
-                        className={
-                            `nav-link d-flex` +
-                            (hash === "#tab-invoice" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-invoice"
-                        aria-selected={
-                            hash === "#tab-invoice" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.invoice")}
-                    </a>
-                </li>
-                {/* <li className="nav-item" role="presentation">
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="invoice-tab"
+                                    className={
+                                        `nav-link d-flex` +
+                                        (hash === "#tab-invoice" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-invoice"
+                                    aria-selected={
+                                        hash === "#tab-invoice" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.invoice")}
+                                </a>
+                            </li>
+                            {/* <li className="nav-item" role="presentation">
                     <a
                         id="payment-tab"
                         className={
@@ -246,125 +250,188 @@ export default function ClientHistory({
                         Payment
                     </a>
                 </li> */}
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="creditCard-tab"
-                        className={
-                            `nav-link ` +
-                            (hash === "#tab-creditCard" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-creditCard"
-                        aria-selected={
-                            hash === "#tab-creditCard" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.card")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="comments-tab"
-                        className={
-                            `nav-link ` +
-                            (hash === "#tab-comments" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-comments"
-                        aria-selected={
-                            hash === "#tab-comments" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.commenst")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="pending-tab"
-                        className={
-                            `nav-link ` +
-                            (hash === "#tab-pending" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-pending"
-                        aria-selected={
-                            hash === "#tab-pending" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        {t("admin.schedule.pending Request")}
-                    </a>
-                </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="chat-tab"
-                        className={
-                            `nav-link ` +
-                            (hash === "#tab-chat" ? "active" : "")
-                        }
-                        data-toggle="tab"
-                        href="#tab-chat"
-                        aria-selected={
-                            hash === "#tab-chat" ? "true" : "false"
-                        }
-                        role="tab"
-                    >
-                        Client Chat history
-                    </a>
-                </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="creditCard-tab"
+                                    className={
+                                        `nav-link ` +
+                                        (hash === "#tab-creditCard" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-creditCard"
+                                    aria-selected={
+                                        hash === "#tab-creditCard" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.card")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="chat-tab"
+                                    className={
+                                        `nav-link ` +
+                                        (hash === "#tab-chat" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-chat"
+                                    aria-selected={
+                                        hash === "#tab-chat" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    Client Chat history
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="comments-tab"
+                                    className={
+                                        `nav-link ` +
+                                        (hash === "#tab-comments" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-comments"
+                                    aria-selected={
+                                        hash === "#tab-comments" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.commenst")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="pending-tab"
+                                    className={
+                                        `nav-link ` +
+                                        (hash === "#tab-pending" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-pending"
+                                    aria-selected={
+                                        hash === "#tab-pending" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.pending Request")}
+                                </a>
+                            </li>
+                        </>
+                    ) : (
+                        <>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="pending-tab"
+                                    className={
+                                        `nav-link ` +
+                                        (hash === "#tab-pending" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-pending"
+                                    aria-selected={
+                                        hash === "#tab-pending" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.pending Request")}
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="chat-tab"
+                                    className={
+                                        `nav-link ` +
+                                        (hash === "#tab-chat" ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-chat"
+                                    aria-selected={
+                                        hash === "#tab-chat" ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    Client Chat history
+                                </a>
+                            </li>
+                            <li className="nav-item" role="presentation">
+                                <a
+                                    id="comments-tab"
+                                    className={
+                                        `nav-link ` +
+                                        ((hash === "#tab-comments" && role == "supervisor") ? "active" : "")
+                                    }
+                                    data-toggle="tab"
+                                    href="#tab-comments"
+                                    aria-selected={
+                                        (hash === "#tab-comments" && role == "supervisor") ? "true" : "false"
+                                    }
+                                    role="tab"
+                                >
+                                    {t("admin.schedule.commenst")}
+                                </a>
+                            </li>
+
+                        </>
+                    )
+                }
+
             </ul>
             <div className="tab-content border-0">
-                <div
-                    id="tab-schedule"
-                    className={
-                        `tab-pane ` +
-                        (!hash || hash === "#tab-schedule" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="schedule-meeting"
-                >
-                    <ScheduledMeeting />
-                </div>
-                <div
-                    id="tab-offered"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-offered" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="offered-price"
-                >
-                    <OfferedPrice />
-                </div>
-                <div
-                    id="tab-contract"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-contract" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="rejected-tab"
-                >
-                    <Contract
-                        contracts={contracts}
-                        setContracts={setContracts}
-                        fetchContract={fetchContract}
-                    />
-                </div>
-                <div
-                    id="tab-jobs"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-jobs" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="rejected-tab"
-                >
-                    <Jobs contracts={contracts} client={client} />
-                </div>
-                {/* <div
+                {
+                    role == "supervisor" ?
+                        (
+                            <>
+                                <div
+                                    id="tab-schedule"
+                                    className={
+                                        `tab-pane ` +
+                                        (!hash || hash === "#tab-schedule" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="schedule-meeting"
+                                >
+                                    <ScheduledMeeting />
+                                </div>
+                                <div
+                                    id="tab-offered"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-offered" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="offered-price"
+                                >
+                                    <OfferedPrice />
+                                </div>
+                                <div
+                                    id="tab-contract"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-contract" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="rejected-tab"
+                                >
+                                    <Contract
+                                        contracts={contracts}
+                                        setContracts={setContracts}
+                                        fetchContract={fetchContract}
+                                    />
+                                </div>
+                                <div
+                                    id="tab-jobs"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-jobs" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="rejected-tab"
+                                >
+                                    <Jobs contracts={contracts} client={client} />
+                                </div>
+                                {/* <div
                     id="tab-order"
                     className={
                         `tab-pane ` +
@@ -375,18 +442,18 @@ export default function ClientHistory({
                 >
                     <Order />
                 </div> */}
-                <div
-                    id="tab-invoice"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-invoice" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="invoice-tab"
-                >
-                    <Invoice />
-                </div>
-                {/* <div
+                                <div
+                                    id="tab-invoice"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-invoice" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="invoice-tab"
+                                >
+                                    <Invoice />
+                                </div>
+                                {/* <div
                     id="tab-payment"
                     className={
                         `tab-pane ` +
@@ -397,55 +464,96 @@ export default function ClientHistory({
                 >
                     <Payment />
                 </div> */}
-                <div
-                    id="tab-creditCard"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-creditCard" || type === "card"
-                            ? "active show"
-                            : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="creditCard-tab"
-                >
-                    <CardDetails
-                        latestContract={latestContract}
-                        client={client}
-                    />
-                </div>
-                <div
-                    id="tab-comments"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-comments" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="comments-tab"
-                >
-                    <Comments relationID={client.id} routeType="clients" />
-                </div>
-                <div
-                    id="tab-pending"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-pending" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="pending-tab"
-                >
-                    <PendingRequest clientId={client.id} />
-                </div>
-                <div
-                    id="tab-chat"
-                    className={
-                        `tab-pane ` +
-                        (hash === "#tab-chat" ? "active show" : "")
-                    }
-                    role="tab-panel"
-                    aria-labelledby="chat-tab"
-                >
-                    <WhatsappChatHistory workerId={client.id} worker={client} />
-                </div>
+                                <div
+                                    id="tab-creditCard"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-creditCard" || type === "card"
+                                            ? "active show"
+                                            : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="creditCard-tab"
+                                >
+                                    <CardDetails
+                                        latestContract={latestContract}
+                                        client={client}
+                                    />
+                                </div>
+                                <div
+                                    id="tab-chat"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-chat" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="chat-tab"
+                                >
+                                    <WhatsappChatHistory workerId={client.id} worker={client} />
+                                </div>
+                                <div
+                                    id="tab-comments"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-comments" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="comments-tab"
+                                >
+                                    <Comments relationID={client.id} routeType="clients" />
+                                </div>
+                                <div
+                                    id="tab-pending"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-pending" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="pending-tab"
+                                >
+                                    <PendingRequest clientId={client.id} />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div
+                                    id="tab-pending"
+                                    className={
+                                        `tab-pane ` +
+                                        (role === "supervisor" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="pending-tab"
+                                >
+                                    <PendingRequest clientId={client.id} />
+                                </div>
+                                <div
+                                    id="tab-chat"
+                                    className={
+                                        `tab-pane ` +
+                                        (hash === "#tab-chat" ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="chat-tab"
+                                >
+                                    <WhatsappChatHistory workerId={client.id} worker={client} />
+                                </div>
+                                <div
+                                    id="tab-comments"
+                                    className={
+                                        `tab-pane ` +
+                                        ((hash === "#tab-comments" && role == "supervisor") ? "active show" : "")
+                                    }
+                                    role="tab-panel"
+                                    aria-labelledby="comments-tab"
+                                >
+                                    <Comments relationID={client.id} routeType="clients" />
+                                </div>
+
+                            </>
+                        )
+                }
+
             </div>
         </div>
     );

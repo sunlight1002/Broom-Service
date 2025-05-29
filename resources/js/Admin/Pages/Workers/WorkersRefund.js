@@ -57,20 +57,20 @@ export default function WorkersRefund() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { title: "Name", data: "worker_name" },
+                    { title: t("admin.global.Name"), data: "worker_name" },
                     {
-                        title: "Date",
+                        title: t("admin.global.Date"),
                         data: "date",
                         className: "text-left",
                     },
                     {
-                        title: "Amount", data: "amount",
+                        title: t("admin.global.amount"), data: "amount",
                         render: function (data) {
                             return formatCurrency(data);
                         },
                     },
                     {
-                        title: "Bill",
+                        title: t("admin.global.bill"),
                         data: "bill_file",
                         render: function (data) {
                             return data ? `
@@ -81,7 +81,7 @@ export default function WorkersRefund() {
                     },
 
                     {
-                        title: "Status",
+                        title: t("admin.global.status"),
                         data: "status",
                         render: function (data) {
                             const style = leadStatusColor(data);
@@ -91,7 +91,7 @@ export default function WorkersRefund() {
                         },
                     },
                     {
-                        title: "Action",
+                        title: t("admin.global.action"),
                         data: null,
                         orderable: false,
                         render: function (data, type, row) {
@@ -228,7 +228,7 @@ export default function WorkersRefund() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-12">
-                            <h1 className="page-title">{t("worker.refund_request")}</h1>
+                            <h1 className="page-title">{t("admin.global.refund_request")}</h1>
                         </div>
                     </div>
                 </div>

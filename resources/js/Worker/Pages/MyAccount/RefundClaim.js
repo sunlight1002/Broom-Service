@@ -58,18 +58,18 @@ export default function ManageRefundClaim() {
                     },
     
                     {
-                        title: "Date",
+                        title: t("worker.refundClaim.date"),
                         data: "date",
                     },
                     {
-                        title: "Amount",
+                        title: t("worker.refundClaim.amount"),
                         data: "amount",
                         render: function (data) {
                             return formatCurrency(data);
                         },
                     },
                     {
-                        title: t("worker.status"),
+                        title: t("worker.refundClaim.status"),
                         data: "status",
                         render: function (data, type, row, meta) {
                             const style = leadStatusColor(data);
@@ -80,12 +80,12 @@ export default function ManageRefundClaim() {
                        
                     },
                     {
-                        title: "Reject Reason",
+                        title: t("worker.refundClaim.rejectReason"),
                         data: "rejection_comment",
                        
                     },
                     {
-                        title: t("worker.action"),
+                        title: t("worker.refundClaim.action"),
                         data: null,
                         orderable: false,
                         render: function (data, type, row, meta) {
@@ -194,7 +194,7 @@ export default function ManageRefundClaim() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Refund Claim</h1>
+                            <h1 className="page-title">{t("worker.refundClaim.refundClaimTitle")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">

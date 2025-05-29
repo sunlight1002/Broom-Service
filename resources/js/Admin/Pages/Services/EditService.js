@@ -153,7 +153,7 @@ export default function EditService() {
                                                 {t("services.polish")}
                                                 </option>
                                                 <option value="airbnb">
-                                                    AirBnb
+                                                {t("services.airBnb")}
                                                 </option>
                                                 <option value="others">
                                                 {t("services.others")}
@@ -170,7 +170,7 @@ export default function EditService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Status
+                                                {t("global.status")}
                                             </label>
                                             <select
                                                 className="form-control"

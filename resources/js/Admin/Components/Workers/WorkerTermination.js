@@ -31,7 +31,7 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                         onClick={() => handleTabChange('showClaims')}
                         role="tab"
                     >
-                        Show Claims
+                        {t("admin.hearing.showClaims")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -40,7 +40,7 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                         onClick={() => handleTabChange('hearingProtocol')}
                         role="tab"
                     >
-                        {t("Hearing Protocol")}
+                         {t("admin.hearing.protocol.hearingprotocol")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -49,7 +49,7 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                         onClick={() => handleTabChange('finalDecision')}
                         role="tab"
                     >
-                       Final Decision
+                        {t("admin.hearing.finalDecision")}
                     </a>
                 </li>
             </ul>

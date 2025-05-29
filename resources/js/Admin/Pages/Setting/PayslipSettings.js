@@ -235,7 +235,7 @@ export default function PayslipSettings() {
                             </div>
                         </div>
                         <div className="col-md-12 text-center">
-                            <button type="submit" className="btn btn-primary">{t('Save')}</button>
+                            <button type="submit" className="btn btn-primary">{t("global.save")}</button>
                         </div>
                     </form>
                 </div>

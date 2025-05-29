@@ -94,12 +94,20 @@ class ClientEmailController extends Controller
 
     public function GetOffer($id)
     {
-        $offer = Offer::query()->with('client')->find($id);
+        // Retrieve offer with client relationship
+        $offer = Offer::with('client')->find($id);
 
+        if (!$offer) {
+            return response()->json([
+                'message' => 'Offer not found.'
+            ], 404);
+        }
+
+        // Add formatted services property
         $offer->services = $this->formatServices($offer);
 
         return response()->json([
-            'data' => $offer
+            'data' => $offer,
         ]);
     }
 
@@ -126,7 +134,7 @@ class ClientEmailController extends Controller
             'status'     => ContractStatusEnum::NOT_SIGNED
         ]);
 
-       if($client->lead_status->lead_status !== LeadStatusEnum::ACTIVE_CLIENT) {
+        if ($client->lead_status->lead_status !== LeadStatusEnum::ACTIVE_CLIENT) {
             $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
 
             if ($client->lead_status->lead_status != $newLeadStatus) {
@@ -137,7 +145,7 @@ class ClientEmailController extends Controller
             }
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
-       }
+        }
 
         Notification::create([
             'user_id' => $ofr['client']['id'],
@@ -178,23 +186,23 @@ class ClientEmailController extends Controller
                 'message' => 'Offer not found'
             ], 404);
         }
-    
+
         $client = $offer->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-    
+
         $offer->update([
             'status' => 'declined'
         ]);
-    
+
         $offerArr = $offer->toArray();
 
         // Check if the client has any accepted offers
         $hasAcceptedOffer = $client->offers()->where('status', 'accepted')->exists();
-    
+
         if (!$hasAcceptedOffer) {
 
             Notification::create([
@@ -204,7 +212,7 @@ class ClientEmailController extends Controller
                 'offer_id' => $offer->id,
                 'status' => 'declined'
             ]);
-        
+
             // // Trigger WhatsApp Notification
             // event(new WhatsappNotificationEvent([
             //     "type" => WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER,
@@ -214,19 +222,19 @@ class ClientEmailController extends Controller
             // ]));
 
             $newLeadStatus = LeadStatusEnum::UNINTERESTED;
-    
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                 $client->lead_status()->updateOrCreate(
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
             }
-    
+
             return response()->json([
                 'message' => 'Thanks, your offer has been rejected and the client is marked as uninterested.'
             ]);
-         } else {
+        } else {
             $newLeadStatus = LeadStatusEnum::UNINTERESTED;
 
             event(new WhatsappNotificationEvent([
@@ -237,14 +245,14 @@ class ClientEmailController extends Controller
             ]));
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
-    
+
             return response()->json([
                 'message' => 'The offer has been rejected. The client already has an accepted offer.'
             ]);
         }
     }
 
-    
+
 
 
     public function acceptMeeting(Request $request)
@@ -299,26 +307,26 @@ class ClientEmailController extends Controller
                 'message' => 'Client not found'
             ], 404);
         }
-    
+
         $cacheKey = 'client_change_call_' . $client->id . '_' . Carbon::now()->toDateString();
-    
+
         if (Cache::has($cacheKey)) {
             return response()->json([
                 'message' => 'Call change already sent today'
             ], 200);
         }
-    
+
         // Save to cache for the rest of the day
         $expiresAt = Carbon::now()->endOfDay();
         Cache::put($cacheKey, true, $expiresAt);
-    
+
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
             "notificationData" => [
                 'client' => $client->toArray()
             ]
         ]));
-    
+
         return response()->json([
             'message' => 'Call changed'
         ]);
@@ -382,40 +390,40 @@ class ClientEmailController extends Controller
                 'message' => 'Meeting not found'
             ], 404);
         }
-    
+
         $client = $schedule->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-    
+
         $schedule->update([
             'booking_status' => 'declined'
         ]);
-    
+
         $schedule->load(['client.offers', 'team', 'propertyAddress']);
-    
+
         if ($schedule->is_calendar_event_created) {
             // Initializes Google Client object
             $googleClient = $this->getClient();
-    
+
             $this->deleteGoogleCalendarEvent($schedule);
         }
 
-    
+
         if ($request->type == "contact_me") {
 
             $client->update(['status' => 0]);
             $newLeadStatus = LeadStatusEnum::PENDING;
-    
+
             if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                 $client->lead_status()->updateOrCreate(
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
             }
-    
+
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM,
                 "notificationData" => $schedule->toArray()
@@ -425,28 +433,26 @@ class ClientEmailController extends Controller
                 "type" => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT,
                 "notificationData" => $schedule->toArray()
             ]));
-
-
         } else if ($request->type == "not_interested") {
 
             $hasUnVerifiedContract = $client->contract->contains(function ($contract) {
                 return $contract->status === 'un-verified';
             });
-    
+
             if (!$hasUnVerifiedContract) {
 
                 $client->update(['status' => 0]);
                 $newLeadStatus = LeadStatusEnum::UNINTERESTED;
-    
+
                 if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
                     $client->lead_status()->updateOrCreate(
                         [],
                         ['lead_status' => $newLeadStatus]
                     );
-    
+
                     event(new ClientLeadStatusChanged($client, $newLeadStatus));
                 }
-            }else{
+            } else {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
                     "notificationData" => $schedule->toArray()
@@ -454,32 +460,32 @@ class ClientEmailController extends Controller
                 \Log::info("hasAcceptedOffer");
             }
         }
-    
+
         return response()->json([
             'message' => 'Thanks, your meeting is declined'
         ]);
     }
-    
+
 
 
     public function rescheduleMeeting(Request $request, $id)
     {
         $data = $request->all();
-    
+
         $schedule = Schedule::find($id);
         if (!$schedule) {
             return response()->json([
                 'message' => 'Meeting not found'
             ], 404);
         }
-    
+
         $client = $schedule->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-    
+
         // Map Hebrew meridian to English
         $hebrewMeridianMap = [
             'לפנה"צ' => 'AM',
@@ -491,16 +497,16 @@ class ClientEmailController extends Controller
             'בערב' => 'PM',
         ];
 
-        
+
         $data['start_time'] = str_replace(array_keys($hebrewMeridianMap), array_values($hebrewMeridianMap), $data['start_time']);
-    
+
         // Parse and calculate times
         $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])
             ->addMinutes(30)
             ->format('h:i A');
         $data['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])
             ->toTimeString();
-    
+
         $schedule->update([
             'start_date' => $data['start_date'],
             'start_time' => $data['start_time'],
@@ -508,117 +514,116 @@ class ClientEmailController extends Controller
             'start_time_standard_format' => $data['start_time_standard_format'],
             'booking_status' => 'rescheduled'
         ]);
-    
+
         // Initializes Google Client object
         $googleClient = $this->getClient();
-    
+
         $this->saveGoogleCalendarEvent($schedule);
-    
+
         $schedule->load(['client', 'team', 'propertyAddress']);
         event(new ReScheduleMeetingJob($schedule));
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
             "notificationData" => $schedule->toArray()
         ]));
-    
+
         return response()->json([
             'message' => 'Thanks, your meeting is rescheduled'
         ]);
     }
-    
+
 
     public function AcceptContract(Request $request)
     {
         try {
-        $contract = Contract::query()
-            ->with('client')
-            ->where('unique_hash', $request->unique_hash)
-            ->first();
+            $contract = Contract::query()
+                ->with('client')
+                ->where('unique_hash', $request->unique_hash)
+                ->first();
 
-        if (!$contract) {
+            if (!$contract) {
+                return response()->json([
+                    'message' => "Contract not found"
+                ], 404);
+            }
+
+            $client = $contract->client;
+            if (!$client) {
+                return response()->json([
+                    'message' => "Client not found"
+                ], 404);
+            }
+
+
+            $args = [
+                'client_id'   => $client->id,
+                'card_type'   => $request->input('card_type'),
+                'card_number' => $request->input('card_number'),
+                'cvv'         => $request->input('cvv'),
+                'card_holder_id' => $client->id,
+                'card_holder_name' => $request->input('card_holder_name')
+            ];
+
+            $card = ClientCard::create($args);
+
+            $contract->update(['card_id' => $card->id]);
+
+            // $card = ClientCard::query()->find($request->id);
+
+            // if (!$card) {
+            //   return response()->json([
+            //     'message' => "No card found"
+            //   ], 404);
+            // }
+
+            $input = $request->input();
+            $input['signed_at'] = now()->toDateTimeString();
+
+            $contract->update($input);
+
+            if ($client->status != 2) {
+                $client->update([
+                    'status' => 2
+                ]);
+
+                Notification::create([
+                    'user_id' => $contract->client_id,
+                    'user_type' => get_class($client),
+                    'type' => NotificationTypeEnum::CONVERTED_TO_CLIENT,
+                    'status' => 'converted'
+                ]);
+            }
+
+            $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                    'contract' => $contract->toArray(),
+                ]
+            ]));
+
+            $client->makeVisible('passcode');
+
+            event(new SendClientLogin($client->toArray()));
+
             return response()->json([
-            'message' => "Contract not found"
-            ], 404);
-        }
-
-        $client = $contract->client;
-        if (!$client) {
-            return response()->json([
-            'message' => "Client not found"
-            ], 404);
-        }
-
-
-        $args = [
-            'client_id'   => $client->id,
-            'card_type'   => $request->input('card_type'),
-            'card_number' => $request->input('card_number'),
-            'cvv'         => $request->input('cvv'),
-            'card_holder_id' => $client->id,
-            'card_holder_name' => $request->input('card_holder_name')
-        ];
-
-        $card = ClientCard::create($args);
-
-        $contract->update(['card_id' => $card->id]);
-
-        // $card = ClientCard::query()->find($request->id);
-
-        // if (!$card) {
-        //   return response()->json([
-        //     'message' => "No card found"
-        //   ], 404);
-        // }
-
-        $input = $request->input();
-        $input['signed_at'] = now()->toDateTimeString();
-
-        $contract->update($input);
-
-        if ($client->status != 2) {
-            $client->update([
-            'status' => 2
+                'message' => "Thanks, for accepting contract"
             ]);
-
-            Notification::create([
-            'user_id' => $contract->client_id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::CONVERTED_TO_CLIENT,
-            'status' => 'converted'
-            ]);
-        }
-
-        $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
-
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => $newLeadStatus]
-            );
-
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
-        }
-
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
-            "notificationData" => [
-                'client' => $client->toArray(),
-                'contract' => $contract->toArray(),
-            ]
-        ]));
-
-        $client->makeVisible('passcode');
-
-        event(new SendClientLogin($client->toArray()));
-
-        return response()->json([
-            'message' => "Thanks, for accepting contract"
-        ]);
         } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -752,19 +757,19 @@ class ClientEmailController extends Controller
                 return $contract->status === 'un-verified';
             });
 
-            if($hasUnVerifiedContract){
+            if ($hasUnVerifiedContract) {
                 \Log::info('Client Declined Contract');
                 //  heb 
-                
+
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT,
                     "notificationData" => [
                         'client' => $client->toArray(),
                     ]
                 ]));
-            }else{
+            } else {
                 \Log::info("Lead Declined Contract");
-                
+
                 $client->update(['status' => 1]);
                 $newLeadStatus = LeadStatusEnum::UNINTERESTED;
                 if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
@@ -883,19 +888,19 @@ class ClientEmailController extends Controller
             'client_id'      => $request['data']['client']['id'],
         ]);
 
-       if($client->status != 2){
+        if ($client->status != 2) {
 
-        $newLeadStatus = LeadStatusEnum::POTENTIAL;
+            $newLeadStatus = LeadStatusEnum::POTENTIAL;
 
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $newLeadStatus]
-            );
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
-        };
-       }
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            };
+        }
 
         $schedule->load(['client', 'team', 'propertyAddress']);
 

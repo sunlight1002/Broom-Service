@@ -245,7 +245,7 @@ function Tasks() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Tasks</h1>
+                            <h1 className="page-title">{t("worker.tasks.tasksTitle")}</h1>
                         </div>
                     </div>
                 </div>
@@ -314,7 +314,7 @@ function Tasks() {
                                     </div>
                                 );
                             }) : (
-                                <div>No tasks available</div>
+                                <div>{t("worker.tasks.noTasksAvailable")}</div>
                             )}
                         </div>
                     </div>

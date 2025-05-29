@@ -494,7 +494,7 @@ export default function WorkerLead() {
                                         marginTop: 10,
                                     }}
                                 >
-                                    Source
+                                    {t("worker.source")}
                                 </div>
                                 <select
                                     className="form-control"

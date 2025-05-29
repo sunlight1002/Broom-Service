@@ -48,44 +48,44 @@ export default function WorkerAdvance() {
                 },
                 columns: [
                     {
-                        title: "Type",
+                        title: t("worker.advanceAndLoan.type"),
                         data: "type",
                     },
                     {
-                        title: "Date",
+                        title: t("worker.advanceAndLoan.date"),
                         data: "created_at",
                     },
 
                     {
-                        title: "Monthly Payment",
+                        title: t("worker.advanceAndLoan.monthlyPayment"),
                         data: "monthly_payment",
                         render: function(data, type, row) {
                             return formatCurrency(data);
                         }
                     },
                     {
-                        title: "Amount",
+                        title: t("worker.advanceAndLoan.amount"),
                         data: "amount",
                         render: function(data, type, row) {
                             return formatCurrency(data);
                         }
                     },
                     {
-                        title: "Paid Amount",
+                        title: t("worker.advanceAndLoan.paidAmount"),
                         data: "total_paid_amount",
                         render: function(data, type, row) {
                             return formatCurrency(data);
                         }
                     },
                     {
-                        title: "Pending Amount",
+                        title: t("worker.advanceAndLoan.pendingAmount"),
                         data: "latest_pending_amount",
                         render: function(data, type, row) {
                             return formatCurrency(data);
                         }
                     },
                     {
-                        title: "Status",
+                        title: t("worker.advanceAndLoan.status"),
                         data: "status",
                         render: function (data, type, row, meta) {
                             const style = getStatusStyle(data);
@@ -146,7 +146,7 @@ export default function WorkerAdvance() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Advance/Loans</h1>
+                            <h1 className="page-title">{t("worker.advanceAndLoan.advanceAndLoansTitle")}</h1>
                         </div>
                     </div>
                 </div>

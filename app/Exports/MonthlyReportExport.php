@@ -50,6 +50,7 @@ class MonthlyReportExport implements FromArray, WithHeadings
             'Net Payment',
             'Doctor Report',
             'Form 101', 
+            'Final Letter'
         ];
     }
 }

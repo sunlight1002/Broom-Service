@@ -688,7 +688,7 @@ export default function chat({
                                                                 setPage(1);
                                                             }}
                                                         >
-                                                            Reset
+                                                            {t("modal.reset")}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -959,7 +959,7 @@ export default function chat({
                                                             setPage(1);
                                                         }}
                                                     >
-                                                        Reset
+                                                        {t("modal.reset")}
                                                     </button>
                                                 </div>
                                             </div>

@@ -7,6 +7,8 @@ use App\Models\HearingInvitation;
 use App\Models\HearingDecision;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Document;
+use App\Models\DocumentType;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -210,63 +212,137 @@ class DecisionController extends Controller
         ]);
     }
 
-    // public function generateFinalLetter(Request $request)
-    // {
-    //     $validatedData = $request->validate([
-    //         'worker_id' => 'required|exists:users,id',
-    //     ]);        
+    public function generateFinalLetter(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $workerId = $data['worker_id'] ?? null;
+    
+        if (!$workerId) {
+            return response()->json(['error' => 'worker_id is required'], 422);
+        }
+    
+        $worker = User::find($workerId);
+        $user = User::find($workerId);
+    
+        if (!$worker) {
+            return response()->json(['error' => "Worker not found."], 404);
+        }
+    
+        $company = [
+            'name' => 'Broom Service',
+            'address' => '123 Company Street, City, Country',
+            'contact' => 'office@broomservice.co.il | +972 03-525-70-60',
+        ];
+    
+        $employmentStart = $worker->first_date
+            ? Carbon::parse($worker->first_date)->translatedFormat('F j, Y')
+            : 'N/A';
+    
+        $employmentEnd = $worker->last_work_date
+            ? Carbon::parse($worker->last_work_date)->translatedFormat('F j, Y')
+            : 'N/A';
+    
+        $lng = $worker->lng;
+        $html = '';
+    
+        switch ($lng) {
+            case 'heb':
+                $html = '
+                <html dir="rtl">
+                <head><meta charset="UTF-8">
+                <style>
+                    body { font-family: "DejaVu Sans", sans-serif; font-size: 12pt; line-height: 1.6; direction: rtl; }
+                    .header { text-align: center; font-size: 16pt; margin-bottom: 20px; font-weight: bold; }
+                </style>
+                </head>
+                <body>
+                    <div class="header">מכתב סיום העסקה</div>
+                    <p>לכל המעוניין,</p>
+                    <p>מכתב זה מאשר כי <strong>' . htmlspecialchars($worker->full_name) . '</strong> הועסק/ה בחברת <strong>' . htmlspecialchars($company['name']) . '</strong> בתפקיד <strong>' . htmlspecialchars($worker->role) . '</strong>.</p>
+                    <p>תקופת ההעסקה הייתה מ-<strong>' . $employmentStart . '</strong> ועד <strong>' . $employmentEnd . '</strong>.</p>
+                    <p>מכתב זה ניתן בצירוף תלוש השכר האחרון ומאשר את סיום ההעסקה.</p>
+                    <br>
+                    <div style="text-align: left;">
+                        <p>בברכה,</p>
+                        <p>מחלקת משאבי אנוש</p>
+                        <p>' . htmlspecialchars($company['name']) . '</p>
+                    </div>
+                </body>
+                </html>';                
+                break;
+    
+            case 'ru':
+                $html = '
+                <html lang="ru">
+                <head><meta charset="UTF-8">
+                <style>
+                    body { font-family: "DejaVu Sans", sans-serif; font-size: 12pt; line-height: 1.6; direction: ltr; text-align: left; }
+                    .header { text-align: center; font-size: 16pt; margin-bottom: 20px; font-weight: bold; }
+                </style>
+                </head>
+                <body>
+                    <div class="header">Заключительное письмо о трудоустройстве</div>
+                    <p>Кого это может касаться,</p>
+                    <p>Настоящим подтверждаем, что <strong>' . htmlspecialchars($worker->full_name) . '</strong> работал(а) в компании <strong>' . htmlspecialchars($company['name']) . '</strong> в должности <strong>' . htmlspecialchars($worker->role) . '</strong>.</p>
+                    <p>Период работы: с <strong>' . $employmentStart . '</strong> по <strong>' . $employmentEnd . '</strong>.</p>
+                    <p>Это письмо предоставляется вместе с окончательным расчетным листом и подтверждает завершение трудовых отношений.</p>
+                    <br>
+                    <div style="text-align: right;">
+                        <p>С уважением,</p>
+                        <p>Отдел кадров</p>
+                        <p>' . htmlspecialchars($company['name']) . '</p>
+                    </div>
+                </body>
+                </html>';
+                break;
+    
+            default:
+                $html = '
+                <html dir="ltr">
+                <head><meta charset="UTF-8">
+                <style>
+                    body { font-family: "DejaVu Sans", sans-serif; font-size: 12pt; line-height: 1.6; direction: ltr; }
+                    .header { text-align: center; font-size: 16pt; margin-bottom: 20px; font-weight: bold; }
+                </style>
+                </head>
+                <body>
+                    <div class="header">Final Employment Letter</div>
+                    <p>To whom it may concern,</p>
+                    <p>This letter confirms that <strong>' . htmlspecialchars($worker->full_name) . '</strong> was employed at <strong>' . htmlspecialchars($company['name']) . '</strong> in the position of <strong>' . htmlspecialchars($worker->role) . '</strong>.</p>
+                    <p>The employment period was from <strong>' . $employmentStart . '</strong> to <strong>' . $employmentEnd . '</strong>.</p>
+                    <p>This letter is provided together with the final payslip and confirms the end of employment.</p>
+                    <br>
+                    <div style="text-align: right;">
+                        <p>Best regards,</p>
+                        <p>HR Department</p>
+                        <p>' . htmlspecialchars($company['name']) . '</p>
+                    </div>
+                </body>
+                </html>';
+                break;
+        }
 
-    //     $worker = User::findOrFail($validatedData['worker_id']);    
+        $pdf = PDF::loadHTML($html)->setPaper('a4');
 
-    //     $company = [
-    //         'name' => 'Broom Service',
-    //         'address' => '123 Company Street, City, Country',
-    //         'contact' => 'office@broomservice.co.il | +972 03-525-70-60',
-    //     ];
-    
-    //     $role = $worker->role;
-    //     $employmentStart = $worker->first_date ? $worker->first_date->format('F j, Y') : 'N/A';
-    //     $employmentEnd = $worker->last_work_date ? $worker->last_work_date->format('F j, Y') : 'N/A';
-    
-    //     // Compose your HTML for the final letter (you can also use a blade view)
-    //     $html = '
-    //     <html>
-    //     <head><meta charset="UTF-8">
-    //     <style>
-    //         body { font-family: "DejaVu Sans", sans-serif; font-size: 12pt; line-height: 1.6; }
-    //         .header { text-align: center; font-size: 16pt; margin-bottom: 20px; font-weight: bold; }
-    //     </style>
-    //     </head>
-    //     <body>
-    //         <div class="header">Final Employment Letter</div>
-    //         <p>To whom it may concern,</p>
-    //         <p>This letter confirms that <strong>' . htmlspecialchars($worker->full_name) . '</strong> was employed at <strong>' . htmlspecialchars($company['name']) . '</strong> in the position of <strong>' . htmlspecialchars($role) . '</strong>.</p>
-    //         <p>The employment period was from <strong>' . $employmentStart . '</strong> to <strong>' . $employmentEnd . '</strong>.</p>
-    //         <p>This letter is provided together with the final payslip and confirms the end of employment.</p>
-    //         <br>
-    //         <div style="text-align: right;">
-    //             <p>Best regards,</p>
-    //             <p>HR Department</p>
-    //             <p>' . htmlspecialchars($company['name']) . '</p>
-    //         </div>
-    //     </body>
-    //     </html>';
-    
-    //     // Generate PDF from HTML
-    //     $pdf = PDF::loadHTML($html)->setPaper('a4');
-    
-    //     // Generate a unique filename
-    //     $filename = 'final_letters/' . Str::slug($worker->full_name) . '_final_letter_' . now()->timestamp . '.pdf';
-    
-    //     // Save the PDF to storage/public/final_letters
-    //     Storage::disk('public')->put($filename, $pdf->output());
-    
-    //     // Return the public URL to the PDF file
-    //     return response()->json([
-    //         'message' => 'Final letter generated successfully!',
-    //         'path' => Storage::url($filename),
-    //     ], 201);
-    // }
-    
+        $documentCount = $user->documents()->count() + 1;
 
+        $uniqueName = $user->id . '_' . $documentCount . '.pdf';
+        $filename = 'final_letters/' . $uniqueName;
+
+        Storage::disk('public')->put($filename, $pdf->output());
+
+        $documentTypeId = DocumentType::where('name', 'Final Employment Letter')->value('id') ?? 9;
+
+        $user->documents()->create([
+            'document_type_id' => $documentTypeId,
+            'name' => 'Final Employment Letter',
+            'date' => now(),
+            'file' => $filename,
+        ]);
+
+        return response()->json([
+            'message' => 'Final letter generated successfully!',
+            'path' => Storage::url($filename),
+        ], 201);
+    }
 }

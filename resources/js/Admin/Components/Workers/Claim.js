@@ -43,13 +43,13 @@ function Claim() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <h1 className="page-title">Claim for Worker</h1>
+                <h1 className="page-title">{t("admin.hearing.workerClaim.claimForWorker")}</h1>
                 <div className="dashBox maxWidthControl p-4 sch-meet">
                     <div className="row mt-4">
                         <div className="col-sm-6">
                             <div className="flex space-x-6">
                                 <div className="form-group">
-                                    <label htmlFor="claim">Claim Description</label>
+                                    <label htmlFor="claim">{t("admin.hearing.workerClaim.claimDescription")}</label>
                                     <textarea
                                         id="claim"
                                         className="form-control"
@@ -65,7 +65,7 @@ function Claim() {
                                     className="navyblue btn mt-3"
                                     onClick={handleClaimSubmit}
                                 >
-                                    Submit Claim
+                                    {t("admin.hearing.workerClaim.submitClaim")}
                                 </button>
                             </div>
                         </div>

@@ -63,13 +63,13 @@ export default function ManpowerCompanies() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}" data-name="${row.name}">Edit</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}" data-name="${row.name}">${t("global.edit")}</button>`;
 
                         if (row.contract_filename) {
-                            _html += `<a href="/storage/manpower-companies/contract/${row.contract_filename}" target="_blank" class="dropdown-item">Contract</a>`;
+                            _html += `<a href="/storage/manpower-companies/contract/${row.contract_filename}" target="_blank" class="dropdown-item">${t("global.contract")}</a>`;
                         }
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("global.delete")}</button>`;
 
                         _html += "</div> </div>";
 

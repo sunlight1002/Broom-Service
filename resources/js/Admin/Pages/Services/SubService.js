@@ -159,18 +159,18 @@ export const SubService = ({ params }) => {
                         setShow(true);
                     }}
                 >
-                    Add Sub-service
+                    {t("admin.global.addSubService")}
                 </button>
             </div>
             <div className="table-responsive">
                 <Table className="table table-bordered">
                     <Thead>
                         <Tr>
-                            <Th>Services-En</Th>
-                            <Th>Services-Heb</Th>
-                            <Th>{t("Apartment Size")}</Th>
-                            <Th>{t("Price")}</Th>
-                            <Th>Actions</Th>
+                            <Th>{t("admin.global.servicesInEn")}</Th>
+                            <Th>{t("admin.global.servicesInHeb")}</Th>
+                            <Th>{t("admin.global.apartmentSize")}</Th>
+                            <Th>{t("admin.global.price")}</Th>
+                            <Th>{t("admin.global.actions")}</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -195,10 +195,10 @@ export const SubService = ({ params }) => {
                                             </button>
                                             <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                 <button type="button" onClick={() => handleEdit(sub)} className="dropdown-item">
-                                                    Edit
+                                                    {t("admin.global.Edit")}
                                                 </button>
                                                 <button type="button" onClick={() => handleDelete(sub.id)} className="dropdown-item">
-                                                    Delete
+                                                    {t("admin.global.Delete")}
                                                 </button>
                                             </div>
                                         </div>
@@ -229,7 +229,7 @@ export const SubService = ({ params }) => {
                         <div className="row">
                             <div className="col-sm-12">
                                 <div className="form-group">
-                                    <label className="control-label">Name-en</label>
+                                    <label className="control-label">{t("admin.global.nameInEn")}</label>
                                     <input
                                         className="form-control"
                                         name='name_en'
@@ -244,7 +244,7 @@ export const SubService = ({ params }) => {
 
                             <div className="col-sm-12">
                                 <div className="form-group">
-                                    <label className="control-label">Name-heb</label>
+                                    <label className="control-label">{t("admin.global.nameInHeb")}</label>
                                     <input
                                         className="form-control"
                                         name='name_heb'
@@ -259,7 +259,7 @@ export const SubService = ({ params }) => {
 
                             <div className="col-sm-12">
                                 <div className="form-group">
-                                    <label className="control-label">Apartment Size</label>
+                                    <label className="control-label">{t("admin.global.apartmentSize")}</label>
                                     <input
                                         className="form-control"
                                         name='apartment_size'
@@ -274,7 +274,7 @@ export const SubService = ({ params }) => {
 
                             <div className="col-sm-12">
                                 <div className="form-group">
-                                    <label className="control-label">Price</label>
+                                    <label className="control-label">{t("admin.global.price")}</label>
                                     <input
                                         className="form-control"
                                         name='price'
@@ -295,14 +295,14 @@ export const SubService = ({ params }) => {
                             className="btn btn-secondary"
                             onClick={resetForm}
                         >
-                            Close
+                            {t("global.close")}
                         </Button>
                         <Button
                             type="button"
                             onClick={handleSubServices}
                             className="btn btn-primary"
                         >
-                            Submit
+                            {t("global.Submit")}
                         </Button>
                     </Modal.Footer>
                 </Modal>

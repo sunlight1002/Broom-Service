@@ -255,32 +255,69 @@ export default function WorkerHours() {
             });
     }
 
+    // const handlepayslip = async () => {
+    //     try {
+    //         const response = await axios.get('/api/admin/generate-monthly-report', {
+    //             headers,
+    //             params: { month },
+    //             responseType: 'blob',
+    //         });
+
+    //         const fileName = `Monthly_Report_${month}.xlsx`;
+
+    //         const href = URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+
+    //         const link = document.createElement("a");
+    //         link.href = href;
+    //         link.setAttribute("download", fileName);
+    //         document.body.appendChild(link);
+    //         link.click();
+
+    //         document.body.removeChild(link);
+    //         URL.revokeObjectURL(href);
+    //     } catch (err) {
+    //         setError('Failed to generate report. Please try again.');
+    //         console.error(err);
+    //     }
+    // };
+
     const handlepayslip = async () => {
         try {
-            const response = await axios.get('/api/admin/generate-monthly-report', {
+            // 1. Generate the payslip
+            const payslipResponse = await axios.get('/api/admin/generate-monthly-report', {
                 headers,
                 params: { month },
                 responseType: 'blob',
             });
-
+    
             const fileName = `Monthly_Report_${month}.xlsx`;
-
-            const href = URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-
+            const href = URL.createObjectURL(new Blob([payslipResponse.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }));
+    
             const link = document.createElement("a");
             link.href = href;
             link.setAttribute("download", fileName);
             document.body.appendChild(link);
             link.click();
-
             document.body.removeChild(link);
             URL.revokeObjectURL(href);
+    
+            // const finalLetterRes = await axios.get(`/api/admin/workers/${worker.id}/final-letter`, { headers });
+            // const letterUrl = finalLetterRes.data.path;
+    
+            // const letterLink = document.createElement("a");
+            // letterLink.href = letterUrl;
+            // letterLink.setAttribute("download", `Final_Employment_Letter_${worker.id}.pdf`);
+            // document.body.appendChild(letterLink);
+            // letterLink.click();
+            // document.body.removeChild(letterLink);
+    
         } catch (err) {
-            setError('Failed to generate report. Please try again.');
+            setError('Failed to generate payslip or employment letter. Please try again.');
             console.error(err);
         }
-    };
-
+    };    
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from "../../Layouts/WorkerSidebar";
 import axios from 'axios';
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 function Protocol() {
+    const { t, i18n } = useTranslation();
     const [protocolFile, setProtocolFile] = useState(null);
-    const [DecisionFile, setDecisionFile] = useState(null);
+    const [decisionFile, setDecisionFile] = useState(null);
     const [error, setError] = useState(null);
     const [comment, setComment] = useState("");
     const [commentError, setCommentError] = useState("");
@@ -117,15 +119,15 @@ function Protocol() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Protocol Document</h1>
+                            <h1 className="page-title">{t("worker.hearing.protocol.protocolDocument")}</h1>
                         </div>
                     </div>
                 </div>
                
-                <div className="d-flex gap-2 mb-3">
+                <div className="d-flex align-items-center mb-3">
                     {hasClaim && (
-                        <button className="btn navyblue" onClick={handleFetchClaim}>
-                            View Claim
+                        <button className="btn navyblue px-4 mr-3" onClick={handleFetchClaim}>
+                            {t("worker.hearing.protocol.viewClaim")}
                         </button>
                     )}
 
@@ -134,22 +136,22 @@ function Protocol() {
                             href={protocolFile} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="btn ml-2"
+                            className="btn px-4 mr-3"
                             style={{ textDecoration: "none", background: "#2F4054", color: "white"}}
                         >
-                            View Protocol Document
+                            {t("worker.hearing.protocol.viewProtocolDocument")}
                         </a>
                     )}
 
-                    { DecisionFile && (
+                    {decisionFile && (
                         <a 
-                            href={DecisionFile} 
+                            href={decisionFile} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="btn ml-2"
+                            className="btn px-3 mr-3"
                             style={{ textDecoration: "none", background: "#2F4054", color: "white"}}
                         >
-                        View Decision Document
+                            {t("worker.hearing.protocol.viewDecisionDocument")}
                         </a>
                     )}
 
@@ -176,7 +178,7 @@ function Protocol() {
                             onClick={handleSubmitComment} 
                             className="btn navyblue"
                         >
-                            Submit Comment
+                            {t("worker.hearing.protocol.submitComment")}
                         </button>
                     </div>
                 </div>

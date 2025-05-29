@@ -5,6 +5,7 @@ export default function WorkerProfile({ worker }) {
     const { t } = useTranslation();
     const [pass, setPass] = useState(null);
     const [passVal, setPassVal] = useState(null);
+    const role = localStorage.getItem("admin-role");
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -104,34 +105,38 @@ export default function WorkerProfile({ worker }) {
                                     <p className="word-break">{worker.email}</p>
                                 </div>
                             </div>
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        {t("worker.settings.pass")}
-                                    </label>
+                            {
+                                role != "supervisor" && (
+                                    <div className="col-sm-4">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.pass")}
+                                            </label>
 
-                                    {pass == null ? (
-                                        <span
-                                            style={{
-                                                cursor: "pointer",
-                                                border: "none",
-                                            }}
-                                            className="form-control"
-                                            data-toggle="modal"
-                                            data-target="#exampleModalPass"
-                                        >
-                                            ******** &#128274;
-                                        </span>
-                                    ) : (
-                                        <span
-                                            style={{ border: "none" }}
-                                            className="form-control"
-                                        >
-                                            {pass}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+                                            {pass == null ? (
+                                                <span
+                                                    style={{
+                                                        cursor: "pointer",
+                                                        border: "none",
+                                                    }}
+                                                    className="form-control"
+                                                    data-toggle="modal"
+                                                    data-target="#exampleModalPass"
+                                                >
+                                                    ******** &#128274;
+                                                </span>
+                                            ) : (
+                                                <span
+                                                    style={{ border: "none" }}
+                                                    className="form-control"
+                                                >
+                                                    {pass}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            }
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
@@ -159,41 +164,41 @@ export default function WorkerProfile({ worker }) {
 
                             <div className="col-sm-8">
                                 <p className="font-18">Bank Details</p>
-                            {
-                                worker.payment_type === "money_transfer" ? (
-                                    <div className="row mt-2">
-                                    <div className="col-md-6">
-                                        <div className="d-flex align-items-center mb-3">
-                                            <label className="control-label mr-2" style={{margin: "0"}}>Full name:</label>
-                                            <p className="mb-0">{worker.full_name}</p>
+                                {
+                                    worker.payment_type === "money_transfer" ? (
+                                        <div className="row mt-2">
+                                            <div className="col-md-6">
+                                                <div className="d-flex align-items-center mb-3">
+                                                    <label className="control-label mr-2" style={{ margin: "0" }}>Full name:</label>
+                                                    <p className="mb-0">{worker.full_name}</p>
+                                                </div>
+                                                <div className="d-flex align-items-center mb-3">
+                                                    <label className="control-label mr-2" style={{ margin: "0" }}>Bank Name:</label>
+                                                    <p className="mb-0">{worker.bank_name}</p>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="d-flex align-items-center mb-3">
+                                                    <label className="control-label mr-2" style={{ margin: "0" }}>Bank Number:</label>
+                                                    <p className="mb-0">{worker.bank_number}</p>
+                                                </div>
+                                                <div className="d-flex align-items-center mb-3">
+                                                    <label className="control-label mr-2" style={{ margin: "0" }}>Branch Number:</label>
+                                                    <p className="mb-0">{worker.branch_number}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="d-flex align-items-center mb-3">
-                                            <label className="control-label mr-2" style={{margin: "0"}}>Bank Name:</label>
-                                            <p className="mb-0">{worker.bank_name}</p>
+                                    ) : (
+                                        <div className="row mt-2">
+                                            <div className="col-md-6">
+                                                <div className="d-flex align-items-center mb-3">
+                                                    <label className="control-label mr-2" style={{ margin: "0" }}>Payment type:</label>
+                                                    <p className="mb-0">{worker.payment_type}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="d-flex align-items-center mb-3">
-                                            <label className="control-label mr-2" style={{margin: "0"}}>Bank Number:</label>
-                                            <p className="mb-0">{worker.bank_number}</p>
-                                        </div>
-                                        <div className="d-flex align-items-center mb-3">
-                                            <label className="control-label mr-2" style={{margin: "0"}}>Branch Number:</label>
-                                            <p className="mb-0">{worker.branch_number}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                ) : (
-                                    <div className="row mt-2">
-                                        <div className="col-md-6">
-                                        <div className="d-flex align-items-center mb-3">
-                                            <label className="control-label mr-2" style={{margin: "0"}}>Payment type:</label>
-                                            <p className="mb-0">{worker.payment_type}</p>
-                                        </div>
-                                        </div>
-                                    </div>
-                                )
-                            }
+                                    )
+                                }
                             </div>
 
 

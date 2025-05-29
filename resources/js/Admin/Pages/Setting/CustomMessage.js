@@ -255,7 +255,7 @@ const CustomMessage = () => {
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
                             >
-                                {t("global.Type")}
+                                {t("global.type")}
                             </div>
                             <div className="d-flex align-items-center flex-wrap">
                                 <Filter_Buttons
@@ -816,7 +816,7 @@ const CustomMessage = () => {
                         <form onSubmit={handleSubmit} className={`d-flex ${show ? 'flex-wrap-reverse' : 'nowrap'}`}>
                             <div className="mt-3 mr-3 flex-grow-1 me-4 w-100">
                                 <div className="form-group">
-                                    <label htmlFor="hebrew">Hebrew</label>
+                                    <label htmlFor="hebrew">{t("global.hebrew")}</label>
                                     <textarea
                                         id="message_heb"
                                         className="form-control"
@@ -827,7 +827,7 @@ const CustomMessage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="english">English</label>
+                                    <label htmlFor="english">{t("global.english")}</label>
                                     <textarea
                                         id="message_en"
                                         className="form-control"
@@ -838,7 +838,7 @@ const CustomMessage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="spanish">Spanish</label>
+                                    <label htmlFor="spanish">{t("global.spanish")}</label>
                                     <textarea
                                         id="message_spa"
                                         className="form-control"
@@ -849,7 +849,7 @@ const CustomMessage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="russian">Russian</label>
+                                    <label htmlFor="russian">{t("global.russian")}</label>
                                     <textarea
                                         id="message_ru"
                                         className="form-control"

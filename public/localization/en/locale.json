@@ -136,14 +136,38 @@
       }
     },
     "global": {
+        "hebrew": "Hebrew",
+        "english": "English",
+        "spanish": "Spanish",
+        "russian": "Russian",
+        "overview": "Overview",
+        "income": "Income",
+        "outcome": "Outcome",
+        "sendNotification": "Send Notification",
         "search": "Search",
         "success":"Success",
         "all": "All",
+        "contactMeUrgently": "Contact me urgently",
+        "invoiceAndAccountingInquiry": "Invoice and accounting inquiry",
+        "changeorUpdateSchedule": "Change or update schedule",
+        "additionalInformation": "Additional information",
+        "clientFeedback": "Client Feedback",
+        "teleService": "Teleservice",
         "alltime": "All time",
+        "problems": "Problems",
+        "resetFilters": "Reset Filters",
+        "showAllWorkers": "Show all workers",
+        "showCancelledJobs": "Show Cancelled Jobs",
+        "supervisorAssignedJobs": "Supervisor assigned Jobs",
         "name": "Name",
+        "Email": "Email",
+        "phone": "Phone",
+        "status": "Status",
+        "action": "Action",
+        "serviceInEn": "Service - En",
+        "serviceInHeb": "Service - Heb",
         "document_name": "Document name",
         "enter_document_name": "Enter document name",
-        "Email": "Email",
         "cycle": "Cycle",
         "open": "Open",
         "openDays": "Open Days",
@@ -220,11 +244,13 @@
         "id": "ID",
         "service": "Service",
         "worker": "Worker",
+        "client": "Client",
+        "conflictClient": "Conflict client",
+        "conflictJob": "Conflict #job",
         "totalPrice": "Total Price",
         "startDate": "Start Date",
-        "status": "Status",
-        "action": "Action",
         "edit": "Edit",
+        "contract": "Contract",
         "delete": "Delete",
         "view": "View",
         "add": "Add",
@@ -338,7 +364,12 @@
         "sub_filter": "Sub Filter",
         "select_date_to_change": "Select Date To Change",
         "select_client": "Select Client",
-        "change_shift": "Change Shift"
+        "change_shift": "Change Shift",
+        "supervisor": "Supervisor",
+        "assign_supervisor": "Assign Supervisor",
+        "assign_supervisor_jobs": "Assign Supervisor Jobs",
+        "assign_job_to_supervisor": "Assign Job To Supervisor",
+        "supervisor_jobs": "Supervisor Jobs"
     },
     "modal": {
         "title": "Modal",
@@ -1212,6 +1243,8 @@
             "NameHev": "Name - Heb",
             "Status": "Status",
             "action": "Action",
+            "scheduleEn": "Schedule - En",
+            "scheduleHeb": "Schedule - Heb",
             "view": "View",
             "Edit": "Edit",
             "Delete": "Delete",
@@ -1255,6 +1288,9 @@
             "percentage": "Percentage",
             "jobExtra": "Job Extra",
             "changeWorker": "Change Worker",
+            "changeShift": "Change Shift",
+            "assignSupervisor": "Assign Supervisor",
+            "removeJobFromAssign": "Remove job from assign",
             "chatHistory": "Chat History",
             "chat": "Chat",
             "chats": "Chats",
@@ -1326,6 +1362,7 @@
             "no_record_found": "No record found",
             "trans_referId": "Transaction / Reference ID",
             "amount": "Amount",
+            "bill": "Bill",
             "payment_mode": "Payment Mode",
             "bank_transfer": "Bank Transfer",
             "by_cheque": "By Cheque",
@@ -1378,17 +1415,26 @@
             "worker_excludes": "Worker Excludes",
             "client_excludes": "Clients Excludes",
             "claim": "Claim",
-            "claim_request": "Claim Request"
-
+            "claim_request": "Claim Request",
+            "subServices": "Sub Services",
+            "addSubService": "Add Sub-service",
+            "servicesInEn": "Services-En",
+            "servicesInHeb": "Services-Heb",
+            "apartmentSize": "Apartment Size",
+            "price": "Price",
+            "actions": "Actions",
+            "nameInEn": "Name-en",
+            "nameInHeb": "Name-heb"
         },
         "dashboard": {
+            "datePeriod": "Date Period",
+            "generalSearch": "General Search",
             "jobPosted": "Job Posted",
             "clients": "Clients",
             "newClients": "New Clients",
             "newWorker":"New Workers",
             "clientLeads":"Client Leads",
             "activeClients": "Active Clients",
-            
             "pendingLeads": "Pending Leads",
             "workers": "Workers",
             "activeWorkers": "Active Workers",
@@ -1471,6 +1517,8 @@
             "Action": "Action",
             "Edit": "Edit",
             "view": "View",
+            "viewWorkerForms": "View Worker Forms",
+            "viewClientOffer": "View Client Offer",
             "Delete": "Delete",
             "reopen": "Reopen",
             "change_status": "Change status",
@@ -1809,6 +1857,7 @@
                 "Password": "Password"
             },
             "createJob": "Create Job",
+            "viewClientContract": "View Client Contract",
             "Files": "Files",
             "language": "Language",
             "Login_details": "Login details",
@@ -1845,6 +1894,7 @@
             "btnSend": "Send meeting",
             "workerAvailability": "Worker Availability",
             "date": "Date",
+            "reset": "Reset",
             "Property": "Property",
             "options": {
                 "pleaseSelect": "--- Please Select ---",
@@ -1942,11 +1992,17 @@
         "hearing": {
             "title": "Hearings",
             "scheduleHearing": "Schedule Hearing",
+            "showClaims": "Show Claims",
+            "finalDecision": "Final Decision",
+            "generateAndSendFinalDecisionDocument": "Generate / Send Final Decision Document",
+            "documentGenerated": "Document Generated:",
             "reSchedule": "Re-schedule Hearing",
             "schedule": "Schedule",
             "sendOffer": "Send Offer",
             "bookClient": "Book Client",
             "joinedOn": "Joined On",
+            "sendMessage": "Send Message",
+            "claimDescription": "Claim Description",
             "offeredPrice": "Offered Price",
             "contract": "Contracts",
             "Jobs": "Jobs",
@@ -2059,6 +2115,26 @@
                     "Close": "Close",
                     "Cancel": "Cancel"
                 }
+            },
+            "protocol": {
+                "hearingprotocol": "Hearing Protocol",
+                "generateProtocolDocument": "Generate Protocol Document",
+                "documentGenerated": "Document Generated:",
+                "workerResponse": "Worker response:",
+                "comment": "Comment"
+            },
+            "email": {
+                "writeEmail": "Write Email",
+                "mayIknowthereasonforrejection": "May I know the reason for rejection?",
+                "suggestions": "If you have any query/suggestions or would like to reschedule the Hearing, please write us on email. We will get back to you shortly.",
+                "accept": "Accept",
+                "reject": "Reject",
+                "reschedule": "Reschedule"
+            },
+            "workerClaim": {
+                "claimForWorker": "Claim for Worker",
+                "claimDescription": "Claim Description",
+                "submitClaim": "Submit Claim"
             }
         },
         "holidays": {
@@ -2085,6 +2161,8 @@
             "contracts": "Contracts",
             "schedule_meet": "Scheduled",
             "whatsapp": "Whatsapp chat",
+            "clientsAndWorkersChat": "Clients/Workers Chat",
+            "workerLeadsChat": "Worker Leads Chat",
             "messenger": "Messenger chat",
             "payments": "Payments",
             "earnings": "Earnings",
@@ -2181,6 +2259,14 @@
             "recorvery_fee": "Recovery Fee (year of service)",
             "driving_fee_perDay": "Driving Fee (per day)",
             "driving_fee_perMonth": "Driving Fee (per month)"
+        },
+        "payment": {
+            "seeDocument": "See document",
+            "closeInvoiceWithReceipt": "Close invoice with receipt",
+            "updateNewCreditCard": "Update new Credit Card",
+            "closeForPayment": "Close for payment",
+            "generateInvoice": "Generate Invoice",
+            "closeWithoutPayment": "Close without payment"
         }
     },
     "worker": {
@@ -2199,6 +2285,7 @@
         "refund_request": "Refund",
         "status": "Status",
         "leaveRequest": "Leads",
+        "source": "Source",
         "action": "Action",
         "approve": "Approve",
         "reject": "Reject",
@@ -2240,6 +2327,24 @@
             "status": "Status",
             "total": "Total",
             "action": "Action"
+        },
+        "hearing": {
+            "meeting_title": "Meetings",
+            "meeting": {
+                "attender": "Attender",
+                "address": "Address",
+                "scheduled": "Scheduled",
+                "purpose": "Purpose",
+                "status": "Status",
+                "document": "Document"
+            },
+            "protocol": {
+                "protocolDocument": "Protocol Document",
+                "viewClaim": "View Claim",
+                "viewProtocolDocument": "View Protocol Document",
+                "viewDecisionDocument": "View Decision Document",
+                "submitComment": "Submit Comment"
+            }
         },
         "jobs": {
             "noJobFound": "No Job found",
@@ -2408,6 +2513,28 @@
             "invitation_for_hearing": "Schedule Hearing",
             "verification": "Two step Verification",
             "wa_chat_history": "Whatsapp chat history"
+        },
+        "advanceAndLoan": {
+            "advanceAndLoansTitle": "Advance/Loans",
+            "type": "Type",
+            "date": "Date",
+            "monthlyPayment": "Monthly Payment",
+            "amount": "Amount",
+            "paidAmount": "Paid Amount",
+            "pendingAmount": "Pending Amount",
+            "status": "Status"
+        },
+        "tasks": {
+            "tasksTitle": "Tasks",
+            "noTasksAvailable": "No tasks available"
+        },
+        "refundClaim": {
+            "refundClaimTitle": "Refund Claim",
+            "date": "Date",
+            "amount": "Amount",
+            "status": "Status",
+            "rejectReason": "Reject Reason",
+            "action": "Action"
         }
     },
     "worker_contract": {
@@ -3309,6 +3436,7 @@
         "carpetCleaningService": "Carpet Cleaning Service",
         "afterRenovation": "After Renovation",
         "polish": "Polish",
+        "airBnb": "AirBnb",
         "others": "Others"
     }
 }

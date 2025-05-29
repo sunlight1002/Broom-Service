@@ -11,6 +11,7 @@ export default function Services({ job, updateJob }) {
     const [isOpenExtraModal, setIsOpenExtraModal] = useState(false);
     const { t } = useTranslation();
     const service = job.jobservice;
+    const role = localStorage.getItem("admin-role");
 
     return (
         <>
@@ -20,21 +21,28 @@ export default function Services({ job, updateJob }) {
                         {t("admin.schedule.jobs.serviceDetailslabel")}
                     </h2>
 
-                    <button
-                        type="button"
-                        className="btn btn-primary float-right mb-2 mb-sm-0"
-                        onClick={() => setIsOpenDiscountModal(true)}
-                    >
-                        {t("admin.global.discount")}
-                    </button>
+                    {
+                        role != "supervisor" && (
+                            <>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary float-right mb-2 mb-sm-0"
+                                    onClick={() => setIsOpenDiscountModal(true)}
+                                >
+                                    {t("admin.global.discount")}
+                                </button>
 
-                    <button
-                        type="button"
-                        className="btn btn-primary float-right mr-2  mb-2 mb-sm-0"
-                        onClick={() => setIsOpenExtraModal(true)}
-                    >
-                        {t("admin.global.extraAmount")}
-                    </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary float-right mr-2  mb-2 mb-sm-0"
+                                    onClick={() => setIsOpenExtraModal(true)}
+                                >
+                                    {t("admin.global.extraAmount")}
+                                </button>
+                            </>
+                        )
+
+                    }
                 </div>
             </div>
 
@@ -72,7 +80,7 @@ export default function Services({ job, updateJob }) {
 
                                     <p>
                                         {job?.jobservice?.duration_minutes / 60}{" "}
-                                            {t(
+                                        {t(
                                             "admin.schedule.jobs.serviceDetails.hours"
                                         )}
                                     </p>

@@ -39,6 +39,7 @@ export default function WorkerPendingRequest({ workerId }) {
     const [startTimeFilter, setStartTimeFilter] = useState("");
     const [selectedDateRange, setSelectedDateRange] = useState("");
     const [selectedDateStep, setSelectedDateStep] = useState("");
+    const role = localStorage.getItem("admin-role");
 
     const [dateRange, setDateRange] = useState({
         start_date: "",
@@ -225,7 +226,7 @@ export default function WorkerPendingRequest({ workerId }) {
                         className: "text-center",
                         width: "10%",
                         render: function (data, type, row, meta) {
-                            return `<div class="d-flex justify-content-center "><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input type="checkbox" data-id="${
+                            return `<div class="d-flex justify-content-center "><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input disabled="${role == "supervisor"}" type="checkbox" data-id="${
                                 row.id
                             }" class="form-control dt-if-completed-checkbox" style="cursor: pointer; margin: 5px 5px;" ${
                                 row.status == "completed" ? "checked" : ""

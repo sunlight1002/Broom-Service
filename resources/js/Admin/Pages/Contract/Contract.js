@@ -209,7 +209,7 @@ export default function Contract() {
                             const allOneTime = services.every((service) => service.is_one_time === true);
                             const hasMultipleServices = services.length > 1;
 
-                            _html += `<button type="button" class="dropdown-item dt-client-contract-btn" data-id="${row.unique_hash}">View Client Contract</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-client-contract-btn" data-id="${row.unique_hash}">${t("admin.client.viewClientContract")}</button>`;
 
                             if (row.status === "verified" && (!allOneTime || hasMultipleServices)) {
                                 _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">${t("admin.client.createJob")}</button>`;
@@ -720,7 +720,7 @@ export default function Contract() {
                                 padding: "6px",
                                 border: "1px solid #ccc",
                                 borderRadius: "5px"
-                            }}>{filter || t("admin.leads.All")}</span>
+                            }}>{filter || t("admin.global.all")}</span>
 
                             <div className="dropdown-menu dropdown-menu-right">
 
@@ -731,7 +731,7 @@ export default function Contract() {
                                         localStorage.setItem("selectedFilterContract", "All");
                                     }}
                                 >
-                                    {t("admin.leads.All")}
+                                    {t("admin.global.all")}
                                 </button>
                                 <button
                                     className="dropdown-item"
@@ -890,7 +890,7 @@ export default function Contract() {
                     }}
                     className="hide-scrollbar mb-2"
                 >
-                    <p className="mr-2" style={{ fontWeight: "bold" }}>Date</p>
+                    <p className="mr-2" style={{ fontWeight: "bold" }}>{t("admin.global.Date")}</p>
 
                     <div className="d-flex align-items-center flex-wrap">
                         <input
@@ -943,7 +943,7 @@ export default function Contract() {
                             }}
                             onClick={() => resetLocalStorage()}
                         >
-                            Reset
+                            {t("modal.reset")}
                         </button>
                         <input
                             type="hidden"

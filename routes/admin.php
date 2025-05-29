@@ -116,8 +116,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('jobs/{id}/cancel', [JobController::class, 'cancelJob']);
     Route::get('job-worker/{id}', [JobController::class, 'AvlWorker']);
     Route::get('shift-change-worker/{sid}/{date}', [JobController::class, 'shiftChangeWorker']);
+    Route::post('jobs/assign-job-to-supervisor', [JobController::class, 'assignJobToSupervisor']);
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
     Route::post('jobs/{id}/adjust-time', [JobCommentController::class, 'adjustJobCompleteTime']);
+
 
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
@@ -341,7 +343,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('notice', [DashboardController::class, 'Notice']);
     Route::post('seen', [DashboardController::class, 'seen'])->name('seen');
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
-
+    Route::get('search', [DashboardController::class, 'generalSearch']);
+    
     // View Password
     Route::post('viewpass', [DashboardController::class, 'viewPass']);
 
@@ -430,15 +433,17 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/hearing-protocol/latest-invitation', [HearingProtocolController::class, 'latestHearingInvitation']);
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
     Route::get('/hearing-protocol/comments', [HearingCommentController::class, 'getComments']);
-    
+
     Route::get('/hearing-protocol/latest_invitation', [DecisionController::class, 'latest_Hearing_Invitation']);
     Route::post('/final-decision', [DecisionController::class, 'store']);
 
-    // Route::post('/final-letter', [DecisionController::class, 'generateFinalLetter']);
+    Route::post('/final-letter', [DecisionController::class, 'generateFinalLetter']);
+    Route::get('/workers/{worker}/documents', [DocumentController::class, 'getWorkerDocuments']);
+    Route::get('/workers/{workerId}/final-letter', [WorkerController::class, 'getFinalEmploymentLetter']);
 
     Route::post('/claims', [ClaimController::class, 'store']);
     Route::get('/claims/{workerId}', [ClaimController::class, 'showWorkerClaims']);
-    
+
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);
@@ -473,7 +478,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('refund-claims/{refund_claim}/approve', [RefundClaimController::class, 'approve']);
 
     //advance or loan amount
-     Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
+    Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
     Route::post('/advance-loans', [AdvanceLoanController::class, 'store']);
     Route::get('/advance-loans/{worker_id}', [AdvanceLoanController::class, 'show']);
     Route::post('/advance-loans/{id}', [AdvanceLoanController::class, 'update']);
@@ -507,8 +512,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/get-conversations/{chatId}', [WhapiController::class, 'getConversationsByNumber']);
     Route::get('/get-from-numbers', [WhapiController::class, 'getUniqueFromNumber']);
     Route::delete('/delete-message/{messageId}', [WhapiController::class, 'deleteMessage']);
-
-
 });
 
 

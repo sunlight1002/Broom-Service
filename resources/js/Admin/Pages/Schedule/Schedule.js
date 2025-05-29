@@ -784,7 +784,7 @@ export default function Schedule() {
                     }}
                     className="hide-scrollbar my-2"
                 >
-                    <p className="mr-2" style={{ fontWeight: "bold" }}>Date</p>
+                    <p className="mr-2" style={{ fontWeight: "bold" }}>{t("admin.schedule.date")}</p>
 
                     <div className="d-flex align-items-center flex-wrap">
                         <input
@@ -837,7 +837,7 @@ export default function Schedule() {
                             }}
                             onClick={() => resetLocalStorage()}
                         >
-                            Reset
+                            {t("admin.schedule.reset")}
                         </button>
                         <input
                             type="hidden"

@@ -125,10 +125,10 @@ export default function Conflicts() {
                             return `<span class="dt-job-btn" data-id="${data}">${data}</span>`;
                         },
                     },
-                    { data: "worker_name", title: "Worker" },
-                    { data: "client_name", title: "Client" },
-                    { data: "conflict_client_name", title: "Conflict client" },
-                    { data: "conflict_job_id", title: "Conflict #job" },
+                    { data: "worker_name", title: t("global.worker") },
+                    { data: "client_name", title: t("global.client") },
+                    { data: "conflict_client_name", title: t("global.conflictClient") },
+                    { data: "conflict_job_id", title: t("global.conflictJob") },
                     // { 
                     //     data: "hours", 
                     //     title: t("global.hours"),

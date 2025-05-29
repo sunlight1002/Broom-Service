@@ -44,6 +44,8 @@ export default function TotalJobs() {
     const [probbtn, setProbbtn] = useState(false)
     const [problems, setProblems] = useState([])
     const [comment, setComment] = useState("");
+    const role = localStorage.getItem("admin-role");
+    const adminId = localStorage.getItem("admin-id");
 
     const tableRef = useRef(null);
     const tableRef2 = useRef(null);
@@ -55,11 +57,15 @@ export default function TotalJobs() {
     const hasNoWorkerFilterRef = useRef(null);
     const showAllWorkerFilterRef = useRef(null);
     const showCancelJobsFilterRef = useRef(null);
+    const showSupervisorJobsFilterRef = useRef(null);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [allClients, setAllClients] = useState([]);
     const [selectedJobDate, setSelectedJobDate] = useState(null);
     const alert = useAlert();
     const navigate = useNavigate();
+
+    const shouldDisable = role === "supervisor";
+    const buttonAttributes = shouldDisable ? "disabled" : "";
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -177,6 +183,15 @@ export default function TotalJobs() {
     }, [probbtn, tableRef2.current]);
 
 
+    const handleAssignJobToSupervisor = async (jobId) => {
+        const res = await axios.post("/api/admin/jobs/assign-job-to-supervisor", { job_id: jobId, admin_id: adminId }, { headers });
+        if (res.status == 200) {
+            alert.success(res.data.message);
+            $(tableRef.current).DataTable().draw();
+        }
+    }
+
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -184,7 +199,7 @@ export default function TotalJobs() {
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "/api/admin/jobs",
+                    url: "/api/admin/jobs?role=" + role,
                     type: "GET",
                     beforeSend: function (request) {
                         request.setRequestHeader(
@@ -206,6 +221,9 @@ export default function TotalJobs() {
                             ? 1
                             : 0;
                         d.show_cancel_jobs = showCancelJobsFilterRef.current.checked
+                            ? 1
+                            : 0;
+                        d.assigned_jobs = showSupervisorJobsFilterRef.current.checked
                             ? 1
                             : 0;
                         d.start_date = startDateRef.current.value;
@@ -315,7 +333,7 @@ export default function TotalJobs() {
                         width: "5%",
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input type="checkbox" data-id="${row.id
+                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input ${buttonAttributes} type="checkbox" data-id="${row.id
                                 }" class="form-control dt-if-job-done-checkbox" ${row.is_job_done ? "checked" : ""
                                 } ${row.status == "cancel" || row.is_order_closed == 1
                                     ? "disabled"
@@ -358,14 +376,14 @@ export default function TotalJobs() {
 
                             let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center ">`;
 
-                            _html += `<button type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
+                            _html += `<button ${buttonAttributes} type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
                                 }" data-hours="${_hours}" ${isOrderClosed ? "disabled" : ""
                                 } style="pointer-events: ${_hours === 0 ? "none" : "auto"
                                 }, opacity: ${_hours === 0 ? 0.5 : 1};"> - </button>`;
 
                             _html += `<span class="mx-1 time-counter" style="background-color: ${_timeBGColor}"> ${_hours} </span>`;
 
-                            _html += `<button type="button" class="time-counter dt-time-counter-inc" ${isOrderClosed ? "disabled" : ""
+                            _html += `<button ${buttonAttributes} type="button" class="time-counter dt-time-counter-inc" ${isOrderClosed ? "disabled" : ""
                                 } data-id="${row.id
                                 }" data-hours="${_hours}"> + </button>`;
 
@@ -420,32 +438,41 @@ export default function TotalJobs() {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            if (
-                                row.status == "completed" &&
-                                !row.is_order_generated
-                            ) {
-                                _html += `<button type="button" class="dropdown-item dt-create-order-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("global.createOrder")}</button>`;
+                            if (role == "supervisor") {
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("global.view")}</button>`;
+                            } else {
+                                if (
+                                    row.status == "completed" &&
+                                    !row.is_order_generated
+                                ) {
+                                    _html += `<button type="button" class="dropdown-item dt-create-order-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("global.createOrder")}</button>`;
+                                }
+
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("global.view")}</button>`;
+
+                                if (
+                                    [
+                                        "not-started",
+                                        "scheduled",
+                                        "unscheduled",
+                                        "re-scheduled",
+                                    ].includes(row.status)
+                                ) {
+                                    _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">${t("global.switchWorker")}</button>`;
+
+                                    _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
+
+                                    _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">${t("admin.global.changeShift")}</button>`;
+
+                                    _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
+                                }
+
+                                if (!row.is_assigned_to_supervisor) {
+                                    _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">${t("admin.global.assignSupervisor")}</button>`;
+                                } else {
+                                    _html += `<button type="button" class="dropdown-item dt-supervisor-btn" data-id="${row.id}">${t("admin.global.removeJobFromAssign")}</button>`;
+                                }
                             }
-
-                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("global.view")}</button>`;
-
-                            if (
-                                [
-                                    "not-started",
-                                    "scheduled",
-                                    "unscheduled",
-                                    "re-scheduled",
-                                ].includes(row.status)
-                            ) {
-                                _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">${t("global.switchWorker")}</button>`;
-
-                                _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
-
-                                _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-date="${row.start_date}" data-id="${row.id}">Change Shift</button>`;
-
-                                _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
-                            }
-
                             _html += "</div> </div>";
 
                             return _html;
@@ -582,16 +609,19 @@ export default function TotalJobs() {
             navigate(`/admin/jobs/view/${_id}`);
         });
 
-        $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
-            const _id = $(this).data("id");
-            const _totalAmount = $(this).data("total-amount");
-            handleSwitchWorker({ id: _id, total_amount: _totalAmount });
-        });
+        if (role != "supervisor") {
+            $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
+                const _id = $(this).data("id");
+                const _totalAmount = $(this).data("total-amount");
+                handleSwitchWorker({ id: _id, total_amount: _totalAmount });
+            });
 
-        $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
-            const _id = $(this).data("id");
-            navigate(`/admin/jobs/${_id}/change-worker`);
-        });
+
+            $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
+                const _id = $(this).data("id");
+                navigate(`/admin/jobs/${_id}/change-worker`);
+            });
+        }
 
         $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
             const _id = $(this).data("id");
@@ -609,6 +639,11 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-comment", function () {
             const _id = $(this).find("span").data("id"); // or more specific like `.find("span.dt-comment-text")`
             handleComent(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-supervisor-btn", function () {
+            const _id = $(this).data("id");
+            handleAssignJobToSupervisor(_id);
         });
 
 
@@ -862,11 +897,11 @@ export default function TotalJobs() {
     }, [selectedDateRange, selectedDateStep]);
 
     useEffect(() => {
-        if (!localStorage.getItem("selectedDateRange") && selectedDateRange == "Day") {
-            localStorage.setItem("selectedDateRange", "Day");
+        if (!localStorage.getItem("selectedDateRangeJob") && selectedDateRange == "Day") {
+            localStorage.setItem("selectedDateRangeJob", "Day");
         }
-        if (!localStorage.getItem("selectedDateStep") && selectedDateStep == "Current") {
-            localStorage.setItem("selectedDateStep", "Current");
+        if (!localStorage.getItem("selectedDateStepJob") && selectedDateStep == "Current") {
+            localStorage.setItem("selectedDateStepJob", "Current");
         }
         if (!localStorage.getItem("doneFilter") && doneFilter == "All") {
             localStorage.setItem("doneFilter", "All");
@@ -874,15 +909,15 @@ export default function TotalJobs() {
         if (!localStorage.getItem("startTimeFilter") && startTimeFilter == "All") {
             localStorage.setItem("startTimeFilter", "All");
         }
-        const storedDateRange = localStorage.getItem("dateRange");
+        const storedDateRange = localStorage.getItem("dateRangeJob");
         if (storedDateRange) {
             setDateRange(JSON.parse(storedDateRange)); // Parse JSON string back into an object
         }
 
-        const storedFilter = localStorage.getItem("selectedDateRange") || "Day"; // Default to "Day" if no value is set
+        const storedFilter = localStorage.getItem("selectedDateRangeJob") || "Day"; // Default to "Day" if no value is set
         setSelectedDateRange(storedFilter);
 
-        const storedFilter2 = localStorage.getItem("selectedDateStep") || "Current"; // Default to "Day" if no value is set
+        const storedFilter2 = localStorage.getItem("selectedDateStepJob") || "Current"; // Default to "Day" if no value is set
         setSelectedDateStep(storedFilter2);
 
         const storedFilter3 = localStorage.getItem("doneFilter") || "All"; // Default to "Day" if no value is set
@@ -895,11 +930,11 @@ export default function TotalJobs() {
     }, [selectedDateRange, selectedDateStep, doneFilter, startTimeFilter]);
 
     const resetLocalStorage = () => {
-        localStorage.removeItem("selectedDateRange");
-        localStorage.removeItem("selectedDateStep");
+        localStorage.removeItem("selectedDateRangeJob");
+        localStorage.removeItem("selectedDateStepJob");
         localStorage.removeItem("doneFilter");
         localStorage.removeItem("startTimeFilter");
-        localStorage.removeItem("dateRange");
+        localStorage.removeItem("dateRangeJob");
         setSelectedDateRange("Week");
         setSelectedDateStep("Current");
         setDoneFilter("All");
@@ -914,11 +949,14 @@ export default function TotalJobs() {
             <div id="content" className="job-listing-page">
                 <div className="titleBox customer-title mb-3 ">
                     <div className="row">
-                        {/* <div className="col-sm-2 col-4">
+                        {
+                            role != "supervisor" && (
+                                <>
+                                    {/* <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
                         </div> */}
-                        {/* Desktop */}
-                        {/* <div className="col-sm-8 hidden-xs">
+                                    {/* Desktop */}
+                                    {/* <div className="col-sm-8 hidden-xs">
                             <div className="job-buttons">
                                 <button
                                     className="ml-2 btn btn-warning addButton"
@@ -929,135 +967,141 @@ export default function TotalJobs() {
                                 </button>
                             </div>
                         </div> */}
-                        <div className="App" style={{ display: "none" }}>
-                            <CSVLink {...csvReport} id="csv">
-                                {t("admin.global.Export")}
-                            </CSVLink>
-                        </div>
-                        <div className="col-sm-3 mt-3">
-                            <div className="d-flex align-items-center">
-                                <div style={{ fontWeight: "bold" }}>{t("global.filter")}</div>
-                                <div className="mx-3 d-flex align-items-center">
-                                    <select
-                                        className="form-control"
-                                        value={doneFilter}
-                                        onChange={(e) => {
-                                            setDoneFilter(e.target.value);
-                                            localStorage.setItem("doneFilter", e.target.value);
-                                        }}
-                                    >
-                                        <option value="">{t("admin.global.All")}</option>
-                                        <option value="done">{t("admin.global.done")}</option>
-                                        <option value="undone">{t("admin.global.undone")}</option>
-                                    </select>
+                                    <div className="App" style={{ display: "none" }}>
+                                        <CSVLink {...csvReport} id="csv">
+                                            {t("admin.global.Export")}
+                                        </CSVLink>
+                                    </div>
+                                    <div className="col-sm-3 mt-3">
+                                        <div className="d-flex align-items-center">
+                                            <div style={{ fontWeight: "bold" }}>{t("global.filter")}</div>
+                                            <div className="mx-3 d-flex align-items-center">
+                                                <select
+                                                    className="form-control"
+                                                    value={doneFilter}
+                                                    onChange={(e) => {
+                                                        setDoneFilter(e.target.value);
+                                                        localStorage.setItem("doneFilter", e.target.value);
+                                                    }}
+                                                >
+                                                    <option value="">{t("admin.global.All")}</option>
+                                                    <option value="done">{t("admin.global.done")}</option>
+                                                    <option value="undone">{t("admin.global.undone")}</option>
+                                                </select>
 
-                                    <select
-                                        className="form-control ml-3"
-                                        value={startTimeFilter}
-                                        onChange={(e) => {
-                                            setStartTimeFilter(e.target.value);
-                                            localStorage.setItem("startTimeFilter", e.target.value);
-                                        }}
-                                    >
-                                        <option value="">{t("modal.alltime")}</option>
-                                        <option value="morning">{t("global.morning")}</option>
-                                        <option value="noon">{t("global.noon")}</option>
-                                        <option value="afternoon">
-                                            {t("global.afternoon")}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-sm mt-3 d-none d-lg-block">
-                            <div className="d-flex align-items-center">
-                                <button
-                                    className="m-0 ml-4 btn border rounded px-3"
-                                    data-toggle="modal"
-                                    style={{
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }}
-                                    data-target="#exampleModal"
-                                >
-                                    {t("global.exportTimeReport")}
-                                </button>
+                                                <select
+                                                    className="form-control ml-3"
+                                                    value={startTimeFilter}
+                                                    onChange={(e) => {
+                                                        setStartTimeFilter(e.target.value);
+                                                        localStorage.setItem("startTimeFilter", e.target.value);
+                                                    }}
+                                                >
+                                                    <option value="">{t("global.alltime")}</option>
+                                                    <option value="morning">{t("global.morning")}</option>
+                                                    <option value="noon">{t("global.noon")}</option>
+                                                    <option value="afternoon">
+                                                        {t("global.afternoon")}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm mt-3 d-none d-lg-block">
+                                        <div className="d-flex align-items-center">
+                                            {
+                                                role != "supervisor" && (
+                                                    <>
+                                                        <button
+                                                            className="m-0 ml-4 btn border rounded px-3"
+                                                            data-toggle="modal"
+                                                            style={{
+                                                                background: "#2c3f51",
+                                                                color: "white",
+                                                            }}
+                                                            data-target="#exampleModal"
+                                                        >
+                                                            {t("global.exportTimeReport")}
+                                                        </button>
 
-                                <button
-                                    className="m-0 ml-4 btn border rounded px-3"
-                                    style={!probbtn ? {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    } : {
-                                        background: "white",
-                                        color: "black",
-                                    }}
-                                    onClick={() => setProbbtn(prev => !prev)}
-                                >
-                                    Problems
-                                </button>
-                                <button
-                                    className="m-0 ml-4 btn border rounded px-3"
-                                    style={!probbtn ? {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    } : {
-                                        background: "white",
-                                        color: "black",
-                                    }}
-                                    onClick={() => resetLocalStorage()}
-                                >
-                                    Reset Filters
-                                </button>
-                            </div>
-                        </div>
-                        {/* Mobile */}
-                        <div className="col-12 hidden-xl pl-0">
-                            <div className="job-buttons">
-                                <button
-                                    className="ml-2 btn border rounded navyblue"
-                                    data-toggle="modal"
-                                    data-target="#exampleModal"
-                                >
-                                    {t("global.exportTimeReport")}
-                                </button>
-                                <button
-                                    className="ml-2 btn border rounded"
-                                    style={!probbtn ? {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    } : {
-                                        background: "white",
-                                        color: "black",
-                                    }}
-                                    onClick={() => setProbbtn(prev => !prev)}
-                                >
-                                    Problems
-                                </button>
-                                <button
-                                    className="ml-2 btn border rounded"
-                                    style={!probbtn ? {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    } : {
-                                        background: "white",
-                                        color: "black",
-                                    }}
-                                    onClick={() => resetLocalStorage()}
-                                >
-                                    Reset Filters
-                                </button>
-                            </div>
-                        </div>
-                        <div className="col-md-12 d-none d-lg-block justify-content-between mt-2">
-                            <div className="d-flex align-items-center">
-                                <div
-                                    style={{ fontWeight: "bold" }}
-                                    className="mr-2"
-                                >
-                                    {t("global.date_period")}
-                                </div>
-                                {/* {Object.entries(timeIntervals).map(([key, value]) => (
+                                                        <button
+                                                            className="m-0 ml-4 btn border rounded px-3"
+                                                            style={!probbtn ? {
+                                                                background: "#2c3f51",
+                                                                color: "white",
+                                                            } : {
+                                                                background: "white",
+                                                                color: "black",
+                                                            }}
+                                                            onClick={() => setProbbtn(prev => !prev)}
+                                                        >
+                                                            {t("global.problems")}
+                                                        </button>
+                                                    </>
+                                                )
+                                            }
+                                            <button
+                                                className="m-0 ml-4 btn border rounded px-3"
+                                                style={{
+                                                    background: "#2c3f51",
+                                                    color: "white",
+                                                }}
+                                                onClick={() => resetLocalStorage()}
+                                            >
+                                                {t("global.resetFilters")}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {/* Mobile */}
+                                    <div className="col-12 hidden-xl pl-0">
+                                        <div className="job-buttons">
+                                            {
+                                                role != "supervisor" && (
+                                                    <>
+                                                        <button
+                                                            className="ml-2 btn border rounded navyblue"
+                                                            data-toggle="modal"
+                                                            data-target="#exampleModal"
+                                                        >
+                                                            {t("global.exportTimeReport")}
+                                                        </button>
+                                                        <button
+                                                            className="ml-2 btn border rounded"
+                                                            style={!probbtn ? {
+                                                                background: "#2c3f51",
+                                                                color: "white",
+                                                            } : {
+                                                                background: "white",
+                                                                color: "black",
+                                                            }}
+                                                            onClick={() => setProbbtn(prev => !prev)}
+                                                        >
+                                                            Problems
+                                                        </button>
+                                                    </>
+                                                )
+                                            }
+                                            <button
+                                                className="ml-2 btn border rounded"
+                                                style={{
+                                                    background: "#2c3f51",
+                                                    color: "white",
+                                                }}
+                                                onClick={() => resetLocalStorage()}
+                                            >
+                                                Reset Filters
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-12 d-none d-lg-block justify-content-between mt-2">
+                                        <div className="d-flex align-items-center">
+                                            <div
+                                                style={{ fontWeight: "bold" }}
+                                                className="mr-2"
+                                            >
+                                                {t("global.date_period")}
+                                            </div>
+                                            {/* {Object.entries(timeIntervals).map(([key, value]) => (
                                     <FilterButtons
                                         text={value}
                                         name={key}
@@ -1067,230 +1111,252 @@ export default function TotalJobs() {
                                         setselectedFilter={(status) => setSelectedDateRange(status)}
                                     />
                                 ))} */}
-                                <FilterButtons
-                                    text={t("global.day")}
-                                    className="px-4 mr-1"
-                                    selectedFilter={selectedDateRange}
-                                    setselectedFilter={setSelectedDateRange}
-                                />
-                                <FilterButtons
-                                    text={t("global.week")}
-                                    className="px-4 mr-1"
-                                    selectedFilter={selectedDateRange}
-                                    setselectedFilter={setSelectedDateRange}
-                                />
+                                            <FilterButtons
+                                                text={t("global.day")}
+                                                className="px-4 mr-1"
+                                                selectedFilter={selectedDateRange}
+                                                setselectedFilter={setSelectedDateRange}
+                                                onClick={() => {
+                                                    localStorage.setItem("selectedDateRangeJob", "Day");
+                                                }}
+                                            />
+                                            <FilterButtons
+                                                text={t("global.week")}
+                                                className="px-4 mr-1"
+                                                selectedFilter={selectedDateRange}
+                                                setselectedFilter={setSelectedDateRange}
+                                                onClick={() => {
+                                                    localStorage.setItem("selectedDateRangeJob", "Week");
+                                                }}
+                                            />
 
-                                <FilterButtons
-                                    text={t("global.month")}
-                                    className="px-4 mr-3"
-                                    selectedFilter={selectedDateRange}
-                                    setselectedFilter={setSelectedDateRange}
-                                />
+                                            <FilterButtons
+                                                text={t("global.month")}
+                                                className="px-4 mr-3"
+                                                selectedFilter={selectedDateRange}
+                                                setselectedFilter={setSelectedDateRange}
+                                                onClick={() => {
+                                                    localStorage.setItem("selectedDateRangeJob", "Month");
+                                                }}
+                                            />
 
-                                <FilterButtons
-                                    text={t("client.previous")}
-                                    className="px-3 mr-1"
-                                    selectedFilter={selectedDateStep}
-                                    setselectedFilter={setSelectedDateStep}
-                                />
-                                <FilterButtons
-                                    text={t("global.current")}
-                                    className="px-3 mr-1"
-                                    selectedFilter={selectedDateStep}
-                                    setselectedFilter={setSelectedDateStep}
-                                />
-                                <FilterButtons
-                                    text={t("global.next")}
-                                    className="px-3"
-                                    selectedFilter={selectedDateStep}
-                                    setselectedFilter={setSelectedDateStep}
-                                />
-                            </div>
-                        </div>
-                        <div className="col-sm-12 mt-0 pl-2 d-flex d-lg-none">
-                            <div className="search-data m-0">
-                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
-                                    <div
-                                        className=" mr-3"
-                                        style={{ fontWeight: "bold" }}
-                                    >
-                                        {t("global.date_period")}
+                                            <FilterButtons
+                                                text={t("client.previous")}
+                                                className="px-3 mr-1"
+                                                selectedFilter={selectedDateStep}
+                                                setselectedFilter={setSelectedDateStep}
+                                                onClick={() => {
+                                                    localStorage.setItem("selectedDateStepJob", "Previous");
+                                                }}
+                                            />
+                                            <FilterButtons
+                                                text={t("global.current")}
+                                                className="px-3 mr-1"
+                                                selectedFilter={selectedDateStep}
+                                                setselectedFilter={setSelectedDateStep}
+                                                onClick={() => {
+                                                    localStorage.setItem("selectedDateStepJob", "Current");
+                                                }}
+                                            />
+                                            <FilterButtons
+                                                text={t("global.next")}
+                                                className="px-3"
+                                                selectedFilter={selectedDateStep}
+                                                setselectedFilter={setSelectedDateStep}
+                                                onClick={() => {
+                                                    localStorage.setItem("selectedDateStepJob", "Next");
+                                                }}
+                                            />
+                                        </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="btn btn-default navyblue dropdown-toggle"
-                                        data-toggle="dropdown"
-                                    >
-                                        <i className="fa fa-filter"></i>
-                                    </button>
-                                    <span className="ml-2" style={{
-                                        padding: "6px",
-                                        border: "1px solid #ccc",
-                                        borderRadius: "5px"
-                                    }}>{selectedDateRange || t("admin.leads.All")}</span>
+                                    <div className="col-sm-12 mt-0 pl-2 d-flex d-lg-none">
+                                        <div className="search-data m-0">
+                                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                                <div
+                                                    className=" mr-3"
+                                                    style={{ fontWeight: "bold" }}
+                                                >
+                                                    {t("global.date_period")}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default navyblue dropdown-toggle"
+                                                    data-toggle="dropdown"
+                                                >
+                                                    <i className="fa fa-filter"></i>
+                                                </button>
+                                                <span className="ml-2" style={{
+                                                    padding: "6px",
+                                                    border: "1px solid #ccc",
+                                                    borderRadius: "5px"
+                                                }}>{selectedDateRange || t("admin.leads.All")}</span>
 
-                                    <div className="dropdown-menu dropdown-menu-right">
+                                                <div className="dropdown-menu dropdown-menu-right">
 
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateRange("Day");
-                                                localStorage.setItem("selectedDateRange", "Day");
-                                            }}
-                                        >
-                                            {t("global.day")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateRange("Week");
-                                                localStorage.setItem("selectedDateRange", "Week");
-                                            }}
-                                        >
-                                            {t("global.week")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateRange("Month");
-                                                localStorage.setItem("selectedDateRange", "Month");
-                                            }}
-                                        >
-                                            {t("global.month")}
-                                        </button>
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setSelectedDateRange("Day");
+                                                            localStorage.setItem("selectedDateRangeJob", "Day");
+                                                        }}
+                                                    >
+                                                        {t("global.day")}
+                                                    </button>
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setSelectedDateRange("Week");
+                                                            localStorage.setItem("selectedDateRangeJob", "Week");
+                                                        }}
+                                                    >
+                                                        {t("global.week")}
+                                                    </button>
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setSelectedDateRange("Month");
+                                                            localStorage.setItem("selectedDateRangeJob", "Month");
+                                                        }}
+                                                    >
+                                                        {t("global.month")}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-sm-12 pl-2 d-flex d-lg-none">
-                            <div className="search-data mt-2">
-                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
-                                    <div
-                                        className=" mr-3"
-                                        style={{ fontWeight: "bold" }}
-                                    >
-                                        {t("global.date_period")}{t("global.type")}
+                                    <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                                        <div className="search-data mt-2">
+                                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                                <div
+                                                    className=" mr-3"
+                                                    style={{ fontWeight: "bold" }}
+                                                >
+                                                    {t("global.date_period")}{t("global.type")}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default navyblue dropdown-toggle"
+                                                    data-toggle="dropdown"
+                                                >
+                                                    <i className="fa fa-filter"></i>
+                                                </button>
+                                                <span className="ml-2" style={{
+                                                    padding: "6px",
+                                                    border: "1px solid #ccc",
+                                                    borderRadius: "5px"
+                                                }}>{selectedDateStep || t("admin.leads.All")}</span>
+
+                                                <div className="dropdown-menu dropdown-menu-right">
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setSelectedDateStep("Previous");
+                                                            localStorage.setItem("selectedDateStepJob", "Previous");
+                                                        }}
+                                                    >
+                                                        {t("client.previous")}
+                                                    </button>
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setSelectedDateStep("Current");
+                                                            localStorage.setItem("selectedDateStepJob", "Current");
+                                                        }}
+                                                    >
+                                                        {t("global.current")}
+                                                    </button>
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setSelectedDateStep("Next");
+                                                            localStorage.setItem("selectedDateStepJob", "Next");
+                                                        }}
+                                                    >
+                                                        {t("global.next")}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="btn btn-default navyblue dropdown-toggle"
-                                        data-toggle="dropdown"
-                                    >
-                                        <i className="fa fa-filter"></i>
-                                    </button>
-                                    <span className="ml-2" style={{
-                                        padding: "6px",
-                                        border: "1px solid #ccc",
-                                        borderRadius: "5px"
-                                    }}>{selectedDateStep || t("admin.leads.All")}</span>
+                                    <div className="col-md-12 d-sm-flex justify-content-between my-1">
+                                        <div className="d-flex align-items-center flex-wrap mt-2">
+                                            <div
+                                                className="mr-3"
+                                                style={{ fontWeight: "bold" }}
+                                            >
+                                                {t("global.custom_date")}
+                                            </div>
+                                            <div className="d-flex align-items-center flex-wrap">
+                                                <input
+                                                    className="form-control"
+                                                    type="date"
+                                                    placeholder="From date"
+                                                    name="from filter"
+                                                    style={{ width: "fit-content" }}
+                                                    value={dateRange.start_date}
+                                                    onChange={(e) => {
+                                                        const updatedDateRange = {
+                                                            start_date: e.target.value,
+                                                            end_date: dateRange.end_date,
+                                                        };
 
-                                    <div className="dropdown-menu dropdown-menu-right">
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateStep("Previous");
-                                                localStorage.setItem("selectedDateStep", "Previous");
-                                            }}
-                                        >
-                                            {t("client.previous")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateStep("Current");
-                                                localStorage.setItem("selectedDateStep", "Current");
-                                            }}
-                                        >
-                                            {t("global.current")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateStep("Next");
-                                                localStorage.setItem("selectedDateStep", "Next");
-                                            }}
-                                        >
-                                            {t("global.next")}
-                                        </button>
+                                                        setDateRange(updatedDateRange);
+
+                                                        // Corrected: JSON.stringify instead of json.stringify
+                                                        localStorage.setItem("dateRangeJob", JSON.stringify(updatedDateRange));
+                                                    }}
+                                                />
+                                                <div className="mx-2">{t("global.to")}</div>
+                                                <input
+                                                    className="form-control"
+                                                    type="date"
+                                                    placeholder="To date"
+                                                    name="to_filter"
+                                                    style={{ width: "fit-content" }}
+                                                    value={dateRange.end_date}
+                                                    onChange={(e) => {
+                                                        const updatedDateRange = {
+                                                            start_date: dateRange.start_date,
+                                                            end_date: e.target.value,
+                                                        };
+
+                                                        setDateRange(updatedDateRange);
+
+                                                        // Corrected: JSON.stringify instead of json.stringify
+                                                        localStorage.setItem("dateRangeJob", JSON.stringify(updatedDateRange));
+                                                    }}
+                                                />
+
+                                            </div>
+
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-12 d-sm-flex justify-content-between my-1">
-                            <div className="d-flex align-items-center flex-wrap mt-2">
-                                <div
-                                    className="mr-3"
-                                    style={{ fontWeight: "bold" }}
-                                >
-                                    {t("global.custom_date")}
-                                </div>
-                                <div className="d-flex align-items-center flex-wrap">
-                                    <input
-                                        className="form-control"
-                                        type="date"
-                                        placeholder="From date"
-                                        name="from filter"
-                                        style={{ width: "fit-content" }}
-                                        value={dateRange.start_date}
-                                        onChange={(e) => {
-                                            const updatedDateRange = {
-                                                start_date: e.target.value,
-                                                end_date: dateRange.end_date,
-                                            };
+                                </>
+                            )
+                        }
+                        <input
+                            type="hidden"
+                            value={startTimeFilter}
+                            ref={startTimeFilterRef}
+                        />
 
-                                            setDateRange(updatedDateRange);
+                        <input
+                            type="hidden"
+                            value={doneFilter}
+                            ref={doneFilterRef}
+                        />
 
-                                            // Corrected: JSON.stringify instead of json.stringify
-                                            localStorage.setItem("dateRange", JSON.stringify(updatedDateRange));
-                                        }}
-                                    />
-                                    <div className="mx-2">{t("global.to")}</div>
-                                    <input
-                                        className="form-control"
-                                        type="date"
-                                        placeholder="To date"
-                                        name="to_filter"
-                                        style={{ width: "fit-content" }}
-                                        value={dateRange.end_date}
-                                        onChange={(e) => {
-                                            const updatedDateRange = {
-                                                start_date: dateRange.start_date,
-                                                end_date: e.target.value,
-                                            };
+                        <input
+                            type="hidden"
+                            value={dateRange.start_date}
+                            ref={startDateRef}
+                        />
 
-                                            setDateRange(updatedDateRange);
-
-                                            // Corrected: JSON.stringify instead of json.stringify
-                                            localStorage.setItem("dateRange", JSON.stringify(updatedDateRange));
-                                        }}
-                                    />
-
-                                </div>
-                                <input
-                                    type="hidden"
-                                    value={startTimeFilter}
-                                    ref={startTimeFilterRef}
-                                />
-
-                                <input
-                                    type="hidden"
-                                    value={doneFilter}
-                                    ref={doneFilterRef}
-                                />
-
-                                <input
-                                    type="hidden"
-                                    value={dateRange.start_date}
-                                    ref={startDateRef}
-                                />
-
-                                <input
-                                    type="hidden"
-                                    value={dateRange.end_date}
-                                    ref={endDateRef}
-                                />
-                            </div>
-                        </div>
+                        <input
+                            type="hidden"
+                            value={dateRange.end_date}
+                            ref={endDateRef}
+                        />
 
                         <div className="col-md-12 justify-content-between my-2">
                             <div className="d-flex align-items-center flex-wrap">
@@ -1350,7 +1416,7 @@ export default function TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox3"
                                     >
-                                        Show all workers
+                                        {t("global.showAllWorkers")}
                                     </label>
                                 </div>
                                 <div className="form-check form-check-inline">
@@ -1369,7 +1435,26 @@ export default function TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox4"
                                     >
-                                        Show Cancelled Jobs
+                                        {t("global.showCancelledJobs")}
+                                    </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="inlineCheckbox5"
+                                        onChange={() => {
+                                            $(tableRef.current)
+                                                .DataTable()
+                                                .draw();
+                                        }}
+                                        ref={showSupervisorJobsFilterRef}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="inlineCheckbox5"
+                                    >
+                                        {role == "supervisor" ? "Show assigned Jobs" : t("global.supervisorAssignedJobs")}
                                     </label>
                                 </div>
                             </div>

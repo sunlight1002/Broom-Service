@@ -136,12 +136,37 @@
         }
     },
     "global": {
+        "hebrew": "עברית",
+        "english": "אנגלית",
+        "spanish": "ספרדית",
+        "russian": "רוסית",
+        "overview": "סקירה כללית",
+        "income": "הכנסה",
+        "outcome": "תוצאה",
+        "sendNotification": "שלח הודעה",
+        "all": "הכל",
+        "contactMeUrgently": "צור איתי קשר בדחיפות",
+        "invoiceAndAccountingInquiry": "פניית חשבונית וחשבונאות",
+        "changeorUpdateSchedule": "שינוי או עדכון לוח זמנים",
+        "additionalInformation": "מידע נוסף",
+        "clientFeedback": "משוב מלקוח",
+        "teleService": "שירות טלפוני",
         "alltime": "כל הזמנים",
+        "problems": "בעיות",
+        "resetFilters": "איפוס מסננים",
+        "showAllWorkers": "הצג את כל העובדים",
+        "showCancelledJobs": "הצג עבודות שבוטלו",
+        "supervisorAssignedJobs": "עבודות שהוקצו למפקח",
         "name": "שם",
+        "Email": "אימייל",
+        "phone": "טלפון",
+        "status": "סטטוס",
+        "action": "פעולה",
+        "serviceInEn": "שירות - אנגלית",
+        "serviceInHeb": "שירות - עברית",
         "success": "הצלחה",
         "document_name": "שם המסמך",
         "enter_document_name": "הזן את שם המסמך",
-        "Email": "אימייל",
         "cycle": "מחזור",
         "open": "פתוח",
         "openDays": "ימים פתוחים",
@@ -217,11 +242,13 @@
         "id": "מזהה",
         "service": "שירות",
         "worker": "עובד",
+        "client": "לקוח",
+        "conflictClient": "לקוח במחלוקת",
+        "conflictJob": "#קונפליקט_בעבודה",
         "totalPrice": "מחיר כולל",
         "startDate": "תאריך התחלה",
-        "status": "סטטוס",
-        "action": "פעולה",
         "edit": "ערוך",
+        "contract": "חוזה",
         "delete": "מחק",
         "view": "צפה",
         "add": "הוסף",
@@ -333,7 +360,12 @@
         "sub_filter": "סינון משנה",
         "select_date_to_change": "בחר תאריך לשינוי",
         "select_client": "בחר לקוח",
-        "change_shift": "החלפת משמרת"
+        "change_shift": "החלפת משמרת",
+        "supervisor": "מפקח",
+        "assign_supervisor": "הקצה מפקח",
+        "assign_supervisor_jobs": "הקצה עבודות מפקח",
+        "assign_job_to_supervisor": "הקצה עבודה למפקח",
+        "supervisor_jobs": "עבודות מפקח"
     },
     "modal": {
         "title": "מודל",
@@ -1208,6 +1240,8 @@
             "NameHev": "שם - עברית",
             "status": "סטטוס",
             "action": "פעולה",
+            "scheduleEn": "לוח זמנים - אנ",
+            "scheduleHeb": "לוח זמנים - עבר",
             "view": "צפייה",
             "Edit": "עריכה",
             "Date": "תאריך",
@@ -1250,6 +1284,9 @@
             "percentage": "אחוז",
             "jobExtra": "תוספת עבודה",
             "changeWorker": "שנה עובד",
+            "changeShift": "שנה משמרת",
+            "assignSupervisor": "שייך מפקח",
+            "removeJobFromAssign": "הסר עבודה מהשמה",
             "chatHistory": "היסטוריית צ'אט",
             "chat": "צ'אט",
             "chats": "צ'אטים",
@@ -1321,6 +1358,7 @@
             "no_record_found": "לא נמצאה רשומה",
             "trans_referId": "מזהה עסקה / הפניה",
             "amount": "כמות",
+            "bill": "חשבונית",
             "payment_mode": "מצב תשלום",
             "bank_transfer": "העברה בנקאית",
             "by_checque": "לפי צ'ק",
@@ -1373,7 +1411,16 @@
             "worker_excludes": "עובד לא כולל",
             "client_excludes": "לא כולל לקוחות",
             "claim": "תביעה",
-            "claim_request": "בקשת תביעה"
+            "claim_request": "בקשת תביעה",
+            "subServices": "תת-שירותים",
+            "addSubService": "הוסף תת-שירות",
+            "servicesInEn": "שירותים - אנגלית",
+            "servicesInHeb": "שירותים - עברית",
+            "apartmentSize": "גודל דירה",
+            "price": "מחיר",
+            "actions": "פעולות",
+            "nameInEn": "שם - אנגלית",
+            "nameInHeb": "שם - עברית"
         },
         "modal": {
             "title": "מודל",
@@ -1411,6 +1458,8 @@
             "last_working_date": "תאריך עבודה אחרון"
         },
         "dashboard": {
+            "datePeriod": "תקופת תאריך",
+            "generalSearch": "חיפוש כללי",
             "jobPosted": "פוסט עבודה",
             "clients": "לקוחות",
             "newClients": "לקוחות חדשים",
@@ -1500,6 +1549,8 @@
             "Action": "פעולה",
             "Edit": "עריכה",
             "view": "צפייה",
+            "viewWorkerForms": "צפייה בטפסי עובד",
+            "viewClientOffer": "צפייה בהצעת לקוח",
             "Delete": "מחק",
             "reopen": "פתח מחדש",
             "save": "שמור",
@@ -1836,6 +1887,7 @@
                 "Password": "סיסמא"
             },
             "createJob": "צור עבודה",
+            "viewClientContract": "צפה בחוזה הלקוח",
             "Files": "קבצים",
             "language": "שפה",
             "Login_details": "פרטי התחברות",
@@ -1872,6 +1924,7 @@
             "btnSend": "שלח פגישה",
             "workerAvailability": "זמינות עובד",
             "date": "תאריך",
+            "reset": "איפוס",
             "Property": "נכס",
             "options": {
                 "pleaseSelect": "--- בחר ---",
@@ -1969,11 +2022,17 @@
         "hearing": {
             "title": "שימועים",
             "scheduleHearing": "תזמן שימוע",
+            "showClaims": "הצג תביעות",
+            "finalDecision": "החלטה סופית",
+            "generateAndSendFinalDecisionDocument": "צור / שלח מסמך החלטה סופית",
+            "documentGenerated": "המסמך נוצר:",
             "reSchedule": "תזמן מחדש את השימוע",
             "schedule": "תזמן",
             "sendOffer": "שלח הצעה",
             "bookClient": "הזמן לקוח",
             "joinedOn": "הצטרף בתאריך",
+            "sendMessage": "שלח הודעה",
+            "claimDescription": "תיאור התביעה",
             "offeredPrice": "מחיר מוצע",
             "contract": "חוזים",
             "Jobs": "עבודות",
@@ -2086,6 +2145,26 @@
                     "Close": "סגור",
                     "Cancel": "בטל"
                 }
+            },
+            "protocol": {
+                "hearingprotocol": "פרוטוקול שימוע",
+                "generateProtocolDocument": "צור מסמך פרוטוקול",
+                "documentGenerated": "המסמך נוצר:",
+                "workerResponse": "תגובת העובד",
+                "comment": "הערה"
+            },
+            "email": {
+                "writeEmail": "כתוב אימייל",
+                "mayIknowthereasonforrejection": "האם אוכל לדעת את הסיבה לדחייה?",
+                "suggestions": "אם יש לכם שאלות/הצעות או שתרצו לקבוע מחדש את השימוע, אנא כתבו לנו במייל. נחזור אליכם בהקדם.",
+                "accept": "אשר",
+                "reject": "דחה",
+                "reschedule": "מועד אחר"
+            },
+            "workerClaim": {
+                "claimForWorker": "תביעה נגד העובד",
+                "claimDescription": "תיאור התביעה",
+                "submitClaim": "הגש תביעה"
             }
         },
         "holidays": {
@@ -2112,6 +2191,8 @@
             "jobs": "שירותים שהזמנתי",
             "schedule_meet": "פגישות",
             "whatsapp": "צ'אט וואטסאפ",
+            "clientsAndWorkersChat": "צ'אט לקוחות/עובדים",
+            "workerLeadsChat": "צ'אט לידים של עובדים",
             "messenger": "צ'אט מסנג'ר",
             "payments": "תשלומים",
             "earnings": "הכנסות",
@@ -2208,6 +2289,14 @@
             "recorvery_fee": "עמלת שחזור (שנת שירות)",
             "driving_fee_perDay": "עמלת נהיגה (ליום)",
             "driving_fee_perMonth": "עמלת נהיגה (לחודש)"
+        },
+        "payment": {
+            "seeDocument": "צפה במסמך",
+            "closeInvoiceWithReceipt": "סגור חשבונית עם קבלה",
+            "updateNewCreditCard": "עדכן כרטיס אשראי חדש",
+            "closeForPayment": "סגור לתשלום",
+            "generateInvoice": "צור חשבונית",
+            "closeWithoutPayment": "סגור ללא תשלום"
         }
     },
     "worker": {
@@ -2223,6 +2312,8 @@
         "doctorReport": "דוח רופא",
         "reason": "לְנַמֵק",
         "status": "סטטוס",
+        "leaveRequest": "לידים",
+        "source": "מקור",
         "action": "פעולה",
         "approve": "לְאַשֵׁר",
         "reject": "דחה",
@@ -2261,6 +2352,24 @@
             "status": "סטטוס",
             "total": "סה'כ",
             "action": "פעולה"
+        },
+        "hearing": {
+            "meeting_title": "פגישות",
+            "meeting": {
+                "attender": "משתתף",
+                "address": "כתובת",
+                "scheduled": "נקבע",
+                "purpose": "מטרה",
+                "status": "סטטוס",
+                "document": "המסמך"
+            },
+            "protocol": {
+                "protocolDocument": "מסמך פרוטוקול",
+                "viewClaim": "הצג תביעה",
+                "viewProtocolDocument": "הצג מסמך פרוטוקול",
+                "viewDecisionDocument": "הצג מסמך החלטה",
+                "submitComment": "שלח תגובה"
+            }
         },
         "jobs": {
             "noJobFound": "לא נמצאה משרה",
@@ -2424,6 +2533,28 @@
             "invitation_for_hearing": "לתאם שימוע",
             "verification": "אימות דו-שלבי",
             "wa_chat_history": "היסטוריית הצ'אט של וואטסאפ"
+        },
+        "advanceAndLoan": {
+            "advanceAndLoansTitle": "מקדמות / הלוואות",
+            "type": "סוג",
+            "date": "תאריך",
+            "monthlyPayment": "תשלום חודשי",
+            "amount": "סכום",
+            "paidAmount": "סכום ששולם",
+            "pendingAmount": "סכום לתשלום",
+            "status": "סטטוס"
+        },
+        "tasks": {
+            "tasksTitle": "משימות",
+            "noTasksAvailable": "אין משימות זמינות"
+        },
+        "refundClaim": {
+            "refundClaimTitle": "בקשת החזר",
+            "date": "תאריך",
+            "amount": "סכום",
+            "status": "סטטוס",
+            "rejectReason": "סיבת דחייה",
+            "action": "פעולה"
         }
     },
     "worker_contract": {
@@ -3325,6 +3456,7 @@
         "carpetCleaningService": "שירות ניקוי שטיחים",
         "afterRenovation": "אחרי שיפוץ",
         "polish": "ליטוש",
+        "airBnb": "איירבנב",
         "others": "אחרים"
     }
 }
