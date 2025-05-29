@@ -3143,7 +3143,9 @@ class WhatsappNotification
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM ||
                     $eventType == WhatsappMessageTemplateEnum::REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START ||
-                    $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_START_THE_JOB ||
+                    $eventType == WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER
                 ) {
                     $token = $this->whapiWorkerJobApiToken;
                 } else if (
