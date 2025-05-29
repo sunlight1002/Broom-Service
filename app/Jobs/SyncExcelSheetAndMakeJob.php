@@ -406,7 +406,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $selectedOfferData = $newSelectedOfferData;
                                 }
 
-                                
+
 
 
                                 // Update invoice name or client name in sheet
@@ -574,7 +574,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                                 // // \Log::info('Fields', ['fields' => $fields]);
                                 // // echo json_encode($fields) . PHP_EOL;
-                                
+
                                 // echo $response . PHP_EOL;
                                 // sleep(1);
                             }
@@ -629,7 +629,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 foreach ($newJob['job_cancel_ids'] as $date => $cancelOnlyJobs) {
                     $jobs = Job::whereDate('start_date', $date)
                         ->whereIn('id', $cancelOnlyJobs)
-                        ->get();                       
+                        ->get();
 
                     foreach ($jobs as $job) {
 
@@ -640,11 +640,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         ]);
 
                         $job->workerShifts()->delete();
-
-
                     }
                 }
-
             }
             // Join all messages with line breaks
             // $content = implode(PHP_EOL, $messages);
@@ -845,7 +842,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             //     Log::warning("Worker is null when checking jobs for date: {$currentDate}");
             // }
 
-           
+
 
             if (!isset($this->workersEndTime[$currentDate][$worker->id])) {
                 $shiftMapping = [
@@ -1079,27 +1076,27 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $jobData->refresh();
 
 
-                if($row[6] === "TRUE") {
+                if ($row[6] === "TRUE") {
                     $jobData->status = JobStatusEnum::COMPLETED;
                     $jobData->total_amount = $total_amount;
                     $jobData->subtotal_amount = $total_amount;
                     $jobData->actual_time_taken_minutes = $tMinutes;
                     $jobData->is_job_done = true;
                     $jobData->save();
-                    
-                    if(!$jobData->order) {
+
+                    if (!$jobData->order) {
                         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
                         $jobData->refresh();
                         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
-    
+
                         $orderId = $jobData->order ? $jobData->order->order_id : null;
-    
+
                         if ($orderId) {
                             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
                             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
                         }
                     }
-                }else if ($row[6] === "FALSE" && $row[5] === "TRUE") {
+                } else if ($row[6] === "FALSE" && $row[5] === "TRUE") {
                     if (isset($jobData->order)) {
                         $order = $jobData->order;
                         if ($order->status == 'Closed') {
@@ -1128,7 +1125,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'is_order_generated' => false
                         ]);
                     }
-                }else if ($row[6] === "FALSE" && $row[5] === "FALSE") {
+                } else if ($row[6] === "FALSE" && $row[5] === "FALSE") {
                     $jobData->status = JobStatusEnum::CANCEL;
                     $jobData->save();
                     $jobData->workerShifts()->delete();
@@ -1165,7 +1162,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                 if (
                     trim($row[23]) === "h" &&
-                    $row[6] === "TRUE" 
+                    $row[6] === "TRUE"
                 ) {
                     $order = $jobData->order;
 
@@ -1241,7 +1238,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
 
                         $order->update(['status' => 'Cancelled']);
-                        
+
                         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL . PHP_EOL;
 
                         $order->jobs()->update([
@@ -1255,7 +1252,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
 
-                        
+
                         $orderId = $jobData->order ? $jobData->order->order_id : null;
                         if ($orderId) {
                             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
@@ -1315,7 +1312,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 ];
             }
 
-            
+
 
 
             // \Log::info($jobData);
@@ -1361,7 +1358,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             // }
             // return;
 
-            
+
 
 
             // if ($jobData) {
@@ -1439,128 +1436,128 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             //         }
             //     }
 
-               
-                // if (
-                //     trim($row[23]) === "h" &&
-                //     $row[6] === "TRUE" &&
-                //     $jobData->actual_time_taken_minutes != $tMinutes
-                // ) {
-                //     $jobData->offer_service = $selectedOfferData;
-                //     // Update the actual time and recalculate amount
-                //     $jobData->actual_time_taken_minutes = $tMinutes;
-                //     $jobData->save();
 
-                //     $this->updateJobAmount($jobData->id);
-                //     $jobData->refresh();
+            // if (
+            //     trim($row[23]) === "h" &&
+            //     $row[6] === "TRUE" &&
+            //     $jobData->actual_time_taken_minutes != $tMinutes
+            // ) {
+            //     $jobData->offer_service = $selectedOfferData;
+            //     // Update the actual time and recalculate amount
+            //     $jobData->actual_time_taken_minutes = $tMinutes;
+            //     $jobData->save();
 
-                //     $order = $jobData->order;
+            //     $this->updateJobAmount($jobData->id);
+            //     $jobData->refresh();
 
-                //     \Log::info($jobData->order->total_amount . ' != ' . $jobData->total_amount);
+            //     $order = $jobData->order;
 
-                //     // Check and update the order if needed
-                //     if ($jobData->order && $jobData->order->total_amount != $jobData->total_amount) {
+            //     \Log::info($jobData->order->total_amount . ' != ' . $jobData->total_amount);
 
-                //         \Log::info('Order before cancellation: ', $order->toArray());
+            //     // Check and update the order if needed
+            //     if ($jobData->order && $jobData->order->total_amount != $jobData->total_amount) {
 
-                //         if ($order->status === 'Closed') {
-                //             return response()->json([
-                //                 'message' => 'Job order is already closed',
-                //             ], 403);
-                //         }
+            //         \Log::info('Order before cancellation: ', $order->toArray());
 
-                //         $closeDocResponse = $this->cancelICountDocument(
-                //             $order->order_id,
-                //             'order',
-                //             'Creating another order'
-                //         );
+            //         if ($order->status === 'Closed') {
+            //             return response()->json([
+            //                 'message' => 'Job order is already closed',
+            //             ], 403);
+            //         }
 
-                //         if (!($closeDocResponse['status'] ?? false)) {
-                //             return response()->json([
-                //                 'message' => $closeDocResponse['reason'] ?? 'Unknown error while cancelling order'
-                //             ], 500);
-                //         }
+            //         $closeDocResponse = $this->cancelICountDocument(
+            //             $order->order_id,
+            //             'order',
+            //             'Creating another order'
+            //         );
 
-                //         $order->update(['status' => 'Cancelled']);
+            //         if (!($closeDocResponse['status'] ?? false)) {
+            //             return response()->json([
+            //                 'message' => $closeDocResponse['reason'] ?? 'Unknown error while cancelling order'
+            //             ], 500);
+            //         }
 
-                //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL;
+            //         $order->update(['status' => 'Cancelled']);
 
-                //         // Reset job ordering info
-                //         $jobData->isOrdered = 'c';
-                //         $jobData->order_id = null;
-                //         $jobData->is_order_generated = false;
-                //         $jobData->save();
+            //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL;
 
-                //         // Create a new job order immediately
-                //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
-                //         $jobData->refresh();
-                //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+            //         // Reset job ordering info
+            //         $jobData->isOrdered = 'c';
+            //         $jobData->order_id = null;
+            //         $jobData->is_order_generated = false;
+            //         $jobData->save();
+
+            //         // Create a new job order immediately
+            //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+            //         $jobData->refresh();
+            //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
 
 
-                //         // Update sheet with new link
-                //         $orderId = $jobData->order->order_id ?? null;
-                //         if ($orderId) {
-                //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}";
-                //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                //             echo "Row: {$rowCount} New job order created: {$link}" . PHP_EOL . PHP_EOL;
-                //         }
-                //     }
-                // } else if (trim($row[23]) == "f" && $row[6] === "TRUE") {
-                //     $order = isset($jobData->order) ? $jobData->order : null;
-                //     if ($order && $jobData->order->total_amount != $selectedOfferData['totalamount']) {
-                //         $jobData->offer_service = $selectedOfferData;
-                //         $jobData->save();
-                //         $this->updateJobAmount($jobData->id);
-                //         $jobData->refresh();
+            //         // Update sheet with new link
+            //         $orderId = $jobData->order->order_id ?? null;
+            //         if ($orderId) {
+            //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}";
+            //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+            //             echo "Row: {$rowCount} New job order created: {$link}" . PHP_EOL . PHP_EOL;
+            //         }
+            //     }
+            // } else if (trim($row[23]) == "f" && $row[6] === "TRUE") {
+            //     $order = isset($jobData->order) ? $jobData->order : null;
+            //     if ($order && $jobData->order->total_amount != $selectedOfferData['totalamount']) {
+            //         $jobData->offer_service = $selectedOfferData;
+            //         $jobData->save();
+            //         $this->updateJobAmount($jobData->id);
+            //         $jobData->refresh();
 
-                //         if ($order->status == 'Closed') {
-                //             return response()->json([
-                //                 'message' => 'Job order is already closed',
-                //             ], 403);
-                //         }
+            //         if ($order->status == 'Closed') {
+            //             return response()->json([
+            //                 'message' => 'Job order is already closed',
+            //             ], 403);
+            //         }
 
-                //         $closeDocResponse = $this->cancelICountDocument(
-                //             $order->order_id,
-                //             'order',
-                //             'Creating another order'
-                //         );
+            //         $closeDocResponse = $this->cancelICountDocument(
+            //             $order->order_id,
+            //             'order',
+            //             'Creating another order'
+            //         );
 
-                //         if ($closeDocResponse['status'] != true) {
-                //             return response()->json([
-                //                 'message' => $closeDocResponse['reason']
-                //             ], 500);
-                //         }
+            //         if ($closeDocResponse['status'] != true) {
+            //             return response()->json([
+            //                 'message' => $closeDocResponse['reason']
+            //             ], 500);
+            //         }
 
-                //         $order->update(['status' => 'Cancelled']);
-                        
-                //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+            //         $order->update(['status' => 'Cancelled']);
 
-                //         $order->jobs()->update([
-                //             'isOrdered' => 'c',
-                //             'order_id' => NULL,
-                //             'is_order_generated' => false
-                //         ]);
+            //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL . PHP_EOL;
 
-                //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
-                //         $jobData->refresh();
+            //         $order->jobs()->update([
+            //             'isOrdered' => 'c',
+            //             'order_id' => NULL,
+            //             'is_order_generated' => false
+            //         ]);
 
-                //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+            //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+            //         $jobData->refresh();
 
-                        
-                //         $orderId = $jobData->order ? $jobData->order->order_id : null;
-                //         if ($orderId) {
-                //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
-                //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                //         }
+            //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
 
-                //         echo "Row: {$rowCount} Job order is already cancelled. Creating another order {$link}" . PHP_EOL . PHP_EOL . PHP_EOL;
-                //     }
-                // }
 
-                // if($tMinutes != $jobData->actual_time_taken_minutes) {
-                //     $jobData->actual_time_taken_minutes = $tMinutes;
-                //     $jobData->save();
-                // }
-                
+            //         $orderId = $jobData->order ? $jobData->order->order_id : null;
+            //         if ($orderId) {
+            //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+            //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+            //         }
+
+            //         echo "Row: {$rowCount} Job order is already cancelled. Creating another order {$link}" . PHP_EOL . PHP_EOL . PHP_EOL;
+            //     }
+            // }
+
+            // if($tMinutes != $jobData->actual_time_taken_minutes) {
+            //     $jobData->actual_time_taken_minutes = $tMinutes;
+            //     $jobData->save();
+            // }
+
             // }
 
             if ($row[5] === "FALSE" && $row[6] === "FALSE") {
@@ -1578,7 +1575,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $offer->services = json_encode($servicesData);
             $offer->save();
 
-           
+
 
             // Determine the correct address ID based on template
             $addressId = $address;
