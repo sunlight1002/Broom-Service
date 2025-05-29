@@ -55,6 +55,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
     protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
     protected $sheetName = null;
 
+    protected $workersEndTime = [];
+
     /**
      * Create a new job instance.
      *
@@ -88,9 +90,11 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             'Airbnb' => 'Airbnb',
             'window cleaning' => 'window cleaning',
             'חלונות 8' => 'window cleaning',
+            'חלונות' => 'window cleaning',
             'שיפוץ' => 'Cleaning After Renovation',
             'ניקיון לאחר שיפוץ' => 'Cleaning After Renovation',
             'אחרים' => 'Others',
+            'בייסיק' => 'Thorough Cleaning - Basic',
         ];
 
         $frequencyMap = [
@@ -173,7 +177,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
         ];
 
         try {
-            
+
             $this->initGoogleConfig();
             $sheets = [];
             if (!$this->sheetName) {
@@ -219,9 +223,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         $grouped[$currentDate] = [];
                     }
 
-                    
 
-                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->greaterThanOrEqualTo(Carbon::parse('2025-04-21'))) {
+
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->eq(Carbon::parse('2025-05-29'))) {
                         $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -248,7 +252,31 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             // }
 
                             if ($client) {
+
+
+                                // if (!empty($row[20]) && empty($row[22])) {
+                                //     $jobData = Job::with('workerShifts')
+                                //             ->where('id', trim($row[20]))
+                                //             ->where('client_id', $client->id)
+                                //             ->first();
+
+                                //     $orderId = $jobData->order ? $jobData->order->order_id : null;
+
+                                //     if ($orderId) {
+                                //         $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                                //         $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                                //     }
+                                // }
+
+
+                                // continue;
+
                                 $rowCount = $index + 1;
+
+                                // if($rowCount != 1311) {
+                                //     continue;
+                                // }
+
                                 // if(!empty($row[20])) {
                                 //     continue;
                                 // }
@@ -261,7 +289,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 // continue;
                                 // $client_ids[] = $client->id;
                                 // continue;
-                               
+
                                 $offerId = trim($row[2] ?? '');
                                 // Find offer
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
@@ -279,8 +307,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 $selectedFrequency = $frequencyMap[$row[18] ?? null] ?? null;
                                 if ($selectedFrequency) {
                                     $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)
-                                    ->orWhere('name_heb', $selectedFrequency)->first();
-                               }
+                                        ->orWhere('name_heb', $selectedFrequency)->first();
+                                }
 
                                 $selectedType = (isset($row[23]) && trim($row[23]) == "h") ? "hourly" : "fixed";
 
@@ -296,6 +324,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                 foreach ($data as $d) {
                                     if ($d['template'] == 'airbnb') {
                                         if ($selectedService && (strtolower($d['name']) == strtolower($selectedService->name) || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
+                                            // $selectedOfferDataArr[] = $d;
                                             if (isset($d['sub_services']['sub_service_name'])) {
                                                 if ($d['sub_services']['sub_service_name'] == 'Cleaning' || $d['sub_services']['sub_service_name'] == 'Cleaning - ' || $d['sub_services']['sub_service_name'] == 'ניקיון - ' || $d['sub_services']['sub_service_name'] == 'ניקיון') {
                                                     $selectedOfferDataArr[] = $d;
@@ -321,7 +350,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                         // \Log::info($d['workers'][0]['jobHours']. "offerWorkerHours");
                                         // \Log::info($workerHours . " workerHours");
                                         if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null)) && ($d['type'] == $selectedType)) {
-                                           \Log::info("Selected offer data arr ". $offerId);
+                                            \Log::info("Selected offer data arr " . $offerId);
                                             $selectedOfferDataArr[] = $d;
                                         }
                                         $services[] = $d['name'];
@@ -336,7 +365,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $selectedService = Services::where('name', 'Airbnb')->first();
                                 }
 
-                                
+
                                 // \Log::info($offers);
 
                                 if (empty($selectedOfferDataArr) && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
@@ -377,21 +406,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     $selectedOfferData = $newSelectedOfferData;
                                 }
 
-                                if (empty($selectedOfferData) && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
-                                    $sheetService = trim($row[11] ?? null);
-                                    $sheetFrequency = $selectedFrequency->name ?? null;
-                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
-                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency}) ." . "\n\n";
-                                    continue;
-                                }
-
-                                if (count($selectedOfferData) > 1 && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
-                                    $sheetService = trim($row[11] ?? null);
-                                    $sheetFrequency = $selectedFrequency->name ?? null;
-                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
-                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . "\n\n";
-                                    continue;
-                                }
+                                
 
 
                                 // Update invoice name or client name in sheet
@@ -425,7 +440,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     'cell' => "J" . ($index + 1), // Cell location
                                     'type' => 'dropdown', // Field type
                                     'values' => $workers->pluck('fullname')->toArray(), // Dropdown options
-                                    'value' => $bestMatch,
+                                    // 'value' => $bestMatch,
                                 ];
 
                                 $fields[] = [
@@ -433,7 +448,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     'cell' => "M" . ($index + 1), // Cell location
                                     'type' => 'dropdown', // Field type
                                     'values' => $services, // Dropdown options
-                                    'value' => count($services) == 1 ? $services[0] : ($selectedOfferData[0]['name'] ?? null),
+                                    // 'value' => count($services) == 1 ? $services[0] : ($selectedOfferData[0]['name'] ?? null),
                                 ];
 
 
@@ -451,7 +466,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     'cell' => "Q" . ($index + 1), // Cell location
                                     'type' => 'dropdown', // Field type
                                     'values' => $frequencies, // Dropdown options
-                                    'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
+                                    // 'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
                                 ];
 
                                 $addresses = $client->property_addresses;
@@ -466,7 +481,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     'cell' => "T" . ($index + 1), // Cell location
                                     'type' => 'dropdown', // Field type
                                     'values' => $addressesArr, // Dropdown options
-                                    'value' => count($addressesArr) == 1 ? $addressesArr[0] : $selectedAddress,
+                                    // 'value' => count($addressesArr) == 1 ? $addressesArr[0] : $selectedAddress,
                                 ];
 
                                 // if ($selectedOfferData) {
@@ -491,44 +506,88 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                                     ];
                                 }
 
+                                $this->initGoogleConfig();
+                                $response = $this->updateGoogleSheetFields($fields);
+
+
+                                if (empty($selectedOfferData) && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
+                                    $sheetService = trim($row[11] ?? null);
+                                    $sheetFrequency = $selectedFrequency->name ?? null;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Address not match in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency}) ." . "\n\n";
+                                    continue;
+                                }
+
+                                if (count($selectedOfferData) > 1 && ($row[5] === "TRUE" || $row[6] === "TRUE")) {
+                                    $sheetService = trim($row[11] ?? null);
+                                    $sheetFrequency = $selectedFrequency->name ?? null;
+                                    echo "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . PHP_EOL . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row {$rowCount}: https://crm.broomservice.co.il/admin/offered-price/edit/{$offerId}" . "\n" . "Multiple services are available with the same frequency and job hours in PO. Sheet: {$sheet} (Client name: {$client->firstname} {$client->lastname}, Sheet Service: {$sheetService}, Sheet Frequency: {$sheetFrequency})" . "\n\n";
+                                    continue;
+                                }
+
+
+                                if (!$selectedService || !$selectedFrequency) {
+                                    echo "Row: {$rowCount} No service or frequency selected for offer ID: {$offer->id} Client ID: {$client->id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row: {$rowCount} No service or frequency selected for offer ID: {$offer->id} Client ID: {$client->id}";
+                                    continue;
+                                }
+
+                                $contract = $offer->contract;
+                                if (!$contract) {
+                                    echo "Row: {$rowCount} No contract found for offer ID: {$offer->id} Client ID: {$client->id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                                    $messages[] = "Row: {$rowCount} No contract found for offer ID: {$offer->id} Client ID: {$client->id}";
+                                    continue;
+                                }
+
+                                $selectedWorker  = trim($row[9] ?? '');
+
+                                $worker = User::with('jobs')
+                                    ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
+                                    ->first();
+
+                                if (!$worker) {
+                                    echo "Row: {$rowCount} No worker found in CRM: " . $selectedWorker . PHP_EOL . PHP_EOL;
+                                    continue;
+                                }
+
                                 // continue;
-                                
+
                                 if (isset($selectedOfferData[0])) {
                                     $res = $this->handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index, $sheet, $selectedOfferData[0], $messages);
                                     if (!isset($newJob['job_ids'][$currentDate])) {
                                         $newJob['job_ids'][$currentDate] = [];
                                         $newJob['job_cancel_ids'][$currentDate] = [];
                                     }
-                                
+
                                     if (!empty($res['job_id'])) {
                                         $newJob['job_ids'][$currentDate][] = $res['job_id'];
                                     }
-                                
+
                                     if (!empty($res['job_cancel_id'])) {
                                         $newJob['job_cancel_ids'][$currentDate][] = $res['job_cancel_id'];
                                     }
-                                
+
                                     sleep(3);
                                     echo ($index + 1) . PHP_EOL;
                                 }
-                                
+
                                 // // \Log::info('Fields', ['fields' => $fields]);
                                 // // echo json_encode($fields) . PHP_EOL;
-                                $this->initGoogleConfig();
-                                $response = $this->updateGoogleSheetFields($fields);
+                                
                                 // echo $response . PHP_EOL;
                                 // sleep(1);
                             }
                         }
                     }
                 }
-                \Log::info('newJob', ['newJob' => $newJob]);
+                // \Log::info('newJob', ['newJob' => $newJob]);
                 foreach ($newJob['job_ids'] as $date => $jobIdsToKeep) {
                     // Cancel jobs NOT in the list of kept job_ids
                     $jobs = Job::whereDate('start_date', $date)
                         ->whereNotIn('id', $jobIdsToKeep)
                         ->get();
-                
+
                     foreach ($jobs as $job) {
                         $job->update([
                             'status' => JobStatusEnum::CANCEL,
@@ -536,28 +595,28 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                             'cancelled_at' => now(),
                         ]);
                         $job->workerShifts()->delete();
-                
+
                         // Cancel related order if exists
                         if (isset($job->order)) {
                             $order = $job->order;
-                
+
                             if ($order->status === 'Closed') {
                                 continue; // Skip closed orders
                             }
-                
+
                             $closeDocResponse = $this->cancelICountDocument(
                                 $order->order_id,
                                 'order',
                                 'Creating another order'
                             );
-                
+
                             if ($closeDocResponse['status'] !== true) {
                                 \Log::error("Order cancel failed: " . $closeDocResponse['reason']);
                                 continue;
                             }
-                
+
                             $order->update(['status' => 'Cancelled']);
-                
+
                             $order->jobs()->update([
                                 'isOrdered' => 'c',
                                 'order_id' => null,
@@ -566,14 +625,14 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                         }
                     }
                 }
-                
+
                 foreach ($newJob['job_cancel_ids'] as $date => $cancelOnlyJobs) {
                     $jobs = Job::whereDate('start_date', $date)
                         ->whereIn('id', $cancelOnlyJobs)
                         ->get();                       
-                        
+
                     foreach ($jobs as $job) {
-                
+
                         $job->update([
                             'status' => JobStatusEnum::CANCEL,
                             'cancelled_by_role' => 'admin',
@@ -585,21 +644,21 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
                     }
                 }
-                
+
             }
             // Join all messages with line breaks
-            $content = implode(PHP_EOL, $messages);
+            // $content = implode(PHP_EOL, $messages);
 
-            if (!empty(trim($content))) {
-                file_put_contents(storage_path('app/messages.txt'), $content);
+            // if (!empty(trim($content))) {
+            //     file_put_contents(storage_path('app/messages.txt'), $content);
 
-                sendWhatsappFileMessage(
-                    config('services.whatsapp_groups.payment_status'),
-                    storage_path('app/messages.txt'),
-                    'Sheet Conflicts/errors'
-                );
-            }
-            
+            //     sendWhatsappFileMessage(
+            //         config('services.whatsapp_groups.payment_status'),
+            //         storage_path('app/messages.txt'),
+            //         'Sheet Conflicts/errors'
+            //     );
+            // }
+
             dd(implode(',', array_unique($client_ids)));
         } catch (\Exception $e) {
             dd($e);
@@ -673,22 +732,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
     private function handleJob($row, $offer, $client, $currentDate, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, $index = null, $sheet, $selectedOfferData, &$messages)
     {
         try {
-            // Early validations
-            if (!$offer) {
-                return;
-            }
+
             $rowCount = $index + 1;
-            if (!$selectedService || !$selectedFrequency) {
-                echo "Row: {$rowCount} No service or frequency selected for offer ID: {$offer->id} Client ID: {$client->id}" . PHP_EOL . PHP_EOL . PHP_EOL;
-                $messages[] = "Row: {$rowCount} No service or frequency selected for offer ID: {$offer->id} Client ID: {$client->id}";
-                return;
-            }
             $contract = $offer->contract;
-            if (!$contract) {
-                echo "Row: {$rowCount} No contract found for offer ID: {$offer->id} Client ID: {$client->id}" . PHP_EOL . PHP_EOL . PHP_EOL;
-                $messages[] = "Row: {$rowCount} No contract found for offer ID: {$offer->id} Client ID: {$client->id}";
-                return;
-            }
 
             // Set up common variables
             $serviceId       = $selectedService->id;
@@ -698,423 +744,6 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $startTime       = null;
             $endTime         = null;
             $shift           = "";
-
-            // Cache offer data variables
-            $template           = $selectedOfferData['template'] ?? null;
-            $frequency          = $selectedOfferData['frequency'] ?? null;
-            $service            = $selectedOfferData['service'] ?? null;
-            $address            = $selectedOfferData['address'] ?? null;
-            $subServices        = $selectedOfferData['sub_services'] ?? [];
-            $subServicesId      = $subServices['id'] ?? null;
-            $subServicesAddress = $subServices['address'] ?? null;
-            $type               = $selectedOfferData['type'] ?? null;
-            $workerJobHours     = $selectedOfferData['workers'][0]['jobHours'] ?? null;
-
-            $jobData = null;
-
-            // Find worker by matching full name
-            $worker = User::with('jobs')
-            ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
-            ->first();
-            
-            if (!$worker) {
-                echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
-                return;
-            }
-
-            $jobData = Job::where('offer_id', $offer->id)
-                    ->where('start_date', $currentDate)
-                    ->where('client_id', $client->id)
-                    ->whereHas('contract', function ($q) {
-                        $q->where('status', 'verified');
-                    })
-                    ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
-                    ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
-                    ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
-                    ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
-                    ->when(
-                        (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
-                        fn($q) => $q->where('offer_service->address', $address)
-                    )
-                    ->first();
-
-            if($worker && $jobData && $worker->id != $jobData->worker_id){
-                $jobData->worker_id = $worker->id;
-                $jobData->previous_worker_id = $jobData->worker_id;
-                $jobData->previous_worker_after = null;
-                $jobData->save();
-            }
-
-            if($jobData && $jobData->total_amount){
-                $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
-            }
-
-            // if (!empty($row[20])) {
-                // $jobData = Job::with('workerShifts')
-                //         ->where('id', trim($row[20]))
-                //         ->where('client_id', $client->id)
-                //         ->first();
-
-                        // dd($jobData . " ". $client->id);
-
-                if(!$jobData){
-                    \Log::info('job not found client id ' . $client->id ." " .$row[2]. ' job id ' . $row[20]);
-                    $jobData = null;
-                }
-            
-                if ($jobData && $jobData->start_date != $currentDate) {
-                    $jobData->start_date = $currentDate;
-                    $jobData->save();
-                }
-            
-                if ($jobData) {
-                    foreach ($jobData->workerShifts as $shift) {
-                        $originalStart = $shift->starting_at;
-                        $originalEnd = $shift->ending_at;
-
-                        // Safely extract the time portion
-                        $startTime = Carbon::parse($originalStart)->toTimeString();
-                        $endTime = Carbon::parse($originalEnd)->toTimeString();
-
-                        $newStart = "{$currentDate} {$startTime}";
-                        $newEnd = "{$currentDate} {$endTime}";
-
-                        if (
-                            Carbon::parse($originalStart)->toDateString() !== $currentDate ||
-                            Carbon::parse($originalEnd)->toDateString() !== $currentDate
-                        ) {
-                            $shift->starting_at = $newStart;
-                            $shift->ending_at = $newEnd;
-                            $shift->save();
-
-                            \Log::info("Updated shift for Job ID {$jobData->id} - Shift ID {$shift->id}: {$newStart} to {$newEnd}");
-                        }
-                    }
-                }
-
-            
-                \Log::info($jobData);
-            // }
-            
-
-            // if(!$jobData){
-            //     // Build the job query with JSON conditions
-            //     $jobData = Job::where('offer_id', $offer->id)
-            //         ->where('start_date', $currentDate)
-            //         ->where('client_id', $client->id)
-            //         ->whereHas('contract', function ($q) {
-            //             $q->where('status', 'verified');
-            //         })
-            //         ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
-            //         ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
-            //         ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
-            //         ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
-            //         ->when(
-            //             (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
-            //             fn($q) => $q->where('offer_service->address', $address)
-            //         )
-            //         ->first();
-            // }
-
-                
-            $tMinutes = 0;
-            \Log::info($workerJobHours. " ". $type);
-            // Calculate job duration based on row[13]
-            // $durationRaw = $row[13] ?? 0;
-            $durationRaw = $type == "hourly" ? (!empty($row[14]) ? trim($row[14]) : $workerJobHours) : $workerJobHours;
-            \Log::info($durationRaw);
-            $durationRaw = str_replace(',', '.', $durationRaw);
-
-            // Check if input contains '+'
-            if (strpos($durationRaw, '+') !== false) {
-                $parts = explode('+', $durationRaw);
-
-                foreach ($parts as $part) {
-                    $value = floatval(trim($part));
-                    $wholePart = floor($value);
-                    $decimalPart = $value - $wholePart;
-
-                    if ($decimalPart == 0) {
-                        $minutesDuration = 0;
-                    } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
-                        $minutesDuration = 15;
-                    } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
-                        $minutesDuration = 30;
-                    } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
-                        $minutesDuration = 45;
-                    } else {
-                        $wholePart += 1;
-                        $minutesDuration = 0;
-                    }
-
-                    $tMinutes += ($wholePart * 60) + $minutesDuration;
-                }
-            } else {
-                // Handle normal single value
-                $value = floatval($durationRaw);
-                $wholePart = floor($value);
-                $decimalPart = $value - $wholePart;
-
-                if ($decimalPart == 0) {
-                    $minutesDuration = 0;
-                } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
-                    $minutesDuration = 15;
-                } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
-                    $minutesDuration = 30;
-                } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
-                    $minutesDuration = 45;
-                } else {
-                    $wholePart += 1;
-                    $minutesDuration = 0;
-                }
-
-                $tMinutes = ($wholePart * 60) + $minutesDuration;
-            }
-
-
-            if ($jobData) {
-                $this->updateColumnInRow(($index + 1), "U", $jobData->id, $sheet);
-                if ($row[5] === "FALSE" && $row[6] === "FALSE") {
-                    $jobData->status = JobStatusEnum::CANCEL;
-                    $jobData->save();
-                    $jobData->workerShifts()->delete();
-                    
-                    if(isset($jobData->order)) {
-                        $order = $jobData->order;
-                        if ($order->status == 'Closed') {
-                            return response()->json([
-                                'message' => 'Job order is already closed',
-                            ], 403);
-                        }
-        
-                        $closeDocResponse = $this->cancelICountDocument(
-                            $order->order_id,
-                            'order',
-                            'Creating another order'
-                        );
-        
-                        if ($closeDocResponse['status'] != true) {
-                            return response()->json([
-                                'message' => $closeDocResponse['reason']
-                            ], 500);
-                        }
-        
-                        $order->update(['status' => 'Cancelled']);
-        
-                        $order->jobs()->update([
-                            'isOrdered' => 'c',
-                            'order_id' => NULL,
-                            'is_order_generated' => false
-                        ]);
-                    }
-                }else if($row[6] === "TRUE" && !$jobData->order) {
-                    $jobData->status = JobStatusEnum::COMPLETED;
-                    $jobData->actual_time_taken_minutes = $tMinutes;
-                    $jobData->is_job_done = true;
-                    $jobData->save();
-                    $this->updateJobAmount($jobData->id);
-                    
-                    CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
-                    $jobData->refresh();
-                    $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
-
-                    $orderId = $jobData->order ? $jobData->order->order_id : null;
-
-                    if($orderId) {
-                        $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
-                        $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                    }
-                }else if($row[6] === "TRUE" && $row[5] === "TRUE") {
-                    if($jobData->status != JobStatusEnum::COMPLETED || !isset($jobData->order)) {
-                        $jobData->status = JobStatusEnum::COMPLETED;
-                        $jobData->actual_time_taken_minutes = $tMinutes;
-                        $jobData->is_job_done = true;
-                        $jobData->save();
-                        $this->updateJobAmount($jobData->id);
-                        $jobData->refresh();
-
-                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
-
-                        if(!isset($jobData->order)) {
-                            CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
-                            $jobData->refresh();
-                        }
-                        $orderId = $jobData->order ? $jobData->order->order_id : null;
-                        if($orderId) {
-                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
-                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                        } 
-                    }   
-                }
-
-                if (trim($row[23]) === "h" && 
-                    $jobData->actual_time_taken_minutes && 
-                    $jobData->actual_time_taken_minutes != $tMinutes
-                ) {
-                    // Update the actual time and recalculate amount
-                    $jobData->actual_time_taken_minutes = $tMinutes;
-                    $jobData->save();
-                    
-                    $this->updateJobAmount($jobData->id);
-                    $jobData->refresh();
-
-                    $order = $jobData->order;
-
-                    \Log::info($jobData->order->total_amount . ' != ' . $jobData->total_amount);
-
-                    // Check and update the order if needed
-                    if ($jobData->order && $jobData->order->total_amount != $jobData->total_amount) {
-                        
-                        \Log::info('Order before cancellation: ', $order->toArray());
-
-                        if ($order->status === 'Closed') {
-                            return response()->json([
-                                'message' => 'Job order is already closed',
-                            ], 403);
-                        }
-
-                        $closeDocResponse = $this->cancelICountDocument(
-                            $order->order_id,
-                            'order',
-                            'Creating another order'
-                        );
-
-                        if (!($closeDocResponse['status'] ?? false)) {
-                            return response()->json([
-                                'message' => $closeDocResponse['reason'] ?? 'Unknown error while cancelling order'
-                            ], 500);
-                        }
-
-                        $order->update(['status' => 'Cancelled']);
-
-                        echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL;
-
-                        // Reset job ordering info
-                        $jobData->isOrdered = 'c';
-                        $jobData->order_id = null;
-                        $jobData->is_order_generated = false;
-                        $jobData->save();
-
-                        // Create a new job order immediately
-                        CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
-                        $jobData->refresh();
-                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
-
-
-                        // Update sheet with new link
-                        $orderId = $jobData->order->order_id ?? null;
-                        if ($orderId) {
-                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}";
-                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                            echo "Row: {$rowCount} New job order created: {$link}" . PHP_EOL . PHP_EOL;
-                        }
-                    }
-                }
-
-
-                if(trim($row[23]) == "f") {
-                   $order = isset($jobData->order) ? $jobData->order : null;
-                   if($order && $order->total_amount != $jobData->total_amount) {
-                       $this->updateJobAmount($jobData->id);
-                       $jobData->refresh();
-                       
-                        if ($order->status == 'Closed') {
-                                return response()->json([
-                                    'message' => 'Job order is already closed',
-                                ], 403);
-                            }
-            
-                            $closeDocResponse = $this->cancelICountDocument(
-                                $order->order_id,
-                                'order',
-                                'Creating another order'
-                            );
-            
-                            if ($closeDocResponse['status'] != true) {
-                                return response()->json([
-                                    'message' => $closeDocResponse['reason']
-                                ], 500);
-                            }
-            
-                            $order->update(['status' => 'Cancelled']);
-
-                            echo "Row: {$rowCount} Job order is cancelled. {https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId}" . PHP_EOL . PHP_EOL . PHP_EOL;
-            
-                            $order->jobs()->update([
-                                'isOrdered' => 'c',
-                                'order_id' => NULL,
-                                'is_order_generated' => false
-                            ]);
-
-                            CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
-                            $jobData->refresh();
-
-                            $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
-
-                            $orderId = $jobData->order ? $jobData->order->order_id : null;
-
-                            if($orderId) {
-                                $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
-                                $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
-                            }
-
-                            echo "Row: {$rowCount} Job order is already cancelled. Creating another order {$link}" . PHP_EOL . PHP_EOL . PHP_EOL;
-                   }
-                }
-                // if($tMinutes != $jobData->actual_time_taken_minutes) {
-                //     $jobData->actual_time_taken_minutes = $tMinutes;
-                //     $jobData->save();
-                // }
-                $selectedAddress = $row[19] ?? null;
-                $selectedOffer = is_array($jobData->offer_service)
-                ? $jobData->offer_service
-                : json_decode($jobData->offer_service, true);
-
-                $newSelectedOfferData = [];
-                
-                    if ($selectedOffer['template'] == 'airbnb' && isset($selectedOffer['sub_services']['address']) && !empty($selectedOffer['sub_services']['address'])) {
-                        $addressRecord = ClientPropertyAddress::where('id', $selectedOffer['sub_services']['address'])
-                            ->where('address_name', $selectedAddress)
-                            ->first();
-                
-                        if ($addressRecord) {
-                            // Update the address field
-                            $selectedOffer['sub_services']['address'] = $addressRecord->id;
-                
-                            // Set jobData address_id
-                            $jobData->address_id = $addressRecord->id;
-                
-                            $newSelectedOfferData[] = $selectedOffer;
-                        }
-                    } else {
-                        $addressRecord = ClientPropertyAddress::where('id', $selectedOffer['address'] ?? null)
-                            ->where('address_name', $selectedAddress)
-                            ->first();
-                
-                        if ($addressRecord) {
-                            // Update the address field
-                            $selectedOffer['address'] = $addressRecord->id;
-                
-                            // Set jobData address_id
-                            $jobData->address_id = $addressRecord->id;
-                
-                            $newSelectedOfferData[] = $selectedOffer;
-                        }
-                    }
-                
-                // Save modified offer_service back to jobData
-                $jobData->offer_service = $selectedOffer;
-                $jobData->save();
-                
-                \Log::info("Job already exists. ID: {$jobData->id}");
-                return [
-                    "job_id" => $jobData->id
-                ];
-            }
-
-            if ($row[5] === "FALSE" && $row[6] === "FALSE") {
-                return 0;
-            }
 
             // Determine shift based on client's language and provided row values
             if ($client->lng == 'en') {
@@ -1178,22 +807,47 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $day = $daysMap[$day] ?? $day;
             }
 
-           if ($worker) {
-                // Determine worker's starting time based on any existing jobs on the current date
-                $hasJob = $worker->jobs()->where('start_date', $currentDate)->get();
-                if ($hasJob->isNotEmpty()) {
-                    foreach ($hasJob as $job) {
-                        if ($job->end_time) {
-                            $startTime = $job->end_time;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                Log::warning("Worker is null when checking jobs for date: {$currentDate}");
+            // Cache offer data variables
+            $template           = $selectedOfferData['template'] ?? null;
+            $frequency          = $selectedOfferData['frequency'] ?? null;
+            $service            = $selectedOfferData['service'] ?? null;
+            $address            = $selectedOfferData['address'] ?? null;
+            $subServices        = $selectedOfferData['sub_services'] ?? [];
+            $subServicesId      = $subServices['id'] ?? null;
+            $subServicesAddress = $subServices['address'] ?? null;
+            $type               = $selectedOfferData['type'] ?? null;
+            $workerJobHours     = $selectedOfferData['workers'][0]['jobHours'] ?? null;
+
+            $jobData = null;
+
+            // Find worker by matching full name
+            $worker = User::with('jobs')
+                ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
+                ->first();
+
+            if (!$worker) {
+                echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
+                return;
             }
 
-            if (!$startTime) {
+            // if ($worker) {
+            //     // Determine worker's starting time based on any existing jobs on the current date
+            //     $hasJob = $worker->jobs()->where('start_date', $currentDate)->get();
+            //     if ($hasJob->isNotEmpty()) {
+            //         foreach ($hasJob as $job) {
+            //             if ($job->end_time) {
+            //                 $startTime = $job->end_time;
+            //                 break;
+            //             }
+            //         }
+            //     }
+            // } else {
+            //     Log::warning("Worker is null when checking jobs for date: {$currentDate}");
+            // }
+
+           
+
+            if (!isset($this->workersEndTime[$currentDate][$worker->id])) {
                 $shiftMapping = [
                     "Morning"    => "08:00:00",
                     "בוקר"       => "08:00:00",
@@ -1204,22 +858,69 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                     "אחה״צ"      => "16:00:00"
                 ];
                 $startTime = $shiftMapping[$shift] ?? "08:00:00";
+            } else {
+                $startTime = $this->workersEndTime[$currentDate][$worker->id];
+            }
+
+            $tMinutes = 0;
+            \Log::info($workerJobHours . " " . $type);
+            echo $workerJobHours . " " . $type;
+            // Calculate job duration based on row[13]
+            // $durationRaw = $row[13] ?? 0;
+            $durationRaw = $type == "hourly" ? (!empty($row[14]) ? trim($row[14]) : $workerJobHours) : $workerJobHours;
+            \Log::info($durationRaw);
+            $durationRaw = str_replace(',', '.', $durationRaw);
+
+            // Check if input contains '+'
+            if (strpos($durationRaw, '+') !== false) {
+                $parts = explode('+', $durationRaw);
+
+                foreach ($parts as $part) {
+                    $value = floatval(trim($part));
+                    $wholePart = floor($value);
+                    $decimalPart = $value - $wholePart;
+
+                    if ($decimalPart == 0) {
+                        $minutesDuration = 0;
+                    } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
+                        $minutesDuration = 15;
+                    } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
+                        $minutesDuration = 30;
+                    } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
+                        $minutesDuration = 45;
+                    } else {
+                        $wholePart += 1;
+                        $minutesDuration = 0;
+                    }
+
+                    $tMinutes += ($wholePart * 60) + $minutesDuration;
+                }
+            } else {
+                // Handle normal single value
+                $value = floatval($durationRaw);
+                $wholePart = floor($value);
+                $decimalPart = $value - $wholePart;
+
+                if ($decimalPart == 0) {
+                    $minutesDuration = 0;
+                } elseif ($decimalPart > 0 && $decimalPart <= 0.2) {
+                    $minutesDuration = 15;
+                } elseif ($decimalPart > 0.2 && $decimalPart <= 0.5) {
+                    $minutesDuration = 30;
+                } elseif ($decimalPart > 0.5 && $decimalPart <= 0.8) {
+                    $minutesDuration = 45;
+                } else {
+                    $wholePart += 1;
+                    $minutesDuration = 0;
+                }
+
+                $tMinutes = ($wholePart * 60) + $minutesDuration;
             }
 
             $startDateTime = Carbon::createFromFormat('H:i:s', $startTime);
             $endDateTime   = $startDateTime->copy()->addHours($wholePart)->addMinutes($minutesDuration);
-            $endTime       = $endDateTime->format('H:i');
+            $endTime       = $endDateTime->format('H:i:s');
 
-
-            // Update the offer services by marking one-time services
-            $servicesData = is_string($offer->services) ? json_decode($offer->services, true) : $offer->services;
-            foreach ($servicesData as &$srv) {
-                if ($srv['service'] == 1 || (isset($srv['freq_name']) && in_array($srv['freq_name'], ['One Time', 'חד פעמי']))) {
-                    $srv['is_one_time'] = true;
-                }
-            }
-            $offer->services = json_encode($servicesData);
-            $offer->save();
 
             // Prepare scheduling values
             $manageTime      = ManageTime::first();
@@ -1269,7 +970,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             // Calculate total amount based on job type
             if ($selectedOfferData['type'] == 'hourly') {
-                $hours = $totalMinutes / 60;
+                $hours = ($tMinutes > 0 ? $tMinutes : $totalMinutes) / 60;
                 $total_amount = $selectedOfferData['rateperhour'] * $hours;
             } elseif ($selectedOfferData['type'] == 'squaremeter') {
                 $total_amount = $selectedOfferData['ratepersquaremeter'] * $selectedOfferData['totalsquaremeter'];
@@ -1279,8 +980,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             $status          = JobStatusEnum::SCHEDULED;
             $statusCompleted = JobStatusEnum::COMPLETED;
-            if($worker){
-                    if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $worker->id)) {
+            if ($worker) {
+                if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $worker->id)) {
                     \Log::info("Job time is conflicting with another job. Job will be unscheduled.");
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
@@ -1288,6 +989,596 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
             $end_time   = Carbon::parse(end($mergedContinuousTime)['ending_at'])->toTimeString();
+
+            $this->workersEndTime[$currentDate][$worker->id] = $end_time;
+
+            $jobData = Job::where('offer_id', $offer->id)
+                ->where('start_date', $currentDate)
+                ->where('client_id', $client->id)
+                ->whereHas('contract', function ($q) {
+                    $q->where('status', 'verified');
+                })
+                ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
+                ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
+                ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
+                ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
+                ->when(
+                    (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
+                    fn($q) => $q->where('offer_service->address', $address)
+                )
+                ->first();
+
+
+            if ($worker && $jobData && $worker->id != $jobData->worker_id) {
+                $jobData->worker_id = $worker->id;
+                $jobData->previous_worker_id = $jobData->worker_id;
+                $jobData->previous_worker_after = null;
+                $jobData->save();
+            }
+
+            if ($jobData && $jobData->total_amount) {
+                $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+            }
+
+            // if (!empty($row[20])) {
+            // $jobData = Job::with('workerShifts')
+            //         ->where('id', trim($row[20]))
+            //         ->where('client_id', $client->id)
+            //         ->first();
+
+            // dd($jobData . " ". $client->id);
+
+            if (!$jobData) {
+                \Log::info('job not found client id ' . $client->id . " " . $row[2] . ' job id ' . ($row[20] ?? ''));
+                $jobData = null;
+            }
+
+            if ($jobData && $jobData->start_date != $currentDate) {
+                $jobData->start_date = $currentDate;
+                $jobData->save();
+            }
+
+            if ($jobData) {
+                foreach ($jobData->workerShifts as $shift) {
+                    $originalStart = $shift->starting_at;
+                    $originalEnd = $shift->ending_at;
+
+                    // Safely extract the time portion
+                    // $startTime = Carbon::parse($originalStart)->toTimeString();
+                    // $endTime = Carbon::parse($originalEnd)->toTimeString();
+
+                    $newStart = "{$currentDate} {$startTime}";
+                    $newEnd = "{$currentDate} {$endTime}";
+
+                    if (
+                        Carbon::parse($originalStart)->toDateString() !== $currentDate ||
+                        Carbon::parse($originalEnd)->toDateString() !== $currentDate
+                    ) {
+                        $shift->starting_at = $newStart;
+                        $shift->ending_at = $newEnd;
+                        $shift->save();
+
+                        \Log::info("Updated shift for Job ID {$jobData->id} - Shift ID {$shift->id}: {$newStart} to {$newEnd}");
+                    }
+                }
+
+                $jobData->start_time = $start_time;
+                $jobData->end_time = $end_time;
+                $jobData->start_date = $currentDate;
+                $jobData->end_date = $currentDate;
+                $jobData->offer_service = $selectedOfferData;
+                $jobData->worker_id = $worker->id;
+                $jobData->shifts = $slotsInString;
+                $jobData->original_shifts = $slotsInString;
+                $jobData->actual_time_taken_minutes = 0;
+                $jobData->status = JobStatusEnum::SCHEDULED;
+                $jobData->save();
+
+                echo $total_amount;
+                $this->updateJobAmount($jobData->id);
+                $jobData->refresh();
+
+
+                if($row[6] === "TRUE") {
+                    $jobData->status = JobStatusEnum::COMPLETED;
+                    $jobData->total_amount = $total_amount;
+                    $jobData->subtotal_amount = $total_amount;
+                    $jobData->actual_time_taken_minutes = $tMinutes;
+                    $jobData->is_job_done = true;
+                    $jobData->save();
+                    
+                    if(!$jobData->order) {
+                        CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                        $jobData->refresh();
+                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+    
+                        $orderId = $jobData->order ? $jobData->order->order_id : null;
+    
+                        if ($orderId) {
+                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                        }
+                    }
+                }else if ($row[6] === "FALSE" && $row[5] === "TRUE") {
+                    if (isset($jobData->order)) {
+                        $order = $jobData->order;
+                        if ($order->status == 'Closed') {
+                            return response()->json([
+                                'message' => 'Job order is already closed',
+                            ], 403);
+                        }
+
+                        $closeDocResponse = $this->cancelICountDocument(
+                            $order->order_id,
+                            'order',
+                            'Creating another order'
+                        );
+
+                        if ($closeDocResponse['status'] != true) {
+                            return response()->json([
+                                'message' => $closeDocResponse['reason']
+                            ], 500);
+                        }
+
+                        $order->update(['status' => 'Cancelled']);
+
+                        $order->jobs()->update([
+                            'isOrdered' => 'c',
+                            'order_id' => NULL,
+                            'is_order_generated' => false
+                        ]);
+                    }
+                }else if ($row[6] === "FALSE" && $row[5] === "FALSE") {
+                    $jobData->status = JobStatusEnum::CANCEL;
+                    $jobData->save();
+                    $jobData->workerShifts()->delete();
+                    if (isset($jobData->order)) {
+                        $order = $jobData->order;
+                        if ($order->status == 'Closed') {
+                            return response()->json([
+                                'message' => 'Job order is already closed',
+                            ], 403);
+                        }
+
+                        $closeDocResponse = $this->cancelICountDocument(
+                            $order->order_id,
+                            'order',
+                            'Creating another order'
+                        );
+
+                        if ($closeDocResponse['status'] != true) {
+                            return response()->json([
+                                'message' => $closeDocResponse['reason']
+                            ], 500);
+                        }
+
+                        $order->update(['status' => 'Cancelled']);
+
+                        $order->jobs()->update([
+                            'isOrdered' => 'c',
+                            'order_id' => NULL,
+                            'is_order_generated' => false
+                        ]);
+                    }
+                }
+
+
+                if (
+                    trim($row[23]) === "h" &&
+                    $row[6] === "TRUE" 
+                ) {
+                    $order = $jobData->order;
+
+                    \Log::info($jobData->order->total_amount . ' != ' . $jobData->total_amount);
+
+                    // Check and update the order if needed
+                    if ($jobData->order && $jobData->order->total_amount != $jobData->total_amount) {
+
+                        \Log::info('Order before cancellation: ', $order->toArray());
+
+                        if ($order->status === 'Closed') {
+                            return response()->json([
+                                'message' => 'Job order is already closed',
+                            ], 403);
+                        }
+
+                        $closeDocResponse = $this->cancelICountDocument(
+                            $order->order_id,
+                            'order',
+                            'Creating another order'
+                        );
+
+                        if (!($closeDocResponse['status'] ?? false)) {
+                            return response()->json([
+                                'message' => $closeDocResponse['reason'] ?? 'Unknown error while cancelling order'
+                            ], 500);
+                        }
+
+                        $order->update(['status' => 'Cancelled']);
+
+                        echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL;
+
+                        // Reset job ordering info
+                        $jobData->isOrdered = 'c';
+                        $jobData->order_id = null;
+                        $jobData->is_order_generated = false;
+                        $jobData->save();
+                        $jobData->refresh();
+
+                        // Create a new job order immediately
+                        CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                        $jobData->refresh();
+                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+
+                        // Update sheet with new link
+                        $orderId = $jobData->order->order_id ?? null;
+                        if ($orderId) {
+                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}";
+                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                            echo "Row: {$rowCount} New job order created: {$link}" . PHP_EOL . PHP_EOL;
+                        }
+                    }
+                } else if (trim($row[23]) == "f" && $row[6] === "TRUE") {
+                    $order = isset($jobData->order) ? $jobData->order : null;
+                    if ($order && $jobData->order->total_amount != $selectedOfferData['totalamount']) {
+                        if ($order->status == 'Closed') {
+                            return response()->json([
+                                'message' => 'Job order is already closed',
+                            ], 403);
+                        }
+
+                        $closeDocResponse = $this->cancelICountDocument(
+                            $order->order_id,
+                            'order',
+                            'Creating another order'
+                        );
+
+                        if ($closeDocResponse['status'] != true) {
+                            return response()->json([
+                                'message' => $closeDocResponse['reason']
+                            ], 500);
+                        }
+
+                        $order->update(['status' => 'Cancelled']);
+                        
+                        echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+
+                        $order->jobs()->update([
+                            'isOrdered' => 'c',
+                            'order_id' => NULL,
+                            'is_order_generated' => false
+                        ]);
+
+                        CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                        $jobData->refresh();
+
+                        $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+                        
+                        $orderId = $jobData->order ? $jobData->order->order_id : null;
+                        if ($orderId) {
+                            $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                            $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                        }
+
+                        echo "Row: {$rowCount} Job order is already cancelled. Creating another order {$link}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                    }
+                }
+
+                $selectedAddress = $row[19] ?? null;
+                $selectedOffer = is_array($jobData->offer_service)
+                    ? $jobData->offer_service
+                    : json_decode($jobData->offer_service, true);
+
+                $newSelectedOfferData = [];
+
+                if ($selectedOffer['template'] == 'airbnb' && isset($selectedOffer['sub_services']['address']) && !empty($selectedOffer['sub_services']['address'])) {
+                    $addressRecord = ClientPropertyAddress::where('id', $selectedOffer['sub_services']['address'])
+                        ->where('address_name', $selectedAddress)
+                        ->first();
+
+                    if ($addressRecord) {
+                        // Update the address field
+                        $selectedOffer['sub_services']['address'] = $addressRecord->id;
+
+                        // Set jobData address_id
+                        $jobData->address_id = $addressRecord->id;
+
+                        $newSelectedOfferData[] = $selectedOffer;
+                    }
+                } else {
+                    $addressRecord = ClientPropertyAddress::where('id', $selectedOffer['address'] ?? null)
+                        ->where('address_name', $selectedAddress)
+                        ->first();
+
+                    if ($addressRecord) {
+                        // Update the address field
+                        $selectedOffer['address'] = $addressRecord->id;
+
+                        // Set jobData address_id
+                        $jobData->address_id = $addressRecord->id;
+
+                        $newSelectedOfferData[] = $selectedOffer;
+                    }
+                }
+
+                // Save modified offer_service back to jobData
+                // $jobData->offer_service = $selectedOffer;
+                $jobData->save();
+
+                $this->updateColumnInRow(($index + 1), "U", $jobData->id, $sheet);
+
+                \Log::info("Job already exists. ID: {$jobData->id}");
+                return [
+                    "job_id" => $jobData->id
+                ];
+            }
+
+            
+
+
+            // \Log::info($jobData);
+            // }
+            // if($jobData && $jobData->status == JobStatusEnum::CANCEL && $row[6] === "TRUE")
+            // {
+            //     if(!$jobData->order || ($jobData->order && $jobData->order->status == 'Cancelled'))
+            //     {
+            //         $jobData->status = JobStatusEnum::COMPLETED;
+            //         $jobData->actual_time_taken_minutes = $tMinutes;
+            //         $jobData->is_job_done = true;
+            //         $jobData->save();
+            //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+            //         $jobData->refresh();
+            //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+            //         $orderId = $jobData->order ? $jobData->order->order_id : null;
+            //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}" . PHP_EOL . PHP_EOL;
+            //         if ($orderId) {
+            //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+            //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+            //         }
+            //     }
+            // } 
+
+            // if(!$jobData){
+            //     // Build the job query with JSON conditions
+            //     $jobData = Job::where('offer_id', $offer->id)
+            //         ->where('start_date', $currentDate)
+            //         ->where('client_id', $client->id)
+            //         ->whereHas('contract', function ($q) {
+            //             $q->where('status', 'verified');
+            //         })
+            //         ->when(!empty($frequency), fn($q) => $q->where('offer_service->frequency', $frequency))
+            //         ->when(!empty($subServicesId), fn($q) => $q->where('offer_service->sub_services->id', $subServicesId))
+            //         ->when(!empty($service), fn($q) => $q->where('offer_service->service', $service))
+            //         ->when($template === 'airbnb' && !empty($subServicesAddress), fn($q) => $q->where('offer_service->sub_services->address', $subServicesAddress))
+            //         ->when(
+            //             (($template !== 'airbnb' && !empty($address)) || ($template === 'airbnb' && empty($subServicesAddress))),
+            //             fn($q) => $q->where('offer_service->address', $address)
+            //         )
+            //         ->first();
+            // }
+            // return;
+
+            
+
+
+            // if ($jobData) {
+            //     $this->updateColumnInRow(($index + 1), "U", $jobData->id, $sheet);
+            //     if ($row[5] === "FALSE" && $row[6] === "FALSE") {
+            //         $jobData->status = JobStatusEnum::CANCEL;
+            //         $jobData->save();
+            //         $jobData->workerShifts()->delete();
+
+            //         if (isset($jobData->order)) {
+            //             $order = $jobData->order;
+            //             if ($order->status == 'Closed') {
+            //                 return response()->json([
+            //                     'message' => 'Job order is already closed',
+            //                 ], 403);
+            //             }
+
+            //             $closeDocResponse = $this->cancelICountDocument(
+            //                 $order->order_id,
+            //                 'order',
+            //                 'Creating another order'
+            //             );
+
+            //             if ($closeDocResponse['status'] != true) {
+            //                 return response()->json([
+            //                     'message' => $closeDocResponse['reason']
+            //                 ], 500);
+            //             }
+
+            //             $order->update(['status' => 'Cancelled']);
+
+            //             $order->jobs()->update([
+            //                 'isOrdered' => 'c',
+            //                 'order_id' => NULL,
+            //                 'is_order_generated' => false
+            //             ]);
+            //         }
+            //     } else if ($row[6] === "TRUE" && !$jobData->order) {
+            //         $jobData->status = JobStatusEnum::COMPLETED;
+            //         $jobData->actual_time_taken_minutes = $tMinutes;
+            //         $jobData->is_job_done = true;
+            //         $jobData->save();
+            //         $this->updateJobAmount($jobData->id);
+
+            //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+            //         $jobData->refresh();
+            //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+            //         $orderId = $jobData->order ? $jobData->order->order_id : null;
+
+            //         if ($orderId) {
+            //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+            //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+            //         }
+            //     } else if ($row[6] === "TRUE" && $row[5] === "TRUE") {
+            //         if ($jobData->status != JobStatusEnum::COMPLETED || !isset($jobData->order)) {
+            //             $jobData->status = JobStatusEnum::COMPLETED;
+            //             $jobData->actual_time_taken_minutes = $tMinutes;
+            //             $jobData->is_job_done = true;
+            //             $jobData->save();
+            //             $this->updateJobAmount($jobData->id);
+            //             $jobData->refresh();
+
+            //             $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+            //             if (!isset($jobData->order)) {
+            //                 CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+            //                 $jobData->refresh();
+            //             }
+            //             $orderId = $jobData->order ? $jobData->order->order_id : null;
+            //             if ($orderId) {
+            //                 $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+            //                 $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+            //             }
+            //         }
+            //     }
+
+               
+                // if (
+                //     trim($row[23]) === "h" &&
+                //     $row[6] === "TRUE" &&
+                //     $jobData->actual_time_taken_minutes != $tMinutes
+                // ) {
+                //     $jobData->offer_service = $selectedOfferData;
+                //     // Update the actual time and recalculate amount
+                //     $jobData->actual_time_taken_minutes = $tMinutes;
+                //     $jobData->save();
+
+                //     $this->updateJobAmount($jobData->id);
+                //     $jobData->refresh();
+
+                //     $order = $jobData->order;
+
+                //     \Log::info($jobData->order->total_amount . ' != ' . $jobData->total_amount);
+
+                //     // Check and update the order if needed
+                //     if ($jobData->order && $jobData->order->total_amount != $jobData->total_amount) {
+
+                //         \Log::info('Order before cancellation: ', $order->toArray());
+
+                //         if ($order->status === 'Closed') {
+                //             return response()->json([
+                //                 'message' => 'Job order is already closed',
+                //             ], 403);
+                //         }
+
+                //         $closeDocResponse = $this->cancelICountDocument(
+                //             $order->order_id,
+                //             'order',
+                //             'Creating another order'
+                //         );
+
+                //         if (!($closeDocResponse['status'] ?? false)) {
+                //             return response()->json([
+                //                 'message' => $closeDocResponse['reason'] ?? 'Unknown error while cancelling order'
+                //             ], 500);
+                //         }
+
+                //         $order->update(['status' => 'Cancelled']);
+
+                //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL;
+
+                //         // Reset job ordering info
+                //         $jobData->isOrdered = 'c';
+                //         $jobData->order_id = null;
+                //         $jobData->is_order_generated = false;
+                //         $jobData->save();
+
+                //         // Create a new job order immediately
+                //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                //         $jobData->refresh();
+                //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+
+                //         // Update sheet with new link
+                //         $orderId = $jobData->order->order_id ?? null;
+                //         if ($orderId) {
+                //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$orderId}";
+                //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                //             echo "Row: {$rowCount} New job order created: {$link}" . PHP_EOL . PHP_EOL;
+                //         }
+                //     }
+                // } else if (trim($row[23]) == "f" && $row[6] === "TRUE") {
+                //     $order = isset($jobData->order) ? $jobData->order : null;
+                //     if ($order && $jobData->order->total_amount != $selectedOfferData['totalamount']) {
+                //         $jobData->offer_service = $selectedOfferData;
+                //         $jobData->save();
+                //         $this->updateJobAmount($jobData->id);
+                //         $jobData->refresh();
+
+                //         if ($order->status == 'Closed') {
+                //             return response()->json([
+                //                 'message' => 'Job order is already closed',
+                //             ], 403);
+                //         }
+
+                //         $closeDocResponse = $this->cancelICountDocument(
+                //             $order->order_id,
+                //             'order',
+                //             'Creating another order'
+                //         );
+
+                //         if ($closeDocResponse['status'] != true) {
+                //             return response()->json([
+                //                 'message' => $closeDocResponse['reason']
+                //             ], 500);
+                //         }
+
+                //         $order->update(['status' => 'Cancelled']);
+                        
+                //         echo "Row: {$rowCount} Job order is cancelled. https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum={$order->order_id}" . PHP_EOL . PHP_EOL . PHP_EOL;
+
+                //         $order->jobs()->update([
+                //             'isOrdered' => 'c',
+                //             'order_id' => NULL,
+                //             'is_order_generated' => false
+                //         ]);
+
+                //         CreateJobOrder::dispatch($jobData->id)->onConnection('sync');
+                //         $jobData->refresh();
+
+                //         $this->updateColumnInRow(($index + 1), "D", $jobData->total_amount, $sheet);
+
+                        
+                //         $orderId = $jobData->order ? $jobData->order->order_id : null;
+                //         if ($orderId) {
+                //             $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
+                //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
+                //         }
+
+                //         echo "Row: {$rowCount} Job order is already cancelled. Creating another order {$link}" . PHP_EOL . PHP_EOL . PHP_EOL;
+                //     }
+                // }
+
+                // if($tMinutes != $jobData->actual_time_taken_minutes) {
+                //     $jobData->actual_time_taken_minutes = $tMinutes;
+                //     $jobData->save();
+                // }
+                
+            // }
+
+            if ($row[5] === "FALSE" && $row[6] === "FALSE") {
+                return 0;
+            }
+
+
+            // Update the offer services by marking one-time services
+            $servicesData = is_string($offer->services) ? json_decode($offer->services, true) : $offer->services;
+            foreach ($servicesData as &$srv) {
+                if ($srv['service'] == 1 || (isset($srv['freq_name']) && in_array($srv['freq_name'], ['One Time', 'חד פעמי']))) {
+                    $srv['is_one_time'] = true;
+                }
+            }
+            $offer->services = json_encode($servicesData);
+            $offer->save();
+
+           
 
             // Determine the correct address ID based on template
             $addressId = $address;
@@ -1364,8 +1655,8 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $job->workerShifts()->create($slot);
             }
 
-            if($row[6] === "TRUE") {
-                $job->status = JobStatusEnum::COMPLETED;    
+            if ($row[6] === "TRUE") {
+                $job->status = JobStatusEnum::COMPLETED;
                 $job->actual_time_taken_minutes = $tMinutes;
                 $job->is_job_done = true;
                 $job->save();
@@ -1373,11 +1664,10 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 CreateJobOrder::dispatch($job->id)->onConnection('sync');
                 $job->refresh();
                 $orderId = $job->order->order_id;
-                if($orderId) {
+                if ($orderId) {
                     $link = "https://app.icount.co.il/hash/show_doc.php?doctype=order&docnum=$orderId";
                     $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
                 }
-
             }
 
             $this->updateColumnInRow(($index + 1), "U", $job->id, $sheet);
