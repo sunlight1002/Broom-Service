@@ -124,7 +124,7 @@ export default function Contract({ contracts, setContracts }) {
                                                             j
                                                             ? s.template == "others"
                                                                 ? s.other_title +
-                                                                  " | "
+                                                                " | "
                                                                 : s.name + " | "
                                                             : s.name;
                                                     })}
@@ -153,12 +153,13 @@ export default function Contract({ contracts, setContracts }) {
                                                             <i className="fa fa-plus"></i>
                                                         </Link>
                                                     )}
-                                                    <Link
-                                                        to={`/admin/view-contract/${c.id}`}
+                                                    <a
+                                                        href={`/admin/view-contract/${c.id}`}
                                                         className="btn bg-yellow"
+                                                        target="_blank"
                                                     >
                                                         <i className="fa fa-eye"></i>
-                                                    </Link>
+                                                    </a>
                                                     <button
                                                         className="ml-2 btn bg-red"
                                                         onClick={() =>

@@ -191,20 +191,21 @@ export default function Contract({ contracts, setContracts, fetchContract }) {
                                                     {c.signature === null &&
                                                     c.status === "verified" &&
                                                     c.file !== null ? (
-                                                        <Link
-                                                            to={`/storage/uploads/client/contract/${c.file}`}
+                                                        <a
+                                                            href={`/storage/uploads/client/contract/${c.file}`}
                                                             className="btn bg-yellow"
-                                                            target={"_blank"}
+                                                            target="_blank"
                                                         >
                                                             <i className="fa fa-eye"></i>
-                                                        </Link>
+                                                        </a>
                                                     ) : (
-                                                        <Link
-                                                            to={`/admin/view-contract/${c.id}`}
+                                                        <a
+                                                            href={`/admin/view-contract/${c.id}`}
                                                             className="btn bg-yellow"
+                                                            target="_blank"
                                                         >
                                                             <i className="fa fa-eye"></i>
-                                                        </Link>
+                                                        </a>
                                                     )}
                                                     <button
                                                         className="ml-2 btn bg-red"

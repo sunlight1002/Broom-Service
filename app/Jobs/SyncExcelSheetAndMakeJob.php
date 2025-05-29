@@ -225,7 +225,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
 
 
 
-                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->eq(Carbon::parse('2025-05-29'))) {
+                    if ($currentDate !== null && !empty($row[1]) && Carbon::parse($currentDate)->eq(Carbon::parse('2025-05-10'))) {
                         $grouped[$currentDate][] = $row;
                         $id = null;
                         $email = null;
@@ -842,21 +842,26 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             //     Log::warning("Worker is null when checking jobs for date: {$currentDate}");
             // }
 
-
+            $shiftMapping = [
+                "Morning"    => "08:00:00",
+                "בוקר"       => "08:00:00",
+                "Noon"       => "12:00:00",
+                "צהריים"    => "12:00:00",
+                "After noon" => "16:00:00",
+                "Afternoon"  => "16:00:00",
+                "אחה״צ"      => "16:00:00"
+            ];
 
             if (!isset($this->workersEndTime[$currentDate][$worker->id])) {
-                $shiftMapping = [
-                    "Morning"    => "08:00:00",
-                    "בוקר"       => "08:00:00",
-                    "Noon"       => "12:00:00",
-                    "צהריים"    => "12:00:00",
-                    "After noon" => "16:00:00",
-                    "Afternoon"  => "16:00:00",
-                    "אחה״צ"      => "16:00:00"
-                ];
                 $startTime = $shiftMapping[$shift] ?? "08:00:00";
             } else {
                 $startTime = $this->workersEndTime[$currentDate][$worker->id];
+                $hasJob = Job::where('start_date', $currentDate)->where('end_time', $startTime)->where('worker_id', $worker->id)->first();
+                if ($hasJob->status == "cancel") {
+                    $startTime = $shiftMapping[$shift] ?? "08:00:00";
+                }else{
+                    $startTime = $this->workersEndTime[$currentDate][$worker->id];    
+                }
             }
 
             $tMinutes = 0;
@@ -1005,7 +1010,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 )
                 ->first();
 
-
+                \Log::info("job data " . $jobData);
             if ($worker && $jobData && $worker->id != $jobData->worker_id) {
                 $jobData->worker_id = $worker->id;
                 $jobData->previous_worker_id = $jobData->worker_id;
