@@ -620,7 +620,7 @@ class ClientEmailController extends Controller
             $sid = $client->lng == "heb" ? "HX7727979730618bcd499e8ee9176096cc" : "HXa892b3371574fb719d17e0f7700e846f";
 
             $twi = $this->twilio->messages->create(
-                "whatsapp:+" . "918000318833",
+                "whatsapp:+" . $client->phone,
                 [
                     "from" => $this->twilioWhatsappNumber,
                     "contentSid" => $sid,
