@@ -162,7 +162,7 @@ export default function EditWorker() {
             lng: !lng ? "en" : lng,
             password: password,
             skill: skill,
-            status: !itemStatus ? 1 : parseInt(itemStatus),
+            status: parseInt(itemStatus),
             country: country,
             latitude: latitude,
             longitude: longitude,

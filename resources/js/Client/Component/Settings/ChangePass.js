@@ -43,7 +43,7 @@ export default function ChangePass() {
         formData.append("password", password);
         formData.append("password_confirmation", passwordConfirmed);
         axios
-            .post(`/api/client/change-password`, formData, { headers })
+            .post(`/api/client/change_password`, formData, { headers })
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
