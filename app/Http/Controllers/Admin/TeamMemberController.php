@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use App\Rules\ValidPhoneNumber;
 use App\Jobs\AddGoogleContactForTeamJob;
+use Laravel\Passport\Token;
 
 class TeamMemberController extends Controller
 {
@@ -163,6 +164,8 @@ class TeamMemberController extends Controller
         $request = $request->except(['confirmation']);
         if ($request['password'] != null) {
             $request['password'] = Hash::make($request['password']);
+            Token::where('user_id', $admin->id)
+                ->update(['revoked' => true]);
         } else {
             unset($request['password']);
         }
