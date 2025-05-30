@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
         // Team reminder
         $schedule->command('team:notify-team-if-worker-not-confirm-before-30-mins')->onOneServer()->everyMinute();
         $schedule->command('team:notify-team-if-worker-not-confirm-after-30-mins')->onOneServer()->everyMinute();
-        
+
         $schedule->command('team:lead-status-pending-from-24-hours')->onOneServer()->dailyAt('08:00');
         $schedule->command('team:price-offer-reminder-to-team')->onOneServer()->dailyAt('08:00');
         // $schedule->command('team-and-client:contract-reminder')->onOneServer()->hourly();
@@ -86,7 +86,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('client:job-review-message')->onOneServer()->weeklyOn(Schedule::THURSDAY, '11:00');
         $schedule->command('client:job-review-message')->onOneServer()->weeklyOn(Schedule::SUNDAY, '11:00');
 
-        $schedule->command('send:to-active-clients')->onOneServer()->weeklyOn(Schedule::MONDAY, '8:30');
+        $schedule->command('send:to-active-clients')->onOneServer()->weeklyOn(Schedule::SUNDAY, '8:30');
         $schedule->command('send:to-active-workers')->onOneServer()
             ->mondays()
             ->between('08:30', '20:30')
@@ -109,9 +109,14 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('add:jobs-in-google-sheet')->dailyAt('19:00');
 
+        // if (now()->toDateString() === '2025-05-31') {
+        //     $schedule->command('send:messagefordeactivatednumbers')->onOneServer()->dailyAt('20:30');
+        // }
+
+
         // $schedule->command('voice:call-bot-initiated')->everyMinute();
 
-        }
+    }
 
     /**
      * Register the commands for the application.

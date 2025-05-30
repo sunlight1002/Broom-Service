@@ -9,6 +9,8 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Twilio\Rest\Client as TwilioClient;
+
 
 class SendToActiveClients extends Command
 {
@@ -18,6 +20,7 @@ class SendToActiveClients extends Command
      * @var string
      */
     protected $signature = 'send:to-active-clients';
+    protected $twilioAccountSid, $twilioAuthToken, $twilioWhatsappNumber, $twilioWorkerLeadWhatsappNumber, $twilio;
 
     /**
      * The console command description.
@@ -34,6 +37,12 @@ class SendToActiveClients extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $this->twilioWorkerLeadWhatsappNumber = config('services.twilio.worker_lead_whatsapp_number');
+
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     /**
@@ -105,30 +114,46 @@ office@broomservice.co.il',
         ];
 
         $clients = Client::where('status', '2')
-                ->whereHas('lead_status', function ($query) {
-                    $query->where('lead_status', 'active client');
-                })
-                ->get();
+            ->whereHas('lead_status', function ($query) {
+                $query->where('lead_status', 'active client');
+            })
+            ->get();
 
         // $clients = Client::whereIn('id', [3709])->get();
-            // dd($clients);
+        // dd($clients);
         foreach ($clients as $client) {
             // if(in_array($client->id, [110,112,120,121,174,203,220,221,232,233,261,270,1,2,6,8,11,13,15,21,23,24,25,30,39,40,43,45,49,51,52,54,55,57,65,67,68,70,71,79,80,85,86,88,91,135,166,179,204,215,238,240,245,246,247,333,339,394])) {
             //     echo "Already sent: " . $client->id . PHP_EOL;
             //     continue;
             // }
 
-            if($client->monday_notification == 1 || $client->disable_notification == 1){
+            if ($client->monday_notification == 1 || $client->disable_notification == 1) {
                 \Log::info('monday notification already sent: ' . $client->id);
                 continue;
             }
-            $clientData = [
-                'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
-                'notificationData' => [
-                    'client' => $client,
-                ],
-            ];
-            event(new WhatsappNotificationEvent($clientData));
+            // $clientData = [
+            //     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
+            //     'notificationData' => [
+            //         'client' => $client,
+            //     ],
+            // ];
+            // event(new WhatsappNotificationEvent($clientData));
+            $sid = $client->lng == "heb" ? "HX81f306262b25f6e792720003ba2b8ad6" : "HX61070e427947505a463ea1c0357a8873";
+
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+" . $client->phone,
+                [
+                    "from" => $this->twilioWhatsappNumber,
+                    "contentSid" => $sid,
+                    "contentVariables" => json_encode([
+                        "1" => trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''),
+                    ])
+                ]
+            );
+
+            \Log::info($twi->sid);
+            StoreWebhookResponse($twi->body ?? '', $client->phone, $twi->toArray());
+
             $client->stop_last_message = 0;
             $client->save();
             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addHours(20));
