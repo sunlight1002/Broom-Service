@@ -87,7 +87,7 @@ class TeamMemberController extends Controller
 
         $input = $request->input();
 
-        $input['lng'] = $input ['lng'] ?? 'en';
+        $input['lng'] = $input['lng'] ?? 'en';
         $input['password'] = Hash::make($input['password']);
         $admin = Admin::create($input);
 
@@ -167,7 +167,7 @@ class TeamMemberController extends Controller
         if ($request['password'] != null) {
             $request['password'] = Hash::make($request['password']);
             Token::where('user_id', $admin->id)
-            ->where('name', "Admin")
+                ->where('name', "Admin")
                 ->update(['revoked' => true]);
         } else {
             unset($request['password']);
