@@ -54,7 +54,7 @@ use App\Jobs\AddGoogleContactJob;
 use App\Jobs\SaveGoogleCalendarCallJob;
 use App\Jobs\NotifyClientForCallAfterHoliday;
 use Twilio\Rest\Client as TwilioClient;
-
+use Illuminate\Support\Facades\Log;
 
 class ClientController extends Controller
 {

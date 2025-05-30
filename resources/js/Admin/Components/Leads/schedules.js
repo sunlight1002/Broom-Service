@@ -26,6 +26,8 @@ export default function ScheduledMeeting() {
             .then((res) => {
                 if (res.data.schedules.length > 0) {
                     setSchedules(res.data.schedules);
+                    console.log("meeting data is:", res.data.schedules);
+                    
                 } else {
                     setLoading("No meeting scheduled yet.");
                 }
@@ -112,9 +114,9 @@ export default function ScheduledMeeting() {
                                             <td>#{item.id}</td>
                                             <td>{item.team ? item.team.name : "NA"}</td>
                                             <td>
-                                                {Moment(item.start_date).format("DD/MM/Y")}
+                                                {Moment(item.meet_via === "off-site" ? "N\A" : item.start_date).format("DD/MM/Y")}
                                                 <br />
-                                                {Moment(item.start_date).format("dddd")}
+                                                {Moment(item.meet_via === "off-site" ? "N\A" : item.start_date).format("dddd")}
                                                 {item.start_time && item.end_time && (
                                                     <>
                                                         <br />

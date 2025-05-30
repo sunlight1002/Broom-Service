@@ -86,6 +86,8 @@ class TeamMemberController extends Controller
         }
 
         $input = $request->input();
+
+        $input['lng'] = $input ['lng'] ?? 'en';
         $input['password'] = Hash::make($input['password']);
         $admin = Admin::create($input);
 
