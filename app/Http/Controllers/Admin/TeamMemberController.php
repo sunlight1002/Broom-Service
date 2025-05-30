@@ -167,6 +167,7 @@ class TeamMemberController extends Controller
         if ($request['password'] != null) {
             $request['password'] = Hash::make($request['password']);
             Token::where('user_id', $admin->id)
+            ->where('name', "Admin")
                 ->update(['revoked' => true]);
         } else {
             unset($request['password']);
