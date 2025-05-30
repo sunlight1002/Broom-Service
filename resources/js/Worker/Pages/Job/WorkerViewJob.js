@@ -11,6 +11,7 @@ import ClientDetails from "../../Components/Job/ClientDetails";
 import Services from "../../Components/Job/Services";
 import Comment from "../../Components/Job/Comment";
 import ChangeJobStatusModal from "../../Components/Modals/ChangeJobStatusModal";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function WorkerViewJob() {
     const params = useParams();
@@ -40,16 +41,19 @@ export default function WorkerViewJob() {
     const [clientID, setClientID] = useState(null)
     const [workerID, setWorkerID] = useState(null)
     const [skippedComments, setSkippedComments] = useState([])
+    const [isLoading, setIsLoading] = useState(false);
 
     const query = new URLSearchParams(location.search);
     const q = query.get("q");
-    
+
+    const uuid = params.uuid ? params.uuid : null;
+
     useEffect(() => {
-         if (q === "contact_manager") {
+        if (q === "contact_manager") {
             setSpeakModal(true);
         }
     }, [])
-    
+
 
 
     const alert = useAlert();
@@ -87,6 +91,38 @@ export default function WorkerViewJob() {
         getJob();
     }, []);
 
+
+    const handleSubmit = (e) => {
+        // e.preventDefault();
+        setIsLoading(true);
+
+        const data = new FormData();
+        data.append("job_id", params.id);
+        // data.append("comment", comment);
+        data.append("status", "completed");
+        data.append("name", localStorage.getItem("worker-name"));
+
+        let url = uuid ? `/api/add-job-comments` : `/api/job-comments`;
+        const config = uuid ? {} : { headers };
+
+        axios
+            .post(url, data, config)
+            .then((res) => {
+                if (res.data.error) {
+                    res.data.error.forEach((err) => window.alert(err));
+                } else {
+                    alert.success(t("worker.jobs.view.jobMarkCompleted"));
+                    getJob();
+                    getComments();
+
+                }
+                setIsLoading(false);
+            })
+            .catch((e) => {
+                setIsLoading(false);
+            });
+    };
+
     const handleMarkComplete = () => {
 
         if (isCompleteBtnDisable !== false) {
@@ -97,8 +133,9 @@ export default function WorkerViewJob() {
             });
         } else {
             isRunning ? stopTimer() : "";
+            handleSubmit();
             // setIsCompleteBtnDisable(true);
-            setIsOpenChangeJobStatus(true);
+            // setIsOpenChangeJobStatus(true);
         }
     };
 
@@ -341,23 +378,23 @@ export default function WorkerViewJob() {
     const isCompleteBtnDisable = useMemo(() => {
         // Check if there are any comments with a status of "approved"
         const hasApprovedStatus = allComment.some(c => c.status === "approved");
-    
+
         // Filter out approved comments for further checks
-        const relevantComments = hasApprovedStatus 
-            ? allComment.filter(c => c.status !== "approved") 
+        const relevantComments = hasApprovedStatus
+            ? allComment.filter(c => c.status !== "approved")
             : allComment;
-    
+
         // Check if any of the relevant comments have a null status
         const hasNullStatus = relevantComments.some(c => c.status === null);
-    
+
         // Check if not all relevant comments are completed
         const allCompleted = relevantComments.every(c => c.status === "complete");
-    
+
         // Disable the button if any status is null or if not all are completed
         return hasNullStatus || !allCompleted;
     }, [allComment]);
-    
-    
+
+
 
 
     return (
@@ -508,16 +545,16 @@ export default function WorkerViewJob() {
                                         )}
                                         {
                                             (job_status != "completed") && (job_status != "cancel") && (
-                                               <div className="col-sm-3 col-xl-2 col-6">
-                                                 <button
-                                                    type="button"
-                                                    onClick={() => setSpeakModal(prev => !prev)}
-                                                    // disabled={isApproving}
-                                                    className="btn btn-primary"
-                                                >
-                                                    Contact Manager
-                                                </button>
-                                               </div>
+                                                <div className="col-sm-3 col-xl-2 col-6">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSpeakModal(prev => !prev)}
+                                                        // disabled={isApproving}
+                                                        className="btn btn-primary"
+                                                    >
+                                                        Contact Manager
+                                                    </button>
+                                                </div>
                                             )
                                         }
                                     </div>
@@ -690,7 +727,7 @@ export default function WorkerViewJob() {
             }
 
 
-            {isOpenChangeJobStatus && (
+            {/* {isOpenChangeJobStatus && (
                 <ChangeJobStatusModal
                     allComment={allComment}
                     skippedComments={skippedComments}
@@ -708,7 +745,8 @@ export default function WorkerViewJob() {
                         setIsOpenChangeJobStatus(false);
                     }}
                 />
-            )}
+            )} */}
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

@@ -2558,7 +2558,7 @@ Enter your phone number or email address with which you registered for the servi
                 'name'          => 'whatsapp',
                 'message'       => $twi->body ?? '',
                 'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                'number'        => $phone,
+                'number'        => $lead->phone,
                 'flex'          => 'A',
                 'read'          => 1,
                 'data'          => json_encode($twi->toArray()),

@@ -15,7 +15,8 @@ class AddJobsInGoogleSheet extends Command
      *
      * @var string
      */
-    protected $signature = 'add:jobs-in-google-sheet';
+    protected $signature = 'add:jobs-in-google-sheet {start_date} {end_date}';
+
 
     /**
      * The console command description.
@@ -41,6 +42,9 @@ class AddJobsInGoogleSheet extends Command
      */
     public function handle()
     {
-        dispatch(new SyncExcelSheetAndMakeJob())->onConnection('sync');
+        $startDate = $this->argument('start_date');
+        $endDate = $this->argument('end_date');
+        // \Log::info($startDate." - ". $endDate);
+        dispatch(new SyncExcelSheetAndMakeJob(null, $startDate, $endDate))->onConnection('sync');
     }
 }

@@ -21,12 +21,29 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Twilio\Rest\Client as TwilioClient;
 
 
 
 
 class WorkerLeadsController extends Controller
 {
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilioWorkerLeadWhatsappNumber;
+    protected $twilio;
+    public function __construct()
+    {
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $this->twilioWorkerLeadWhatsappNumber = config('services.twilio.worker_lead_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
+    }
+
 
     protected $botMessages = [
         'step0' => [
@@ -189,9 +206,17 @@ class WorkerLeadsController extends Controller
 
             if ($request->send_bot_message) {
                 try {
-                    $m = $this->botMessages['step0']['heb'];
+                    $sid = $workerLead->lng == 'en' ? 'HX868e85a56d9f6af3fa9cb46c47370e49' : 'HXd0f88505bf55200b5b0db725e40a6331';
 
-                    $result = sendWorkerWhatsappMessage($workerLead->phone, array('name' => ucfirst($workerLead->firstname) . ' ' . ucfirst($workerLead->lastname), 'message' => $m));
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWorkerLeadWhatsappNumber,
+                            "contentSid" => $sid,
+
+                        ]
+                    );
+                    \Log::info("twilio response" . $twi->sid);
 
                     WhatsAppBotWorkerState::updateOrCreate(
                         ['worker_lead_id' => $workerLead->id],
@@ -201,10 +226,12 @@ class WorkerLeadsController extends Controller
                     WorkerWebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
-                        'message' => $m,
+                        'message' => $twi->body ?? '',
+                        'from' => $this->twilioWorkerLeadWhatsappNumber,
                         'number' => $workerLead->phone,
                         'read' => 1,
                         'flex' => 'A',
+                        'data' => json_encode($twi->toArray()),
                     ]);
                 } catch (\Throwable $th) {
                     logger($th);

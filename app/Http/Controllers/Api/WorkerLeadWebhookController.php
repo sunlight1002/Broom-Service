@@ -48,7 +48,7 @@ class WorkerLeadWebhookController extends Controller
         'step0' => [
             'en' => "🌟 Thank you for contacting Job4Service! 🌟\n\nWe are hiring house cleaning professionals for part-time and full-time positions in the Tel Aviv area.\n\n✅ To apply, you must have one of the following:\n- Israeli ID\n- B1 Work Visa\n- Refugee (blue) visa\n\nPlease answer these two questions to proceed:\n1. Do you have experience in house cleaning?\n(Please reply with 'Yes' or 'No')",
             'ru' => "🌟 Спасибо, что связались с Job4Service! 🌟\n\nМы ищем сотрудников для уборки домов на полную и частичную занятость в районе Тель-Авива.\n✅ Для подачи заявки у вас должен быть один из следующих документов:\n- Израильское удостоверение личности\n- Рабочая виза B1\n- Статус беженца (синяя виза)\n\nОтветьте, пожалуйста, на два вопроса:\n1. У вас есть опыт работы по уборке домов?\n(Пожалуйста, ответьте \"Да\" или \"Нет\" на каждый вопрос.)",
-       ],
+        ],
         'step1' => [
             'en' => "We didn’t quite understand your answer.\n\n✅ Please respond clearly with:\n\n1. \"Yes\" or \"No\" – Do you have experience in house cleaning?\n\nLet’s continue when you’re ready! 😊",
             'ru' => "Мы не совсем поняли ваш ответ.\n\n✅ Пожалуйста, ответьте четко:\n\n1. \"Да\" или \"Нет\" – Есть ли у вас опыт работы по уборке?\n\nПродолжим, как только вы будете готовы! 😊  ",
@@ -71,7 +71,7 @@ class WorkerLeadWebhookController extends Controller
             'spa' => "Hola, :worker_name!\nBienvenido a Gali, el bot asistente digital de Broom Service.\n¿Cómo puedo ayudarte hoy? 🌟\n\n1️⃣ Habla con un gerente urgentemente.\n2️⃣ Cambia mi horario de trabajo.\n3️⃣ ¿Cuál es mi horario para hoy y mañana?\n4️⃣ Accede al portal de empleados.\n\nEn cualquier momento, puedes regresar al menú principal escribiendo 'Menú'.\nResponde con el número de tu elección.",
         ],
         'talk_to_manager' => [
-            
+
             'en' => "Please tell us the reason for contacting a manager. Your request will be forwarded to the relevant team.\nAt any time, you can return to the main menu by typing 'Menu'.",
             'heb' => "אנא פרט את הסיבה שבגללה תרצה לדבר עם מנהל. הבקשה שלך תועבר לצוות הרלוונטי.\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
             'ru' => "Пожалуйста, укажите причину, по которой вы хотите связаться с менеджером. Ваш запрос будет передан соответствующей команде.\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
@@ -168,7 +168,7 @@ class WorkerLeadWebhookController extends Controller
             $messageId = $data['SmsMessageSid'] ?? null;
             $isTwilio = true;
         }
-        
+
         if (!$messageId) {
             \Log::info('Invalid message data');
             return response()->json(['status' => 'Invalid message data'], 400);
@@ -183,7 +183,7 @@ class WorkerLeadWebhookController extends Controller
         // Store the messageId in the cache for 1 hour
         Cache::put('worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
-        if(!$isTwilio){
+        if (!$isTwilio) {
             $message_data = $data['messages'];
             $from = $message_data[0]['from'];
             $input = $data['messages'][0]['text']['body'] ?? "";
@@ -202,16 +202,16 @@ class WorkerLeadWebhookController extends Controller
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
             $user = User::where('phone', $from)
-                    ->where('status', 1)
-                    ->first();
+                ->where('status', 1)
+                ->first();
             $client = Client::where('phone', $from)->first();
 
-            if($client){
-                \Log::info('client already exist ...'. $client->id);
+            if ($client) {
+                \Log::info('client already exist ...' . $client->id);
                 die("client already exist");
             }
 
-            if($user){
+            if ($user) {
                 \Log::info('user already exist ...');
                 die("user already exist");
             }
@@ -232,12 +232,12 @@ class WorkerLeadWebhookController extends Controller
                 $twi = $this->twilio->messages->create(
                     "whatsapp:+$from",
                     [
-                        "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                        "contentSid" => $sid, 
-                        
+                        "from" => $this->twilioWorkerLeadWhatsappNumber,
+                        "contentSid" => $sid,
+
                     ]
                 );
-                \Log::info("twilio response". $twi->sid);
+                \Log::info("twilio response" . $twi->sid);
 
                 // Send the step0 message
                 $initialMessage = $this->botMessages['step0'][$lng];
@@ -245,10 +245,12 @@ class WorkerLeadWebhookController extends Controller
                 WorkerWebhookResponse::create([
                     'status' => 1,
                     'name' => 'whatsapp',
-                    'message' => $initialMessage,
-                    'number' => $from,
+                    'message' => $twi->body ?? '',
+                    'from' => $this->twilioWorkerLeadWhatsappNumber,
+                    'number' => $workerLead->phone,
                     'read' => 1,
                     'flex' => 'A',
+                    'data' => json_encode($twi->toArray()),
                 ]);
 
                 return;
@@ -263,7 +265,7 @@ class WorkerLeadWebhookController extends Controller
             $ButtonPayload = $data['ButtonPayload'] ?? $listId;
 
             $status = $data['SmsStatus'] ?? null;
-            
+
             $lng = $this->detectLanguage($input);
             $currentStep = 0;
 
@@ -272,6 +274,7 @@ class WorkerLeadWebhookController extends Controller
                 'name' => 'whatsapp',
                 'entry_id' => $messageId,
                 'message' => $input,
+                'from' => $this->twilioWorkerLeadWhatsappNumber,
                 'number' => $from,
                 'read' => 0,
                 'flex' => 'W',
@@ -280,16 +283,16 @@ class WorkerLeadWebhookController extends Controller
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
             $user = User::where('phone', $from)
-                    ->where('status', 1)
-                    ->first();
+                ->where('status', 1)
+                ->first();
             $client = Client::where('phone', $from)->first();
 
-            if($client){
-                \Log::info('client already exist ...'. $client->id);
+            if ($client) {
+                \Log::info('client already exist ...' . $client->id);
                 die("client already exist");
             }
 
-            if($user){
+            if ($user) {
                 \Log::info('user already exist ...');
                 die("user already exist");
             }
@@ -310,12 +313,12 @@ class WorkerLeadWebhookController extends Controller
                 $twi = $this->twilio->messages->create(
                     "whatsapp:+$from",
                     [
-                        "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                        "contentSid" => $sid, 
-                        
+                        "from" => $this->twilioWorkerLeadWhatsappNumber,
+                        "contentSid" => $sid,
+
                     ]
                 );
-                \Log::info("twilio response". $twi->sid);
+                \Log::info("twilio response" . $twi->sid);
 
                 // Send the step0 message
                 $initialMessage = $this->botMessages['step0'][$lng];
@@ -323,11 +326,14 @@ class WorkerLeadWebhookController extends Controller
                 WorkerWebhookResponse::create([
                     'status' => 1,
                     'name' => 'whatsapp',
-                    'message' => $initialMessage,
+                    'message' => $twi->body ?? '',
+                    'from' => $this->twilioWorkerLeadWhatsappNumber,
                     'number' => $from,
                     'read' => 1,
                     'flex' => 'A',
+                    'data' => json_encode($twi->toArray()),
                 ]);
+
                 return;
             }
 
@@ -348,8 +354,10 @@ class WorkerLeadWebhookController extends Controller
                 );
                 WorkerLeads::updateOrCreate(
                     ['id' => $workerLead->id],
-                    ['lng' => $lng,
-                    'source' => 'whapi-worker-lead-bot']
+                    [
+                        'lng' => $lng,
+                        'source' => 'whapi-worker-lead-bot'
+                    ]
                 );
 
                 $sid = $workerLead->lng == 'en' ? 'HX868e85a56d9f6af3fa9cb46c47370e49' : 'HXd0f88505bf55200b5b0db725e40a6331';
@@ -357,42 +365,42 @@ class WorkerLeadWebhookController extends Controller
                 $twi = $this->twilio->messages->create(
                     "whatsapp:+$from",
                     [
-                        "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                        "contentSid" => $sid, 
-                        
+                        "from" => $this->twilioWorkerLeadWhatsappNumber,
+                        "contentSid" => $sid,
+
                     ]
                 );
-                \Log::info("twilio response". $twi->sid);
+                \Log::info("twilio response" . $twi->sid);
 
                 $switchMessage = $this->botMessages['step0'][$lng];
 
                 WorkerWebhookResponse::create([
                     'status' => 1,
                     'name' => 'whatsapp',
-                    'message' => $switchMessage,
+                    'message' => $twi->body ?? '',
+                    'from' => $this->twilioWorkerLeadWhatsappNumber,
                     'number' => $from,
                     'read' => 1,
                     'flex' => 'A',
+                    'data' => json_encode($twi->toArray()),
                 ]);
 
                 return;
-            }else{
+            } else {
                 // Process user response based on current step
                 $currentStep = $workerState->step ?? 0;
-                $nextMessage = $this->processWorkerResponse($workerLead, $ButtonPayload, $currentStep, $workerState);
+                $twi = $this->processWorkerResponse($workerLead, $ButtonPayload, $currentStep, $workerState);
 
-                if ($nextMessage) {
-                    $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                    // Save admin message for next step
-                    WorkerWebhookResponse::create([
-                        'status' => 1,
-                        'name' => 'whatsapp',
-                        'message' => $nextMessage,
-                        'number' => $from,
-                        'read' => 1,
-                        'flex' => 'A',
-                    ]);
-                }
+                WorkerWebhookResponse::create([
+                    'status' => 1,
+                    'name' => 'whatsapp',
+                    'message' => $twi->body ?? '',
+                    'from' => $this->twilioWorkerLeadWhatsappNumber,
+                    'number' => $from,
+                    'read' => 1,
+                    'flex' => 'A',
+                    'data' => json_encode($twi->toArray()),
+                ]);
             }
         }
     }
@@ -776,8 +784,8 @@ class WorkerLeadWebhookController extends Controller
             ]);
 
             $user = User::where('phone', $from)
-                    ->where('status', 1)
-                    ->first();
+                ->where('status', 1)
+                ->first();
 
             if ($user) {
                 \Log::info('User found activeWorker: ' . $user->id);
@@ -790,7 +798,7 @@ class WorkerLeadWebhookController extends Controller
                 $sid = null;
                 $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->first();
 
-                if($activeWorkerBot){
+                if ($activeWorkerBot) {
                     $menu_option = explode('->', $activeWorkerBot->menu_option);
                     $last_menu = end($menu_option);
                 }
@@ -802,7 +810,7 @@ class WorkerLeadWebhookController extends Controller
                     Cache::put($cacheKey, 0, now()->addHours(24));
                 }
 
-                if(empty($last_menu) || in_array(strtolower($ButtonPayload), ["menu", "меню", "תפריט", "menú"])) {
+                if (empty($last_menu) || in_array(strtolower($ButtonPayload), ["menu", "меню", "תפריט", "menú"])) {
                     $send_menu = 'main_menu';
                 } else if ($last_menu == 'main_menu' && $ButtonPayload == '1') {
                     $send_menu = 'talk_to_manager';
@@ -841,31 +849,31 @@ class WorkerLeadWebhookController extends Controller
 
 
                         // Replace :worker_name with the user's firstname and lastname
-                        $workerName = "*".(($user->firstname ?? ''). ' ' . ($user->lastname ?? ''))."*";
+                        $workerName = "*" . (($user->firstname ?? '') . ' ' . ($user->lastname ?? '')) . "*";
                         $personalizedMessage = str_replace(':worker_name', $workerName, $initialMessage);
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $sid = 'HXfb2e6d4bb7951bd6a69cb57c607032bb';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HX95ed8770de994312a121061620a9933d';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HX371de9c7eaaef192fc3fe81140e5ad6a';
-                        }else{
+                        } else {
                             $sid = 'HX6d60d866a1e260aad0588277667b1372';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
+                                "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     '1' => $workerName
                                 ]),
-                                
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         WorkerWebhookResponse::create([
                             'status' => 1,
@@ -883,12 +891,12 @@ class WorkerLeadWebhookController extends Controller
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "body" => $nextMessage, 
-                                
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $nextMessage,
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         $activeWorkerBot->update(['menu_option' => 'main_menu->talk_to_manager', 'lng' => $lng]);
 
@@ -905,39 +913,39 @@ class WorkerLeadWebhookController extends Controller
                     case 'comment':
                         \Log::info('comment');
                         $nextMessage = $this->activeWorkersbotMessages['comment'][$lng];
-                        $workerName = (($user->firstname ?? ''). ' ' . ($user->lastname ?? ''));
+                        $workerName = (($user->firstname ?? '') . ' ' . ($user->lastname ?? ''));
                         $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $sid = 'HXa57cdbf018f25ca83d3bf87b305c0c93';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HX6469d8d9794b5d5ab75471379455c3fe';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HXcbec2b9e02025331306d6ef385adff23';
-                        }else{
+                        } else {
                             $sid = 'HX25f788ffb51c26d6ab5973c8cfc1fe53';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => $workerName,
                                     "2" => trim($input)
                                 ])
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
-                        if($lng == 'heb'){
+                        if ($lng == 'heb') {
                             $reason = 'צרו איתי קשר דחוף';
-                        }else if($lng == 'ru'){
+                        } else if ($lng == 'ru') {
                             $reason = 'Свяжитесь со мной срочно';
-                        }else if($lng == 'spa'){
+                        } else if ($lng == 'spa') {
                             $reason = 'Contáctame urgentemente';
-                        }else{
+                        } else {
                             $reason = 'Contact me urgently';
                         }
 
@@ -959,12 +967,12 @@ class WorkerLeadWebhookController extends Controller
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "body" => $nextMessage, 
-                                
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $nextMessage,
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         $activeWorkerBot->update(['menu_option' => 'main_menu->change_schedule', 'lng' => $lng]);
 
@@ -981,11 +989,11 @@ class WorkerLeadWebhookController extends Controller
                     case 'change_schedule_comment':
                         if ($lng == 'heb') {
                             $reason = "שנה לוח זמנים";
-                        }else if($lng == 'spa'){
+                        } else if ($lng == 'spa') {
                             $reason = "Cambiar horario";
-                        }else if($lng == 'ru'){
+                        } else if ($lng == 'ru') {
                             $reason = "Изменить расписание";
-                        }else{
+                        } else {
                             $reason = "Change Schedule";
                         }
                         $scheduleChange = new ScheduleChange();
@@ -996,34 +1004,34 @@ class WorkerLeadWebhookController extends Controller
                         $scheduleChange->save();
 
                         $nextMessage = $this->activeWorkersbotMessages['team_schedule_change']["en"];
-                        $workerName = (($user->firstname ?? ''). ' ' . ($user->lastname ?? ''));
+                        $workerName = (($user->firstname ?? '') . ' ' . ($user->lastname ?? ''));
                         $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
 
                         $message = $this->activeWorkersbotMessages['change_schedule_comment'][$lng];
                         $message = str_replace([':message'], [$input], $message);
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $sid = 'HXf2b8715efecea4b55740e7f04c7656b8';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HX2c81729043db64e39ad6cda705e9d786';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HX2c81729043db64e39ad6cda705e9d786';
-                        }else{
+                        } else {
                             $sid = 'HXb8c3eb8b5f3b946d18fc288165ef7cd0';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($input)
                                 ])
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         $activeWorkerBot->delete();
                         break;
@@ -1032,67 +1040,67 @@ class WorkerLeadWebhookController extends Controller
                         $nextMessage = $this->activeWorkersbotMessages['access_employee_portal'][$lng];
                         $personalizedMessage = str_replace(':link', generateShortUrl(url("worker/login"), 'worker'), $nextMessage);
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $sid = 'HX98bf3431b173310f6381032ebd227ace';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HXe3faeff57212e8181e6463b3ee432a3b';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HXa1110d7c89955ddb21d166152074c3bc';
-                        }else{
+                        } else {
                             $sid = 'HX929da6f775cd8a2cc15fdcef32e62769';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => "worker/login"
                                 ])
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
                         $activeWorkerBot->delete();
                         break;
 
                     case 'sorry':
                         $message = $this->activeWorkersbotMessages['sorry'][$lng];
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $sid = 'HX4c481f10769a8a22d942f900e4623bb6';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HX970a1874a503822d4443ce5c58cccefb';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HX7d8e43ac45cb7088f3fa24a5e0ba5a16';
-                        }else{
+                        } else {
                             $sid = 'HXa3dc5005a3421b1160162844e26235ec';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($input)
                                 ])
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         break;
 
                     case 'today_and_tomorrow_schedule':
                         $nextMessage = $this->activeWorkersbotMessages['today_and_tomorrow_schedule'][$lng];
                         $todayJobs = Job::where('worker_id', $user->id)
-                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
-                        ->whereDate('start_date', now())
-                        ->get();
+                            ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                            ->whereDate('start_date', now())
+                            ->get();
 
                         $tomorrowJobs = Job::where('worker_id', $user->id)
-                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
-                        ->whereDate('start_date', now()->addDay(1))
-                        ->get();
+                            ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                            ->whereDate('start_date', now()->addDay(1))
+                            ->get();
 
                         $todaySchedule = "";
                         $tomorrowSchedule = "";
@@ -1100,26 +1108,26 @@ class WorkerLeadWebhookController extends Controller
                             foreach ($todayJobs as $job) {
                                 Carbon::setLocale($lng == 'en' ? 'en' : 'he');
                                 $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
-                                if($job->service) {
+                                if ($job->service) {
                                     $todaySchedule .= $job->service->name . ', ';
                                 }
                                 $todaySchedule .=  $day . ' - ' . $job->start_time . ' ' . $job->end_time . ", ";
-                                if($job->propertyAddress) {
+                                if ($job->propertyAddress) {
                                     $todaySchedule .= $job->propertyAddress->geo_address . ', ';
                                 }
-                                if($job->client) {
+                                if ($job->client) {
                                     $todaySchedule .= $job->client->firstname . ' ' . $job->client->lastname;
                                 }
                                 $todaySchedule .= "\n";
                             }
-                        }else{
+                        } else {
                             if ($lng == 'heb') {
                                 $reason = "לא מתוכננות משרות היום";
-                            }else if($lng == 'spa'){
+                            } else if ($lng == 'spa') {
                                 $reason = "No hay trabajos programados para hoy";
-                            }else if($lng == 'ru'){
+                            } else if ($lng == 'ru') {
                                 $reason = "Сегодня нет запланированных работ";
-                            }else{
+                            } else {
                                 $reason = "No today jobs scheduled";
                             }
                             $todaySchedule = $reason;
@@ -1129,26 +1137,26 @@ class WorkerLeadWebhookController extends Controller
                             foreach ($tomorrowJobs as $job) {
                                 Carbon::setLocale($lng == 'en' ? 'en' : 'he');
                                 $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
-                                if($job->service) {
+                                if ($job->service) {
                                     $tomorrowSchedule .= $job->service->name . ', ';
                                 }
                                 $tomorrowSchedule .=  $day . ' - ' . $job->start_time . ' ' . $job->end_time . ", ";
-                                if($job->propertyAddress) {
+                                if ($job->propertyAddress) {
                                     $tomorrowSchedule .= $job->propertyAddress->geo_address . ', ';
                                 }
-                                if($job->client) {
+                                if ($job->client) {
                                     $tomorrowSchedule .= $job->client->firstname . ' ' . $job->client->lastname;
                                 }
                                 $tomorrowSchedule .= "\n";
                             }
-                        }else{
+                        } else {
                             if ($lng == 'heb') {
                                 $reason = "לא מתוכננות עבודות מחר";
-                            }else if($lng == 'spa'){
+                            } else if ($lng == 'spa') {
                                 $reason = "No hay trabajos programados para mañana";
-                            }else if($lng == 'ru'){
+                            } else if ($lng == 'ru') {
                                 $reason = "Завтра не запланировано никаких работ";
-                            }else{
+                            } else {
                                 $reason = "No tomorrow jobs scheduled";
                             }
                             $tomorrowSchedule = $reason;
@@ -1156,28 +1164,28 @@ class WorkerLeadWebhookController extends Controller
                         $nextMessage = str_replace(':today_schedule', $todaySchedule, $nextMessage);
                         $nextMessage = str_replace(':tomorrow_schedule', $tomorrowSchedule, $nextMessage);
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $sid = 'HX6b127de82fb4e7aae3432d4431e2306f';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HXc8c04d84c80604f6d7715c1ef82ef60e';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HX26ff074838d19f700928395e7b9478ef';
-                        }else{
+                        } else {
                             $sid = 'HXd01a4e3a6b40b3fe11c9feb6bd711204';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim($todaySchedule),
                                     "2" => trim($tomorrowSchedule)
                                 ])
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
                         $activeWorkerBot->delete();
                         break;
 
@@ -1187,15 +1195,15 @@ class WorkerLeadWebhookController extends Controller
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "body" => $message, 
-                                
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $message,
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
                         // Notify the team
                         $nextMessage = $this->activeWorkersbotMessages['team_attempts']["heb"];
-                        $workerName = "*".(($user->firstname ?? ''). ' ' . ($user->lastname ?? ''))."*";
+                        $workerName = "*" . (($user->firstname ?? '') . ' ' . ($user->lastname ?? '')) . "*";
                         $personalizedMessage = str_replace(':worker_name', $workerName, $nextMessage);
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
                         // Reset the cache
@@ -1208,7 +1216,7 @@ class WorkerLeadWebhookController extends Controller
                         # code...
                         break;
                 }
-            }else if($user && $user->stop_last_message == 0){
+            } else if ($user && $user->stop_last_message == 0) {
                 $this->activeWorkersMonday($request);
             }
         }
@@ -1244,24 +1252,24 @@ class WorkerLeadWebhookController extends Controller
             $status = $data['SmsStatus'] ?? null;
 
             $user = User::where('phone', $from)
-                    ->where('status', 1)
-                    ->first();
+                ->where('status', 1)
+                ->first();
 
             if ($user && $user->stop_last_message == 0) {
                 $m = null;
 
                 $msgStatus = Cache::get('worker_monday_msg_status_' . $user->id);
 
-                if(empty($msgStatus)) {
+                if (empty($msgStatus)) {
                     $msgStatus = 'main_monday_msg';
                 }
 
-                if(!empty($msgStatus)) {
+                if (!empty($msgStatus)) {
                     $menu_option = explode('->', $msgStatus);
                     $messageBody = $input;
                     $last_menu = end($menu_option);
 
-                    if($last_menu == 'main_monday_msg' && $ButtonPayload == '1') {
+                    if ($last_menu == 'main_monday_msg' && $ButtonPayload == '1') {
                         // Send appropriate message
                         if ($user->lng == 'heb') {
                             $m = "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
@@ -1277,12 +1285,12 @@ class WorkerLeadWebhookController extends Controller
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "body" => $m, 
-                                
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $m,
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         Cache::put('worker_monday_msg_status_' . $user->id, 'next_week_change', now()->addDay(1));
                         WorkerWebhookResponse::create([
@@ -1298,19 +1306,19 @@ class WorkerLeadWebhookController extends Controller
 
                         $message = null;
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $message = 'שלום ' . ($user->firstname ?? '' . " " . $user->lastname ?? '') . ',
 קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.
 
 בברכה,
 צוות ברום סרוויס 🌹';
-                        } else if($user->lng == 'ru'){
-                            $message = 'Здравствуйте, '  . ($user->firstname ?? '' . " " . $user->lastname ?? '') .',
+                        } else if ($user->lng == 'ru') {
+                            $message = 'Здравствуйте, '  . ($user->firstname ?? '' . " " . $user->lastname ?? '') . ',
 Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.
 
 С уважением,
 Команда Broom Service 🌹';
-                        } else{
+                        } else {
                             $message = 'Hello '  . ($user->firstname ?? '' . " " . $user->lastname ?? '') . ',
 We received your response. There are no changes to your schedule for next week.
 
@@ -1318,16 +1326,16 @@ Best Regards,
 Broom Service Team 🌹 ';
                         }
 
-                        
+
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "body" => $message, 
-                                
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $message,
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         Cache::forget('worker_monday_msg_status_' . $user->id);
                         WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
@@ -1341,13 +1349,13 @@ Broom Service Team 🌹 ';
                         $scheduleChange->comments = $messageBody;
                         $scheduleChange->save();
 
-                        $personalizedMessage = "שלום צוות,\n" . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא.\nהבקשה שלו היא:\n\"".$messageBody."\"\nאנא בדקו וטפלו בהתאם.\nבברכה,\nצוות ברום סרוויס";
+                        $personalizedMessage = "שלום צוות,\n" . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא.\nהבקשה שלו היא:\n\"" . $messageBody . "\"\nאנא בדקו וטפלו בהתאם.\nבברכה,\nצוות ברום סרוויס";
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
 
                         $message = null;
 
-                        if($user->lng == 'heb'){
+                        if ($user->lng == 'heb') {
                             $message = 'שלום ' . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . ',
 קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.
 
@@ -1356,8 +1364,8 @@ Broom Service Team 🌹 ';
 
 בברכה,
 צוות ברום סרוויס 🌹';
-                        } else if($user->lng == 'ru'){
-                            $message = 'Здравствуйте, '  . ($user->firstname ?? '') . " " . ($user->lastname ?? '') .',
+                        } else if ($user->lng == 'ru') {
+                            $message = 'Здравствуйте, '  . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . ',
 Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.
 
 Вот ваш запрос:
@@ -1365,7 +1373,7 @@ Broom Service Team 🌹 ';
 
 С уважением,
 Команда Broom Service 🌹';
-                        } else{
+                        } else {
                             $message = 'Hello '  . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . ',
 We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.
 
@@ -1379,12 +1387,12 @@ Broom Service Team 🌹 ';
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "body" => $message, 
-                                
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $message,
+
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         Cache::forget('worker_monday_msg_status_' . $user->id);
                         WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
@@ -1394,36 +1402,36 @@ Broom Service Team 🌹 ';
                         // Follow-up message for returning to the menu, with translation based on the client's language
                         if ($user->lng == 'heb') {
                             $follow_up_msg = "מצטערים, לא הבנו. אנא השב עם הספרה 1 אם יש לך שינויים, או 2 אם הסידור נשאר כפי שהיה.\n\nאם לא תתקבל תשובה תוך 5 שעות, הנושא יועבר לטיפול הצוות.\n\nבברכה,\nצוות ברום סרוויס 🌹";
-                        }else if ($user->lng == 'ru') {
+                        } else if ($user->lng == 'ru') {
                             $follow_up_msg = "Извините, я вас не понял. Пожалуйста, ответьте 1, если у вас есть изменения, или 2, если график остается без изменений.\n\nЕсли ответа не будет в течение 5 часов, проблема будет передана команде.\n\nС уважением,\nКоманда Broom Service 🌹";
-                        } else if($user->lng == 'en') {
+                        } else if ($user->lng == 'en') {
                             $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
-                        }else{
+                        } else {
                             $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
                         }
-                        
-                        if($user->lng == 'heb'){
+
+                        if ($user->lng == 'heb') {
                             $sid = 'HXc67d7e37adca24d7a05e09dff74c7e1a';
-                        }else if($user->lng == 'ru'){
+                        } else if ($user->lng == 'ru') {
                             $sid = 'HXc8db59a575fcd5104a659b758e5e3fc1';
-                        }else if($user->lng == 'spa'){
+                        } else if ($user->lng == 'spa') {
                             $sid = 'HX8168e5915abd7c464c0afc1a1b881079';
-                        }else{
+                        } else {
                             $sid = 'HXc431d620e4063a0f80527acce896ecff';
                         }
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
-                                "from" => $this->twilioWhatsappNumber, 
-                                "contentSid" => $sid, 
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
                                 // "contentVariables" => json_encode([
                                 //     "1" => trim($todaySchedule),
                                 //     "2" => trim($tomorrowSchedule)
                                 // ])
                             ]
                         );
-                        \Log::info("twilio response". $twi->sid);
+                        \Log::info("twilio response" . $twi->sid);
 
                         WorkerWebhookResponse::create([
                             'status' => 1,
@@ -1435,14 +1443,13 @@ Broom Service Team 🌹 ';
                             'flex' => 'A',
                             'data' => json_encode($data)
                         ]);
-
                     }
                 }
             }
         }
     }
 
-    public function processWorkerResponse($workerLead, $input, $currentStep,$workerState)
+    public function processWorkerResponse($workerLead, $input, $currentStep, $workerState)
     {
         $messages = $this->botMessages;
         $lng = $workerState->language ? $workerState->language : 'en';
@@ -1461,14 +1468,14 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                            "contentSid" => $sid, 
-                            
+                            "from" => $this->twilioWorkerLeadWhatsappNumber,
+                            "contentSid" => $sid,
+
                         ]
                     );
-                    \Log::info("twilio response". $twi->sid);
+                    \Log::info("twilio response" . $twi->sid);
 
-                    return $messages['step2'][$lng];
+                    return $twi;
                 } elseif ($input == "no") {
                     $workerLead->experience_in_house_cleaning = false;
                     $workerState->step = 1;
@@ -1480,14 +1487,14 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                            "contentSid" => $sid, 
-                            
+                            "from" => $this->twilioWorkerLeadWhatsappNumber,
+                            "contentSid" => $sid,
+
                         ]
                     );
-                    \Log::info("twilio response". $twi->sid);
+                    \Log::info("twilio response" . $twi->sid);
 
-                    return $messages['step2'][$lng];
+                    return $twi;
                 } else {
                     $workerState->step = 0;
                     $workerState->save();
@@ -1497,14 +1504,14 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                            "contentSid" => $sid, 
-                            
+                            "from" => $this->twilioWorkerLeadWhatsappNumber,
+                            "contentSid" => $sid,
+
                         ]
                     );
-                    \Log::info("twilio response". $twi->sid);
+                    \Log::info("twilio response" . $twi->sid);
 
-                    return $messages['step1'][$lng];
+                    return $twi;
                 }
 
             case 1:
@@ -1522,46 +1529,75 @@ Broom Service Team 🌹 ';
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$workerLead->phone",
                         [
-                            "from" => $this->twilioWorkerLeadWhatsappNumber, 
-                            "contentSid" => $sid, 
-                            
+                            "from" => $this->twilioWorkerLeadWhatsappNumber,
+                            "contentSid" => $sid,
+
                         ]
                     );
-                    \Log::info("twilio response". $twi->sid);
-                    return $messages['step3'][$lng];
+                    \Log::info("twilio response" . $twi->sid);
+                    return $twi;
                 }
 
             case 2:
-               $this->sendMessageToTeamOrLead($workerLead, $input);
+                $this->sendMessageToTeamOrLead($workerLead, $input);
         }
     }
 
     protected function sendMessageToTeamOrLead($workerLead, $input)
-       {
-           if ( $workerLead->you_have_valid_work_visa ) {
+    {
+        if ($workerLead->you_have_valid_work_visa) {
 
-                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
 
-                WhatsAppBotWorkerState::updateOrCreate(
-                    ['worker_lead_id' => $workerLead->id],
-                    ['step' => 4]
-                );
+            WhatsAppBotWorkerState::updateOrCreate(
+                ['worker_lead_id' => $workerLead->id],
+                ['step' => 4]
+            );
+        } else {
+            $workerLead = WorkerLeads::find($workerLead->id);
+            $workerLead->status = "not-hired";
+            $workerLead->save();
 
-           } else {
-                $workerLead = WorkerLeads::find($workerLead->id);
-                $workerLead->status = "not-hired";
-                $workerLead->save();
+            $receiverNumber = $workerLead->phone;
+            $lng = $workerLead->lng;
 
-               $resp = $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD);
+            // $resp = $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD);
 
-               WhatsAppBotWorkerState::updateOrCreate(
-                   ['worker_lead_id' => $workerLead->id],
-                   ['step' => 4]
-               );
+            if ($lng == "heb") {
+                $sid = "HX492d26962fe009a4b25157f5fd8bc226";
+            } elseif ($lng == "ru") {
+                $sid = "HX8de41c8b676432f67d3aefd96f7b8648";
+            } else {
+                $sid = "HXa2369d2bfc34c47637bb42c319197ea4";
+            }
 
-           }
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+" . $receiverNumber,
+                [
+                    "from" => $this->twilioWorkerLeadWhatsappNumber,
+                    "contentSid" => $sid
+                ]
+            );
 
-       }
+            \Log::info($twi->sid);
+
+            WorkerWebhookResponse::create([
+                'status' => 1,
+                'name' => 'whatsapp',
+                'message' => $twi->body ?? '',
+                'from' => $this->twilioWorkerLeadWhatsappNumber,
+                'number' => $receiverNumber,
+                'read' => 1,
+                'flex' => 'A',
+                'data' => json_encode($twi->toArray()),
+            ]);
+
+            WhatsAppBotWorkerState::updateOrCreate(
+                ['worker_lead_id' => $workerLead->id],
+                ['step' => 4]
+            );
+        }
+    }
 
 
     public function detectLanguage($text)
@@ -1582,7 +1618,7 @@ Broom Service Team 🌹 ';
 
     protected function sendWhatsAppMessage($workerLead, $enum)
     {
-       event(new WhatsappNotificationEvent([
+        event(new WhatsappNotificationEvent([
             "type" => $enum,
             "notificationData" => [
                 'worker' => $workerLead->toArray(),
@@ -1597,7 +1633,8 @@ Broom Service Team 🌹 ';
         return ($weekDay == 5 || $weekDay == 6);
     }
 
-    public function createUser($workerLead){
+    public function createUser($workerLead)
+    {
         $role = $workerLead->role ?? 'cleaner';
         $lng = $workerLead->lng;
 
@@ -1671,17 +1708,15 @@ Broom Service Team 🌹 ';
 
 
         $forms = $workerLead->forms()->get();
-            foreach ($forms as $form) {
-                $form->update([
-                    'user_type' => User::class,
-                    'user_id' => $worker->id
-                ]);
-            }
+        foreach ($forms as $form) {
+            $form->update([
+                'user_type' => User::class,
+                'user_id' => $worker->id
+            ]);
+        }
 
         $workerLead->delete();
 
         return $worker;
     }
-
-
 }

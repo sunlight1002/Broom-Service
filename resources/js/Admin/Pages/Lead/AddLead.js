@@ -31,7 +31,7 @@ export default function AddLead() {
         lng: "",
         color: "",
         vat_number: "",
-        send_bot_message: true,
+        send_bot_message: false,
         payment_method: "cc",
         notification_type: "both",
         contact_person_phone: "",

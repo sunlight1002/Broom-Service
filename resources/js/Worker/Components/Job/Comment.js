@@ -184,10 +184,10 @@ export default function Comment({
 
             // Determine the URL based on uuid
             const url = uuid ? "/api/job-comments/mark-complete-comment" : "/api/job-comments/mark-complete";
-    
+
             // Conditionally include headers only when uuid does NOT exist
             const config = uuid ? {} : { headers };
-    
+
             const response = await axios.post(url, formData, config);
 
             if (response.data.success) {
@@ -197,7 +197,7 @@ export default function Comment({
                 );
 
                 console.log(updatedComments);
-                
+
                 setAllComment(updatedComments);
                 location.reload();
             }
@@ -233,7 +233,7 @@ export default function Comment({
                             }}
                         >
                             <div className="row">
-                                <div className="col-sm-8 col-10">
+                                <div className="col-sm-6 col-10">
                                     <p className="noteby p-1" style={{ fontSize: "16px" }}>
                                         {c.name} -
                                         <span className="noteDate" style={{ fontWeight: "600" }}>
@@ -241,8 +241,40 @@ export default function Comment({
                                         </span>
                                     </p>
                                 </div>
-
-                                <div className="col-sm-4 col-3 d-flex align-items-center justify-content-end">
+                                <div className="col-sm-12">
+                                    <p>{c.comment}</p>
+                                    {/* Display Response Text */}
+                                    {skippedComment && skippedComment.response_text && (
+                                        <div>
+                                            <p className="response-text" style={{ color: 'red' }}>
+                                                Worker Comment: {skippedComment.request_text}
+                                            </p>
+                                            <p className="response-text" style={{ color: 'green' }}>
+                                                Team Response: {skippedComment.response_text}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {/* Attachments */}
+                                    {c.attachments && c.attachments.length > 0 && c.attachments.map((cm, i) => {
+                                        return (
+                                            <span className="badge badge-warning text-dark" key={i}>
+                                                <a
+                                                    onClick={(e) => {
+                                                        let show = document.querySelector(".showFile");
+                                                        show.setAttribute("src", `/storage/uploads/attachments/${cm.file_name}`);
+                                                        show.style.display = "block";
+                                                    }}
+                                                    data-toggle="modal"
+                                                    data-target="#exampleModalFile"
+                                                    style={{ cursor: "pointer" }}
+                                                >
+                                                    {cm.original_name}
+                                                </a>
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                                <div className="col-12 d-flex align-items-center justify-content-end flex-wrap">
                                     {/* Check if commenter type is Admin or Client */}
                                     {(c.commenter_type === "App\\Models\\Client" || c.commenter_type === "App\\Models\\Admin") && (
                                         <>
@@ -279,7 +311,7 @@ export default function Comment({
                                                 <i className="fa fa-trash"></i>
                                             </button>
                                         ) : null}
-                                        <div className="col-sm-4">
+                                        <div className="col-sm-4 pl-0">
                                             <div className="dropdown">
                                                 {/* Language Dropdown Button */}
                                                 <button
@@ -327,39 +359,6 @@ export default function Comment({
                                             )}
                                         </div>
                                     </div>
-                                </div>
-                                <div className="col-sm-12">
-                                    <p>{c.comment}</p>
-                                    {/* Display Response Text */}
-                                    {skippedComment && skippedComment.response_text && (
-                                        <div>
-                                            <p className="response-text" style={{ color: 'red' }}>
-                                                Worker Comment: {skippedComment.request_text}
-                                            </p>
-                                            <p className="response-text" style={{ color: 'green' }}>
-                                                Team Response: {skippedComment.response_text}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {/* Attachments */}
-                                    {c.attachments && c.attachments.length > 0 && c.attachments.map((cm, i) => {
-                                        return (
-                                            <span className="badge badge-warning text-dark" key={i}>
-                                                <a
-                                                    onClick={(e) => {
-                                                        let show = document.querySelector(".showFile");
-                                                        show.setAttribute("src", `/storage/uploads/attachments/${cm.file_name}`);
-                                                        show.style.display = "block";
-                                                    }}
-                                                    data-toggle="modal"
-                                                    data-target="#exampleModalFile"
-                                                    style={{ cursor: "pointer" }}
-                                                >
-                                                    {cm.original_name}
-                                                </a>
-                                            </span>
-                                        );
-                                    })}
                                 </div>
                             </div>
                         </div>

@@ -1362,12 +1362,10 @@ class WhatsappNotification
                             $sid = "HXa2369d2bfc34c47637bb42c319197ea4";
                         }
 
-
-
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+" . $receiverNumber,
                             [
-                                "from" => $this->twilioWhatsappNumber,
+                                "from" => $this->twilioWorkerLeadWhatsappNumber,
                                 "contentSid" => $sid
                             ]
                         );
@@ -3127,6 +3125,8 @@ class WhatsappNotification
                         break;
                 }
             }
+
+            $receiverNumber = "918000318833";
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);

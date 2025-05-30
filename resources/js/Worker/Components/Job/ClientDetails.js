@@ -5,70 +5,68 @@ export default function ClientDetails({ client, address }) {
     const { t } = useTranslation();
     return (
         <>
-            <div className="dashBox p-0 p-md-4 mb-3">
-                <form>
-                    <div className="row">
-                        <div className="col-xl-4 col-md-6 col-12">
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("worker.jobs.view.c_name")}
-                                </label>
-                                <p>
-                                    {client.firstname} {client.lastname}
-                                </p>
-                            </div>
+            <div className="dashBox p-3 mb-3">
+                <div className="row">
+                    <div className="col-xl-4 col-md-6 col-12">
+                        <div className="form-group">
+                            <label className="control-label">
+                                {t("worker.jobs.view.c_name")}
+                            </label>
+                            <p>
+                                {client.firstname} {client.lastname}
+                            </p>
                         </div>
-                        <div className="col-xl-4 col-md-6 col-12">
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("worker.jobs.view.c_email")}
-                                </label>
-                                <p>{client.email}</p>
-                            </div>
+                    </div>
+                    <div className="col-xl-4 col-md-6 col-12">
+                        <div className="form-group">
+                            <label className="control-label">
+                                {t("worker.jobs.view.c_email")}
+                            </label>
+                            <p>{client.email}</p>
                         </div>
-                        <div className="col-xl-4 col-md-6 col-12">
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("worker.jobs.view.c_phone")}
-                                </label>
-                                <p>{client.phone}</p>
-                            </div>
+                    </div>
+                    <div className="col-xl-4 col-md-6 col-12">
+                        <div className="form-group">
+                            <label className="control-label">
+                                {t("worker.jobs.view.c_phone")}
+                            </label>
+                            <p>{client.phone}</p>
                         </div>
-                        {address && (
-                            <>
-                                <div className="col-xl-4 col-md-6 col-12">
+                    </div>
+                    {address && (
+                        <>
+                            <div className="col-xl-4 col-md-6 col-12">
+                                <div className="form-group">
+                                    <label>
+                                        {t("worker.jobs.view.geo_adr")}
+                                    </label>
+                                    <p>
+                                        <a
+                                            href={
+                                                address.latitude && address.longitude
+                                                    ? `https://maps.google.com/?q=${address.latitude},${address.longitude}`
+                                                    : `https://maps.google.com?q=${address.geo_address}`
+                                            }
+                                            target="_blank"
+                                        >
+                                            {address.address_name}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {address.parking && (
+                                <div className="col-sm-4">
                                     <div className="form-group">
                                         <label>
-                                            {t("worker.jobs.view.geo_adr")}
+                                            {t("worker.jobs.view.parking")}
                                         </label>
-                                        <p>
-                                            <a
-                                                href={
-                                                    address.latitude && address.longitude
-                                                        ? `https://maps.google.com/?q=${address.latitude},${address.longitude}`
-                                                        : `https://maps.google.com?q=${address.geo_address}`
-                                                }
-                                                target="_blank"
-                                            >
-                                                {address.address_name}
-                                            </a>
-                                        </p>
+                                        <p>{address.parking}</p>
                                     </div>
                                 </div>
-                                {address.parking && (
-                                    <div className="col-sm-4">
-                                        <div className="form-group">
-                                            <label>
-                                                {t("worker.jobs.view.parking")}
-                                            </label>
-                                            <p>{address.parking}</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </form>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
         </>
     );

@@ -9,6 +9,7 @@ import ClientDetails from "../Worker/Components/Job/ClientDetails";
 import Services from "../Client/Component/Job/Services";
 import Comment from "../Worker/Components/Job/Comment";
 import ChangeJobStatusModal from "../Worker/Components/Modals/ChangeJobStatusModal";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 
 export default function FinishJobByWorker() {
@@ -40,13 +41,12 @@ export default function FinishJobByWorker() {
     const [clientID, setClientID] = useState(null)
     const [workerID, setWorkerID] = useState(null)
     const [skippedComments, setSkippedComments] = useState([])
+    const [isLoading, setIsLoading] = useState(false);
 
     const alert = useAlert();
     const { t } = useTranslation();
 
-    console.log(params);
-
-
+    const uuid = params.uuid ? params.uuid : null;
 
     const getJob = () => {
         axios
@@ -78,6 +78,34 @@ export default function FinishJobByWorker() {
         getJob();
     }, []);
 
+    const handleSubmit = (e) => {
+        // e.preventDefault();
+        setIsLoading(true);
+
+        const data = new FormData();
+        data.append("job_id", params.id);
+        data.append("status", "completed");
+        data.append("name", localStorage.getItem("worker-name"));
+
+        let url = `/api/add-job-comments`;
+        axios
+            .post(url, data)
+            .then((res) => {
+                if (res.data.error) {
+                    res.data.error.forEach((err) => window.alert(err));
+                } else {
+                    alert.success(t("worker.jobs.view.jobMarkCompleted"));
+                    getJob();
+                    getComments();
+
+                }
+                setIsLoading(false);
+            })
+            .catch((e) => {
+                setIsLoading(false);
+            });
+    };
+
     const handleMarkComplete = () => {
 
         if (isCompleteBtnDisable !== false) {
@@ -88,8 +116,9 @@ export default function FinishJobByWorker() {
             });
         } else {
             isRunning ? stopTimer() : "";
+            handleSubmit();
             // setIsCompleteBtnDisable(true);
-            setIsOpenChangeJobStatus(true);
+            // setIsOpenChangeJobStatus(true);
         }
     };
 
@@ -687,7 +716,7 @@ export default function FinishJobByWorker() {
                 )
             }
 
-            {isOpenChangeJobStatus && (
+            {/* {isOpenChangeJobStatus && (
                 <ChangeJobStatusModal
                     allComment={allComment}
                     skippedComments={skippedComments}
@@ -704,9 +733,10 @@ export default function FinishJobByWorker() {
                         getJob();
                         setIsOpenChangeJobStatus(false);
                     }}
-                    uuid={params.uuid ? params.uuid : null}
+                    // uuid={params.uuid ? params.uuid : null}
                 />
-            )}
+            )} */}
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }
