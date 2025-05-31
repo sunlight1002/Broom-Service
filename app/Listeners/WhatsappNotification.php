@@ -609,7 +609,7 @@ class WhatsappNotification
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
                         //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "from" => $this->twilioWhatsappNumber,
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                         //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
@@ -655,7 +655,7 @@ class WhatsappNotification
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
                         //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "from" => $this->twilioWhatsappNumber,
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                         //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
@@ -700,7 +700,7 @@ class WhatsappNotification
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
                         //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "from" => $this->twilioWhatsappNumber,
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                         //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
@@ -980,7 +980,7 @@ class WhatsappNotification
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". $receiverNumber,
                         //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "from" => $this->twilioWhatsappNumber,
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                         //         "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback"
@@ -1726,7 +1726,7 @@ class WhatsappNotification
                         // $twi = $this->twilio->messages->create(
                         //     "whatsapp:+". "918000318833",
                         //     [
-                        //         "from" => $this->twilioWhatsappNumber, 
+                        //         "from" => $this->twilioWhatsappNumber,
                         //         "contentSid" => $sid,
                         //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                         //         "statusCallback" => "https://efc4-2405-201-2022-10c3-ded9-9a3e-2ed7-5304.ngrok-free.app/twilio/status-callback"
@@ -3126,7 +3126,7 @@ class WhatsappNotification
                 }
             }
 
-            $receiverNumber = "918000318833";
+            // $receiverNumber = "918000318833";
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
