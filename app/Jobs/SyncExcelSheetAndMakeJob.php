@@ -875,12 +875,12 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
                 $startTime = $shiftMapping[$shift] ?? "08:00:00";
             } else {
                 $startTime = $this->workersEndTime[$currentDate][$worker->id];
-                $hasJob = Job::where('start_date', $currentDate)->where('end_time', $startTime)->where('worker_id', $worker->id)->first();
-                if ($hasJob->status == "cancel") {
-                    $startTime = $shiftMapping[$shift] ?? "08:00:00";
-                } else {
-                    $startTime = $this->workersEndTime[$currentDate][$worker->id];
-                }
+                // $hasJob = Job::where('start_date', $currentDate)->where('end_time', $startTime)->where('worker_id', $worker->id)->first();
+                // if ($hasJob->status == "cancel") {
+                //     $startTime = $shiftMapping[$shift] ?? "08:00:00";
+                // } else {
+                //     $startTime = $this->workersEndTime[$currentDate][$worker->id];
+                // }
             }
 
             $tMinutes = 0;
@@ -1011,7 +1011,9 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
             $end_time   = Carbon::parse(end($mergedContinuousTime)['ending_at'])->toTimeString();
 
-            $this->workersEndTime[$currentDate][$worker->id] = $end_time;
+            if($row[5] === "TRUE" || $row[6] === "TRUE") {
+                $this->workersEndTime[$currentDate][$worker->id] = $end_time;
+            }
 
             $jobData = Job::where('offer_id', $offer->id)
                 ->where('start_date', $currentDate)
@@ -1360,7 +1362,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             //             $this->updateColumnInRow(($index + 1), "W", $link, $sheet);
             //         }
             //     }
-            // } 
+            // }
 
             // if(!$jobData){
             //     // Build the job query with JSON conditions
