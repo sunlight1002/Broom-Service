@@ -94,11 +94,11 @@ class Kernel extends ConsoleKernel
 
         // Monday at 1:30 PM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
-            ->weeklyOn(Schedule::MONDAY, '13:30');
+            ->weeklyOn(Schedule::SUNDAY, '13:30');
 
         // Monday at 8:00 PM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
-            ->weeklyOn(Schedule::MONDAY, '20:00');
+            ->weeklyOn(Schedule::SUNDAY, '20:00');
 
         // Tuesday at 8:30 AM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
