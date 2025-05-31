@@ -604,7 +604,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
     public function fbWebhookCurrentLive(Request $request)
     {
         $data = $request->all();
-        \Log::info($data);
+        \Log::info("Twilio Webhook:", $data);
         $messageId = $data['SmsMessageSid'] ?? null;
         $message = null;
 
@@ -626,6 +626,60 @@ Your message has been forwarded to the team for further handling. Thank you for 
             $listId = $data['ListId'] ?? $message;
             $ButtonPayload = $data['ButtonPayload'] ?? null;
             \Log::info($ButtonPayload);
+
+            switch ($listId) {
+                case 'About the Service':
+                case 'מידע על השירות':
+                    $listId = 1;
+                    break;
+                case 'Service Areas':
+                case 'אזורי שירות':
+                    $listId = 2;
+                    break;
+                case 'Book an Appointment':
+                case 'קביעת פגישה':
+                    $listId = 3;
+                    break;
+                case 'I am Existing client':
+                case 'אני לקוח קיים':
+                    $listId = 4;
+                    break;
+                case 'Talk to a Human (hours)':
+                case 'לנציג (בשעות הפעילות)':
+                    $listId = 5;
+                    break;
+                case 'שפה עברית':
+                case 'English menu':
+                    $listId = 6;
+                    break;
+            }
+
+            switch ($message) {
+                case 'About the Service':
+                case 'מידע על השירות':
+                    $message = 1;
+                    break;
+                case 'Service Areas':
+                case 'אזורי שירות':
+                    $message = 2;
+                    break;
+                case 'Book an Appointment':
+                case 'קביעת פגישה':
+                    $message = 3;
+                    break;
+                case 'I am Existing client':
+                case 'אני לקוח קיים':
+                    $message = 4;
+                    break;
+                case 'Talk to a Human (hours)':
+                case 'לנציג (בשעות הפעילות)':
+                    $message = 5;
+                    break;
+                case 'שפה עברית':
+                case 'English menu':
+                    $message = 6;
+                    break;
+            }
 
             \Log::info($listId);
             $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
@@ -674,7 +728,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 $menuParts = explode('->', $responseActiveClientState->menu_option);
                 $flag = end($menuParts);
             } else if (!$client && !$user && !$workerLead) {
-                $sid = $lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                $sid = $lng == "heb" ? "HX46b1587bfcaa3e6b29869edb538f45e0" : "HXccd789be06e2fd60dd0708266ae7007f";
 
                 $message = $this->twilio->messages->create(
                     "whatsapp:+$from",
@@ -764,7 +818,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 $responseClientState->final = 0;
                 $responseClientState->save();
 
-                $sid = $responseClientState->lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                $sid = $responseClientState->lng == "heb" ? "HX46b1587bfcaa3e6b29869edb538f45e0" : "HXccd789be06e2fd60dd0708266ae7007f";
 
                 $message = $this->twilio->messages->create(
                     "whatsapp:+$from",
@@ -800,10 +854,10 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                        $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                        $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
-                        $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                        $sid = "HXccd789be06e2fd60dd0708266ae7007f";
                     }
 
                     $twi = $this->twilio->messages->create(
@@ -869,10 +923,10 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                        $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                        $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
-                        $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                        $sid = "HXccd789be06e2fd60dd0708266ae7007f";
                     }
 
                     $twi = $this->twilio->messages->create(
@@ -923,10 +977,10 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                        $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                        $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
                     } else {
                         $m = $this->botMessages['main-menu']['en'];
-                        $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                        $sid = "HXccd789be06e2fd60dd0708266ae7007f";
                     }
 
                     $twi = $this->twilio->messages->create(
@@ -993,14 +1047,18 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                 // Send english menu
                 if ($last_menu == 'main_menu' && $listId == '6') {
-                    if (strlen($from) > 10) {
-                        Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'en']);
+                    $lng = $client->lng;
+                    if($client->lng == 'en') {
+                        $client->lng = 'heb';
                     } else {
-                        Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'en']);
+                        $client->lng = 'en';
                     }
-                    $m = $this->botMessages['main-menu']['en'];
+                    $client->save();
 
-                    $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                    $sid = "HXccd789be06e2fd60dd0708266ae7007f";
+                    if($client->lng == 'heb') {
+                        $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
+                    }
 
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
@@ -1033,46 +1091,46 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 }
 
                 // Send hebrew menu
-                if ($last_menu == 'main_menu' && $listId == '7') {
-                    \Log::info('Language switched to hebrew');
-                    if (strlen($from) > 10) {
-                        Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'heb']);
-                    } else {
-                        Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'heb']);
-                    }
-                    $m = $this->botMessages['main-menu']['heb'];
+                // if ($last_menu == 'main_menu' && $listId == '7') {
+                //     \Log::info('Language switched to hebrew');
+                //     if (strlen($from) > 10) {
+                //         Client::where('phone', 'like', '%' . substr($from, 2) . '%')->update(['lng' => 'heb']);
+                //     } else {
+                //         Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'heb']);
+                //     }
+                //     $m = $this->botMessages['main-menu']['heb'];
 
-                    $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                //     $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
 
-                    $twi = $this->twilio->messages->create(
-                        "whatsapp:+$from",
-                        [
-                            "from" => $this->twilioWhatsappNumber,
-                            "contentSid" => $sid,
+                //     $twi = $this->twilio->messages->create(
+                //         "whatsapp:+$from",
+                //         [
+                //             "from" => $this->twilioWhatsappNumber,
+                //             "contentSid" => $sid,
 
-                        ]
-                    );
-                    \Log::info($twi->sid);
+                //         ]
+                //     );
+                //     \Log::info($twi->sid);
 
-                    $response = WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'message'       => $twi->body ?? '',
-                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                        'number'        => $from,
-                        'read'          => 1,
-                        'flex'          => 'A',
-                        'data'          => json_encode($twi->toArray())
-                    ]);
-                    $responseClientState =  WhatsAppBotClientState::updateOrCreate([
-                        'client_id' => $client->id,
-                    ], [
-                        'menu_option' => 'main_menu',
-                        'language' =>  'he',
-                    ]);
-                    Log::info('Language switched to hebrew');
-                    die("Language switched to hebrew");
-                }
+                //     $response = WebhookResponse::create([
+                //         'status'        => 1,
+                //         'name'          => 'whatsapp',
+                //         'message'       => $twi->body ?? '',
+                //         'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                //         'number'        => $from,
+                //         'read'          => 1,
+                //         'flex'          => 'A',
+                //         'data'          => json_encode($twi->toArray())
+                //     ]);
+                //     $responseClientState =  WhatsAppBotClientState::updateOrCreate([
+                //         'client_id' => $client->id,
+                //     ], [
+                //         'menu_option' => 'main_menu',
+                //         'language' =>  'he',
+                //     ]);
+                //     Log::info('Language switched to hebrew');
+                //     die("Language switched to hebrew");
+                // }
 
                 // Menus Array
                 $menus = [
@@ -2429,8 +2487,8 @@ Enter your phone number or email address with which you registered for the servi
                     die("Language switched to english");
                 }
 
-                if ((!in_array(strtolower($message), ['הפסק', 'stop']) 
-                && !in_array($flag, ['email_sent', 'verified', 'incorect_otp', 'failed_attempts', 'number_not_recognized']) 
+                if ((!in_array(strtolower($message), ['הפסק', 'stop'])
+                && !in_array($flag, ['email_sent', 'verified', 'incorect_otp', 'failed_attempts', 'number_not_recognized'])
                 && !in_array($last_menu,['enter_phone', 'customer_service']))
                 && (!$ButtonPayload || !$listId)) {
 
@@ -2535,7 +2593,7 @@ Enter your phone number or email address with which you registered for the servi
             ]);
 
             $m = $this->botMessages['main-menu']['heb'];
-            $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+            $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
 
             $twi = $this->twilio->messages->create(
                 "whatsapp:+$lead->phone",
@@ -2627,7 +2685,6 @@ Enter your phone number or email address with which you registered for the servi
 
     public function fbActiveClientsWebhookCurrentLive(Request $request)
     {
-        \Log::info('Webhook received');
         $data = $request->all();
         $messageId = $data['SmsMessageSid'] ?? null;
 

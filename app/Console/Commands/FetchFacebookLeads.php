@@ -273,9 +273,9 @@ class FetchFacebookLeads extends Command
                                                 $sid = null;
 
                                                 if ($client->lng == 'heb') {
-                                                    $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                                                    $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
                                                 } else {
-                                                    $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                                                    $sid = "HXccd789be06e2fd60dd0708266ae7007f";
                                                 }
 
                                                 $twi = $this->twilio->messages->create(
@@ -334,9 +334,9 @@ class FetchFacebookLeads extends Command
                                         $sid = null;
 
                                         if ($client->lng == 'heb') {
-                                            $sid = "HX386916d517b39fc62c3ac739b3797cc1";
+                                            $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
                                         } else {
-                                            $sid = "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                                            $sid = "HXccd789be06e2fd60dd0708266ae7007f";
                                         }
 
                                         $twi = $this->twilio->messages->create(

@@ -255,7 +255,7 @@ class LeadController extends Controller
             try {
                 \Log::info("send_bot_message");
 
-                $sid = $client->lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                $sid = $client->lng == "heb" ? "HX46b1587bfcaa3e6b29869edb538f45e0" : "HXccd789be06e2fd60dd0708266ae7007f";
 
                 $message = $twilio->messages->create(
                     "whatsapp:+$client->phone",
@@ -781,7 +781,7 @@ class LeadController extends Controller
                             if ($lng == 'heb') {
                                 $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                             }
-                            $sid = $client->lng == "heb" ? "HX386916d517b39fc62c3ac739b3797cc1" : "HX4c0f14dbc67298b260e549ff7ce8cddc";
+                            $sid = $client->lng == "heb" ? "HX46b1587bfcaa3e6b29869edb538f45e0" : "HXccd789be06e2fd60dd0708266ae7007f";
 
                             $message = $twilio->messages->create(
                                 "whatsapp:+$client->phone",
