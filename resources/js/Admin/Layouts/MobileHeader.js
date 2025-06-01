@@ -349,7 +349,7 @@ export default function MobileHeader() {
                                 >
                                     <div className="card-body">
                                         <ul className="list-group">
-                                            {role !== "member" && role !== "hr" && (
+                                            {role !== "member" && role !== "hr" && role !== "supervisor" && (
                                                 <li className="list-group-item">
                                                     <a href="/admin/manage-team">
                                                         <i className="fa fa-angle-right"></i>{" "}
