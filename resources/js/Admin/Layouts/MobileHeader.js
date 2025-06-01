@@ -95,11 +95,13 @@ export default function MobileHeader() {
                         {
                             role !== "hr" && (
                                 <>
-                                    <li className="nav-item">
-                                        <a href="/admin/leads" onClick={(e) => handleClick(e, "/admin/leads")}>
-                                            <i className="fa-solid fa-poll-h"></i>{t("admin.sidebar.leads")}
-                                        </a>
-                                    </li>
+                                    {role !== "supervisor" && (
+                                        <li className="nav-item">
+                                            <a href="/admin/leads" onClick={(e) => handleClick(e, "/admin/leads")}>
+                                                <i className="fa-solid fa-poll-h"></i>{t("admin.sidebar.leads")}
+                                            </a>
+                                        </li>
+                                    )}
                                     {/* Client Dropdown */}
                                     <li className="nav-item">
                                         <div id="clientDropdown" className="fence commonDropdown">
@@ -129,47 +131,58 @@ export default function MobileHeader() {
                                                                 href="/admin/clients"
                                                                 onClick={(e) => handleClick(e, "/admin/clients")}
                                                             >
-                                                                <i className="fa fa-angle-right"></i> All Clients
+                                                                {role !== "supervisor" ? (
+                                                                    <>
+                                                                     <i className="fa fa-angle-right"></i> All Clients
+                                                                    </>
+                                                                ) : (
+                                                                    <>Clients</>
+                                                                )}
+
                                                             </a>
                                                         </li>
-                                                        <li className="list-group-item">
-                                                            <a
-                                                                href="/admin/clients?type=pending%20client"
-                                                                onClick={(e) =>
-                                                                    handleClick(e, "/admin/clients?type=pending%20client")
-                                                                }
-                                                            >
-                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
-                                                            </a>
-                                                        </li>
-                                                        <li className="list-group-item">
-                                                            <a
-                                                                href="/admin/clients?type=active%20client"
-                                                                onClick={(e) =>
-                                                                    handleClick(e, "/admin/clients?type=active%20client")
-                                                                }
-                                                            >
-                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
-                                                            </a>
-                                                        </li>
-                                                        <li className="list-group-item">
-                                                            <a
-                                                                href="/admin/clients?type=freeze%20client"
-                                                                onClick={(e) =>
-                                                                    handleClick(e, "/admin/clients?type=freeze%20client")
-                                                                }
-                                                            >
-                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
-                                                            </a>
-                                                        </li>
-                                                        <li className="list-group-item">
-                                                            <a
-                                                                href="/admin/clients?type=past"
-                                                                onClick={(e) => handleClick(e, "/admin/clients?type=past")}
-                                                            >
-                                                                <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
-                                                            </a>
-                                                        </li>
+                                                        {role !== "supervisor" && (
+                                                            <>
+                                                                <li className="list-group-item">
+                                                                    <a
+                                                                        href="/admin/clients?type=pending%20client"
+                                                                        onClick={(e) =>
+                                                                            handleClick(e, "/admin/clients?type=pending%20client")
+                                                                        }
+                                                                    >
+                                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
+                                                                    </a>
+                                                                </li>
+                                                                <li className="list-group-item">
+                                                                    <a
+                                                                        href="/admin/clients?type=active%20client"
+                                                                        onClick={(e) =>
+                                                                            handleClick(e, "/admin/clients?type=active%20client")
+                                                                        }
+                                                                    >
+                                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
+                                                                    </a>
+                                                                </li>
+                                                                <li className="list-group-item">
+                                                                    <a
+                                                                        href="/admin/clients?type=freeze%20client"
+                                                                        onClick={(e) =>
+                                                                            handleClick(e, "/admin/clients?type=freeze%20client")
+                                                                        }
+                                                                    >
+                                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
+                                                                    </a>
+                                                                </li>
+                                                                <li className="list-group-item">
+                                                                    <a
+                                                                        href="/admin/clients?type=past"
+                                                                        onClick={(e) => handleClick(e, "/admin/clients?type=past")}
+                                                                    >
+                                                                        <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
+                                                                    </a>
+                                                                </li>
+                                                            </>
+                                                        )}
                                                     </ul>
                                                 </div>
                                             </div>
@@ -183,29 +196,42 @@ export default function MobileHeader() {
                                 <i className="fa-solid fa-users"></i>{t("admin.sidebar.workers")}
                             </a>
                         </li>
-                        <li className="nav-item">
-                            <a href="/admin/workers-leaves" onClick={(e) => handleClick(e, "/admin/workers-leaves")}>
-                                <i className="fa-solid fa-calendar-minus"></i>{t("admin.sidebar.workerLeave")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/worker-leads" onClick={(e) => handleClick(e, "/admin/worker-leads")}>
-                                <i className="fa-solid fa-users"></i>{t("admin.sidebar.worker_lead")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/workers-refund" onClick={(e) => handleClick(e, "/admin/workers-refund")}>
-                                <i className="fa-solid fa-undo-alt"></i>{t("worker.worker_refund")}
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="/admin/task" onClick={(e) => handleClick(e, "/admin/task")}>
-                                <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
-                            </a>
-                        </li>
+                        {role !== "supervisor" && (
+                            <>
+                                <li className="nav-item">
+                                    <a href="/admin/workers-leaves" onClick={(e) => handleClick(e, "/admin/workers-leaves")}>
+                                        <i className="fa-solid fa-calendar-minus"></i>{t("admin.sidebar.workerLeave")}
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a href="/admin/worker-leads" onClick={(e) => handleClick(e, "/admin/worker-leads")}>
+                                        <i className="fa-solid fa-users"></i>{t("admin.sidebar.worker_lead")}
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a href="/admin/workers-refund" onClick={(e) => handleClick(e, "/admin/workers-refund")}>
+                                        <i className="fa-solid fa-undo-alt"></i>{t("worker.worker_refund")}
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a href="/admin/task" onClick={(e) => handleClick(e, "/admin/task")}>
+                                        <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
+                                    </a>
+                                </li>
+                            </>
+                        ) }
+
+                        {role == "supervisor" && (
+                            <li className="nav-item">
+                                <a href="/admin/jobs" onClick={(e) => handleClick(e, "/admin/jobs")}>
+                                    <i className="fa-solid fa-briefcase"></i>
+                                    {t("admin.sidebar.schedule_meet")}
+                                </a>
+                            </li>
+                        )}
 
                         {
-                            role !== "hr" && (
+                            (role !== "hr" && role !== "supervisor") && (
                                 <>
                                     <li className="nav-item">
                                         <a href="/admin/schedule" onClick={(e) => handleClick(e, "/admin/schedule")}>
@@ -282,7 +308,7 @@ export default function MobileHeader() {
                             )
                         }
 
-                        {role !== "member" && role !== "hr" && (
+                        {(role !== "member" && role !== "hr" && role !== "supervisor") && (
                             <li className="nav-item">
                                 <a href="/admin/income" onClick={(e) => handleClick(e, "/admin/income")}>
                                     <i className="fa-solid fa-ils"></i>{t("admin.sidebar.earnings")}
@@ -290,7 +316,7 @@ export default function MobileHeader() {
                             </li>
                         )}
                         {
-                            role !== "hr" && (
+                            role !== "hr" && role !== "supervisor" && (
                                 <li className="nav-item">
                                     <a href="/admin/notifications" onClick={(e) => handleClick(e, "/admin/notifications")}>
                                         <i className="fa-solid fa-bullhorn"></i>
@@ -332,7 +358,7 @@ export default function MobileHeader() {
                                                 </li>
                                             )}
                                             {
-                                                role !== "hr" && (
+                                                role !== "hr" && role !== "supervisor" && (
                                                     <>
                                                         <li className="list-group-item">
                                                             <a href="/admin/services">
