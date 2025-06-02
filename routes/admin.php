@@ -82,7 +82,7 @@ Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('r
 // Route::get('get-marketing-template', [DashboardController::class, 'getMarketingTemplate']);
 
 // Authenticated Routes
-Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
+Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.activity']], function () {
 
     // Admin Details Api
     Route::get('details', [AuthController::class, 'details']);
@@ -434,6 +434,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     Route::get('/scheduled-hearings/{id}', [HearingInvitationController::class, 'getScheduledHearings']);
     Route::delete('/hearing/{id}', [HearingInvitationController::class, 'destroy']);
+
+    Route::get('/protocol', [HearingProtocolController::class, 'show']);
+    Route::get('/decision-document', [DecisionController::class, 'show']);
 
     Route::get('/hearing-protocol/latest-invitation', [HearingProtocolController::class, 'latestHearingInvitation']);
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);

@@ -59,6 +59,21 @@ export default function ManageTeam() {
                         return `+${data}`;
                     }
                 },
+                { 
+                    title: "IP Address", 
+                    data: "ip" 
+                },
+                { 
+                    title: "Country",
+                    data: "country" 
+                },
+                {
+                    title: "Last Activity",
+                    data: "last_activity_date",
+                    render: function (data) {
+                        return data ? new Date(data).toLocaleString() : "—";
+                    }
+                },
                 {
                     title: t("global.status"),
                     data: "status",

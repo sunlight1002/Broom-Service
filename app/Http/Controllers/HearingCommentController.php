@@ -16,17 +16,6 @@ class HearingCommentController extends Controller
             'comment' => 'required|string|max:500',
         ]);
 
-        // $protocol = HearingProtocol::where('worker_id', $request->worker_id)
-        //     ->latest()
-        //     ->first();
-
-        // if (!$protocol) {
-        //     return response()->json(['message' => 'Protocol not found.'], 404);
-        // }
-
-        // $protocol->comment = $request->comment;
-        // $protocol->save();
-
         Comment::create([
             'user_id' => $request->worker_id,
             'comment' => $request->comment,

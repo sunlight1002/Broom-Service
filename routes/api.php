@@ -119,6 +119,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 
     Route::get('/protocol', [HearingProtocolController::class, 'show']);
     Route::post('/comments', [HearingCommentController::class, 'store']);
+    Route::get('/hearing_protocol/comments', [HearingCommentController::class, 'getComments']);
+
     Route::get('/worker-claim', [ClaimController::class, 'getWorkerClaim']);
 
     Route::get('/decision_document', [DecisionController::class, 'show']);

@@ -358,7 +358,7 @@ class WorkerLeadWebhookController extends Controller
                         'lng' => $lng,
                         'source' => 'whapi-worker-lead-bot'
                     ]
-                );
+                )   ;
 
                 $sid = $workerLead->lng == 'en' ? 'HX868e85a56d9f6af3fa9cb46c47370e49' : 'HXd0f88505bf55200b5b0db725e40a6331';
 

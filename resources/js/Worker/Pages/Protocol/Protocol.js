@@ -10,6 +10,7 @@ function Protocol() {
     const [decisionFile, setDecisionFile] = useState(null);
     const [error, setError] = useState(null);
     const [comment, setComment] = useState("");
+    const [fetchedComment, setFetchedComment] = useState(null);                           
     const [commentError, setCommentError] = useState("");
     const [claimText, setClaimText] = useState(null);
     const [showClaim, setShowClaim] = useState(false);
@@ -35,7 +36,6 @@ function Protocol() {
                 setProtocolFile(response.data.file);
             })
             .catch(error => {
-                alert.error('Failed to load protocol document.');
             });
     }, [workerId]);
 
@@ -51,7 +51,6 @@ function Protocol() {
                 setDecisionFile(response.data.file);
             })
             .catch(error => {
-                alert.error('Failed to load protocol document.');
             });
     }, [workerId]);
 
@@ -62,14 +61,20 @@ function Protocol() {
             .then(response => {
                 const claim = response.data.claim_description;
                 if (claim && claim.trim() !== "") {
+                    setClaimText(claim);
+                    setShowClaim(true);
                     setHasClaim(true);
                 } else {
                     setHasClaim(false);
+                    setShowClaim(false);
                 }
             })
-            .catch(() => setHasClaim(false));
+            .catch(() => {
+                setHasClaim(false);
+                setShowClaim(false);
+            });
     }, [workerId]);
-    
+
 
     const handleCommentChange = (event) => {
         setComment(event.target.value);
@@ -93,24 +98,27 @@ function Protocol() {
             });
     };    
 
-    const handleFetchClaim = () => {
-        if (!workerId) {
-            alert.error("Worker ID not found.");
-            return;
+    useEffect(() => {
+        if (workerId) {
+            axios.get(`/api/hearing_protocol/comments?worker_id=${workerId}`, { headers })
+                .then(response => {
+                    if (response.data && response.data.comment) {
+                        setFetchedComment(response.data.comment);
+                        setMessages(prev => [
+                            ...prev,
+                            {
+                                type: 'comment',
+                                content: response.data.comment,
+                            }
+                        ]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching comments:', error);
+                    setError('Failed to load comments.');
+                });
         }
-    
-        axios.get(`/api/worker-claim?worker_id=${workerId}`, { headers })
-            .then(response => {
-                const claim = response.data.claim_description;
-                setClaimText(claim);
-                setShowClaim(true);
-                setHasClaim(true)
-            })
-            .catch(error => {
-                alert.error("Failed to load claim description.");
-                setHasClaim(false);
-            });
-    };
+    }, [workerId]);
 
     return (
         <div id="container">
@@ -125,12 +133,6 @@ function Protocol() {
                 </div>
                
                 <div className="d-flex align-items-center mb-3">
-                    {hasClaim && (
-                        <button className="btn navyblue px-4 mr-3" onClick={handleFetchClaim}>
-                            {t("worker.hearing.protocol.viewClaim")}
-                        </button>
-                    )}
-
                     {protocolFile && (
                         <a 
                             href={protocolFile} 
@@ -154,7 +156,6 @@ function Protocol() {
                             {t("worker.hearing.protocol.viewDecisionDocument")}
                         </a>
                     )}
-
                 </div>
 
                 {showClaim && (
@@ -164,22 +165,32 @@ function Protocol() {
                 )}
 
                 <div className="card" style={{ boxShadow: "none" }}>
-                    {/* Comment Section */}
                     <div>
-                        <textarea 
-                            value={comment} 
-                            onChange={handleCommentChange} 
-                            placeholder="Enter your comment..." 
-                            rows="4" 
-                            className="form-control mb-3"
-                        />
-                        {commentError && <p className="text-danger">{commentError}</p>}
-                        <button 
-                            onClick={handleSubmitComment} 
-                            className="btn navyblue"
-                        >
-                            {t("worker.hearing.protocol.submitComment")}
-                        </button>
+                        {fetchedComment ? (
+                            // ✅ Show submitted comment only
+                            <div className="alert alert-secondary" style={{ whiteSpace: "pre-wrap", background: "white" }}>
+                                <strong>Submitted Comment : &nbsp;</strong>
+                                {fetchedComment}
+                            </div>
+                        ) : (
+                            // ✅ Show textarea + submit if no comment exists
+                            <>
+                                <textarea 
+                                    value={comment} 
+                                    onChange={handleCommentChange} 
+                                    placeholder="Enter your comment..." 
+                                    rows="4" 
+                                    className="form-control mb-3"
+                                />
+                                {commentError && <p className="text-danger">{commentError}</p>}
+                                <button 
+                                    onClick={handleSubmitComment} 
+                                    className="btn navyblue"
+                                >
+                                    {t("worker.hearing.protocol.submitComment")}
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

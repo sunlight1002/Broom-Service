@@ -7,6 +7,7 @@ import { useAlert } from 'react-alert';
 
 function FinalDecision() {
     const [messages, setMessages] = useState([]);
+    const [decisionFile, setDecisionFile] = useState(null);
     const [error, setError] = useState('');
     const params = useParams();
     const workerId = params.id;
@@ -62,6 +63,20 @@ function FinalDecision() {
         }
     };  
 
+    useEffect(() => {
+        if (!workerId) {
+            alert.error('Worker ID not found in local storage.');
+            return;
+        }
+
+        axios.get(`/api/admin/decision-document?worker_id=${workerId}`, { headers })
+            .then(response => {
+                setDecisionFile(response.data.file);
+            })
+            .catch(error => {
+            });
+    }, [workerId]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -77,26 +92,26 @@ function FinalDecision() {
                         >
                             {t("admin.hearing.generateAndSendFinalDecisionDocument")}
                         </button>
-    
-                            <div className="form-group mt-4">
-                                {messages.map((msg, index) => (
-                                    <div key={index} className={`flex ${msg.type === 'admin' ? 'justify-start' : msg.type === 'worker' ? 'justify-end' : 'justify-center'}`}>
-                                        <div className={`p-3 rounded-lg max-w-xs ${msg.type === 'admin' ? 'bg-blue-100 text-left' : msg.type === 'worker' ? 'bg-green-100 text-right' : 'bg-gray-100 text-left'}`}>
-                                            {msg.type === 'admin' ? (
-                                                <span>{t("admin.hearing.documentGenerated")} {msg.content}</span>
-                                            ) : ( ''
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                        
                         </div>
                     </div>
+                </div>
+                <div className="d-flex align-items-center mb-3">
+                    {decisionFile && (
+                        <a 
+                            href={decisionFile} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="btn px-3 mr-3"
+                            style={{ textDecoration: "none", background: "#2F4054", color: "white"}}
+                        >
+                            {t("worker.hearing.protocol.viewDecisionDocument")}
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
     );
-  
 }
 
 export default FinalDecision

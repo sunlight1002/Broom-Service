@@ -7,6 +7,7 @@ import { useAlert } from "react-alert";
 
 const HearingProtocol = () => {
     const [messages, setMessages] = useState([]);
+    const [protocolFile, setProtocolFile] = useState(null);
     const [error, setError] = useState('');
     const params = useParams();
     const workerId = params.id;
@@ -40,7 +41,20 @@ const HearingProtocol = () => {
                 });
         }
     }, [workerId]);
-    
+
+    useEffect(() => {
+        if (!workerId) {
+            alert.error('Worker ID not found in local storage.');
+            return;
+        }
+
+        axios.get(`/api/admin/protocol?worker_id=${workerId}`, { headers })
+            .then(response => {
+                setProtocolFile(response.data.file);
+            })
+            .catch(error => {
+            });
+    }, [workerId]);
 
     const handleGenerateDocument = async () => {
         if (!workerId) {
@@ -106,7 +120,7 @@ const HearingProtocol = () => {
                                 <div key={index} className={`flex ${msg.type === 'admin' ? 'justify-start' : msg.type === 'worker' ? 'justify-end' : 'justify-center'}`}>
                                     <div className={`p-3 rounded-lg max-w-xs ${msg.type === 'admin' ? 'bg-blue-100 text-left' : msg.type === 'worker' ? 'bg-green-100 text-right' : 'bg-gray-100 text-left'}`}>
                                         {msg.type === 'admin' ? (
-                                            <span> {t("admin.hearing.protocol.documentGenerated")} {msg.content}</span>
+                                            <span></span>
                                         ) : msg.type === 'worker' ? (
                                             <span>{t("admin.hearing.protocol.workerResponse")} {msg.content}</span>
                                         ) : (
@@ -115,6 +129,19 @@ const HearingProtocol = () => {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                        <div className="d-flex align-items-center mb-3">
+                            {protocolFile && (
+                                <a 
+                                    href={protocolFile} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="btn px-4 mr-3"
+                                    style={{ textDecoration: "none", background: "#2F4054", color: "white"}}
+                                >
+                                    {t("worker.hearing.protocol.viewProtocolDocument")}
+                                </a>
+                            )}
                         </div>
                     </div>
                 </div>
