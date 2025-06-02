@@ -90,7 +90,7 @@ class ClientController extends Controller
             })
             ->when($role === 'supervisor', function ($q) {
                 $q->where('clients.status', 2)
-                    ->whereIn('leadstatus.lead_status', ['active client', 'unhappy'])
+                    ->whereIn('leadstatus.lead_status', ['active client'])
                     ->where('leadstatus.updated_at', '>=', now()->subMonth());
             })
             ->select(

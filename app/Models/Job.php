@@ -47,6 +47,7 @@ class Job extends Model
         'invoice_no',
         'invoice_url',
         'status',
+        'order_by',
         'next_start_date',
         'is_next_job_created',
         'keep_prev_worker',

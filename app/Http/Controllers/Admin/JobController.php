@@ -111,6 +111,12 @@ class JobController extends Controller
                         ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
                 });
             })
+            // ->when($role === 'supervisor', function ($q) {
+            //     $q->where(function ($query) {
+            //         $query->orderBy('jobs.order_by', 'asc'); 
+
+            //     });
+            // })
             ->when($assigned_jobs, function ($q) {
                 $jobIds = SupervisorJob::all()->pluck('job_id');
                 return $q->whereIn('jobs.id', $jobIds);
@@ -124,6 +130,7 @@ class JobController extends Controller
                 'jobs.shifts',
                 'jobs.is_job_done',
                 'jobs.status',
+                'jobs.order_by',
                 'job_services.duration_minutes',
                 'job_services.freq_name',
                 'jobs.actual_time_taken_minutes',
@@ -154,10 +161,17 @@ class JobController extends Controller
                 ) THEN 1 ELSE 0 END) as is_assigned_to_supervisor')
             )
             ->groupBy('jobs.id')
-            ->orderBy('jobs.start_date')
-            ->orderBy('users.id')           // group by worker
-            ->orderBy('jobs.start_time')    // sort within day (existing jobs come first)
-            ->orderBy('jobs.id');           // stable fallback sort
+            ->when($role === 'supervisor', function ($q) {
+                return $q
+                    ->orderByRaw('ISNULL(jobs.order_by), jobs.order_by ASC')
+                    ->orderBy('jobs.start_date')
+                    ->orderBy('jobs.start_time');
+            }, function ($q) {
+                return $q
+                    ->orderBy('jobs.start_date')
+                    ->orderBy('jobs.start_time')
+                    ->orderBy('users.id');     
+            });
 
 
         return DataTables::eloquent($query)
@@ -4248,5 +4262,21 @@ class JobController extends Controller
                 'message' => 'Job assigned to supervisor successfully.',
             ]);
         }
+    }
+
+    public function jobOrderBy(Request $request)
+    {
+        $request->validate([
+            'job_id' => 'required|exists:jobs,id',
+            'order_by' => 'required',
+        ]);
+
+        $job = Job::find($request->job_id);
+        $job->order_by = $request->order_by;
+        $job->save();
+
+        return response()->json([
+            'message' => 'Job order by updated successfully.',
+        ]);
     }
 }

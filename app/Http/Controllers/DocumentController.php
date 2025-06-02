@@ -26,7 +26,7 @@ class DocumentController extends Controller
 
         $documents = $worker->documents()
             ->with(['document_type' => function ($query) {
-                return $query->select(['id', 'name']);
+                return $query->select(['id', 'name', 'slug']);
             }])
             ->where('userable_type', 'App\Models\User')
             ->get();

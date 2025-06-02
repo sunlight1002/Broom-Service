@@ -38,6 +38,7 @@ export default function TotalJobs() {
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
+    const [isOrderByModel, setIsOrderByModel] = useState(false)
     const [isChangeShiftModal, setIsChangeShiftModal] = useState(false)
     const [selectedDateRange, setSelectedDateRange] = useState("Day");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
@@ -46,6 +47,7 @@ export default function TotalJobs() {
     const [comment, setComment] = useState("");
     const role = localStorage.getItem("admin-role");
     const adminId = localStorage.getItem("admin-id");
+    const [orderBy, setOrderBy] = useState(null)
 
     const tableRef = useRef(null);
     const tableRef2 = useRef(null);
@@ -192,6 +194,22 @@ export default function TotalJobs() {
     }
 
 
+    const handleOrderByModel = (id) => {
+        setSelectedJob(id)
+        setIsOrderByModel(true)
+    }
+
+
+    const handleSaveOrderBy = async () => {
+        const res = await axios.post("/api/admin/jobs/order-by", { job_id: selectedJob, order_by: orderBy }, { headers });
+        if (res.status == 200) {
+            alert.success(res.data.message);
+            $(tableRef.current).DataTable().draw();
+            setIsOrderByModel(false)
+        }
+    }
+
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -297,7 +315,7 @@ export default function TotalJobs() {
                                 displayName += " " + nameParts[1].substring(0, 2); // Append first two letters of last name
                             }
 
-                            let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
+                            let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-worker-id="${row.worker_id}" data-total-amount="${row.total_amount}">`;
                             _html += `<i class="fa-solid fa-user"></i> `;
                             _html += displayName; // Show formatted name
                             _html += `</span>`;
@@ -429,6 +447,12 @@ export default function TotalJobs() {
                         },
                     },
                     {
+                        title: "Order by",
+                        data: "order_by",
+                        orderable: false,
+                        width: "6%",
+                    },
+                    {
                         title: t("global.action"),
                         data: "action",
                         orderable: false,
@@ -449,6 +473,7 @@ export default function TotalJobs() {
                                 }
 
                                 _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("global.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-set-order-btn" data-id="${row.id}" data-order-by="${row.order_by}">Set Order</button>`;
 
                                 if (
                                     [
@@ -458,7 +483,7 @@ export default function TotalJobs() {
                                         "re-scheduled",
                                     ].includes(row.status)
                                 ) {
-                                    _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">${t("global.switchWorker")}</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-wid="${row.worker_id}" data-total-amount="${row.total_amount}">${t("global.switchWorker")}</button>`;
 
                                     _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
 
@@ -577,6 +602,13 @@ export default function TotalJobs() {
             navigate(`/admin/clients/view/${_clientID}`);
         });
 
+        if (role == "supervisor") {
+            $(tableRef.current).on("click", ".worker-name-badge", function () {
+                const _workerID = $(this).data("worker-id");
+                navigate(`/admin/workers/view/${_workerID}`);
+            });
+        }
+
         $(tableRef.current).on("change", ".dt-if-job-done-checkbox", function () {
             const _id = $(this).data("id");
             handleJobDone(_id, this.checked);
@@ -609,17 +641,15 @@ export default function TotalJobs() {
             navigate(`/admin/jobs/view/${_id}`);
         });
 
+
         if (role != "supervisor") {
-            $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
-                const _id = $(this).data("id");
-                const _totalAmount = $(this).data("total-amount");
-                handleSwitchWorker({ id: _id, total_amount: _totalAmount });
-            });
-
-
             $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
                 const _id = $(this).data("id");
                 navigate(`/admin/jobs/${_id}/change-worker`);
+            });
+            $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
+                const _id = $(this).data("id");
+                handleSwitchWorker({ id: _id, total_amount: _totalAmount });
             });
         }
 
@@ -644,6 +674,13 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-supervisor-btn", function () {
             const _id = $(this).data("id");
             handleAssignJobToSupervisor(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-set-order-btn", function () {
+            const _id = $(this).data("id");
+            const orderBy = $(this).data("order-by");
+            setOrderBy(orderBy ? orderBy : null);
+            handleOrderByModel(_id);
         });
 
 
@@ -1634,6 +1671,64 @@ export default function TotalJobs() {
                             <Button
                                 type="button"
                                 onClick={() => handleSaveComment(selectedJob)}
+                                className="btn btn-primary"
+                            // disabled={loading}
+                            >
+                                {t("modal.save")}
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )
+            }
+
+            {
+                isOrderByModel && (
+                    <Modal
+                        size="md"
+                        className="modal-container"
+                        show={isOrderByModel}
+                        onHide={() => {
+                            setIsOrderByModel(false);
+                        }}
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Set Order By</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Order By
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={orderBy}
+                                            name="orderBy"
+                                            onChange={(e) => setOrderBy(e.target.value)}
+                                            className="form-control"
+                                            required
+                                            placeholder="Enter Number"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <Button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => {
+                                    setIsOrderByModel(false);
+                                }}
+                            >
+                                {t("modal.close")}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => handleSaveOrderBy(selectedJob)}
                                 className="btn btn-primary"
                             // disabled={loading}
                             >

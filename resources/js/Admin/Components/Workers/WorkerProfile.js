@@ -39,7 +39,7 @@ export default function WorkerProfile({ worker }) {
         <>
             <div className="worker-profile">
                 <h2>
-                    #{worker.worker_id}{" "}
+                    #{worker.passport ? worker.passport : worker?.worker_id}{" "}
                     {worker.firstname + " " + worker.lastname}
                 </h2>
                 <div className="dashBox p-0 p-md-4 mb-3">

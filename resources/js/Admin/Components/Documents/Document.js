@@ -17,9 +17,6 @@ export default function Document({ worker, getWorkerDetails }) {
 
     const params = useParams();
     const workerId = worker.id;
-    console.log("worker id is:", workerId);
-    
-
     const alert = useAlert();
 
     const headers = {
@@ -61,8 +58,6 @@ export default function Document({ worker, getWorkerDetails }) {
         axios
             .get(`/api/admin/documents/${parseInt(worker.id)}`, { headers })
             .then((response) => {
-                console.log(response.data.documents);
-
                 setDocuments(response.data.documents);
             });
     };
@@ -70,8 +65,6 @@ export default function Document({ worker, getWorkerDetails }) {
     const getDocumentTypes = () => {
         axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
             if (res.data && res.data.documentTypes.length > 0) {
-                console.log(res.data.documentTypes);
-
                 setAllDocumentTypes(res.data.documentTypes);
             }
         });

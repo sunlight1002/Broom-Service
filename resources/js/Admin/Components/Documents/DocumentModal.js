@@ -26,9 +26,10 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
         if (docFile.current && docFile.current.files.length > 0) {
             data.append("file", docFile.current.files[0]);
         }
-        if (selectedDocType === "7") {
+        if (selectedDocTypeName == "others") {
             data.append("other_doc_name", otherDocName);
         }
+
         handleDocSubmit(data);
     };
 
