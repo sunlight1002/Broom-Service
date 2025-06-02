@@ -942,21 +942,21 @@ office@broomservice.co.il
             ],
 
 
-//             [
-//                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
-//                 'description' => 'Notification to Team - Lead Pending Over 24 Hours-every 24h',
-//                 'message_en' => '',
-//                 'message_heb' => 'שלום צוות,
-// ספירת הלידים הבאה נמצאת במצב "בהמתנה" במשך למעלה מ-24 שעות. אנא בדקו ועדכנו את הסטטוס בהתאם.
- 
-// קיימים :pending_lead_count במערכת נכון להיום
-// :leads_link
+            //             [
+            //                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
+            //                 'description' => 'Notification to Team - Lead Pending Over 24 Hours-every 24h',
+            //                 'message_en' => '',
+            //                 'message_heb' => 'שלום צוות,
+            // ספירת הלידים הבאה נמצאת במצב "בהמתנה" במשך למעלה מ-24 שעות. אנא בדקו ועדכנו את הסטטוס בהתאם.
 
-// בברכה,
-// צוות השירות של ברום',
-//                 'message_spa' => '',
-//                 'message_ru' => '',
-//             ],
+            // קיימים :pending_lead_count במערכת נכון להיום
+            // :leads_link
+
+            // בברכה,
+            // צוות השירות של ברום',
+            //                 'message_spa' => '',
+            //                 'message_ru' => '',
+            //             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
@@ -1087,22 +1087,22 @@ office@broomservice.co.il
                 'message_ru' => '',
             ],
 
-//             [
-//                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
-//                 'description' => 'Reminder to Team - Agreement Pending Signature (After 24 Hours, 3 Days, and 7 Days)',
-//                 'message_en' => '',
-//                 'message_heb' => 'שלום צוות,
+            //             [
+            //                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
+            //                 'description' => 'Reminder to Team - Agreement Pending Signature (After 24 Hours, 3 Days, and 7 Days)',
+            //                 'message_en' => '',
+            //                 'message_heb' => 'שלום צוות,
 
-// חוזה נשלח ללקוחות ועדיין ממתין לחתימה מאת :time_interval.
+            // חוזה נשלח ללקוחות ועדיין ממתין לחתימה מאת :time_interval.
 
-// קיימים :pending_contracts_count חוזים ממתינים לאישור 
-// :contracts_link
+            // קיימים :pending_contracts_count חוזים ממתינים לאישור 
+            // :contracts_link
 
-// בברכה,
-// צוות שירות מטאטאים',
-//                 'message_spa' => '',
-//                 'message_ru' => '',
-//             ],
+            // בברכה,
+            // צוות שירות מטאטאים',
+            //                 'message_spa' => '',
+            //                 'message_ru' => '',
+            //             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
@@ -4476,6 +4476,101 @@ Equipo de servicio de escobas',
 Команда Broom Service',
             ],
 
+            [
+                'key' => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_SIGNED_CONTRACT,
+                'description' => 'send worker to stop timer',
+                'message_en' => " 
+Hello :client_name,
+ 
+Thank you for signing the service agreement with Broom Service!
+To complete your registration, please use the secure button below to update your credit card details.
+Your card will only be charged after your final service of the month, based on the invoice/receipt that will be sent to the email you registered with.
+ 
+Please make sure to:
+	•	Check the box: “Allow the seller to save my card details for future purchases” as shown in the attached image.
+	•	Ensure the saved card matches the one listed in your signed agreement.
+ 
+Once this step is completed, we’ll contact you soon to schedule your first service.
+ 
+If you have any questions, we’re happy to help.
+Best regards,
+Broom Service Team 🌿
+📞 03-525-70-60
+📧 office@broomservice.co.il",
+                'message_heb' => "שלום {{שם_לקוח}},
+ 
+תודה על חתימתך על הסכם ההתקשרות עם ברום סרוויס!
+לצורך השלמת תהליך הרישום, מצורף כפתור עם קישור מאובטח, בו תוכלו לעדכן את פרטי כרטיס האשראי שלכם בעצמכם.
+ 
+הכרטיס יחויב רק לאחר קבלת השירות האחרון החודש, בכפוף לחשבונית/קבלה שתשלח אליך למייל איתו נרשמת לשירות.
+ 
+לתשומת ליבך:
+	•	יש לסמן את התיבה: “אפשר למוכר לשמור את פרטי האשראי שלי לרכישות הבאות” כפי שמופיע בתמונה המצורפת.
+	•	יש לוודא שהכרטיס שתשמור במערכת תואם לכרטיס שציינת בהסכם ההתקשרות.
+ 
+לאחר השלמת הפעולה, ניצור איתך קשר לתיאום השירות הראשון בהקדם.
+ 
+לשאלות נוספות – אנחנו כאן לשירותך.
+בברכה,
+צוות ברום סרוויס 🌿
+📞 03-525-70-60
+📧 office@broomservice.co.il",
+                'message_spa' => '
+Atentamente,
+Equipo de servicio de escobas',
+                'message_ru' => '
+
+С наилучшими пожеланиями,
+Команда Broom Service',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT,
+                'description' => 'send worker to stop timer',
+                'message_en' => " 
+Hello :client_name,
+ 
+Thank you for signing the service agreement with Broom Service!
+To complete your registration, please use the secure button below to update your credit card details.
+Your card will only be charged after your final service of the month, based on the invoice/receipt that will be sent to the email you registered with.
+ 
+Please make sure to:
+	•	Check the box: “Allow the seller to save my card details for future purchases” as shown in the attached image.
+	•	Ensure the saved card matches the one listed in your signed agreement.
+ 
+Once this step is completed, we’ll contact you soon to schedule your first service.
+ 
+If you have any questions, we’re happy to help.
+Best regards,
+Broom Service Team 🌿
+📞 03-525-70-60
+📧 office@broomservice.co.il",
+                'message_heb' => "שלום {{שם_לקוח}},
+ 
+תודה על חתימתך על הסכם ההתקשרות עם ברום סרוויס!
+לצורך השלמת תהליך הרישום, מצורף כפתור עם קישור מאובטח, בו תוכלו לעדכן את פרטי כרטיס האשראי שלכם בעצמכם.
+ 
+הכרטיס יחויב רק לאחר קבלת השירות האחרון החודש, בכפוף לחשבונית/קבלה שתשלח אליך למייל איתו נרשמת לשירות.
+ 
+לתשומת ליבך:
+	•	יש לסמן את התיבה: “אפשר למוכר לשמור את פרטי האשראי שלי לרכישות הבאות” כפי שמופיע בתמונה המצורפת.
+	•	יש לוודא שהכרטיס שתשמור במערכת תואם לכרטיס שציינת בהסכם ההתקשרות.
+ 
+לאחר השלמת הפעולה, ניצור איתך קשר לתיאום השירות הראשון בהקדם.
+ 
+לשאלות נוספות – אנחנו כאן לשירותך.
+בברכה,
+צוות ברום סרוויס 🌿
+📞 03-525-70-60
+📧 office@broomservice.co.il",
+                'message_spa' => '
+Atentamente,
+Equipo de servicio de escobas',
+                'message_ru' => '
+
+С наилучшими пожеланиями,
+Команда Broom Service',
+            ],
         ];
 
         foreach ($templates as $key => $template) {

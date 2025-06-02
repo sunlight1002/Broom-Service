@@ -1048,7 +1048,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 // Send english menu
                 if ($last_menu == 'main_menu' && $listId == '6') {
                     $lng = $client->lng;
-                    if($client->lng == 'en') {
+                    if ($client->lng == 'en') {
                         $client->lng = 'heb';
                     } else {
                         $client->lng = 'en';
@@ -1056,7 +1056,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                     $client->save();
 
                     $sid = "HXccd789be06e2fd60dd0708266ae7007f";
-                    if($client->lng == 'heb') {
+                    if ($client->lng == 'heb') {
                         $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
                     }
 
@@ -2488,11 +2488,12 @@ Enter your phone number or email address with which you registered for the servi
                 }
 
                 if ((!in_array(strtolower($message), ['הפסק', 'stop'])
-                && !in_array($flag, ['email_sent', 'verified', 'incorect_otp', 'failed_attempts', 'number_not_recognized'])
-                && !in_array($last_menu,['enter_phone', 'customer_service']))
-                && (!$ButtonPayload || !$listId)) {
+                        && !in_array($flag, ['email_sent', 'verified', 'incorect_otp', 'failed_attempts', 'number_not_recognized'])
+                        && !in_array($last_menu, ['enter_phone', 'customer_service']))
+                    && (!$ButtonPayload || !$listId)
+                ) {
 
-                    \Log::info($message. ' - ' . $flag . ' - ' . $last_menu . ' - ' . $ButtonPayload . ' - ' . $listId);
+                    \Log::info($message . ' - ' . $flag . ' - ' . $last_menu . ' - ' . $ButtonPayload . ' - ' . $listId);
                     $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
 
                     $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
@@ -2731,6 +2732,8 @@ Enter your phone number or email address with which you registered for the servi
                 $input = $data['Body'] ? trim($data['Body']) : $data['Body'];
                 $listId = $data['ListId'] ?? $input;
                 $ButtonPayload = $data['ButtonPayload'] ?? null;
+                \Log::info("wsssssssssssssssssssssssssssssssss");
+                \Log::info($ButtonPayload);
 
                 if (!empty($msgStatus)) {
                     \Log::info('Client already reviewed');
@@ -2835,6 +2838,8 @@ Enter your phone number or email address with which you registered for the servi
                 $send_menu = 'team_send_message_1';
             } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
                 $send_menu = 'client_add_request';
+            } else if ($last_menu == 'main_menu' && $ButtonPayload == 'schedule_preferrence') {
+                $send_menu = 'schedule_preferrence';
             } else {
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
                 $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
@@ -3663,6 +3668,36 @@ Enter your phone number or email address with which you registered for the servi
                         [
                             "from" => $from,
                             'menu_option' => 'stop'
+                        ]
+                    );
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => $messageId,
+                        'message'       => $twi->body ?? '',
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($twi->toArray()),
+                    ]);
+
+                    break;
+
+                case 'schedule_preferrence':
+                    $clientName = "*" . trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '') . "*";
+
+                    $sid = $lng == "heb" ? "HX24009443dc6a202f914c9861b4c4052d" : "HX0cd64799afa9596f47e3cd2adcbcc3de";
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                '1' => $clientName,
+                            ]),
+
                         ]
                     );
 

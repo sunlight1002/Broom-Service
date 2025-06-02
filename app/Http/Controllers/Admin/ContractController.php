@@ -11,6 +11,7 @@ use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
+use App\Models\WhatsAppBotActiveClientState;
 use App\Traits\PriceOffered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -220,6 +221,23 @@ class ContractController extends Controller
 
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
         }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'contract' => $contract->toArray(),
+            ]
+        ]));
+
+        WhatsAppBotActiveClientState::updateOrCreate(
+            ["from" => $client->phone],
+            [
+                'menu_option' => 'main_menu',
+                'lng' => $client->lng,
+                "from" => $client->phone,
+            ]
+        );
 
         // // Create user in iCount
         // $iCountResponse = $this->createOrUpdateUser($client, $address);

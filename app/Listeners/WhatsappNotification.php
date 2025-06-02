@@ -3023,12 +3023,15 @@ class WhatsappNotification
                         if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
                             \Log::info("airbnb");
                             $receiverNumber = $clientData['phone'] ?? null;
+                            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
                         } elseif (isset($propertyData['contact_person_phone'])) {
                             \Log::info("property");
                             $receiverNumber = $propertyData['contact_person_phone'];
+                            $property_person_name = $propertyData['contact_person_name'] ?? null;
                         } else {
                             \Log::info("client");
                             $receiverNumber = $clientData['phone'] ?? null;
+                            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
                         }
 
                         Log::info($receiverNumber);
@@ -3042,8 +3045,109 @@ class WhatsappNotification
                                 "from" => $this->twilioWhatsappNumber,
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
-                                    "1" => trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? ''),
+                                    "1" => $property_person_name,
                                 ])
+                            ]
+                        );
+
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
+                        $isTwilio = true;
+
+                        break;
+
+                    case WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_SIGNED_CONTRACT:
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
+                            \Log::info("client disable notification");
+                            return;
+                        }
+
+                        if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
+                            \Log::info("airbnb");
+                            $receiverNumber = $clientData['phone'] ?? null;
+                            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
+                        } elseif (isset($propertyData['contact_person_phone'])) {
+                            \Log::info("property");
+                            $receiverNumber = $propertyData['contact_person_phone'];
+                            $property_person_name = $propertyData['contact_person_name'] ?? null;
+                        } else {
+                            \Log::info("client");
+                            $receiverNumber = $clientData['phone'] ?? null;
+                            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
+                        }
+
+                        $lng = $clientData['lng'] ?? 'heb';
+
+                        $sid = $lng == "heb" ? "HX55a553d9f94cf69f2b44ef965cfd307b" : "HX3e7a4c59e65d4c8b3f183dba4968235c";
+                        $mediaUrl = 'pdfs/BroomServiceEnglish.pdf';
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+" . $receiverNumber,
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')),
+                                    "2" => "?fname=" . urlencode($clientData['firstname']) .
+                                        "&lname=" . urlencode($clientData['lastname']) .
+                                        "&phone=" . urlencode($clientData['phone']) .
+                                        "&email=" . urlencode($clientData['email']) .
+                                        "&name_on_invoice=" . urlencode($clientData['invoicename'] ?? ($clientData['firstname'] . " " . $clientData['lastname'])),
+                                    "3" => $mediaUrl
+                                ]),
+                                "statusCallback" => "https://db30-2405-201-2022-10c3-4427-3383-232a-3697.ngrok-free.app/twilio/status-callback"
+                            ]
+                        );
+
+                        // $twiImage = $this->twilio->messages->create(
+                        //     "whatsapp:+" . "918000318833",
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber,
+                        //         "contentSid" => $lng == "heb" ? "HX7fb7a0d35ad44fd5efe7562fc2433e96" : "HX7fb7a0d35ad44fd5efe7562fc2433e96",
+                        //         "statusCallback" => "https://db30-2405-201-2022-10c3-4427-3383-232a-3697.ngrok-free.app/twilio/status-callback"
+                        //     ]
+                        // );
+
+                        \Log::info($twi->sid);
+                        $data = $twi->toArray();
+                        $isTwilio = true;
+
+                        break;
+
+                    case WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT:
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
+                            \Log::info("client disable notification");
+                            return;
+                        }
+
+                        if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
+                            \Log::info("airbnb");
+                            $receiverNumber = $clientData['phone'] ?? null;
+                            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
+                        } elseif (isset($propertyData['contact_person_phone'])) {
+                            \Log::info("property");
+                            $receiverNumber = $propertyData['contact_person_phone'];
+                            $property_person_name = $propertyData['contact_person_name'] ?? null;
+                        } else {
+                            \Log::info("client");
+                            $receiverNumber = $clientData['phone'] ?? null;
+                            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
+                        }
+
+                        $lng = $clientData['lng'] ?? 'heb';
+
+                        $sid = $lng == "heb" ? "HXf7367faa67d6b59479b35a5720d9f08b" : "HX70a33ef64b717cde74a757f5c1716b83";
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+" . $receiverNumber,
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
+                                "contentVariables" => json_encode([
+                                    "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')),
+                                    "2" => "crm.broomservice.co.il/" . $lng == "heb" ? "pdfs/BroomServiceHebrew.pdf" : "pdfs/BroomServiceEnglish.pdf"
+                                ]),
+                                "statusCallback" => "https://db30-2405-201-2022-10c3-4427-3383-232a-3697.ngrok-free.app/twilio/status-callback"
                             ]
                         );
 

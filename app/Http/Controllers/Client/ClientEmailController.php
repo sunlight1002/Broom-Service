@@ -605,6 +605,15 @@ class ClientEmailController extends Controller
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
             }
 
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_SIGNED_CONTRACT,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                    'contract' => $contract->toArray(),
+                ]
+            ]));
+
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
                 "notificationData" => [
@@ -613,30 +622,12 @@ class ClientEmailController extends Controller
                 ]
             ]));
 
+
+
             $client->makeVisible('passcode');
 
             event(new SendClientLogin($client->toArray()));
 
-            $sid = $client->lng == "heb" ? "HX7727979730618bcd499e8ee9176096cc" : "HXa892b3371574fb719d17e0f7700e846f";
-
-            $twi = $this->twilio->messages->create(
-                "whatsapp:+" . $client->phone,
-                [
-                    "from" => $this->twilioWhatsappNumber,
-                    "contentSid" => $sid,
-                    "contentVariables" => json_encode([
-                        "1" => trim(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
-                        "2" => "?fname=" . urlencode($client->firstname) .
-                            "&lname=" . urlencode($client->lastname) .
-                            "&phone=" . urlencode($client->phone) .
-                            "&email=" . urlencode($client->email) .
-                            "&name_on_invoice=" . urlencode($client->invoicename ?? ($client->firstname . " " . $client->lastname))
-                    ])
-                ]
-            );
-
-            \Log::info($twi->sid);
-            StoreWebhookResponse($twi->body ?? '', $client->phone, $twi->toArray());
 
 
             return response()->json([
@@ -717,6 +708,15 @@ class ClientEmailController extends Controller
                 "notificationData" => [
                     'client' => $client->toArray(),
                     'contract' => $contract,
+                ]
+            ]));
+
+            \Log::info('Client accepted contract');
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_SIGNED_CONTRACT,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                    'contract' => $contract->toArray(),
                 ]
             ]));
 
