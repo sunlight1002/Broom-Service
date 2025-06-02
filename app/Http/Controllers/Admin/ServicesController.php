@@ -26,7 +26,7 @@ class ServicesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Services::query();
+        $query = Services::query()->orderBy('order');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -49,7 +49,8 @@ class ServicesController extends Controller
 
     public function AllServices()
     {
-        $services = Services::where('status', 1)->get();
+        $services = Services::where('status', 1)->orderBy('order')->get();
+
         return response()->json([
             'services' => $services,
         ]);
@@ -57,7 +58,7 @@ class ServicesController extends Controller
 
     public function AllServicesByLng(Request $request)
     {
-        $services = Services::where('status', 1)->get();
+        $services = Services::where('status', 1)->orderBy('order')->get();
         $result = [];
         foreach ($services as $service) {
             $res['name'] = ($request->lng == 'en') ? $service->name : $service->heb_name;
@@ -80,7 +81,7 @@ class ServicesController extends Controller
     public function create()
     {
         $services = Services::query();
-        $services = $services->where('status', 1)->orderBy('id', 'desc')->get();
+        $services = $services->where('status', 1)->orderBy('order')->get();
 
         return response()->json([
             'services' => $services,
@@ -98,6 +99,7 @@ class ServicesController extends Controller
         $validator = Validator::make($request->input(), [
             'name' => 'required',
             'status' => 'required',
+            'order' => 'nullable|integer',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
@@ -135,6 +137,7 @@ class ServicesController extends Controller
         $validator = Validator::make($request->input(), [
             'name' => 'required',
             'status' => 'required',
+            'order' => 'nullable|integer',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);

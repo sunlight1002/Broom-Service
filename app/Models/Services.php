@@ -11,6 +11,7 @@ class Services extends Model
         'heb_name',
         'template',
         'status',
+        'order',
         'color_code',
         'icon'
     ];

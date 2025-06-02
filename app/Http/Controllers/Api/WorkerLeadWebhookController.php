@@ -250,7 +250,7 @@ class WorkerLeadWebhookController extends Controller
                     'number' => $workerLead->phone,
                     'read' => 1,
                     'flex' => 'A',
-                    'data' => json_encode($twi->toArray()),
+                    'data' => json_encode($twi ? $twi->toArray() : []),
                 ]);
 
                 return;
@@ -331,7 +331,7 @@ class WorkerLeadWebhookController extends Controller
                     'number' => $from,
                     'read' => 1,
                     'flex' => 'A',
-                    'data' => json_encode($twi->toArray()),
+                    'data' => json_encode($twi ? $twi->toArray() : []),
                 ]);
 
                 return;
@@ -382,7 +382,7 @@ class WorkerLeadWebhookController extends Controller
                     'number' => $from,
                     'read' => 1,
                     'flex' => 'A',
-                    'data' => json_encode($twi->toArray()),
+                    'data' => json_encode($twi ? $twi->toArray() : []),
                 ]);
 
                 return;
@@ -399,7 +399,7 @@ class WorkerLeadWebhookController extends Controller
                     'number' => $from,
                     'read' => 1,
                     'flex' => 'A',
-                    'data' => json_encode($twi->toArray()),
+                    'data' => json_encode($twi ? $twi->toArray() : []),
                 ]);
             }
         }

@@ -10,6 +10,8 @@ export default function AddService() {
     const [service, setService] = useState([]);
     const [serviceHeb, setServiceHeb] = useState([]);
     const [template, setTemplate] = useState([]);
+    const [order, setOrder] = useState("");
+    const [icon, setIcon] = useState("");
     const [status, setStatus] = useState(0);
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
@@ -27,6 +29,8 @@ export default function AddService() {
             name: service,
             heb_name: serviceHeb,
             template: template,
+            order: order,
+            icon: icon,
             status: status,
         };
 
@@ -148,6 +152,43 @@ export default function AddService() {
                                             )}
                                         </div>
                                     </div>
+
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">{t("Set Order")}</label>
+                                            <input
+                                                type="number"
+                                                value={order}
+                                                onChange={(e) => setOrder(e.target.value)}
+                                                className="form-control"
+                                                placeholder="Enter order (e.g., 1, 2, 3...)"
+                                            />
+                                            {errors.order && (
+                                                <small className="text-danger mb-1">
+                                                    {errors.order}
+                                                </small>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">{t("Icon")}</label>
+                                            <input
+                                                type="text"
+                                                value={icon}
+                                                onChange={(e) => setIcon(e.target.value)}
+                                                className="form-control"
+                                                placeholder=""
+                                            />
+                                            {errors.icon && (
+                                                <small className="text-danger mb-1">
+                                                    {errors.icon}
+                                                </small>
+                                            )}
+                                        </div>
+                                    </div>
+
 
                                     <div className="col-sm-12">
                                         <div className="form-group">

@@ -63,6 +63,10 @@ export default function ServiceSchedule() {
                         },
                     },
                     {
+                        title: "Order",
+                        data: "order",
+                    },
+                    {
                         title: t("admin.global.action"),
                         data: "action",
                         orderable: false,
