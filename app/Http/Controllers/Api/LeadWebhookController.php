@@ -2839,7 +2839,10 @@ Enter your phone number or email address with which you registered for the servi
             } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
                 $send_menu = 'client_add_request';
             } else if ($last_menu == 'main_menu' && $ButtonPayload == 'schedule_preferrence') {
+                \Log::info('schedule_preferrence');
                 $send_menu = 'schedule_preferrence';
+            } else if ($last_menu == 'schedule_preferrence' && !empty($input)) {
+                $send_menu = 'schedule_preferrence_input';
             } else {
                 $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
                 $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
@@ -3686,6 +3689,8 @@ Enter your phone number or email address with which you registered for the servi
                     break;
 
                 case 'schedule_preferrence':
+                    \Log::info("edfedf");
+
                     $clientName = "*" . trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '') . "*";
 
                     $sid = $lng == "heb" ? "HX24009443dc6a202f914c9861b4c4052d" : "HX0cd64799afa9596f47e3cd2adcbcc3de";
@@ -3712,6 +3717,67 @@ Enter your phone number or email address with which you registered for the servi
                         'read'          => 1,
                         'data'          => json_encode($twi->toArray()),
                     ]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'schedule_preferrence'
+                        ]
+                    );
+
+                    break;
+
+                case 'schedule_preferrence_input':
+                    $text = [
+                        "en" => "Hello :client_name,
+We’ve received your request:
+':client_message'
+
+:comment_link
+Your message has been forwarded to the team for further handling. Thank you for your patience!",
+                        "heb" => "שלום :client_name,
+קיבלנו את עדכון הבקשה שלך:
+':client_message'
+
+:comment_link
+ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                    ];
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = trim($input);
+                    $scheduleChange->save();
+
+                    // Send message to team
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    $personalizedMessage = str_replace([':comment_link', ':client_name', ':client_message'], [generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $clientName, trim($input)], $text[$client->lng]);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+
+                    $confirmationMessage = $client->lng == 'heb'
+                        ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                        : "Your message has been received and will be forwarded to our team for further handling.";
+                    // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$from",
+                        [
+                            "from" => $this->twilioWhatsappNumber,
+                            "body" => $confirmationMessage,
+
+                        ]
+                    );
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'main_menu'
+                        ]
+                    );
 
                     break;
             }
