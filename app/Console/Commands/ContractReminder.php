@@ -27,28 +27,28 @@ class ContractReminder extends Command
     {
         $staticDate = "2025-01-01";
         $timeIntervals = [
-            '24hours' => Carbon::now()->subDay(1)->toDateString(),
-            '3days' => Carbon::now()->subDays(3)->toDateString(),
-            '7days' => Carbon::now()->subDays(7)->toDateString(),
+            '24hours' => Carbon::now()->subHours(24),
+            '3days' => Carbon::now()->subHours(72),
+            '7days' => Carbon::now()->subHours(168),
         ];
-        $hebKey = null;
-        foreach ($timeIntervals as $key => $date) {
+
+        foreach ($timeIntervals as $key => $targetDateTime) {
+            $start = $targetDateTime->copy()->startOfHour();
+            $end = $targetDateTime->copy()->endOfHour();
+
             $contracts = Contract::with(['client', 'offer'])
                 ->where('status', 'not-signed')
                 ->whereDate('created_at', '>=', $staticDate)
-                ->whereDate('created_at', $date)
+                ->whereBetween('created_at', [$start, $end])
                 ->get();
 
-            if ($key == '24hours') {
-                $hebKey = '24 שעות';
-            } elseif ($key == '3days') {
-                $hebKey = '3 ימים';
-            } elseif ($key == '7days') {
-                $hebKey = '7 ימים';
-            }
+            $hebKey = match ($key) {
+                '24hours' => '24 שעות',
+                '3days' => '3 ימים',
+                '7days' => '7 ימים',
+            };
 
             if ($contracts->count() > 0) {
-                // Send one team notification per time interval
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
                     "notificationData" => [
@@ -77,6 +77,7 @@ class ContractReminder extends Command
 
         return 0;
     }
+
 
     private function getServiceNames($services)
     {

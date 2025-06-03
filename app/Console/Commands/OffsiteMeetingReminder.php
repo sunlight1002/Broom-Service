@@ -75,6 +75,5 @@ class OffsiteMeetingReminder extends Command
                 "notificationData" => $meeting->toArray()
             ]));
         }
-}
-
+    }
 }

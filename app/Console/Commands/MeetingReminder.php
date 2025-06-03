@@ -40,17 +40,18 @@ class MeetingReminder extends Command
      */
     public function handle()
     {
-        $fiveHoursAgo = Carbon::now()->subHours(5);
-        $fourHoursAgo = Carbon::now()->subHours(4);
+        $targetHour = Carbon::now()->subHours(4);
+        $start = $targetHour->copy()->startOfHour();
+        $end = $targetHour->copy()->endOfHour();
 
         $schedules = Schedule::query()
             ->where('booking_status', 'pending')
             ->whereNotNull('meeting_mail_sent_at')
-            ->whereBetween('meeting_mail_sent_at', [$fiveHoursAgo, $fourHoursAgo])
+            ->whereBetween('meeting_mail_sent_at', [$start, $end])
             ->with(['team', 'client', 'propertyAddress'])
             ->get();
 
-        foreach ($schedules as $key => $schedule) {
+        foreach ($schedules as $schedule) {
             event(new MeetingReminderEvent($schedule));
         }
 
