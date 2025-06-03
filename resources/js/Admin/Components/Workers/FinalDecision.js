@@ -96,7 +96,7 @@ function FinalDecision() {
                         </div>
                     </div>
                 </div>
-                <div className="d-flex align-items-center mb-3">
+                <div className="d-flex align-items-center mb-3 mt-2">
                     {decisionFile && (
                         <a 
                             href={decisionFile} 

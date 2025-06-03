@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\LogAdminLocation;
 
 class LogAdminActivity
 {
@@ -30,23 +30,7 @@ class LogAdminActivity
                 $ip = '24.48.0.1'; // IP (Canada)
             }
 
-            $country = 'Unknown';
-            try {
-                $raw = Http::timeout(3)->get("http://ip-api.com/php/{$ip}")->body();
-
-                $geo = @unserialize($raw);
-
-                if ($geo && is_array($geo) && ($geo['status'] ?? '') === 'success') {
-                    $country = $geo['country'] ?? 'Unknown';
-                }
-            } catch (\Exception $e) {
-            }
-
-            $adminModel->update([
-                'ip' => $ip,
-                'country' => $country,
-                'last_activity_date' => now(),
-            ]);
+            LogAdminLocation::dispatch($admin->id, $ip);
         }
 
         return $response;

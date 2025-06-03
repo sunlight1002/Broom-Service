@@ -10,6 +10,7 @@ function Protocol() {
     const [decisionFile, setDecisionFile] = useState(null);
     const [error, setError] = useState(null);
     const [comment, setComment] = useState("");
+    const [messages, setMessages] = useState([]);
     const [fetchedComment, setFetchedComment] = useState(null);                           
     const [commentError, setCommentError] = useState("");
     const [claimText, setClaimText] = useState(null);
@@ -166,30 +167,30 @@ function Protocol() {
 
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div>
-                        {fetchedComment ? (
-                            // ✅ Show submitted comment only
-                            <div className="alert alert-secondary" style={{ whiteSpace: "pre-wrap", background: "white" }}>
-                                <strong>Submitted Comment : &nbsp;</strong>
-                                {fetchedComment}
-                            </div>
-                        ) : (
-                            // ✅ Show textarea + submit if no comment exists
-                            <>
-                                <textarea 
-                                    value={comment} 
-                                    onChange={handleCommentChange} 
-                                    placeholder="Enter your comment..." 
-                                    rows="4" 
-                                    className="form-control mb-3"
-                                />
-                                {commentError && <p className="text-danger">{commentError}</p>}
-                                <button 
-                                    onClick={handleSubmitComment} 
-                                    className="btn navyblue"
-                                >
-                                    {t("worker.hearing.protocol.submitComment")}
-                                </button>
-                            </>
+                        { hasClaim && (
+                            fetchedComment ? (
+                                <div className="alert alert-secondary" style={{ whiteSpace: "pre-wrap", background: "white" }}>
+                                    <strong>Submitted Comment : &nbsp;</strong>
+                                    {fetchedComment}
+                                </div>
+                            ) : (
+                                <>
+                                    <textarea 
+                                        value={comment} 
+                                        onChange={handleCommentChange} 
+                                        placeholder="Enter your comment..." 
+                                        rows="4" 
+                                        className="form-control mb-3"
+                                    />
+                                    {commentError && <p className="text-danger">{commentError}</p>}
+                                    <button 
+                                        onClick={handleSubmitComment} 
+                                        className="btn navyblue"
+                                    >
+                                        {t("worker.hearing.protocol.submitComment")}
+                                    </button>
+                                </>
+                            )
                         )}
                     </div>
                 </div>

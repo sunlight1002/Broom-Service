@@ -22,10 +22,11 @@ const HearingProtocol = () => {
 
     // Fetch comments on component mount
     useEffect(() => {
+        let isMounted = true;
         if (workerId) {
             axios.get(`/api/admin/hearing-protocol/comments?worker_id=${workerId}`, { headers })
                 .then(response => {
-                    if (response.data && response.data.comment) {
+                    if (isMounted && response.data && response.data.comment) {
                         setMessages(prev => [
                             ...prev,
                             {
@@ -36,10 +37,15 @@ const HearingProtocol = () => {
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching comments:', error);
-                    setError('Failed to load comments.');
+                    if (isMounted) {
+                        console.error('Error fetching comments:', error);
+                        setError('Failed to load comments.');
+                    }
                 });
         }
+        return () => {
+            isMounted = false;
+        };
     }, [workerId]);
 
     useEffect(() => {
