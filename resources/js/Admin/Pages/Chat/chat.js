@@ -478,7 +478,7 @@ export default function chat({
             return `/admin/clients/view/${id}`;
         } else if (activeTab.worker) {
             return `/admin/workers/view/${id}`;
-        }else if (workerLead) {
+        } else if (workerLead) {
             return `/admin/worker-leads/view/${id}`;
         }
         return '#'; // fallback if no tab is active
@@ -522,7 +522,10 @@ export default function chat({
                         document.querySelector(
                             ".cl_" + d.number
                         ).style.background = "#fff";
-                        document.querySelector(".cn_" + d.number).remove();
+                        const el = document.querySelector(".cn_" + d.number);
+                        if (el) {
+                            el.remove();
+                        }
                     }}
                     key={i}
                 >

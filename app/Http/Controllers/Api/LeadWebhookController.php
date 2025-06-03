@@ -472,6 +472,61 @@ Broom Service Team 🌹",
                     return response()->json(['status' => 'Invalid message data'], 400);
                 }
 
+                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.changes_cancellation')) {
+                    $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
+
+                    // Split the message body into lines
+                    $lines = explode("\n", trim($messageBody));
+
+                    $new = trim($lines[0] ?? '');
+                    $phone = trim($lines[1] ?? '');
+                    $msg = trim($lines[2] ?? '');
+                    \Log::info($new . ' - ' . $phone . ' - ' . $msg);
+
+                    if (stripos($new, 'חדש') !== false) {
+                        $lng = 'heb';
+                    } elseif (stripos($new, 'New') !== false) {
+                        $lng = 'en';
+                    } else {
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    if (empty($phone) || empty($msg)) {
+                        \Log::info('Invalid message data - phone or msg is empty');
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    $client = Client::where('phone', $phone)->first();
+                    \Log::info('Client: ' . json_encode($client));
+
+                    if (!$client) {
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = $msg;
+                    $scheduleChange->save();
+
+                    $teammsg = "שלום צווהבקשה נוספה\n' *:message* \n:comment_link";
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    $teammsg = str_replace([
+                        ':client_name',
+                        ':message',
+                        ':comment_link'
+                    ], [
+                        $clientName,
+                        trim($scheduleChange->comments),
+                        generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin')
+                    ], $teammsg);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
+
+                    return response()->json(['status' => 'Invalid message data'], 400);
+                }
+
                 return response()->json(['status' => 'Already processed'], 200);
             }
         }
