@@ -3411,7 +3411,7 @@ class WhatsappNotification
                 }
             }
 
-            $receiverNumber = "918000318833";
+            // $receiverNumber = "918000318833";
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
