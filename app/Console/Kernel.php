@@ -60,7 +60,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('notifyTeamAndClientTommorowMeeting')->onOneServer()->dailyAt('19:00');
 
-        $schedule->command('notify:team-and-worker-for-visa-renewal')->onOneServer()->weeklyOn(1, '8:00'); // Every Monday at 8:00 AM
+        $schedule->command('notify:team-and-worker-for-visa-renewal')->onOneServer()->weeklyOn(Schedule::MONDAY, '8:00'); // Every Monday at 8:00 AM
 
         $schedule->command('Notify:UnansweredClients')->onOneServer()->hourly();
 

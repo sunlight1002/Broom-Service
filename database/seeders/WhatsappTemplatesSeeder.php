@@ -29,6 +29,9 @@ Google Map Address: :google_address
 Job Hours: :job_hours
 Date/Time: :job_start_date_time
 
+- Accept Address :job_accept_url
+- Contact Manager :job_contact_manager_link if you have any questions.
+
 Best Regards,
 Broom Service Team',
                 'message_heb' => 'שלום, *:worker_name*,
@@ -40,6 +43,9 @@ Broom Service Team',
 כתובת מפת גוגל: :google_address
 שעות עבודה: :job_hours
 תאריך/שעה: :job_start_date_time
+
+- [אשר כתובת] :job_accept_url
+- צור קשר עם המנהל :job_contact_manager_link ב`מידה ויש לך שאלות או בעיות.
 
 בברכה,
 צוות ברום סרוויס  ',
@@ -53,6 +59,9 @@ Dirección de Google Maps: :google_address
 Horas de trabajo: :job_hours
 Fecha/Hora: :job_start_date_time
 
+- Aceptar Dirección* :job_accept_url
+- Contactar al Gerente :job_contact_manager_link si tienes alguna pregunta.
+
 Saludos cordiales,
 Equipo de Broom Service',
                 'message_ru' => 'Здравствуйте, *:worker_name*,
@@ -64,6 +73,9 @@ Equipo de Broom Service',
 Адрес на карте Google: :google_address
 Часы работы: :job_hours
 Дата/время: :job_start_date_time
+
+- Подтвердить адрес :job_accept_url
+- Связаться с менеджером :job_contact_manager_link если у вас есть вопросы.
 
 С уважением,
 Команда Broom Service',
@@ -90,6 +102,9 @@ Google Map Address: :google_address
 Job Hours: :job_hours
 Date/Time: :job_start_date_time
 
+- Accept Address :job_accept_url
+- Contact Manager :job_contact_manager_link if you have any questions.
+
 Best Regards,
 Broom Service Team
 ',
@@ -103,6 +118,9 @@ Broom Service Team
 שעות עבודה: :job_hours
 תאריך/שעה: :job_start_date_time
 
+- [אשר כתובת] :job_accept_url
+- צור קשר עם המנהל :job_contact_manager_link במידה ויש לך שאלות או בעיות.
+
 בברכה,
 צוות ברום סרוויס  ',
                 'message_spa' => 'Hola, *:worker_name*,
@@ -114,6 +132,9 @@ Dirección: *:job_full_address*
 Dirección de Google Maps: :google_address
 Horas de trabajo: :job_hours
 Fecha/Hora: :job_start_date_time
+
+- Aceptar Dirección :job_accept_url
+- Contactar al Gerente :job_contact_manager_link si tienes alguna pregunta.
 
 Saludos cordiales,
 Equipo de Broom Service
@@ -127,6 +148,9 @@ Equipo de Broom Service
 Адрес на карте Google: :google_address
 Часы работы: :job_hours
 Дата/время: :job_start_date_time
+
+- Подтвердить адрес :job_accept_url
+- Связаться с менеджером :job_contact_manager_link если у вас есть вопросы.
 
 С уважением,
 Команда Broom Service',
@@ -184,6 +208,9 @@ You have a job scheduled at *:job_start_time* at the following location:
 Address: *:job_full_address*
 Client: *:translated_client_name*
 
+- I’m On My Way :leave_for_work
+- Contact Manager :job_contact_manager_link if you need assistance.
+
 Best Regards,
 Broom Service Team',
                 'message_heb' => 'שלום, *:worker_name*,
@@ -192,6 +219,9 @@ Broom Service Team',
 
 כתובת: *:job_full_address*
 לקוח:  *:translated_client_name*
+
+- אני בדרכי :leave_for_work
+- צור קשר עם המנה :job_contact_manager_link במידה ואתה זקוק לעזרה.
 
 בברכה,
 צוות ברום סרוויס',
@@ -202,6 +232,9 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 Dirección: *:job_full_address*
 Cliente: *:translated_client_name*
 
+- Estoy en camino :leave_for_work
+- Contactar al gerente :job_contact_manager_link si necesitas ayuda.
+
 Saludos cordiales,
 Equipo de Broom Service',
                 'message_ru' => 'Здравствуйте, *:worker_name*,
@@ -210,6 +243,9 @@ Equipo de Broom Service',
 
 Адрес: *:job_full_address*
 Клиент: *:translated_client_name*
+
+- Я в пути :leave_for_work
+- Связаться с менеджером :job_contact_manager_link если вам нужна помощь.
 
 С уважением,
 Команда Broom Service',
@@ -313,7 +349,8 @@ Your job at *:job_full_address* has started. You have *:job_remaining_hours hour
 Please review and complete the following tasks:
 - *Service:* :job_service_name
 :job_comments
-When you’re finished, please confirm
+When you’re finished, please confirm::comment_worker_job_link
+- *Contact Manager* :job_contact_manager_link if you have any issues with the tasks.
 
 Best regards,
 Broom Service Team',
@@ -324,7 +361,8 @@ Broom Service Team',
 אנא עיין ובצע את המשימות הבאות:
 - *שירות:* :job_service_name
 :job_comments
-כשתסיים, נא אשר
+כשתסיים, נא אשר::comment_worker_job_link
+- *צור קשר עם המנהל* :job_contact_manager_link אם יש בעיות בביצוע המשימות.
 
 בברכה,
 צוות ברום סרוויס',
@@ -335,7 +373,8 @@ Su trabajo en *:job_full_address* ha comenzado. Usted tiene *:job_remaining_hour
 Por favor, revise y complete las siguientes tareas:
 - *Servicio:* :job_service_name
 :job_comments
-Cuando haya terminado, por favor confirme
+Cuando haya terminado, por favor confirme::comment_worker_job_link
+- *Contactar al gerente* :job_contact_manager_link si tiene algún problema con las tareas.
 
 Atentamente,
 Equipo de Broom Service',
@@ -346,7 +385,8 @@ Equipo de Broom Service',
 Пожалуйста, ознакомьтесь и выполните следующие задачи:
 - *Услуга:* :job_service_name
 :job_comments
-Когда закончите, пожалуйста, подтвердите
+Когда закончите, пожалуйста, подтвердите::comment_worker_job_link
+- *Связаться с менеджером*, :job_contact_manager_link если у вас есть проблемы с задачами.
 
 С уважением,
 Команда Broom Service',
@@ -544,24 +584,36 @@ Equipo Broom Service',
                 'message_en' => 'Hello, *:worker_name*,
 
 The job at :job_full_address was scheduled to be completed by :job_end_time. Please finish the job if you have completed all tasks, or contact your manager if you need assistance.
+*Options:*
+- Finish Job :finish_job_by_worker
+- Contact Manager :job_contact_manager_link
 
 Best regards,
 Broom Service Team',
                 'message_heb' => 'היי, *:worker_name*,
 
 העבודה בכתובת :job_full_address הייתה אמורה להסתיים בשעה :job_end_time. אנא סיים את העבודה אם כל המשימות הושלמו, או צור קשר עם המנהל במידת הצורך.
+*אפשרויות:*
+- סיים עבודה  :finish_job_by_worker
+- צור קשר עם המנהל :job_contact_manager_link
 
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => 'Hola, *:worker_name*,
 
 El trabajo en :job_full_address estaba programado para completarse a las :job_end_time. Por favor, finaliza el trabajo si has completado todas las tareas, o contacta a tu gerente si necesitas ayuda.
+*Opciones:*
+- Finalizar trabajo :finish_job_by_worker
+- Contactar al gerente :job_contact_manager_link
 
 Saludos cordiales,
 Equipo Broom Service',
                 'message_ru' => 'Привет, *:worker_name*,
 
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
+*Варианты:*
+- Завершить работу :finish_job_by_worker
+- Связаться с менеджером :job_contact_manager_link
 
 С уважением,
 Команда Broom Service',
@@ -4362,6 +4414,8 @@ Service: :job_service_name
 Start time: :job_start_time
 Property: :job_full_address
 
+Check Job Details: :worker_job_link
+
 If you have any questions or concerns please don't hesitate to get in touch with us by replying to this email.
 
 Best Regards,
@@ -4377,6 +4431,8 @@ Broom Service Team",
 שירות: :job_service_name
 זמן התחלה: :job_start_time
 נכס: :job_full_address
+
+בדוק את פרטי המשרה: :worker_job_link
 
 אם יש לך שאלות או חששות, אל תהסס ליצור איתנו קשר על ידי מענה לדוא'ל זה.
 
@@ -4394,6 +4450,8 @@ Servicio: :job_service_name
 Hora de inicio: :job_start_time
 Propiedad: :job_full_address
 
+Verifique los detalles del trabajo: :worker_job_link
+
 Si tiene alguna pregunta o inquietud, no dude en ponerse en contacto con nosotros respondiendo a este correo electrónico.
 
 Atentamente,
@@ -4409,6 +4467,8 @@ Equipo de servicio de escobas',
 Услуга: :job_service_name
 Время начала: :job_start_time
 Свойство: :job_full_address
+
+Проверьте детали задания: :worker_job_link
 
 Если у вас есть какие-либо вопросы или опасения, не стесняйтесь обращаться к нам, ответив на это письмо.
 

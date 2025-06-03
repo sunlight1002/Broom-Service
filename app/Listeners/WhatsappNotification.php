@@ -582,38 +582,38 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $title1 = "אשר כתובת";
-                            $title2 = "מנהל אנשי קשר";
-                            // $sid = "HX284d159218aad8b3b04de5ff06238f18";
-                        } elseif ($lng == "spa") {
-                            $title1 = "Aceptar Dirección";
-                            $title2 = "Administrador de contactos";
-                            // $sid = "HX38c7043fb5eea7a16534866075c64c90";
-                        } elseif ($lng == "ru") {
-                            $title1 = "Подтвердить адрес";
-                            $title2 = "Менеджер контактов";
-                            // $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
-                        } else {
-                            $title1 = "Accept address";
-                            $title2 = "Contact manager";
-                            // $sid = "HX517f18e3ae6de354515fcdc52becfb28";
-                        }
+                        // if ($lng == "heb") {
+                        //     $title1 = "אשר כתובת";
+                        //     $title2 = "מנהל אנשי קשר";
+                        //     // $sid = "HX284d159218aad8b3b04de5ff06238f18";
+                        // } elseif ($lng == "spa") {
+                        //     $title1 = "Aceptar Dirección";
+                        //     $title2 = "Administrador de contactos";
+                        //     // $sid = "HX38c7043fb5eea7a16534866075c64c90";
+                        // } elseif ($lng == "ru") {
+                        //     $title1 = "Подтвердить адрес";
+                        //     $title2 = "Менеджер контактов";
+                        //     // $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
+                        // } else {
+                        //     $title1 = "Accept address";
+                        //     $title2 = "Contact manager";
+                        //     // $sid = "HX517f18e3ae6de354515fcdc52becfb28";
+                        // }
 
-                        $buttons = [
-                            [
-                                'type' => 'url',
-                                'title' => $title1,
-                                'id' => '1',
-                                'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
-                            ],
-                            [
-                                'type' => 'url',
-                                'title' => $title2,
-                                'id' => '2',
-                                'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title1,
+                        //         'id' => '1',
+                        //         'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
+                        //     ],
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title2,
+                        //         'id' => '2',
+                        //         'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ]
+                        // ];
 
                         // if($lng == "heb"){
                         //     $sid = "HX284d159218aad8b3b04de5ff06238f18";
@@ -658,38 +658,41 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM:
-                        if ($lng == "heb") {
-                            $title1 = "אשר כתובת";
-                            $title2 = "מנהל אנשי קשר";
-                            // $sid = "HX2dcd349e3a809d7a1b556eefdfd453a1";
-                        } elseif ($lng == "spa") {
-                            $title1 = "Aceptar Dirección";
-                            $title2 = "Administrador de contactos";
-                            // $sid = "HX51a3e067adb77ea32fb998c384334a8f";
-                        } elseif ($lng == "ru") {
-                            $title1 = "Подтвердить адрес";
-                            $title2 = "Менеджер контактов";
-                            // $sid = "HX83c19b8510fbafd6a5b030a92f881f3e";
-                        } else {
-                            $title1 = "Accept address";
-                            $title2 = "Contact manager";
-                            // $sid = "HXcf6dfdff92e307c16933672410aa8a7a";
-                        }
+                        $receiverNumber = $workerData['phone'] ?? null;
+                        $lng = $workerData['lng'] ?? 'heb';
 
-                        $buttons = [
-                            [
-                                'type' => 'url',
-                                'title' => $title1,
-                                'id' => '1',
-                                'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
-                            ],
-                            [
-                                'type' => 'url',
-                                'title' => $title2,
-                                'id' => '2',
-                                'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ]
-                        ];
+                        // if ($lng == "heb") {
+                        //     $title1 = "אשר כתובת";
+                        //     $title2 = "מנהל אנשי קשר";
+                        //     // $sid = "HX2dcd349e3a809d7a1b556eefdfd453a1";
+                        // } elseif ($lng == "spa") {
+                        //     $title1 = "Aceptar Dirección";
+                        //     $title2 = "Administrador de contactos";
+                        //     // $sid = "HX51a3e067adb77ea32fb998c384334a8f";
+                        // } elseif ($lng == "ru") {
+                        //     $title1 = "Подтвердить адрес";
+                        //     $title2 = "Менеджер контактов";
+                        //     // $sid = "HX83c19b8510fbafd6a5b030a92f881f3e";
+                        // } else {
+                        //     $title1 = "Accept address";
+                        //     $title2 = "Contact manager";
+                        //     // $sid = "HXcf6dfdff92e307c16933672410aa8a7a";
+                        // }
+
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title1,
+                        //         'id' => '1',
+                        //         'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
+                        //     ],
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title2,
+                        //         'id' => '2',
+                        //         'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ]
+                        // ];
 
                         // if($lng == "heb"){
                         //     $sid = "HX2dcd349e3a809d7a1b556eefdfd453a1";
@@ -738,38 +741,38 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $title1 = "אני בדרך";
-                            $title2 = "מנהל אנשי קשר";
-                            // $sid = "HX59e8a79f8d128b7b01b33d0acc76ec27";
-                        } elseif ($lng == "spa") {
-                            $title1 = "Estoy en camino";
-                            $title2 = "Gerente de contactos";
-                            // $sid = "HX6c77c17eaa74ae63b7be720dc92a1437";
-                        } elseif ($lng == "ru") {
-                            $title1 = "Я уже в пути";
-                            $title2 = "Связаться с менеджером";
-                            // $sid = "HX036c7b1ac952fc6cae74c0bffa00f959";
-                        } else {
-                            $title1 = "I'm on my way";
-                            $title2 = "Contact Manager";
-                            // $sid = "HX936e87d929ebfeb60353023160e9a4be";
-                        }
+                        // if ($lng == "heb") {
+                        //     $title1 = "אני בדרך";
+                        //     $title2 = "מנהל אנשי קשר";
+                        //     // $sid = "HX59e8a79f8d128b7b01b33d0acc76ec27";
+                        // } elseif ($lng == "spa") {
+                        //     $title1 = "Estoy en camino";
+                        //     $title2 = "Gerente de contactos";
+                        //     // $sid = "HX6c77c17eaa74ae63b7be720dc92a1437";
+                        // } elseif ($lng == "ru") {
+                        //     $title1 = "Я уже в пути";
+                        //     $title2 = "Связаться с менеджером";
+                        //     // $sid = "HX036c7b1ac952fc6cae74c0bffa00f959";
+                        // } else {
+                        //     $title1 = "I'm on my way";
+                        //     $title2 = "Contact Manager";
+                        //     // $sid = "HX936e87d929ebfeb60353023160e9a4be";
+                        // }
 
-                        $buttons = [
-                            [
-                                'type' => 'url',
-                                'title' => $title1,
-                                'id' => '1',
-                                'url' => url("worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ],
-                            [
-                                'type' => 'url',
-                                'title' => $title2,
-                                'id' => '2',
-                                'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title1,
+                        //         'id' => '1',
+                        //         'url' => url("worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ],
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title2,
+                        //         'id' => '2',
+                        //         'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ]
+                        // ];
 
                         // if($lng == "heb"){
                         //     $sid = "HX59e8a79f8d128b7b01b33d0acc76ec27";
@@ -854,39 +857,39 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $title1 = "לחצו כאן לסיום העבודה";
-                            $title2 = "צור קשר עם המנהל";
-                            // $sid = "HX1cc4f8bfec22f2a71cb23071838b9799";
-                        } elseif ($lng == "spa") {
-                            $title1 = "Haz clic para finalizar";
-                            $title2 = "Contacta al gerente";
-                            // $sid = "HXf889705a6e3dad76e0d521fcf41660b3";
-                        } elseif ($lng == "ru") {
-                            $title1 = "Нажмите, чтобы завершить";
-                            $title2 = "Связаться с менеджером";
-                            // $sid = "HX4042d35f763308e61c04660b2f02861a";
-                        } else {
-                            $title1 = "Click to finish job";
-                            $title2 = "Contact Manager";
-                            // $sid = "HXee912fda54b92b8a99523eda74b2ebb0";
-                        }
+                        // if ($lng == "heb") {
+                        //     $title1 = "לחצו כאן לסיום העבודה";
+                        //     $title2 = "צור קשר עם המנהל";
+                        //     // $sid = "HX1cc4f8bfec22f2a71cb23071838b9799";
+                        // } elseif ($lng == "spa") {
+                        //     $title1 = "Haz clic para finalizar";
+                        //     $title2 = "Contacta al gerente";
+                        //     // $sid = "HXf889705a6e3dad76e0d521fcf41660b3";
+                        // } elseif ($lng == "ru") {
+                        //     $title1 = "Нажмите, чтобы завершить";
+                        //     $title2 = "Связаться с менеджером";
+                        //     // $sid = "HX4042d35f763308e61c04660b2f02861a";
+                        // } else {
+                        //     $title1 = "Click to finish job";
+                        //     $title2 = "Contact Manager";
+                        //     // $sid = "HXee912fda54b92b8a99523eda74b2ebb0";
+                        // }
 
 
-                        $buttons = [
-                            [
-                                'type' => 'url',
-                                'title' => $title1,
-                                'id' => '1',
-                                'url' => url("worker/jobs/view/" . $jobData['id']),
-                            ],
-                            [
-                                'type' => 'url',
-                                'title' => $title2,
-                                'id' => '2',
-                                'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title1,
+                        //         'id' => '1',
+                        //         'url' => url("worker/jobs/view/" . $jobData['id']),
+                        //     ],
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title2,
+                        //         'id' => '2',
+                        //         'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ]
+                        // ];
 
                         // $commentsText = "";
                         // if (!empty($jobData['comments'])) {
@@ -1086,38 +1089,38 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $title1 = "סיום עבודה";
-                            $title2 = "מנהל אנשי קשר";
-                            // $sid = "HX55b9c36581faa344d780902936739c95";
-                        } elseif ($lng == "spa") {
-                            $title1 = "Finalizar trabajo";
-                            $title2 = "Gerente de contactos";
-                            // $sid = "HXa7cd78cdc0f3d14afb6910c87292f425";
-                        } elseif ($lng == "ru") {
-                            $title1 = "Завершить работу";
-                            $title2 = "Связаться с менеджером";
-                            // $sid = "HX34dfc36515ab7dacaed9a32d1a858eb1";
-                        } else {
-                            $title1 = "Finish Job";
-                            $title2 = "Contact Manager";
-                            // $sid = "HXf05482816e080a968b31ea6a287a4252";
-                        }
+                        // if ($lng == "heb") {
+                        //     $title1 = "סיום עבודה";
+                        //     $title2 = "מנהל אנשי קשר";
+                        //     // $sid = "HX55b9c36581faa344d780902936739c95";
+                        // } elseif ($lng == "spa") {
+                        //     $title1 = "Finalizar trabajo";
+                        //     $title2 = "Gerente de contactos";
+                        //     // $sid = "HXa7cd78cdc0f3d14afb6910c87292f425";
+                        // } elseif ($lng == "ru") {
+                        //     $title1 = "Завершить работу";
+                        //     $title2 = "Связаться с менеджером";
+                        //     // $sid = "HX34dfc36515ab7dacaed9a32d1a858eb1";
+                        // } else {
+                        //     $title1 = "Finish Job";
+                        //     $title2 = "Contact Manager";
+                        //     // $sid = "HXf05482816e080a968b31ea6a287a4252";
+                        // }
 
-                        $buttons = [
-                            [
-                                'type' => 'url',
-                                'title' => $title1,
-                                'id' => '1',
-                                'url' => url("worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ],
-                            [
-                                'type' => 'url',
-                                'title' => $title2,
-                                'id' => '2',
-                                'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title1,
+                        //         'id' => '1',
+                        //         'url' => url("worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ],
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title2,
+                        //         'id' => '2',
+                        //         'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //     ]
+                        // ];
 
                         // if($lng == "heb"){
                         //     $sid = "HX55b9c36581faa344d780902936739c95";
@@ -1706,28 +1709,28 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            // $sid = "HXa95cc010d40732b58054e5755693ffd7";
-                            $title = "בדיקת פרטי משרה";
-                        } elseif ($lng == "spa") {
-                            // $sid = "HX46ebc598f6b41d94aacd1cef2af93c59";
-                            $title = "Verificar detalles del trabajo";
-                        } elseif ($lng == "ru") {
-                            // $sid = "HX6b93fe644d388f45d099a44a0ee9d658";
-                            $title = "Проверить сведения о задании";
-                        } else {
-                            // $sid = "HX44eed8d310442e71666f3ff8eb9f3a9c";
-                            $title = "Check Job Details";
-                        }
+                        // if ($lng == "heb") {
+                        //     // $sid = "HXa95cc010d40732b58054e5755693ffd7";
+                        //     $title = "בדיקת פרטי משרה";
+                        // } elseif ($lng == "spa") {
+                        //     // $sid = "HX46ebc598f6b41d94aacd1cef2af93c59";
+                        //     $title = "Verificar detalles del trabajo";
+                        // } elseif ($lng == "ru") {
+                        //     // $sid = "HX6b93fe644d388f45d099a44a0ee9d658";
+                        //     $title = "Проверить сведения о задании";
+                        // } else {
+                        //     // $sid = "HX44eed8d310442e71666f3ff8eb9f3a9c";
+                        //     $title = "Check Job Details";
+                        // }
 
-                        $buttons = [
-                            [
-                                'type' => 'url',
-                                'title' => $title,
-                                'id' => '1',
-                                'url' => url("worker/jobs/view/" . $jobData['id']),
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title,
+                        //         'id' => '1',
+                        //         'url' => url("worker/jobs/view/" . $jobData['id']),
+                        //     ]
+                        // ];
 
                         // $address = trim($jobData['property_address']['geo_address'] ?? '');
                         // $address = json_encode($address, JSON_UNESCAPED_UNICODE);
