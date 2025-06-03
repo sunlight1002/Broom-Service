@@ -35,9 +35,9 @@ class NotifyTeamAndClientTommorowMeetings extends Command
 
         // Retrieve schedules that are scheduled for tomorrow and meet_via is "on-site"
         $schedules = Schedule::with(['client', 'propertyAddress'])
-                    ->where('start_date', $tomorrow)
-                    ->where('meet_via', 'on-site')
-                    ->get();
+            ->where('start_date', $tomorrow)
+            ->where('meet_via', 'on-site')
+            ->get();
 
         $TeamMessage = "";
         // $count = 1;
@@ -45,29 +45,30 @@ class NotifyTeamAndClientTommorowMeetings extends Command
         if ($schedules->isNotEmpty()) {
             foreach ($schedules as $schedule) {
                 $propertyAddress = $schedule->propertyAddress;
+                $geoAddress = urlencode($propertyAddress->geo_address);
+                $zoom = 17;
 
                 // Determine the map link
                 if (!empty($propertyAddress->latitude) && !empty($propertyAddress->longitude)) {
-                    $mapLink = "https://maps.google.com/?q={$propertyAddress->latitude},{$propertyAddress->longitude}";
+                    $mapLink = "https://www.google.com/maps/place/{$geoAddress}/@{$propertyAddress->latitude},{$propertyAddress->longitude},{$zoom}z";
                 } else {
-                    $geoAddress = urlencode($propertyAddress->geo_address);
-                    $mapLink = "https://maps.google.com?q={$geoAddress}";
+                    $mapLink = "https://www.google.com/maps/search/?api=1&query=" . $geoAddress;
                 }
-        
+
                 $shortMapLink = generateShortUrl(url($mapLink), 'admin');
 
-                $TeamMessage = "*פגישה עם " . $schedule->client->firstname ." " .$schedule->client->lastname ."*"."  
+                $TeamMessage = "*פגישה עם " . $schedule->client->firstname . " " . $schedule->client->lastname . "*" . "  
  - *שעה*: " . Carbon::parse($schedule->start_date ?? "00-00-0000")->format('M d Y') . " " .  ($schedule->start_time ?? '') . "  
- - *מיקום*: " . $schedule->meet_link ."
- - *נושא הפגישה*: " . $schedule->purpose ."
- - *פרטי קשר של הלקוח*: " . $schedule->client->phone ." / " . $schedule->client->email . "
+ - *מיקום*: " . $schedule->meet_link . "
+ - *נושא הפגישה*: " . $schedule->purpose . "
+ - *פרטי קשר של הלקוח*: " . $schedule->client->phone . " / " . $schedule->client->email . "
  - *כתובת*: " . ($propertyAddress->city ? $propertyAddress->city . ", " . $propertyAddress->geo_address : $propertyAddress->geo_address) . "
  - *קישור למפה*: " . $shortMapLink . "\n";
 
                 $this->notifyClient($schedule);
                 $this->notifyTeam($TeamMessage);
             }
-            
+
             $this->info("Notifications sent for tomorrow's on-site meetings.");
         } else {
             $this->info("No on-site meetings scheduled for tomorrow.");
