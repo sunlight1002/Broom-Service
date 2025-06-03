@@ -88,7 +88,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('send:to-active-clients')->onOneServer()->weeklyOn(Schedule::SUNDAY, '8:30');
         $schedule->command('send:to-active-workers')->onOneServer()
-            ->mondays()
+            ->tuesdays()
             ->between('08:30', '20:30')
             ->hourlyAt(30);
 
