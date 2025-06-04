@@ -583,7 +583,7 @@ export default function WorkContract() {
                                 <h5 className='mt-2 mb-4'>{t('work-contract.the_tenant_subtitle')}</h5>
                                 <h6>{t('work-contract.draw_signature')}</h6>
                                 {contract && contract.signature != null ?
-                                    <img src={contract.signature} />
+                                    <img src={contract.signature} style={{ maxWidth: '100%', height: 'auto' }} />
                                     :
                                     <>
                                         <SignatureCanvas
