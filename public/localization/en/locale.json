@@ -1237,6 +1237,11 @@
         },
         "global": {
             "Action": "Action",
+            "setOrder": "Set Order",
+            "Icon": "Icon",
+            "IPAddress": "IP Address",
+            "Country": "Country",
+            "LastActivity": "Last Activity",
             "Document": "Document",
             "addTeamMember": "Add Team member",
             "NameEn": "Name - En",

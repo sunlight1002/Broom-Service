@@ -60,15 +60,15 @@ export default function ManageTeam() {
                     }
                 },
                 { 
-                    title: "IP Address", 
+                    title: t("admin.global.IPAddress"), 
                     data: "ip" 
                 },
                 { 
-                    title: "Country",
+                    title: t("admin.global.Country"),
                     data: "country" 
                 },
                 {
-                    title: "Last Activity",
+                    title: t("admin.global.LastActivity"),
                     data: "last_activity_date",
                     render: function (data) {
                         return data ? new Date(data).toLocaleString() : "—";

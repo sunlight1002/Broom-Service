@@ -1235,6 +1235,11 @@
         "global": {
             "resumejob": "לחדש עבודה",
             "Action": "פעולה",
+            "setOrder": "קבע סדר",
+            "Icon": "איקון",
+            "IPAddress": "כתובת IP",
+            "Country": "מדינה",
+            "LastActivity": "פעילות אחרונה",
             "addTeamMember": "הוסף חבר צוות",
             "NameEn": "שם - אנגלית",
             "NameHev": "שם - עברית",
