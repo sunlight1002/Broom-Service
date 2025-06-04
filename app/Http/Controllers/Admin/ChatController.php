@@ -370,7 +370,6 @@ class ChatController extends Controller
                 ->first();
 
                 $worker = User::where('phone', $number)->first();
-                \Log::info($worker);
 
                 if (!empty($filter)) {
                     if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
