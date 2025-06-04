@@ -95,6 +95,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             'window cleaning' => 'window cleaning',
             'חלונות 8' => 'window cleaning',
             'חלונות' => 'window cleaning',
+            'ניקוי חלונות' => 'window cleaning',
             'שיפוץ' => 'Cleaning After Renovation',
             'ניקיון לאחר שיפוץ' => 'Cleaning After Renovation',
             'אחרים' => 'Others',
@@ -760,6 +761,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $startTime       = null;
             $endTime         = null;
             $shift           = "";
+            $worker           = null;
 
             // Determine shift based on client's language and provided row values
             if ($client->lng == 'en') {
@@ -837,9 +839,11 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $jobData = null;
 
             // Find worker by matching full name
-            $worker = User::with('jobs')
-                ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
-                ->first();
+            if (!empty($selectedWorker)) {
+                $worker = User::with('jobs')
+                    ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $selectedWorker . '%'])
+                    ->first();
+            }
 
             if (!$worker) {
                 echo "No worker found matching: " . $selectedWorker . PHP_EOL . PHP_EOL;
@@ -1011,7 +1015,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
             $end_time   = Carbon::parse(end($mergedContinuousTime)['ending_at'])->toTimeString();
 
-            if($row[5] === "TRUE" || $row[6] === "TRUE") {
+            if ($row[5] === "TRUE" || $row[6] === "TRUE") {
                 $this->workersEndTime[$currentDate][$worker->id] = $end_time;
             }
 
