@@ -422,13 +422,13 @@ class LeadController extends Controller
             return response()->json(['error' => 'Client not found'], 404);
         }
 
-        // Call deleteUser method with the iCount client ID
-        $iCountResponse = $this->deleteUser($client->icount_client_id);
+        // // Call deleteUser method with the iCount client ID
+        // $iCountResponse = $this->deleteUser($client->icount_client_id);
 
-        // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to delete user in iCount'], 500);
-        }
+        // // Handle iCount response
+        // if ($iCountResponse->status() != 200) {
+        //     return response()->json(['error' => 'Failed to delete user in iCount'], 500);
+        // }
 
         // Delete the client from the local database
         $client->delete();
@@ -436,7 +436,7 @@ class LeadController extends Controller
         return response()->json([
             'message' => "Client has been deleted",
             'client' => $client,
-            'iCountResponse' => $iCountResponse->json()
+            // 'iCountResponse' => $iCountResponse->json()
         ]);
     }
 
