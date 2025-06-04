@@ -344,6 +344,7 @@ class ChatController extends Controller
 
         // Fetch results with 2x page size to filter on PHP side
         $rawData = $query->paginate($perPage);
+        $worker = null;
 
         foreach ($rawData->items() as $entry) {
             $number = $entry->number;
@@ -368,6 +369,9 @@ class ChatController extends Controller
                 ->where('phone', $number)
                 ->first();
 
+                $worker = User::where('phone', $number)->first();
+                \Log::info($worker);
+
                 if (!empty($filter)) {
                     if (!$client || !$client->lead_status || $client->lead_status->lead_status !== $filter) {
                         continue;
@@ -378,10 +382,10 @@ class ChatController extends Controller
             $entry->unread = $unreadCount;
             $data->push($entry);
 
-            if ($client) {
+            if ($client || $worker) {
                 $clients[] = [
-                    'name'   => trim("{$client->firstname} {$client->lastname}"),
-                    'id'     => $client->id,
+                    'name'   => $client ? trim("{$client->firstname} {$client->lastname}") : trim("{$worker->firstname} {$worker->lastname}"),
+                    'id'     => $client ? $client->id : $worker->id,
                     'num'    => $number,
                     'client' => $table === 'worker_webhook_responses' ? false : ($client && $client->status != 0 ? 1 : 0),
                 ];
@@ -556,6 +560,7 @@ public function personalChat(Request $request)
     public function chatsMessages($no, Request $request)
     {
         $offical = false;
+        $fullname = null;
         $from = $request->input('from');
         $isWorkerLead = $request->boolean('isWorkerLead'); // use boolean for safety
 
@@ -584,16 +589,22 @@ public function personalChat(Request $request)
         ];
         $offical = in_array($from, $officialNumbers);
 
-        // Fetch client only if not worker lead
-        $client = $isWorkerLead ? WorkerLeads::where('phone', $no)->first() : Client::where('phone', $no)->first();
+        $worker = User::where('phone', $no)->first();
+        $workerLead = WorkerLeads::where('phone', $no)->first();
+        $client = Client::where('phone', $no)->first();
 
-        $clientName = $client ? "{$client->firstname} {$client->lastname}" : 'Unknown';
-
+        if ($client) {
+            $fullname = $client->firstname . ' ' . $client->lastname;
+        } elseif ($workerLead) {
+            $fullname = $workerLead->firstname . ' ' . $workerLead->lastname;
+        } elseif ($worker) {
+            $fullname = $worker->firstname . ' ' . $worker->lastname;
+        }
         return response()->json([
             'chat' => $chat,
             'expired' => $expired,
             'offical' => $offical ? 1 : 0,
-            'clientName' => $clientName,
+            'fullname' => $fullname,
             'isExist' => $client ? 1 : 0
         ]);
     }

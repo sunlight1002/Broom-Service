@@ -57,6 +57,7 @@ export default function chat({
         start_date: "",
         end_date: "",
     });
+    const [click, setClick] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [activeTab, setActiveTab] = useState({
         all: true,
@@ -207,10 +208,13 @@ export default function chat({
         axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}&isWorkerLead=${workerLead}`, { headers }).then((res) => {
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
-            // if (cl > c.length) {
-            //     scroller();
-            // }
-            setChatName(res?.data?.clientName)
+            if (click) {
+                scroller();
+                setClick(false)
+            }
+            console.log(res.data, "res.data");
+            
+            setChatName(res?.data?.fullname)
 
             localStorage.setItem("chatLen", c.length);
             setExpired({
@@ -402,6 +406,13 @@ export default function chat({
         getData(1, false);
     }, [fromNumber, filter, hasMore, dateRange, searchInput, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
+    useEffect(() => {
+        if(click){
+            getMessages(localStorage.getItem("number"));
+        }
+    }, [click])
+    
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -509,16 +520,13 @@ export default function chat({
                             }
                     }
                     onClick={(e) => {
-                        getMessages(d.number);
+                        setClick(true)
                         setSelectNumber(d.number);
                         setSelectedChat(d.number);  // Set the selected chat
                         setShowChatList(false);
                         handleClose();
+                        
                         localStorage.setItem("number", d.number);
-                        setTimeout(() => {
-                            scroller();
-                        }, 200);
-
                         document.querySelector(
                             ".cl_" + d.number
                         ).style.background = "#fff";
