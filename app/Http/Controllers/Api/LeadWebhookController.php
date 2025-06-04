@@ -4163,6 +4163,32 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
+                        $follow_up_msg = $client->lng == 'heb'
+                            ? "ההודעה שלך התקבלה ותועבר לצוות \n.נחזור אליך בהקדם האפשרי"
+                            : "Your message has been received and will be forwarded to our team.\nWe will get back to you as soon as possible.";
+
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $follow_up_msg,
+
+                            ]
+                        );
+
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => $messageId,
+                            'message'       => $twi->body ?? '',
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number'        => $from,
+                            'flex'          => 'A',
+                            'read'          => 1,
+                            'data'          => json_encode($twi->toArray()),
+                        ]);
                     }
                 }
             }
@@ -4521,17 +4547,19 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
-                            $follow_up_msg = $client->lng == 'heb'
-                                ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
-                                : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
-
                             $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
+
+                            $follow_up_msg = $client->lng == 'heb'
+                                ? "ההודעה שלך התקבלה ותועבר לצוות \n.נחזור אליך בהקדם האפשרי"
+                                : "Your message has been received and will be forwarded to our team.\nWe will get back to you as soon as possible.";
+
 
                             $twi = $this->twilio->messages->create(
                                 "whatsapp:+$from",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
-                                    "contentSid" => $sid,
+                                    // "contentSid" => $sid,
+                                    "body" => $follow_up_msg,
 
                                 ]
                             );
@@ -4907,8 +4935,8 @@ office@broomservice.co.il';
 
 
                             $follow_up_msg = $client->lng == 'heb'
-                                ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
-                                : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
+                                ? "ההודעה שלך התקבלה ותועבר לצוות \n.נחזור אליך בהקדם האפשרי"
+                                : "Your message has been received and will be forwarded to our team.\nWe will get back to you as soon as possible.";
 
                             $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
 
@@ -4916,7 +4944,8 @@ office@broomservice.co.il';
                                 "whatsapp:+$from",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
-                                    "contentSid" => $sid,
+                                    // "contentSid" => $sid,
+                                    "body" => $follow_up_msg,
 
                                 ]
                             );
