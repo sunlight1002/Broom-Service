@@ -24,6 +24,7 @@ export default function GeneralInfo({
 }) {
 
     const [indentityType, setIndentityType] = useState(values.employeecountry);
+    
     useEffect(() => {
         if (values.employeecountry === "Israel") {
             setIndentityType("IDNumber");
@@ -274,36 +275,38 @@ export default function GeneralInfo({
                                             </p>
                                         )}
                                 </div>
-                                <div className="col-sm">
-                                    <SelectElement
-                                        name={"employeecountry"}
-                                        label={t("form101.country_passport")}
-                                        value={values.employeecountry}
-                                        onChange={(e) => {
-                                            const selectedCountry = e.target.value;
-                                            handleChange(e);
+                                {!values.employeecountry ? (
+                                    <div className="col-sm">
+                                        <SelectElement
+                                            name={"employeecountry"}
+                                            label={t("form101.country_passport")}
+                                            value={values.employeecountry}
+                                            onChange={(e) => {
+                                                const selectedCountry = e.target.value;
+                                                handleChange(e);
 
-                                            // Set identity type based on country, but only modify the identity field
-                                            if (selectedCountry === "Israel") {
-                                                setIndentityType("IDNumber");
-                                                setFieldValue("employeeIdentityType", "IDNumber");
-                                            } else {
-                                                setIndentityType("Passport");
-                                                setFieldValue("employeeIdentityType", "Passport");
+                                                // Set identity type based on country, but only modify the identity field
+                                                if (selectedCountry === "Israel") {
+                                                    setIndentityType("IDNumber");
+                                                    setFieldValue("employeeIdentityType", "IDNumber");
+                                                } else {
+                                                    setIndentityType("Passport");
+                                                    setFieldValue("employeeIdentityType", "Passport");
+                                                }
+
+                                                setFieldValue("employeecountry", selectedCountry); // Update country
+                                            }}
+                                            onBlur={handleBlur}
+                                            error={
+                                                touched.employeecountry && errors.employeecountry
+                                                    ? errors.employeecountry
+                                                    : ""
                                             }
-
-                                            setFieldValue("employeecountry", selectedCountry); // Update country
-                                        }}
-                                        onBlur={handleBlur}
-                                        error={
-                                            touched.employeecountry && errors.employeecountry
-                                                ? errors.employeecountry
-                                                : ""
-                                        }
-                                        options={countryOption}
-                                        disabled={true}
-                                    />
-                                </div>
+                                            options={countryOption}
+                                            disabled={true}
+                                        />
+                                    </div>
+                                ) : null}
                             </div>
                             {indentityType === "Passport" ? (
                                 <>
@@ -339,36 +342,75 @@ export default function GeneralInfo({
                                                 {t("form101.passport_photo")}
                                             </label>
                                             <br />
-                                            <div className="input_container">
-                                                <input
-                                                    className="w-100"
-                                                    type="file"
-                                                    name="employeepassportCopy"
-                                                    id="employeepassportCopy"
-                                                    title={values.employeepassportCopy}
-                                                    accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
-                                                    onChange={async (e) => {
-                                                        e.persist(); // keeps the event alive
-                                                        const originalFile = e.target.files[0];
-                                                        const processedFile = await handleHeicConvert(originalFile);
-                                                        if (originalFile) {
-                                                            const fileSizeInMB = originalFile.size / (1024 * 1024); // Convert file size to MB
-                                                            if (fileSizeInMB > 10) {
-                                                                alert("File size must be less than 10MB"); // Show error message
-                                                                return;
+                                            <div className="position-relative d-flex align-items-center">
+                                                <div className="border rounded p-2 mr-2" style={{ borderColor: "#000", width: "calc(100% - 46px)"}}>
+                                                    <input
+                                                        className=""
+                                                        type="file"
+                                                        style={{ paddingRight: "3.5rem" }}
+                                                        name="employeepassportCopy"
+                                                        id="employeepassportCopy"
+                                                        title={values.employeepassportCopy}
+                                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                        onChange={async(e) => {
+                                                            const originalFile = e.target.files[0];
+                                                            const processedFile = await handleHeicConvert(originalFile);
+                                                            if (originalFile) {
+                                                                const fileSizeInMB = originalFile.size / (1024 * 1024); // Convert file size to MB
+                                                                if (fileSizeInMB > 10) {
+                                                                    alert("File size must be less than 10MB"); // Show error message
+                                                                    return;
+                                                                }
+                                                                setFieldValue("employeepassportCopy", processedFile);
+                                                                handleFileChange(e, "passport");
                                                             }
-                                                            setFieldValue("employeepassportCopy", processedFile);
-                                                            handleFileChange(e, "passport");
-                                                        }
-                                                    }}
-                                                    onBlur={handleBlur}
-                                                />
-                                            </div>
-                                            {touched.employeepassportCopy &&
-                                                errors.employeepassportCopy && (
-                                                    <p className="text-danger">
-                                                        {errors.employeepassportCopy}
-                                                    </p>
+                                                        }}
+                                                        onBlur={handleBlur}
+                                                    />
+                                                </div>
+
+                                                    <div
+                                                        className="position-absolute"
+                                                        style={{
+                                                            right: "5px",
+                                                            top: "50%",
+                                                            transform: "translateY(-50%)",
+                                                            cursor: "pointer",
+                                                            color: "#000",
+                                                            backgroundColor: "#fafafa",
+                                                            borderRadius: "25%", 
+                                                            padding: "7px 8px 5px 8px",
+                                                            zIndex: 2
+                                                        }}
+                                                        onClick={() => {handleBubbleToggle("employeepassportCopy")}}
+                                                        title="Click for help"
+                                                        >
+                                                        <svg
+                                                            stroke="currentColor"
+                                                            fill="currentColor"
+                                                            strokeWidth="0"
+                                                            viewBox="0 0 1024 1024"
+                                                            height="1.5em"
+                                                            width="1.4em"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                                                            <path d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0 1 30.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1 0 80 0 40 40 0 1 0-80 0z"></path>
+                                                        </svg>
+                                                    </div>
+
+                                                    {activeBubble === "employeepassportCopy" && (
+                                                        <div className="position-absolute speechAnd up">
+                                                            {t("Attach a clear photocopy of your passport.")}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            
+                                                {touched.employeepassportCopy &&
+                                                    errors.employeepassportCopy && (
+                                                        <p className="text-danger">
+                                                            {errors.employeepassportCopy}
+                                                        </p>
                                                 )}
                                         </div>
                                     </div>
@@ -379,28 +421,64 @@ export default function GeneralInfo({
                                             >
                                                 {t("form101.PhotoCopyResident")}
                                             </label>
-                                            <div className="input_container" style={{ height: "42px" }}>
-                                                <input
-                                                    type="file"
-                                                    name="employeeResidencePermit"
-                                                    id="employeeResidencePermit"
-                                                    className="form-control man p-0 border-0"
-                                                    style={{ fontSize: "unset", backgroundColor: "unset", }}
-                                                    title={values.employeeResidencePermit}
-                                                    accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
-                                                    onChange={async (e) => {
-                                                        e.persist(); // keeps the event alive
-                                                        const originalFile = e.target.files[0];
-                                                        const processedFile = await handleHeicConvert(originalFile);
+                                            <div className="input_container" style={{ height: "42px" ,width: "calc(100% - 46px)"}}>
+                                                <div className="mr-2" style={{ borderColor: "#000"}}>
+                                                    <input
+                                                        type="file"
+                                                        name="employeeResidencePermit"
+                                                        id="employeeResidencePermit"
+                                                        className="form-control man p-0 border-0"
+                                                        style={{ fontSize: "unset", backgroundColor: "unset", }}
+                                                        title={values.employeeResidencePermit}
+                                                        accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
+                                                        onChange={async(e) => {
+                                                            const originalFile = e.target.files[0];
+                                                            const processedFile = await handleHeicConvert(originalFile);
+                                                            
+                                                            setFieldValue(
+                                                                "employeeResidencePermit",
+                                                                processedFile
+                                                            )
+                                                            handleFileChange(e, "visa");
+                                                        }}
+                                                        onBlur={handleBlur}
+                                                    />
+                                                </div>
+                                                    <div
+                                                        className="position-absolute"
+                                                        style={{
+                                                            right: "17px",
+                                                            top: "70%",
+                                                            transform: "translateY(-50%)",
+                                                            cursor: "pointer",
+                                                            color: "#000",
+                                                            backgroundColor: "#fafafa",
+                                                            borderRadius: "25%", 
+                                                            padding: "7px 8px 5px 8px",
+                                                            zIndex: 2
+                                                        }}
+                                                        onClick={() => {handleBubbleToggle("employeeResidencePermit")}}
+                                                        title="Click for help"
+                                                        >
+                                                        <svg
+                                                            stroke="currentColor"
+                                                            fill="currentColor"
+                                                            strokeWidth="0"
+                                                            viewBox="0 0 1024 1024"
+                                                            height="1.5em"
+                                                            width="1.4em"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                                                            <path d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0 1 30.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1 0 80 0 40 40 0 1 0-80 0z"></path>
+                                                        </svg>
+                                                    </div>
 
-                                                        setFieldValue(
-                                                            "employeeResidencePermit",
-                                                            processedFile
-                                                        )
-                                                        handleFileChange(e, "visa");
-                                                    }}
-                                                    onBlur={handleBlur}
-                                                />
+                                                    {activeBubble === "employeeResidencePermit" && (
+                                                        <div className="position-absolute speech_And up">
+                                                            {t("Attach a clear photocopy of your residence permit in Israel.")}
+                                                        </div>
+                                                    )}
                                             </div>
                                             {touched.employeeResidencePermit &&
                                                 errors.employeeResidencePermit && (
@@ -486,6 +564,7 @@ export default function GeneralInfo({
                         <div className="">
                             <div className="row">
                                 <div className="col-sm">
+                                    <div style={{ width: "calc(100% - 46px)"}}>
                                     <DateField
                                         name="employeeDob"
                                         label={t("form101.dob")}
@@ -500,11 +579,40 @@ export default function GeneralInfo({
                                         }
                                         required
                                     />
-                                    {activeBubble === 'employeeDob' && (
-                                        <div className="d-flex justify-content-end">
-                                            <div className="speech up">
-                                                Enter your date of birth in DD/MM/YYYY format.
-                                            </div>
+                                    </div>
+                                    <div
+                                        className="position-absolute"
+                                        style={{
+                                            right: "17px",
+                                            top: "60%",
+                                            transform: "translateY(-50%)",
+                                            cursor: "pointer",
+                                            color: "#000",
+                                            backgroundColor: "#fafafa",
+                                            borderRadius: "25%", 
+                                            padding: "7px 8px 5px 8px",
+                                            zIndex: 2
+                                        }}
+                                        onClick={() => {handleBubbleToggle("employeeDob")}}
+                                        title="Click for help"
+                                        >
+                                        <svg
+                                            stroke="currentColor"
+                                            fill="currentColor"
+                                            strokeWidth="0"
+                                            viewBox="0 0 1024 1024"
+                                            height="1.5em"
+                                            width="1.4em"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                                            <path d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0 1 30.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1 0 80 0 40 40 0 1 0-80 0z"></path>
+                                        </svg>
+                                    </div>
+
+                                    {activeBubble === "employeeDob" && (
+                                        <div className="position-absolute speechand up">
+                                            {t("Enter your date of birth in DD/MM/YYYY format.")}
                                         </div>
                                     )}
                                 </div>
@@ -711,33 +819,62 @@ export default function GeneralInfo({
                                     {
                                         !dateOfBegin && (
                                             <>
-                                                <DateField
-                                                    name="DateOfBeginningWork"
-                                                    label="Start Date of Job"
-                                                    value={values.DateOfBeginningWork}
-                                                    onChange={(e) => {
-                                                        if (e.target.value !== null) {
-                                                            setFieldValue("DateOfBeginningWork", e.target.value);
-                                                            handleChange(e);
+                                                <div style={{ width: "calc(100% - 46px)"}}>
+                                                    <DateField
+                                                        name="DateOfBeginningWork"
+                                                        label="Start Date of Job"
+                                                        value={values.DateOfBeginningWork}
+                                                        onChange={(e) => {
+                                                            if (e.target.value !== null) {
+                                                                setFieldValue("DateOfBeginningWork", e.target.value);
+                                                                handleChange(e);
+                                                            }
+                                                        }}
+                                                        toggleBubble={handleBubbleToggle} // Pass the toggle handler
+                                                        onBlur={handleBlur}
+                                                        error={
+                                                            touched.DateOfBeginningWork && errors.DateOfBeginningWork
+                                                                ? errors.DateOfBeginningWork
+                                                                : ""
                                                         }
-                                                    }}
-                                                    toggleBubble={handleBubbleToggle} // Pass the toggle handler
-                                                    onBlur={handleBlur}
-                                                    error={
-                                                        touched.DateOfBeginningWork && errors.DateOfBeginningWork
-                                                            ? errors.DateOfBeginningWork
-                                                            : ""
-                                                    }
-                                                    required
-                                                />
-                                                {activeBubble === 'DateOfBeginningWork' && (
+                                                        required
+                                                    />
+                                                </div>
+                                                    <div
+                                                        className="position-absolute"
+                                                        style={{
+                                                            right: "15px",
+                                                            top: "60%",
+                                                            transform: "translateY(-50%)",
+                                                            cursor: "pointer",
+                                                            color: "#000",
+                                                            backgroundColor: "#fafafa",
+                                                            borderRadius: "25%", 
+                                                            padding: "7px 8px 5px 8px",
+                                                            zIndex: 2
+                                                        }}
+                                                        onClick={() => {handleBubbleToggle("DateOfBeginningWork")}}
+                                                        title="Click for help"
+                                                        >
+                                                        <svg
+                                                            stroke="currentColor"
+                                                            fill="currentColor"
+                                                            strokeWidth="0"
+                                                            viewBox="0 0 1024 1024"
+                                                            height="1.5em"
+                                                            width="1.4em"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                                                            <path d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0 1 30.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1 0 80 0 40 40 0 1 0-80 0z"></path>
+                                                        </svg>
+                                                    </div>
 
-                                                    <div className="d-flex justify-content-end">
-                                                        <div className="speech up">
+                                                    {activeBubble === "DateOfBeginningWork" && (
+                                                        <div className="position-absolute speechand up">
                                                             {t("form101.step1.validation.Start_Date_Of_Job")}
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
                                             </>
                                         )
                                     }

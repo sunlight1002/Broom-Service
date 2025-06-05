@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function EmployeeDetails({ values }) {
+export default function EmployeeDetails({ values, show = true }) {
     const [indentityType, setIndentityType] = useState("");
     const { t } = useTranslation();
+
+    if(!show) return null;
 
     useEffect(() => {
         if (values.employeecountry === "Israel") {

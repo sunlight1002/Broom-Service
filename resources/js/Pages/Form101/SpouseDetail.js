@@ -13,6 +13,8 @@ export default function SpouseDetail({
     handleBlur,
     handleChange,
     setFieldValue,
+    handleBubbleToggle,
+    activeBubble
 }) {
     const { t } = useTranslation();
     return (
@@ -26,6 +28,7 @@ export default function SpouseDetail({
                             label={t("form101.label_firstName")}
                             value={values.Spouse.firstName}
                             onChange={handleChange}
+                            toggleBubble={handleBubbleToggle} // Pass the toggle handler
                             onBlur={handleBlur}
                             error={
                                 touched.Spouse &&
@@ -37,6 +40,13 @@ export default function SpouseDetail({
                             }
                             required
                         />
+                        {activeBubble === 'Spouse.firstName' && (
+                            <div className="d-flex justify-content-end" style={{ position: 'relative' }}>
+                                <div className="speech up">
+                                    {t("Enter your spouse first name.")}
+                                </div>
+                            </div>
+                        )}   
                     </div>
                     <div className="col-6">
                         <TextField
@@ -44,6 +54,7 @@ export default function SpouseDetail({
                             label={t("form101.label_lastName")}
                             value={values.Spouse.lastName}
                             onChange={handleChange}
+                            toggleBubble={handleBubbleToggle} // Pass the toggle handler
                             onBlur={handleBlur}
                             error={
                                 touched.Spouse &&
@@ -55,6 +66,13 @@ export default function SpouseDetail({
                             }
                             required
                         />
+                        {activeBubble === 'Spouse.lastName' && (
+                            <div className="d-flex justify-content-end" style={{ position: 'relative' }}>
+                                <div className="speech up">
+                                    {t("Enter your spouse last name.")}
+                                </div>
+                            </div>
+                        )}   
                     </div>
                     <div className="col-lg-4">
                         <label className="d-block">{t("form101.idBy")} *</label>
@@ -126,6 +144,7 @@ export default function SpouseDetail({
                                     label={t("form101.passport_num")}
                                     value={values.Spouse.passportNumber}
                                     onChange={handleChange}
+                                    toggleBubble={handleBubbleToggle} // Pass the toggle handler
                                     onBlur={handleBlur}
                                     error={
                                         touched.Spouse &&
@@ -137,6 +156,13 @@ export default function SpouseDetail({
                                     }
                                     required
                                 />
+                                {activeBubble === 'Spouse.passportNumber' && (
+                                    <div className="d-flex justify-content-end" style={{ position: 'relative' }}>
+                                        <div className="speech up">
+                                            {t("Enter your spouse passport number.")}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </>
                     ) : (
@@ -146,6 +172,7 @@ export default function SpouseDetail({
                                 label={t("form101.id_num")}
                                 value={values.Spouse.IdNumber}
                                 onChange={handleChange}
+                                toggleBubble={handleBubbleToggle} // Pass the toggle handler
                                 onBlur={handleBlur}
                                 error={
                                     touched.Spouse &&
@@ -156,44 +183,125 @@ export default function SpouseDetail({
                                         : ""
                                 }
                                 required
-                            />
+                            /> 
+                            {activeBubble === 'Spouse.IdNumber' && (
+                                <div className="d-flex justify-content-end" style={{ position: 'relative' }}>
+                                    <div className="speech up">
+                                        {t("Enter your spouse identity number.")}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                     <div className="col-lg-4 col-sm-6 col-12">
-                        <DateField
-                            name="Spouse.Dob"
-                            label={t("form101.dob")}
-                            value={values.Spouse.Dob}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.Spouse &&
-                                    errors.Spouse &&
-                                    touched.Spouse.Dob &&
-                                    errors.Spouse.Dob
-                                    ? errors.Spouse.Dob
-                                    : ""
-                            }
-                            required
-                        />
-                    </div>
-                    {values.Spouse.Identity === "IDNumber" && (
-                        <div className="col-lg-4 col-sm-6 col-12">
+                        <div style={{ width: "calc(100% - 46px)"}}>
                             <DateField
-                                name="Spouse.DateOFAliyah"
-                                label={t("form101.dom")}
-                                value={values.Spouse.DateOFAliyah}
+                                name="Spouse.Dob"
+                                label={t("form101.dob")}
+                                value={values.Spouse.Dob}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                                 error={
                                     touched.Spouse &&
                                         errors.Spouse &&
-                                        touched.Spouse.DateOFAliyah &&
-                                        errors.Spouse.DateOFAliyah
-                                        ? errors.Spouse.DateOFAliyah
+                                        touched.Spouse.Dob &&
+                                        errors.Spouse.Dob
+                                        ? errors.Spouse.Dob
                                         : ""
                                 }
+                                required
                             />
+                            <div
+                                className="position-absolute"
+                                style={{
+                                    right: "15px",
+                                    top: "60%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    color: "#000",
+                                    backgroundColor: "#fafafa",
+                                    borderRadius: "25%", 
+                                    padding: "7px 8px 5px 8px",
+                                    zIndex: 2
+                                }}
+                                onClick={() => {handleBubbleToggle("Spouse.Dob")}}
+                                title="Click for help"
+                                >
+                                <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    strokeWidth="0"
+                                    viewBox="0 0 1024 1024"
+                                    height="1.5em"
+                                    width="1.4em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                                    <path d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0 1 30.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1 0 80 0 40 40 0 1 0-80 0z"></path>
+                                </svg>
+                            </div>
+
+                            {activeBubble === "Spouse.Dob" && (
+                                <div className="position-absolute speechand up">
+                                    {t("Enter your date of birth in MM/DD/YYYY format.")}
+                                </div>
+                            )}       
+                        </div>
+                    </div>
+                    {values.Spouse.Identity === "IDNumber" && (
+                        <div className="col-lg-4 col-sm-6 col-12">
+                            <div style={{ width: "calc(100% - 46px)"}}>
+                                <DateField
+                                    name="Spouse.DateOFAliyah"
+                                    label={t("form101.dom")}
+                                    value={values.Spouse.DateOFAliyah}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    error={
+                                        touched.Spouse &&
+                                            errors.Spouse &&
+                                            touched.Spouse.DateOFAliyah &&
+                                            errors.Spouse.DateOFAliyah
+                                            ? errors.Spouse.DateOFAliyah
+                                            : ""
+                                    }
+                                />
+                            </div>
+                            <div
+                                className="position-absolute"
+                                style={{
+                                    right: "15px",
+                                    top: "60%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    color: "#000",
+                                    backgroundColor: "#fafafa",
+                                    borderRadius: "25%", 
+                                    padding: "7px 8px 5px 8px",
+                                    zIndex: 2
+                                }}
+                                onClick={() => {handleBubbleToggle("Spouse.DateOFAliyah")}}
+                                title="Click for help"
+                                >
+                                <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    strokeWidth="0"
+                                    viewBox="0 0 1024 1024"
+                                    height="1.5em"
+                                    width="1.4em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+                                    <path d="M623.6 316.7C593.6 290.4 554 276 512 276s-81.6 14.5-111.6 40.7C369.2 344 352 380.7 352 420v7.6c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V420c0-44.1 43.1-80 96-80s96 35.9 96 80c0 31.1-22 59.6-56.1 72.7-21.2 8.1-39.2 22.3-52.1 40.9-13.1 19-19.9 41.8-19.9 64.9V620c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8v-22.7a48.3 48.3 0 0 1 30.9-44.8c59-22.7 97.1-74.7 97.1-132.5.1-39.3-17.1-76-48.3-103.3zM472 732a40 40 0 1 0 80 0 40 40 0 1 0-80 0z"></path>
+                                </svg>
+                            </div>
+
+                            {activeBubble === "Spouse.DateOFAliyah" && (
+                                <div className="position-absolute speechand up">
+                                    {t("Enter date of immigration.")}
+                                </div>
+                            )} 
                         </div>
                     )}
                     <div className="col-lg-4 col-sm-6 col-12">

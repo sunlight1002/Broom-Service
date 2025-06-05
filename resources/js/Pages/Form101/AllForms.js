@@ -1730,6 +1730,7 @@ function AllForms() {
                                             touched={touched}
                                             handleBubbleToggle={handleBubbleToggle}
                                             activeBubble={activeBubble}
+                                            show={false}
                                         />
                                     </div>
                                     <div className="box-heading">
@@ -1743,6 +1744,7 @@ function AllForms() {
                                             handleBubbleToggle={handleBubbleToggle}
                                             activeBubble={activeBubble}
                                             handleFileChange={handleFileChange}
+                                            show={false}
                                         />
                                     </div>
                                 </section>
@@ -1864,18 +1866,20 @@ function AllForms() {
                                     <p>{t("form101.disclaimer_details1")}</p>
                                     <p>{t("form101.disclaimer_details2")}</p>
                                     <div className="row mt-3 justify-content-between">
-                                        <div className="form-group col-sm">
-                                            <DateField
-                                                label={t("form101.Date")}
-                                                name={"date"}
-                                                required={true}
-                                                onBlur={handleBlur}
-                                                onChange={handleChange}
-                                                value={values.date}
-                                                readOnly
-                                                error={touched.date && errors.date}
-                                            />
-                                        </div>
+                                        { !values.date ? (
+                                            <div className="form-group col-sm">
+                                                <DateField
+                                                    label={t("form101.Date")}
+                                                    name={"date"}
+                                                    required={true}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    value={values.date}
+                                                    readOnly
+                                                    error={touched.date && errors.date}
+                                                />
+                                            </div>
+                                        ) : null }
                                         {formValues && formValues.signature != null ? (
                                             <img src={formValues.signature} />
                                         ) : (
@@ -1917,49 +1921,51 @@ function AllForms() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="box-heading">
-                                    <p className="navyblueColor font-24 my-2 font-w-500">{t("form101.sendTOYouAndEmployer")}</p>
-                                    <div className="row justify-content-between mt-3">
-                                        <div className="col-sm">
-                                            <TextField
-                                                name="sender.employerEmail"
-                                                label={t("form101.employerEmail")}
-                                                value={values.sender.employerEmail}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                readonly={true}
-                                                error={
-                                                    touched.sender &&
-                                                        errors.sender &&
-                                                        touched.sender.employerEmail &&
-                                                        errors.sender.employerEmail
-                                                        ? errors.sender.employerEmail
-                                                        : ""
-                                                }
-                                                required
-                                            />
-                                        </div>
-                                        <div className="col-sm">
-                                            <TextField
-                                                name="sender.employeeEmail"
-                                                label={t("form101.employesEmail")}
-                                                value={values.sender.employeeEmail}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                readonly={true}
-                                                error={
-                                                    touched.sender &&
-                                                        errors.sender &&
-                                                        touched.sender.employeeEmail &&
-                                                        errors.sender.employeeEmail
-                                                        ? errors.sender.employeeEmail
-                                                        : ""
-                                                }
-                                                required
-                                            />
+                                {!values.sender.employerEmail || !values.sender.employeeEmail ? (
+                                    <div className="box-heading">
+                                        <p className="navyblueColor font-24 my-2 font-w-500">{t("form101.sendTOYouAndEmployer")}</p>
+                                        <div className="row justify-content-between mt-3">
+                                            <div className="col-sm">
+                                                <TextField
+                                                    name="sender.employerEmail"
+                                                    label={t("form101.employerEmail")}
+                                                    value={values.sender.employerEmail}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    readonly={true}
+                                                    error={
+                                                        touched.sender &&
+                                                            errors.sender &&
+                                                            touched.sender.employerEmail &&
+                                                            errors.sender.employerEmail
+                                                            ? errors.sender.employerEmail
+                                                            : ""
+                                                    }
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="col-sm">
+                                                <TextField
+                                                    name="sender.employeeEmail"
+                                                    label={t("form101.employesEmail")}
+                                                    value={values.sender.employeeEmail}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    readonly={true}
+                                                    error={
+                                                        touched.sender &&
+                                                            errors.sender &&
+                                                            touched.sender.employeeEmail &&
+                                                            errors.sender.employeeEmail
+                                                            ? errors.sender.employeeEmail
+                                                            : ""
+                                                    }
+                                                    required
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                ) : null }
                             </section>
                         </div>
                     ) : (

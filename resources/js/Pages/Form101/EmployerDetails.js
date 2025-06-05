@@ -11,9 +11,13 @@ export default function EmployerDetails({
     handleBlur,
     handleChange,
     handleBubbleToggle,
-    activeBubble
+    activeBubble,
+    show = true 
 }) {
     const { t } = useTranslation();
+
+    if (!show) return null;
+    
     return (
         <div>
             <p className="navyblueColor font-24 font-w-500 mt-3 mb-2">{t("form101.employer_details")}</p>
