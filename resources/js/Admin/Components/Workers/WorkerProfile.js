@@ -176,6 +176,10 @@ export default function WorkerProfile({ worker }) {
                                                     <label className="control-label mr-2" style={{ margin: "0" }}>Bank Name:</label>
                                                     <p className="mb-0">{worker.bank_name}</p>
                                                 </div>
+                                                <div className="d-flex align-items-center mb-3">
+                                                    <label className="control-label mr-2" style={{ margin: "0" }}>Account Name:</label>
+                                                    <p className="mb-0">{worker.account_number}</p>
+                                                </div>
                                             </div>
                                             <div className="col-md-6">
                                                 <div className="d-flex align-items-center mb-3">
