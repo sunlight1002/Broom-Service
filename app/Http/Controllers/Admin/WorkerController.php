@@ -586,14 +586,16 @@ class WorkerController extends Controller
         // Define possible roles for general worker
         $generalWorkerRoles = ['General worker', 'Общий рабочий', 'עובד כללי', 'Trabajador general'];
 
-        // Check if the worker's role matches any of the cleaner roles
-        if (in_array($worker->role, $cleanerRoles)) {
-            $role = 'cleaner';
-        }
+        if ($worker->role) {
+            // Check if the worker's role matches any of the cleaner roles
+            if (in_array($worker->role, $cleanerRoles)) {
+                $role = 'cleaner';
+            }
 
-        // Check if the worker's role matches any of the general worker roles
-        if (in_array($worker->role, $generalWorkerRoles)) {
-            $role = 'general_worker';
+            // Check if the worker's role matches any of the general worker roles
+            if (in_array($worker->role, $generalWorkerRoles)) {
+                $role = 'general_worker';
+            }
         }
 
         return response()->json([
@@ -1377,5 +1379,4 @@ class WorkerController extends Controller
             'path' => Storage::url($document->file),
         ]);
     }
-
 }

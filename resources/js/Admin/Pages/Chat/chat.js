@@ -66,7 +66,9 @@ export default function chat({
         client: false,
         worker: false
     })
+    const intervalRefs = useRef([]);
 
+    const role = localStorage.getItem("admin-role");
     const tabs = ['all', 'lead', 'client', 'worker', 'unread'];
 
     const statusArr = activeTab.lead
@@ -141,6 +143,11 @@ export default function chat({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const clearAllIntervals = () => {
+        intervalRefs.current.forEach(clearInterval);
+        intervalRefs.current = []; // Reset the array
+    };
+
     const mergeUnique = (prev = [], incoming = [], key, replace = false) => {
         const existingKeys = new Set(prev.map(item => item[key]));
         if (!replace) {
@@ -166,6 +173,7 @@ export default function chat({
                     client: activeTab.client,
                     worker: activeTab.worker,
                     search: searchInput,
+                    role
                 },
                 headers
             })
@@ -213,7 +221,7 @@ export default function chat({
                 setClick(false)
             }
             console.log(res.data, "res.data");
-            
+
             setChatName(res?.data?.fullname)
 
             localStorage.setItem("chatLen", c.length);
@@ -385,6 +393,7 @@ export default function chat({
     useEffect(() => {
         if (localStorage.getItem("number")) {
             const interval = callApi();
+            intervalRefs.current.push(interval); // Store the ID
             return () => clearInterval(interval);
         }
     }, [localStorage.getItem("number")]);
@@ -407,20 +416,17 @@ export default function chat({
     }, [fromNumber, filter, hasMore, dateRange, searchInput, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
     useEffect(() => {
-        if(click){
+        if (click) {
+            clearAllIntervals();
             getMessages(localStorage.getItem("number"));
         }
-    }, [click])
-    
-
+    }, [click]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            // if (!isSearching) {
             getData(1, true);
-            // }
         }, 10000);
-
+        intervalRefs.current.push(interval); // Store the ID
         return () => clearInterval(interval);
     }, [dateRange, filter, searchInput, fromNumber, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
@@ -525,7 +531,7 @@ export default function chat({
                         setSelectedChat(d.number);  // Set the selected chat
                         setShowChatList(false);
                         handleClose();
-                        
+
                         localStorage.setItem("number", d.number);
                         document.querySelector(
                             ".cl_" + d.number
