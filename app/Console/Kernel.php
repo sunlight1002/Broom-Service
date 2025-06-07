@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('team:lead-status-pending-from-24-hours')->onOneServer()->dailyAt('08:00');
         $schedule->command('team:price-offer-reminder-to-team')->onOneServer()->dailyAt('08:00');
-        // $schedule->command('team-and-client:contract-reminder')->onOneServer()->hourly();
+        $schedule->command('team-and-client:contract-reminder')->onOneServer()->dailyAt('08:00');
         $schedule->command('client:offsite-meeting-reminder')->onOneServer()->dailyAt('08:00');
 
         // Admin reminder
@@ -86,19 +86,19 @@ class Kernel extends ConsoleKernel
         $schedule->command('client:job-review-message')->onOneServer()->weeklyOn(Schedule::THURSDAY, '11:00');
         $schedule->command('client:job-review-message')->onOneServer()->weeklyOn(Schedule::SUNDAY, '11:00');
 
-        $schedule->command('send:to-active-clients')->onOneServer()->weeklyOn(Schedule::SUNDAY, '8:30');
+        $schedule->command('send:to-active-clients')->onOneServer()->weeklyOn(Schedule::MONDAY, '8:30');
         $schedule->command('send:to-active-workers')->onOneServer()
-            ->tuesdays()
+            ->monday()
             ->between('08:30', '20:30')
             ->hourlyAt(30);
 
         // Monday at 1:30 PM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
-            ->weeklyOn(Schedule::SUNDAY, '13:30');
+            ->weeklyOn(Schedule::MONDAY, '13:30');
 
         // Monday at 8:00 PM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()
-            ->weeklyOn(Schedule::SUNDAY, '20:00');
+            ->weeklyOn(Schedule::MONDAY, '20:00');
 
         // Tuesday at 8:30 AM
         $schedule->command('worker:not_respond_on_monday')->onOneServer()

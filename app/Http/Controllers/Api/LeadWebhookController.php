@@ -2799,7 +2799,7 @@ Enter your phone number or email address with which you registered for the servi
         if ($data['SmsStatus'] == 'received') {
             $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
-            $isMonday = now()->isSunday();
+            $isMonday = now()->isMonday();
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
             if ($workerLead) {
