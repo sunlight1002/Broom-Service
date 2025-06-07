@@ -92,6 +92,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
             'ניקיון משרד' => 'Office Cleaning',
             'airbnb' => 'Airbnb',
             'Airbnb' => 'Airbnb',
+            'סטנדרט' => 'Thorough Cleaning - Standard',
             'window cleaning' => 'window cleaning',
             'חלונות 8' => 'window cleaning',
             'חלונות' => 'window cleaning',
