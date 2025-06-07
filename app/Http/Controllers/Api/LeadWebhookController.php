@@ -2488,7 +2488,7 @@ Enter your phone number or email address with which you registered for the servi
                         );
                         \Log::info('Switch to a Human Representative - During Business Hours');
                     } else {
-                        $sid = $client->lng == "heb" ? "HXaf78ce05e0a28970f94b21ea5278d139" : "HX01b88b3dfdd95d205b6659aa214ae94c";
+                        $sid = $client->lng == "heb" ? "HXeed50e16ed37bb4afd61bfb50b587aaa" : "HX01b88b3dfdd95d205b6659aa214ae94c";
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
