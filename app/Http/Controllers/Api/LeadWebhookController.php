@@ -472,6 +472,61 @@ Broom Service Team 🌹",
                     return response()->json(['status' => 'Invalid message data'], 400);
                 }
 
+                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.changes_cancellation')) {
+                    $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
+
+                    // Split the message body into lines
+                    $lines = explode("\n", trim($messageBody));
+
+                    $new = trim($lines[0] ?? '');
+                    $phone = trim($lines[1] ?? '');
+                    $msg = trim($lines[2] ?? '');
+                    \Log::info($new . ' - ' . $phone . ' - ' . $msg);
+
+                    if (stripos($new, 'חדש') !== false) {
+                        $lng = 'heb';
+                    } elseif (stripos($new, 'New') !== false) {
+                        $lng = 'en';
+                    } else {
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    if (empty($phone) || empty($msg)) {
+                        \Log::info('Invalid message data - phone or msg is empty');
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    $client = Client::where('phone', $phone)->first();
+                    \Log::info('Client: ' . json_encode($client));
+
+                    if (!$client) {
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = $msg;
+                    $scheduleChange->save();
+
+                    $teammsg = "שלום צווהבקשה נוספה\n' *:message* \n:comment_link";
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    $teammsg = str_replace([
+                        ':client_name',
+                        ':message',
+                        ':comment_link'
+                    ], [
+                        $clientName,
+                        trim($scheduleChange->comments),
+                        generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin')
+                    ], $teammsg);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
+
+                    return response()->json(['status' => 'Invalid message data'], 400);
+                }
+
                 return response()->json(['status' => 'Already processed'], 200);
             }
         }
@@ -625,7 +680,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
             $message = $data['Body'] ?? null;
             $listId = $data['ListId'] ?? $message;
             $ButtonPayload = $data['ButtonPayload'] ?? null;
-            \Log::info($ButtonPayload);
+            \Log::info($ButtonPayload . " - " . $listId . " - " . $message);
 
             switch ($listId) {
                 case 'About the Service':
@@ -1284,21 +1339,48 @@ Enter your phone number or email address with which you registered for the servi
 
                         $state = "main_menu->human_representative->need_more_help";
                     } else {
-                        if ($client->lng == 'heb') {
-                            $msg = 'נראה שהזנת קלט שגוי. אנא בדוק ונסה שוב.';
-                        } else {
-                            $msg = 'It looks like you\'ve entered an incorrect input. Please check and try again.';
-                        }
+                        // if ($client->lng == 'heb') {
+                        //     $msg = 'נראה שהזנת קלט שגוי. אנא בדוק ונסה שוב.';
+                        // } else {
+                        //     $msg = 'It looks like you\'ve entered an incorrect input. Please check and try again.';
+                        // }
+
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+$from",
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber,
+                        //         "body" => $msg,
+
+                        //     ]
+                        // );
+                        // \Log::info($twi->sid);
+
+                        $scheduleChange = ScheduleChange::create(
+                            [
+                                'user_type' => get_class($client),
+                                'user_id' => $client->id,
+                                'comments' => trim($message),
+                                "reason" => $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף",
+                            ]
+                        );
+                        $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                        // $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"" . '*' . $messageBody . '*' . "\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                        $teammsg = "שלום צוות, לקוח " . "*" . $clientName . "*" . " ביקש. בקשתו היא: " . "*" . trim($message) . "*" . " אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+                        $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
+
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
+                        $sid = $lng == "heb" ? "HXb4c7927e4693937b29866626ef467c65" : "HX20d3822e21360344c93be702ed178544";
 
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+$from",
                             [
                                 "from" => $this->twilioWhatsappNumber,
-                                "body" => $msg,
+                                "contentSid" => $sid,
+                                // "body" => $follow_up_msg,
 
                             ]
                         );
-                        \Log::info($twi->sid);
 
                         $state = "main_menu->human_representative";
                     }
@@ -2492,20 +2574,32 @@ Enter your phone number or email address with which you registered for the servi
                         && !in_array($last_menu, ['enter_phone', 'customer_service']))
                     && (!$ButtonPayload || !$listId)
                 ) {
+                    $scheduleChange = ScheduleChange::create(
+                        [
+                            'user_type' => get_class($client),
+                            'user_id' => $client->id,
+                            'comments' => trim($message),
+                            "reason" => $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף",
+                        ]
+                    );
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    // $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"" . '*' . $messageBody . '*' . "\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                    $teammsg = "שלום צוות, לקוח " . "*" . $clientName . "*" . " ביקש. בקשתו היא: " . "*" . trim($message) . "*" . " אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+                    $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
-                    \Log::info($message . ' - ' . $flag . ' - ' . $last_menu . ' - ' . $ButtonPayload . ' - ' . $listId);
-                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
-                    $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
+                    $sid = $lng == "heb" ? "HXb4c7927e4693937b29866626ef467c65" : "HX20d3822e21360344c93be702ed178544";
+
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
+                            // "body" => $follow_up_msg,
 
                         ]
                     );
-                    \Log::info($twi);
 
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                     WebhookResponse::create([
@@ -2705,7 +2799,7 @@ Enter your phone number or email address with which you registered for the servi
         if ($data['SmsStatus'] == 'received') {
             $from = $data['From'] ? str_replace("whatsapp:+", "", $data['From']) : $data['From'];
 
-            $isMonday = now()->isSunday();
+            $isMonday = now()->isMonday();
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
             if ($workerLead) {
@@ -3510,18 +3604,45 @@ Enter your phone number or email address with which you registered for the servi
                     break;
 
                 case 'sorry':
-                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
+                    // $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
 
-                    $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
+                    // $sid = $lng == "heb" ? "HX562135f9868b46f915b86a6e793dc86f" : "HX24b12b6d91f53ec0138575dace39d98e";
+                    // $twi = $this->twilio->messages->create(
+                    //     "whatsapp:+$from",
+                    //     [
+                    //         "from" => $this->twilioWhatsappNumber,
+                    //         "contentSid" => $sid,
+
+                    //     ]
+                    // );
+                    // \Log::info($twi);
+
+                    $scheduleChange = ScheduleChange::create(
+                        [
+                            'user_type' => get_class($client),
+                            'user_id' => $client->id,
+                            'comments' => trim($input),
+                            "reason" => $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף",
+                        ]
+                    );
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    // $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"" . '*' . $messageBody . '*' . "\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס\n:comment_link";
+                    $teammsg = "שלום צוות, לקוח " . "*" . $clientName . "*" . " ביקש. בקשתו היא: " . "*" . trim($input) . "*" . " אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+                    $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
+                    $sid = $lng == "heb" ? "HXb4c7927e4693937b29866626ef467c65" : "HX20d3822e21360344c93be702ed178544";
+
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$from",
                         [
                             "from" => $this->twilioWhatsappNumber,
                             "contentSid" => $sid,
+                            // "body" => $follow_up_msg,
 
                         ]
                     );
-                    \Log::info($twi);
 
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                     WebhookResponse::create([
@@ -3859,7 +3980,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
         // Check if the client is active
         $lng = $client->lng;
         $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
-        $sid = $lng == "heb" ? "HX6ee1d6e8f5daa427b78917db34bfd05c" : "HX46684b2aee6eca7848bd9a36d7a86e78";
+        $sid = $lng == "heb" ? "HX290ac2d38673f69f4588643fd2850cab" : "HX46684b2aee6eca7848bd9a36d7a86e78";
         $twi = $this->twilio->messages->create(
             "whatsapp:+$from",
             [
@@ -4108,6 +4229,32 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         $personalizedMessage = str_replace(':comment_link', generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $teammsg);
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
+                        $follow_up_msg = $client->lng == 'heb'
+                            ? "ההודעה שלך התקבלה ותועבר לצוות \n.נחזור אליך בהקדם האפשרי"
+                            : "Your message has been received and will be forwarded to our team.\nWe will get back to you as soon as possible.";
+
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "body" => $follow_up_msg,
+
+                            ]
+                        );
+
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => $messageId,
+                            'message'       => $twi->body ?? '',
+                            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                            'number'        => $from,
+                            'flex'          => 'A',
+                            'read'          => 1,
+                            'data'          => json_encode($twi->toArray()),
+                        ]);
                     }
                 }
             }
@@ -4466,17 +4613,19 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
-                            $follow_up_msg = $client->lng == 'heb'
-                                ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
-                                : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
-
                             $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
+
+                            $follow_up_msg = $client->lng == 'heb'
+                                ? "ההודעה שלך התקבלה ותועבר לצוות \n.נחזור אליך בהקדם האפשרי"
+                                : "Your message has been received and will be forwarded to our team.\nWe will get back to you as soon as possible.";
+
 
                             $twi = $this->twilio->messages->create(
                                 "whatsapp:+$from",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
-                                    "contentSid" => $sid,
+                                    // "contentSid" => $sid,
+                                    "body" => $follow_up_msg,
 
                                 ]
                             );
@@ -4852,8 +5001,8 @@ office@broomservice.co.il';
 
 
                             $follow_up_msg = $client->lng == 'heb'
-                                ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
-                                : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
+                                ? "ההודעה שלך התקבלה ותועבר לצוות \n.נחזור אליך בהקדם האפשרי"
+                                : "Your message has been received and will be forwarded to our team.\nWe will get back to you as soon as possible.";
 
                             $sid = $client->lng == "heb" ? "HXc7e62132b206473394802ae894c09d0b" : "HX634a3b4280e6bee8fb66d3507356629e";
 
@@ -4861,7 +5010,8 @@ office@broomservice.co.il';
                                 "whatsapp:+$from",
                                 [
                                     "from" => $this->twilioWhatsappNumber,
-                                    "contentSid" => $sid,
+                                    // "contentSid" => $sid,
+                                    "body" => $follow_up_msg,
 
                                 ]
                             );

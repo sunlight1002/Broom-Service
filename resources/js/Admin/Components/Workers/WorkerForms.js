@@ -249,7 +249,8 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                     worker.ManpowerSaftyForm
                                                         ? `/storage/uploads/worker/contract/${worker.ManpowerSaftyForm}`
                                                         : `/worker-forms/` +
-                                                        Base64.encode(worker.id.toString())
+                                                        Base64.encode(worker.id.toString()) +
+                                                        `?page=1&type=manpower`
                                                 }
                                                 className="btn btn-warning"
                                             >
@@ -331,7 +332,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 to={
                                                     worker.safety_and_gear_form
                                                         ? `/storage/uploads/worker/safetygear/${worker.safety_and_gear_form}`
-                                                        : `/worker-forms/${Base64.encode(worker.id.toString())}?page=3`
+                                                        : `/worker-forms/${Base64.encode(worker.id.toString())}?page=2`
                                                 }
                                                 className="btn btn-warning"
                                             >

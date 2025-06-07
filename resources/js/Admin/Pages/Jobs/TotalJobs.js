@@ -291,7 +291,7 @@ export default function TotalJobs() {
                                 displayName += " " + nameParts[1].substring(0, 2); // Append first two letters of last name
                             }
 
-                            let _html = `<span class="worker-name-badge dt-client-badge" data-client-id="${row.client_id}" data-total-amount="${row.total_amount}">`;
+                            let _html = `<span class="client-name-badge dt-client-badge" data-client-id="${row.client_id}" data-total-amount="${row.total_amount}">`;
                             _html += `<i class="fa-solid fa-user"></i> `;
                             _html += displayName; // Show formatted name
                             _html += `</span>`;
@@ -564,6 +564,7 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-switch-worker-btn") &&
                     !e.target.closest(".dt-if-job-done-checkbox") &&
                     !e.target.closest(".dt-comment") &&
+                    !e.target.closest(".worker-name-badge") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -578,7 +579,8 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-time-counter-inc") &&
                     !e.target.closest(".dt-switch-worker-btn") &&
                     !e.target.closest(".dt-if-job-done-checkbox") &&
-                    !e.target.closest(".dt-comment")
+                    !e.target.closest(".dt-comment") &&
+                    !e.target.closest(".worker-name-badge")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }

@@ -19,6 +19,7 @@ class Job extends Model
         'offer_id',
         'contract_id',
         'schedule_id',
+        'sub_schedule_id',
         'parent_job_id',
         'schedule',
         'address_id',
@@ -81,6 +82,7 @@ class Job extends Model
         'worker_notified',
         'admin_notified',
         'wednesday_notified',
+        'default_comment_number',
         'offer_service',
     ];
 

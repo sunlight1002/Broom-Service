@@ -57,6 +57,7 @@ export default function chat({
         start_date: "",
         end_date: "",
     });
+    const [click, setClick] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [activeTab, setActiveTab] = useState({
         all: true,
@@ -65,7 +66,9 @@ export default function chat({
         client: false,
         worker: false
     })
+    const intervalRefs = useRef([]);
 
+    const role = localStorage.getItem("admin-role");
     const tabs = ['all', 'lead', 'client', 'worker', 'unread'];
 
     const statusArr = activeTab.lead
@@ -140,6 +143,11 @@ export default function chat({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const clearAllIntervals = () => {
+        intervalRefs.current.forEach(clearInterval);
+        intervalRefs.current = []; // Reset the array
+    };
+
     const mergeUnique = (prev = [], incoming = [], key, replace = false) => {
         const existingKeys = new Set(prev.map(item => item[key]));
         if (!replace) {
@@ -165,6 +173,7 @@ export default function chat({
                     client: activeTab.client,
                     worker: activeTab.worker,
                     search: searchInput,
+                    role
                 },
                 headers
             })
@@ -207,10 +216,13 @@ export default function chat({
         axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}&isWorkerLead=${workerLead}`, { headers }).then((res) => {
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
-            // if (cl > c.length) {
-            //     scroller();
-            // }
-            setChatName(res?.data?.clientName)
+            if (click) {
+                scroller();
+                setClick(false)
+            }
+            console.log(res.data, "res.data");
+
+            setChatName(res?.data?.fullname)
 
             localStorage.setItem("chatLen", c.length);
             setExpired({
@@ -381,6 +393,7 @@ export default function chat({
     useEffect(() => {
         if (localStorage.getItem("number")) {
             const interval = callApi();
+            intervalRefs.current.push(interval); // Store the ID
             return () => clearInterval(interval);
         }
     }, [localStorage.getItem("number")]);
@@ -402,14 +415,18 @@ export default function chat({
         getData(1, false);
     }, [fromNumber, filter, hasMore, dateRange, searchInput, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
+    useEffect(() => {
+        if (click) {
+            clearAllIntervals();
+            getMessages(localStorage.getItem("number"));
+        }
+    }, [click]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            // if (!isSearching) {
             getData(1, true);
-            // }
         }, 10000);
-
+        intervalRefs.current.push(interval); // Store the ID
         return () => clearInterval(interval);
     }, [dateRange, filter, searchInput, fromNumber, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
@@ -478,7 +495,7 @@ export default function chat({
             return `/admin/clients/view/${id}`;
         } else if (activeTab.worker) {
             return `/admin/workers/view/${id}`;
-        }else if (workerLead) {
+        } else if (workerLead) {
             return `/admin/worker-leads/view/${id}`;
         }
         return '#'; // fallback if no tab is active
@@ -509,20 +526,20 @@ export default function chat({
                             }
                     }
                     onClick={(e) => {
-                        getMessages(d.number);
+                        setClick(true)
                         setSelectNumber(d.number);
                         setSelectedChat(d.number);  // Set the selected chat
                         setShowChatList(false);
                         handleClose();
-                        localStorage.setItem("number", d.number);
-                        setTimeout(() => {
-                            scroller();
-                        }, 200);
 
+                        localStorage.setItem("number", d.number);
                         document.querySelector(
                             ".cl_" + d.number
                         ).style.background = "#fff";
-                        document.querySelector(".cn_" + d.number).remove();
+                        const el = document.querySelector(".cn_" + d.number);
+                        if (el) {
+                            el.remove();
+                        }
                     }}
                     key={i}
                 >

@@ -189,8 +189,8 @@ export default function OfferServiceModal({
                         ...service,
                         frequency: target.value,
                         freq_name: selectedOption.getAttribute("name") || "",
-                        cycle: selectedOption.getAttribute("cycle") || "",
-                        period: selectedOption.getAttribute("period") || "",
+                        cycle: selectedOption.getAttribute("cycle") || 0,
+                        period: selectedOption.getAttribute("period") || "na",
                     };
                 }
                 return service;

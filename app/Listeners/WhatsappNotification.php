@@ -196,7 +196,7 @@ class WhatsappNotification
                 $teamJobActionLink = generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
                 $clientJobViewLink = generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
                 $workerJobViewLink = generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
-                $teamBtns = generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
+                $teamBtns = generateShortUrl(url("team-btn/" . base64_encode($jobData['uuid'])), 'admin');
                 $contactManager = generateShortUrl(url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
                 $leaveForWork = generateShortUrl(url("worker/jobs/on-my-way/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');
                 $finishJobByWorker = generateShortUrl(url("worker/jobs/finish/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")), 'worker');

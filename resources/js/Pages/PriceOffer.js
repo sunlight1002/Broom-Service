@@ -250,7 +250,7 @@ export default function PriceOffer() {
         <div className="navyblueColor parent">
             <div className="mt-4 mb-5 bg-transparent " style={{
                 margin: mobileView ? "0 10px" : "auto",
-                maxWidth: "800px"
+                maxWidth: "900px"
             }}>
                 <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
                     <img

@@ -176,7 +176,7 @@ export default function EditService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                {t(" Set Order")}
+                                                {t("admin.global.setOrder")}
                                             </label>
                                             <input
                                                 type="number"
@@ -195,7 +195,9 @@ export default function EditService() {
 
                                     <div className="col-sm-12">
                                         <div className="form-group">
-                                            <label className="control-label">{t("Icon")}</label>
+                                            <label className="control-label">
+                                                {t("admin.global.Icon")}
+                                            </label>
                                             <input
                                                 type="text"
                                                 value={icon}

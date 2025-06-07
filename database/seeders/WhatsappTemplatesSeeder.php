@@ -3699,6 +3699,8 @@ office@broomservice.co.il
 אנא ודאו שאתם מוכנים וזמינים לסייע במידת הצורך.
 במידה ויש עדכונים או שינויים, אנא עדכנו את הגורמים הרלוונטיים בהקדם.
 
+:lead_detail_link
+
 בברכה,
 צוות ברום סרוויס🌹",
                 'message_spa' => '',
@@ -3719,6 +3721,8 @@ office@broomservice.co.il
  נושא השיחה: :activity_reason
 
 אנא ודאו שאתם מוכנים לשיחה במועד שנקבע.
+
+:lead_detail_link
 
 בברכה,
 צוות ברום סרוויס 🌹",

@@ -751,22 +751,22 @@ class ClientController extends Controller
     public function destroy($id)
     {
         Client::find($id)->delete();
+        \Log::info("Client has been deleted");
 
+        // $iCountResponse =  $this->deleteUser($id);
 
-        $iCountResponse =  $this->deleteUser($id);
+        // // Handle iCount response
+        // $iCountData = $iCountResponse->json();
 
-        // Handle iCount response
-        $iCountData = $iCountResponse->json();
-
-        // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to delete user in iCount'], 500);
-        }
+        // // Handle iCount response
+        // if ($iCountResponse->status() != 200) {
+        //     return response()->json(['error' => 'Failed to delete user in iCount'], 500);
+        // }
 
 
         return response()->json([
             'message' => "Client has been deleted",
-            $iCountData
+            // $iCountData
         ]);
     }
 

@@ -45,7 +45,32 @@ class NotifyTeamAndClientTommorowMeetings extends Command
         if ($schedules->isNotEmpty()) {
             foreach ($schedules as $schedule) {
                 $propertyAddress = $schedule->propertyAddress;
+                $client = $schedule->client;
+
+                if (!$propertyAddress || !$client) {
+                    continue;
+                }
+
+                $fullAddressParts = [];
+
+                if (!empty($propertyAddress->geo_address)) {
+                    $fullAddressParts[] = $propertyAddress->geo_address;
+                }
+                if (!empty($propertyAddress->apt_no)) {
+                    $fullAddressParts[] = 'דירה ' . $propertyAddress->apt_no;
+                }
+                if (!empty($propertyAddress->floor)) {
+                    $fullAddressParts[] = 'קומה ' . $propertyAddress->floor;
+                }
+                if (!empty($propertyAddress->city)) {
+                    $fullAddressParts[] = $propertyAddress->city;
+                }
+                if (!empty($propertyAddress->zipcode)) {
+                    $fullAddressParts[] = $propertyAddress->zipcode;
+                }
                 $geoAddress = urlencode($propertyAddress->geo_address);
+
+                $fullAddress = implode(', ', array_reverse($fullAddressParts)); // for RTL
                 $zoom = 17;
 
                 // Determine the map link
@@ -56,14 +81,16 @@ class NotifyTeamAndClientTommorowMeetings extends Command
                 }
 
                 $shortMapLink = generateShortUrl(url($mapLink), 'admin');
+                $leadDetailLink = generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
 
-                $TeamMessage = "*פגישה עם " . $schedule->client->firstname . " " . $schedule->client->lastname . "*" . "  
- - *שעה*: " . Carbon::parse($schedule->start_date ?? "00-00-0000")->format('M d Y') . " " .  ($schedule->start_time ?? '') . "  
- - *מיקום*: " . $schedule->meet_link . "
- - *נושא הפגישה*: " . $schedule->purpose . "
- - *פרטי קשר של הלקוח*: " . $schedule->client->phone . " / " . $schedule->client->email . "
- - *כתובת*: " . ($propertyAddress->city ? $propertyAddress->city . ", " . $propertyAddress->geo_address : $propertyAddress->geo_address) . "
- - *קישור למפה*: " . $shortMapLink . "\n";
+                $TeamMessage = "*פגישה עם {$client->firstname} {$client->lastname}*" . "  
+- *שעה*: " . Carbon::parse($schedule->start_date ?? "00-00-0000")->format('M d Y') . " " . ($schedule->start_time ?? '') . "  
+- *מיקום*: {$schedule->meet_link}
+- *נושא הפגישה*: {$schedule->purpose}
+- *פרטי קשר של הלקוח*: {$client->phone} / {$client->email}
+- *הלקוח לְקַשֵׁר*: {$leadDetailLink}*
+- *כתובת*: {$fullAddress}
+- *קישור למפה*: {$shortMapLink}\n";
 
                 $this->notifyClient($schedule);
                 $this->notifyTeam($TeamMessage);

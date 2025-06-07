@@ -30,7 +30,7 @@ export default function TeamButtons() {
     const handleApproveJob = () => {
         axios
             .post(
-                `/api/admin/worker/${workerID}/jobs/${Base64.decode(params.id)}/approve`, {}, { headers })
+                `/api/admin/worker/${workerID}/jobs/${Base64.decode(params.id)}/approve`)
             .then((res) => {
                 getJob();
                 alert.success(res.data.data);
@@ -42,7 +42,7 @@ export default function TeamButtons() {
 
     const getJob = () => {
         axios
-            .get(`/api/admin/jobs/${Base64.decode(params.id)}`, { headers })
+            .get(`/api/admin/jobs/${Base64.decode(params.id)}`)
             .then((res) => {
                 const r = res.data.job;
                 console.log(res);
@@ -71,7 +71,7 @@ export default function TeamButtons() {
         };
 
         axios
-            .post(`/api/admin/job-opening-timestamp`, data, { headers })
+            .post(`/api/admin/job-opening-timestamp`, data)
             .then((res) => {
                 alert.success(res.data.message); // Show success message if everything is fine
                 getJob()
@@ -96,7 +96,7 @@ export default function TeamButtons() {
             worker_id: workerID
         };
         try {
-            const response = await axios.post(`/api/admin/jobs/start-time`, data, { headers });
+            const response = await axios.post(`/api/admin/jobs/start-time`, data);
             getJob();
 
             // Handle successful response

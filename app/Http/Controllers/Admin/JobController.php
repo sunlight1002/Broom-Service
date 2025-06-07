@@ -18,6 +18,8 @@ use App\Models\Problems;
 use App\Models\Conflict;
 use App\Models\Offer;
 use App\Models\Client;
+use App\Models\JobComments;
+use App\Models\DefaultServiceComment;
 use App\Models\Job;
 use App\Models\ParentJobs;
 use App\Models\ClientPropertyAddress;
@@ -35,7 +37,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
@@ -55,6 +56,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 
 class JobController extends Controller
@@ -170,7 +172,7 @@ class JobController extends Controller
                 return $q
                     ->orderBy('jobs.start_date')
                     ->orderBy('jobs.start_time')
-                    ->orderBy('users.id');     
+                    ->orderBy('users.id');
             });
 
 
@@ -678,7 +680,9 @@ class JobController extends Controller
         $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
 
         $repeat_value = $serviceSchedule->period;
-        if ($selectedService['service'] == 10) {
+        $s_template   = $selectedService['template'];
+        $sub_s_id     = null;
+        if ($s_template == 'others') {
             $s_name = $selectedService['other_title'];
             $s_heb_name = $selectedService['other_title'];
         } else {
@@ -689,6 +693,10 @@ class JobController extends Controller
         $s_cycle  = $selectedService['cycle'];
         $s_period = $selectedService['period'];
         $s_id     = $selectedService['service'];
+
+        if ($s_template == "airbnb") {
+            $sub_s_id = $selectedService['sub_services']['id'];
+        }
 
         $jobGroupID = NULL;
 
@@ -777,6 +785,7 @@ class JobController extends Controller
                     'shifts'        => $slotsInString,
                     'schedule'      => $repeat_value,
                     'schedule_id'   => $s_id,
+                    'sub_schedule_id'  => $sub_s_id,
                     'status'        => $status,
                     'subtotal_amount'  => $total_amount,
                     'total_amount'  => $total_amount,
@@ -805,22 +814,80 @@ class JobController extends Controller
 
 
 
-                $jobser = JobService::create([
+                $jobservice = JobService::create([
                     'job_id'            => $job->id,
                     'service_id'        => $s_id,
                     'name'              => $s_name,
                     'heb_name'          => $s_heb_name,
                     'duration_minutes'  => $minutes,
                     'freq_name'         => $s_freq,
-                    'cycle'             => $s_cycle,
-                    'period'            => $s_period,
+                    'cycle'             => $s_cycle ?? 0,
+                    'period'            => $s_period ?? "na",
                     'total'             => $total_amount,
                     'config'            => [
-                        'cycle'             => $serviceSchedule->cycle,
-                        'period'            => $serviceSchedule->period,
+                        'cycle'             => $serviceSchedule->cycle ?? 0,
+                        'period'            => $serviceSchedule->period ?? "na",
                         'preferred_weekday' => $preferredWeekDay
                     ]
                 ]);
+
+                $defaultComment = DefaultServiceComment::where('service_id', $s_id)->first();
+
+                if ($defaultComment) {
+                    $commentsArray = $defaultComment->comments;
+                    $commentKeys = array_keys($commentsArray);
+
+                    // Get the latest job for the same client and worker with a comment number
+                    $lastJobWithComment = Job::where('address_id', $selectedService['address']['id'])
+                        ->where('schedule_id', $s_id)
+                        ->when(!empty($defaultComment->subservice_id), function ($query) use ($defaultComment) {
+                            return $query->where('sub_schedule_id', $defaultComment->subservice_id);
+                        })
+                        ->whereNotNull('default_comment_number')
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    $nextCommentNumber = 1;
+
+                    if ($lastJobWithComment && isset($lastJobWithComment->default_comment_number)) {
+                        $lastNumber = (int) $lastJobWithComment->default_comment_number;
+                        $potentialNext = $lastNumber + 1;
+
+                        // If the key exists in comments, use it, else reset to 1
+                        if (array_key_exists((string)$potentialNext, $commentsArray)) {
+                            $nextCommentNumber = $potentialNext;
+                        }
+                    }
+
+                    $job->default_comment_number = $nextCommentNumber;
+                    $job->save();
+
+                    // Create JobComment record for worker
+                    if (array_key_exists((string)$nextCommentNumber, $commentsArray)) {
+                        JobComments::create([
+                            'job_id'                => $job->id,
+                            'comment'               => $commentsArray[$nextCommentNumber],
+                            'comment_for'           => 'worker',
+                            'name'                  => Admin::find(Auth::id())->name,
+                            'commenter_type'        => Admin::class,
+                            'commenter_id'          => Auth::id(),
+                        ]);
+                    }
+
+                    // Create separate JobComments for each default comment
+                    if (isset($commentsArray['default']) && is_array($commentsArray['default'])) {
+                        foreach ($commentsArray['default'] as $defaultText) {
+                            JobComments::create([
+                                'job_id'        => $job->id,
+                                'comment'       => $defaultText,
+                                'comment_for'   => 'worker',
+                                'name'          => Admin::find(Auth::id())->name,
+                                'commenter_type' => Admin::class,
+                                'commenter_id'  => Auth::id(),
+                            ]);
+                        }
+                    }
+                }
 
                 if ($status == JobStatusEnum::UNSCHEDULED) {
                     Conflict::create([
