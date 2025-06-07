@@ -36,7 +36,7 @@ class SendWorkerForm101Notification implements ShouldQueue
             $workerArr['formId'] = $event->formID;
 
             Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
-                $messages->to($workerArr['email']);
+                // $messages->to($workerArr['email']);
                 $messages->bcc(config('services.mail.default'));
                 $messages->subject(__('mail.form_101.subject', [
                     'id' => $workerArr['id']

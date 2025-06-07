@@ -45,10 +45,10 @@ class SendWorkerFormsNotification implements ShouldQueue
         if (!empty($event->worker->email)) {
             try {
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
-                    $messages->to($workerArr['email']);
+                    // $messages->to($workerArr['email']);
                     $messages->bcc(config('services.mail.default'));
                     if($admin){
-                        $messages->bcc($admin->email);  
+                        $messages->bcc($admin->email);
                     }
                     ($workerArr['lng'] == 'heb') ?
                         $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
@@ -61,7 +61,7 @@ class SendWorkerFormsNotification implements ShouldQueue
         }else{
             if($admin){
                 Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr, $admin) {
-                    $messages->to($admin->email);  
+                    // $messages->to($admin->email);
                     $messages->bcc(config('services.mail.default'));
                     ($workerArr['lng'] == 'heb') ?
                         $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :

@@ -112,8 +112,8 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
             }
         });
 
-        App::setLocale($worker->lng);
+        // App::setLocale($worker->lng);
 
-        Mail::to($worker->email)->send(new InsuranceFormSignedMail($worker, $form));
+        // Mail::to($worker->email)->send(new InsuranceFormSignedMail($worker, $form));
     }
 }

@@ -53,10 +53,10 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
         //     Mail::to($admin->email)->send(new AdminSafetyAndGearFormSignedMail($admin, $event->worker, $event->form));
         // }
 
-        App::setLocale($event->worker->lng);
+        // App::setLocale($event->worker->lng);
 
-        Mail::to($event->worker->email)
-        ->bcc(config('services.mail.default'))
-        ->send(new SafetyAndGearFormSignedMail($event->worker, $event->form));
+        // Mail::to($event->worker->email)
+        // ->bcc(config('services.mail.default'))
+        // ->send(new SafetyAndGearFormSignedMail($event->worker, $event->form));
     }
 }

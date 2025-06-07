@@ -92,10 +92,10 @@ class NotifyForContractFormSigned implements ShouldQueue
             });
         }
 
-        App::setLocale($worker->lng);
+        // App::setLocale($worker->lng);
 
-        Mail::to($worker->email)
-            ->bcc(config('services.mail.default'))
-            ->send(new ContractFormSignedMail($worker, $form));
+        // Mail::to($worker->email)
+        //     ->bcc(config('services.mail.default'))
+        //     ->send(new ContractFormSignedMail($worker, $form));
     }
 }

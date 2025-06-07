@@ -53,10 +53,10 @@ class NotifyForForm101Signed implements ShouldQueue
         //     Mail::to($admin->email)->send(new AdminForm101SignedMail($admin, $event->worker, $event->form));
         // }
 
-        App::setLocale($event->worker->lng);
+        // App::setLocale($event->worker->lng);
 
-        Mail::to($event->worker->email)
-        ->bcc(config('services.mail.default'))
-        ->send(new Form101SignedMail($event->worker, $event->form));
+        // Mail::to($event->worker->email)
+        // ->bcc(config('services.mail.default'))
+        // ->send(new Form101SignedMail($event->worker, $event->form));
     }
 }
