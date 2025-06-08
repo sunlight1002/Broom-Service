@@ -3199,14 +3199,19 @@ Enter your phone number or email address with which you registered for the servi
                                                     break;
                                             }
                                         }
-                                        if ($currentDateObj->lessThan($nextWeekStart) && $currentDateObj->greaterThan(now())) {
+                                        $currentDateStr = $currentDateObj->toDateString(); // 'Y-m-d'
+                                        $todayStr = now()->toDateString();
+                                        $nextWeekStartStr = $nextWeekStart->toDateString();
+                                        $nextWeekEndStr = $nextWeekEnd->toDateString();
+
+                                        if ($currentDateStr < $nextWeekStartStr && $currentDateStr > $todayStr) {
                                             $currentWeeks[] = [
                                                 "shift" => $shift,
                                                 "dayName" => $day,
                                                 "currentDate" => $currentDateObj->format('j.n.y')
                                             ];
                                         }
-                                        if ($currentDateObj->between($nextWeekStart, $nextWeekEnd)) {
+                                        if ($currentDateStr >= $nextWeekStartStr && $currentDateStr <= $nextWeekEndStr) {
                                             $nextWeeks[] = [
                                                 "shift" => $shift,
                                                 "dayName" => $day,
