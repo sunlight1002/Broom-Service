@@ -8,6 +8,7 @@ import axios from "axios";
 import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import { LuBellRing } from "react-icons/lu";
+import HeaderTimer from "./HeaderTimer";
 
 
 export default function AdminHeader() {
@@ -146,6 +147,13 @@ export default function AdminHeader() {
                         </div>
                         <div className="col-sm-6">
                             <div className="float-right d-flex">
+                                {
+                                    (me && me.show_timer == 1) && (
+                                        <div className="mx-3 d-flex justify-content-center align-items-center">
+                                            <HeaderTimer />
+                                        </div>
+                                    )
+                                }
                                 <div className="dropdown notification-bell">
                                     {count != 0 && notices.length > 0 ? (
                                         <span className="counter">{count}</span>

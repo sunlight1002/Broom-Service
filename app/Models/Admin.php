@@ -43,6 +43,7 @@ class Admin extends Authenticatable
         'branch_number',
         'account_number',
         'contactId',
+        'show_timer'
     ];
 
     /**
@@ -68,6 +69,12 @@ class Admin extends Authenticatable
     {
         return $this->hasOne(TeamMemberAvailability::class, 'team_member_id');
     }
+
+    public function timeLogs()
+    {
+        return $this->hasMany(AdminTimeLog::class, 'admins_id');
+    }
+
 
     public function defaultAvailabilities()
     {

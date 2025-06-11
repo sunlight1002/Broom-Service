@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\AdminTimeLog;
 use App\Models\TeamMember;
 use App\Models\DeviceToken;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Password;
 use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -229,8 +231,8 @@ class AuthController extends Controller
         // Attempt to send OTP via Email
         try {
             Mail::to($admin->email)
-            ->bcc(config('services.mail.default'))
-            ->send(new LoginOtpMail($otp, $admin));
+                ->bcc(config('services.mail.default'))
+                ->send(new LoginOtpMail($otp, $admin));
             $emailSent = true;
         } catch (\Exception $e) {
             $emailError = $e->getMessage();
@@ -367,5 +369,75 @@ class AuthController extends Controller
         $user = Auth::user()->token();
         $user->revoke();
         return response()->json(['success' => 'Logged Out Successfully!']);
+    }
+
+
+    public function storeAdminTimeLogs(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:start,stop',
+            // Start fields
+            'start_timer' => 'nullable|date',
+            'start_location' => 'nullable|string',
+            'start_lat' => 'nullable|numeric',
+            'start_lng' => 'nullable|numeric',
+
+            // End fields
+            'end_timer' => 'nullable|date',
+            'end_location' => 'nullable|string',
+            'end_lat' => 'nullable|numeric',
+            'end_lng' => 'nullable|numeric',
+        ]);
+
+        if ($request->action === 'start') {
+            $log = new AdminTimeLog();
+            $log->admins_id = Auth::user()->id;
+            $log->start_timer = $request->start_timer ?? now();
+            $log->start_location = $request->start_location;
+            $log->start_lat = $request->start_lat;
+            $log->start_lng = $request->start_lng;
+            $log->save();
+
+            return response()->json([
+                'message' => 'Timer started.',
+                'log_id' => $log->id,
+                'data' => $log,
+            ], 201);
+        }
+
+        if ($request->action === 'stop') {
+            $log = AdminTimeLog::where('admins_id', Auth::user()->id)
+                ->whereNull('end_timer')
+                ->latest()
+                ->first();
+
+            if (!$log) {
+                return response()->json([
+                    'message' => 'No active timer found to stop.',
+                ], 404);
+            }
+
+            $log->end_timer = $request->end_timer ?? now();
+            $log->end_location = $request->end_location;
+            $log->end_lat = $request->end_lat;
+            $log->end_lng = $request->end_lng;
+
+            // Calculate time difference
+            if ($log->start_timer && $log->end_timer) {
+                $log->difference_minutes = Carbon::parse($log->end_timer)
+                    ->diffInMinutes(Carbon::parse($log->start_timer));
+            }
+
+            $log->save();
+
+            return response()->json([
+                'message' => 'Timer stopped.',
+                'data' => $log,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Invalid action.',
+        ], 400);
     }
 }

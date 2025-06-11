@@ -86,6 +86,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
 
     // Admin Details Api
     Route::get('details', [AuthController::class, 'details']);
+    Route::post('add-time-logs', [AuthController::class, 'storeAdminTimeLogs']);
 
     // Admin Dashboard Api
     Route::get('dashboard', [DashboardController::class, 'dashboard']);

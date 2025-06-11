@@ -30,6 +30,7 @@ export default function EditTeam() {
         branch_no: null,
         account_no: null
     })
+    const [showTimer, setShowTimer] = useState(false)
     const { t } = useTranslation();
 
     const alert = useAlert();
@@ -65,6 +66,7 @@ export default function EditTeam() {
             confirmation: confirmPassword,
             status: !status ? 1 : status,
             role: role,
+            show_timer: showTimer,
             payment_type: payment,
             bank_name: bankDetails.bank_name,
             full_name: bankDetails.full_name,
@@ -113,6 +115,7 @@ export default function EditTeam() {
                     full_name: d.full_name
                 })
                 setPayment(d.payment_type)
+                setShowTimer(d.show_timer)
                 if (d.color) {
                     let clr = document.querySelectorAll(
                         'input[name="swatch_demo"]'
@@ -230,6 +233,14 @@ export default function EditTeam() {
                                         value={address}
                                         placeholder="Enter address"
                                     />
+                                </div>
+                                <div className="">
+                                    <div className="d-flex justify-content-start align-items-center">
+                                        <span className="rounded" style={{ "border": "1px solid #ebebeb", "overflow": "hidden" }}>
+                                            <input id="timer" onClick={(e) => setShowTimer(e.target.checked)} type="checkbox" className="form-control dt-if-completed-checkbox" style={{ "cursor": "pointer", "margin": "5px 5px" }} />
+                                        </span>
+                                        <label htmlFor="timer" className="form-check-label mx-1" style={{ "cursor": "pointer" }}>Show timer</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
