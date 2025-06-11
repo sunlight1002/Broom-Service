@@ -28,11 +28,21 @@ export default function WorkerLead() {
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
     const subFilterRef = useRef(subFilter);
-    const [sources, setSources] = useState([])
-    const [source, setSource] = useState("")
-
+    const [sources, setSources] = useState([]);
+    const [source, setSource] = useState("");
+    const [email, setEmail] = useState("");
+    const [paymentPerHour, setPaymentPerHour] = useState("");
+    const [manpowerCompanies, setManpowerCompanies] = useState([]);
+    console.log("ManpowerCompanies", manpowerCompanies);
     const sourceRef = useRef(source);
+    const [formValues, setFormValues] = useState({
+        email: "",
 
+        payment_per_hour: "",
+
+        company_type: "",
+        manpower_company_id: "",
+    });
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -68,31 +78,58 @@ export default function WorkerLead() {
         "agriculture visa": "agriculture visa",
         "hotel sector": "hotel sector",
         "Tied to employer": "Tied to employer",
-        "expired": "expired",
-        "other": "other",
+        expired: "expired",
+        other: "other",
     };
-
+    const getManpowerCompanies = async () => {
+        await axios
+            .get("/api/admin/manpower-companies-list", {
+                headers,
+            })
+            .then((response) => {
+                if (response?.data?.companies?.length > 0) {
+                    setManpowerCompanies(response.data.companies);
+                } else {
+                    setManpowerCompanies([]);
+                }
+            });
+    };
+    useEffect(() => {
+        getManpowerCompanies();
+    }, []);
     const toggleChangeStatusModal = (_id) => {
         setIsOpen(!isOpen);
         setWorkerLeadId(_id);
     };
-
+    const [errors, setErrors] = useState([]);
     const handleChangeStatus = async () => {
         setLoading(true);
         try {
             const response = await axios.post(
                 `/api/admin/worker-leads/${workerLeadId}/status`,
-                { status, sub_status: notHiredStatus },
+                {
+                    status,
+                    sub_status: notHiredStatus,
+                    email: formValues.email,
+                    payment_per_hour: formValues.payment_per_hour,
+                    company_type: formValues.company_type,
+                    ...(formValues.company_type === "manpower" && {
+                        manpower_company_id: formValues.manpower_company_id,
+                    }),
+                },
                 { headers }
             );
             setLoading(false);
-            setIsOpen(false);
+            setErrors(response.data.errors);
+            if (!response.data.errors) {
+                setIsOpen(false);
+            }
+
             $(tableRef.current).DataTable().ajax.reload();
         } catch (error) {
             console.error(error);
         }
     };
-
 
     const getUniqueSource = async () => {
         await axios
@@ -106,12 +143,11 @@ export default function WorkerLead() {
                     setSources([]);
                 }
             });
-    }
+    };
 
     useEffect(() => {
         getUniqueSource();
-    }, [])
-
+    }, []);
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -215,16 +251,20 @@ export default function WorkerLead() {
                                         <i class="fa fa-ellipsis-vertical"></i> 
                                     </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id
-                                }">${t("admin.leads.Edit")}</button>
-                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id
-                                }">${t("admin.leads.view")}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id
-                                }">${t(
-                                    "admin.leads.change_status"
-                                )}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id
-                                }">${t("admin.leads.Delete")}</button>
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.Edit")}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.view")}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${
+                                            row.id
+                                        }">${t(
+                                "admin.leads.change_status"
+                            )}</button>
+                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.Delete")}</button>
                                     </div> 
                                 </div>`;
                         },
@@ -447,70 +487,67 @@ export default function WorkerLead() {
                             )}
                         </div>
                     </div>
-                    {
-                        filter == "not-hired" && (
-                            <div className="row mt-2">
-                                <div
-                                    style={{
-                                        fontWeight: "bold",
-                                        marginTop: 10,
-                                        marginLeft: 15,
-                                    }}
-                                >
-                                    {t("global.sub_filter")}
-                                </div>
-                                <div>
-                                    <FilterButtons
-                                        text={t("admin.global.All")}
-                                        className="px-3 mr-1 ml-4"
-                                        selectedFilter={subFilter}
-                                        setselectedFilter={setSubFilter}
-                                    />
-                                    {Object.entries(notHiredSubStatus).map(
-                                        ([key, value]) => (
-                                            <FilterButtons
-                                                text={value}
-                                                name={key}
-                                                className="px-3 mr-1"
-                                                key={key}
-                                                selectedFilter={subFilter}
-                                                setselectedFilter={(status) =>
-                                                    setSubFilter(status)
-                                                }
-                                            />
-                                        )
-                                    )}
-                                </div>
+                    {filter == "not-hired" && (
+                        <div className="row mt-2">
+                            <div
+                                style={{
+                                    fontWeight: "bold",
+                                    marginTop: 10,
+                                    marginLeft: 15,
+                                }}
+                            >
+                                {t("global.sub_filter")}
                             </div>
-                        )
-                    }
+                            <div>
+                                <FilterButtons
+                                    text={t("admin.global.All")}
+                                    className="px-3 mr-1 ml-4"
+                                    selectedFilter={subFilter}
+                                    setselectedFilter={setSubFilter}
+                                />
+                                {Object.entries(notHiredSubStatus).map(
+                                    ([key, value]) => (
+                                        <FilterButtons
+                                            text={value}
+                                            name={key}
+                                            className="px-3 mr-1"
+                                            key={key}
+                                            selectedFilter={subFilter}
+                                            setselectedFilter={(status) =>
+                                                setSubFilter(status)
+                                            }
+                                        />
+                                    )
+                                )}
+                            </div>
+                        </div>
+                    )}
 
-                    {
-                        sources.length > 0 && (
-                            <div className="col-sm-3 px-0 mt-2">
-                                <div
-                                    style={{
-                                        fontWeight: "bold",
-                                        marginTop: 10,
-                                    }}
-                                >
-                                    {t("worker.source")}
-                                </div>
-                                <select
-                                    className="form-control"
-                                    onChange={(e) => setSource(e.target.value)}
-                                    value={source}
-                                >
-                                    <option value="">--- Select ---</option>
-                                    {sources.length > 0 && sources.map((source) => (
+                    {sources.length > 0 && (
+                        <div className="col-sm-3 px-0 mt-2">
+                            <div
+                                style={{
+                                    fontWeight: "bold",
+                                    marginTop: 10,
+                                }}
+                            >
+                                {t("worker.source")}
+                            </div>
+                            <select
+                                className="form-control"
+                                onChange={(e) => setSource(e.target.value)}
+                                value={source}
+                            >
+                                <option value="">--- Select ---</option>
+                                {sources.length > 0 &&
+                                    sources.map((source) => (
                                         <option value={source} key={source}>
                                             {source}
                                         </option>
                                     ))}
-                                </select>
-                            </div>
-                        )
-                    }
+                            </select>
+                        </div>
+                    )}
                     <div
                         className="dashBox pt-4 pb-4 w-100"
                         style={{
@@ -558,28 +595,216 @@ export default function WorkerLead() {
                                 </select>
                             </div>
                         </div>
-                        {
-                            status == "not-hired" && (
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">Sub Status</label>
+                        {status == "not-hired" && (
+                            <div className="col-sm-12">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Sub Status
+                                    </label>
 
-                                        <select
-                                            name="status"
-                                            onChange={(e) => setNotHiredStatus(e.target.value)}
-                                            value={notHiredStatus}
-                                            className="form-control mb-3"
-                                        >
-                                            {Object.keys(notHiredSubStatus).map((s) => (
+                                    <select
+                                        name="status"
+                                        onChange={(e) =>
+                                            setNotHiredStatus(e.target.value)
+                                        }
+                                        value={notHiredStatus}
+                                        className="form-control mb-3"
+                                    >
+                                        {Object.keys(notHiredSubStatus).map(
+                                            (s) => (
                                                 <option key={s} value={s}>
                                                     {notHiredSubStatus[s]}
                                                 </option>
-                                            ))}
-                                        </select>
+                                            )
+                                        )}
+                                    </select>
+                                </div>
+                            </div>
+                        )}
+
+                        {status == "hiring" && (
+                            <>
+                                <div className="col-sm-6">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t("global.company")}
+                                        </label>
+                                    </div>
+                                    <div className="form-check-inline">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="radio"
+                                                className="form-check-input"
+                                                value="my-company"
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        company_type:
+                                                            e.target.value,
+                                                        manpower_company_id: "",
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.company_type ===
+                                                    "my-company"
+                                                }
+                                            />
+                                            {t("admin.global.myCompany")}
+                                        </label>
+                                    </div>
+                                    <div className="form-check-inline">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="radio"
+                                                className="form-check-input"
+                                                value="manpower"
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        company_type:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.company_type ===
+                                                    "manpower"
+                                                }
+                                            />
+                                            {t("admin.global.manpower")}
+                                        </label>
+                                    </div>
+                                    <div className="form-check-inline">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="radio"
+                                                className="form-check-input"
+                                                value="freelancer"
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        company_type:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.company_type ===
+                                                    "freelancer"
+                                                }
+                                            />
+                                            {t("admin.global.freelancer")}
+                                        </label>
+                                    </div>
+                                    <div>
+                                        {errors.company_type ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.company_type}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
                                     </div>
                                 </div>
-                            )
-                        }
+
+                                {formValues.company_type === "manpower" && (
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("admin.global.manpower")}
+                                            </label>
+
+                                            <select
+                                                name="manpower-id"
+                                                className="form-control"
+                                                value={
+                                                    formValues.manpower_company_id
+                                                }
+                                                onChange={(e) =>
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        manpower_company_id:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                            >
+                                                <option value="">
+                                                    {t(
+                                                        "admin.global.select_manpower"
+                                                    )}
+                                                </option>
+                                                {manpowerCompanies.map(
+                                                    (mpc, index) => (
+                                                        <option
+                                                            value={mpc.id}
+                                                            key={mpc.id}
+                                                        >
+                                                            {mpc.name}
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            {errors.manpower_company_id ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.manpower_company_id}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            className="form-control mb-3"
+                                            value={formValues.email}
+                                            onChange={(e) =>
+                                                setFormValues({
+                                                    ...formValues,
+                                                    email: e.target.value,
+                                                })
+                                            }
+                                            placeholder="Enter email"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Payment Per Hour
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control mb-3"
+                                            value={formValues.payment_per_hour}
+                                            onChange={(e) =>
+                                                setFormValues({
+                                                    ...formValues,
+                                                    payment_per_hour:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            placeholder="Enter payment per hour"
+                                        />
+                                    </div>
+                                    <div>
+                                        {errors.payment_per_hour ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.payment_per_hour}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </Modal.Body>
 

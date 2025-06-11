@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Twilio\Rest\Client as TwilioClient;
-
+use Illuminate\Validation\Rule;
 
 
 
@@ -312,6 +312,20 @@ class WorkerLeadsController extends Controller
 
     public function changeStatus(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+
+            'email'     => ['nullable',  'unique:users,email,' . $id],
+            'payment_per_hour' => ['required', 'string'],
+            'company_type'    => [
+                'required',
+                Rule::in(['my-company', 'manpower', 'freelancer']),
+            ],
+            'manpower_company_id' => ['required_if:company_type,manpower'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
         $workerLead = WorkerLeads::find($id);
         $admin = Admin::where('role', 'hr')->first();
         if (!$workerLead) {
@@ -321,6 +335,18 @@ class WorkerLeadsController extends Controller
         // Change the status
         $workerLead->status = $request->status;
         $workerLead->sub_status = $request->status == "not-hired" ? $request->sub_status : null;
+        if ($request->status === 'hiring') {
+            $workerLead->email = $request->email;
+            $workerLead->payment_per_hour = $request->payment_per_hour;
+            $workerLead->company_type = $request->company_type;
+
+            if ($request->company_type === 'manpower') {
+                $workerLead->manpower_company_id = $request->manpower_company_id;
+            } else {
+                $workerLead->manpower_company_id = null;
+            }
+        }
+
         $workerLead->save();
 
         if ($workerLead->status === 'irrelevant') {
@@ -414,6 +440,7 @@ class WorkerLeadsController extends Controller
             'latitude' => $workerLead->latitude ?? NULL,
             'longitude' => $workerLead->longitude ?? NULL,
             'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
+            'payment_per_hour' => $workerLead->payment_per_hour ?? NULL,
             'two_factor_enabled' => 1,
             'step' => $workerLead->step ?? 0
         ]);

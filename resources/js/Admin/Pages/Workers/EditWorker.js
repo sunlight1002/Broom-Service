@@ -206,6 +206,7 @@ export default function EditWorker() {
                 console.log(response.data);
                 
                 const _worker = response.data.worker;
+                console.log("Workker",worker)
                 const {
                     passcode,
                     skill,
