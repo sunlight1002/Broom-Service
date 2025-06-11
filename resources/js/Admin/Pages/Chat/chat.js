@@ -18,7 +18,7 @@ export default function chat({
     number: fromNumber,
     workerLead = false
 }) {
-
+    const [currentNumber, setCurrentNumber] = useState(localStorage.getItem("number"));
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const [messages, setMessages] = useState(null);
@@ -57,7 +57,6 @@ export default function chat({
         start_date: "",
         end_date: "",
     });
-    const [click, setClick] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [activeTab, setActiveTab] = useState({
         all: true,
@@ -66,7 +65,8 @@ export default function chat({
         client: false,
         worker: false
     })
-    const intervalRefs = useRef([]);
+    const messageIntervalRef = useRef(null);
+    const requestIdRef = useRef(0);
 
     const role = localStorage.getItem("admin-role");
     const tabs = ['all', 'lead', 'client', 'worker', 'unread'];
@@ -144,9 +144,11 @@ export default function chat({
     };
 
     const clearAllIntervals = () => {
-        intervalRefs.current.forEach(clearInterval);
-        intervalRefs.current = []; // Reset the array
+        messageIntervalRef.current && clearInterval(messageIntervalRef.current);
     };
+
+    // console.log(intervalRefs);
+
 
     const mergeUnique = (prev = [], incoming = [], key, replace = false) => {
         const existingKeys = new Set(prev.map(item => item[key]));
@@ -212,18 +214,20 @@ export default function chat({
     };
 
 
-    const getMessages = (no) => {
-        axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}&isWorkerLead=${workerLead}`, { headers }).then((res) => {
+    const getMessages = async (no, click = false) => {
+        const currentId = ++requestIdRef.current; // Increment on each call
+        console.log("requestIdRef.current", requestIdRef.current);
+
+        try {
+            const res = await axios.get(`/api/admin/chat-message/${no}?from=${fromNumber}&isWorkerLead=${workerLead}`, { headers });
+
+            // ❌ Ignore stale requests
+            if (currentId !== requestIdRef.current) return;
+
             const c = res.data.chat;
             let cl = localStorage.getItem("chatLen");
-            if (click) {
-                scroller();
-                setClick(false)
-            }
-            console.log(res.data, "res.data");
 
-            setChatName(res?.data?.fullname)
-
+            setChatName(res?.data?.fullname);
             localStorage.setItem("chatLen", c.length);
             setExpired({
                 expired: res.data.expired,
@@ -231,11 +235,20 @@ export default function chat({
                 isExist: res.data.isExist
             });
             setMessages(c);
+            setGroupedMessages(groupMessagesByDate(c));
 
-            const grouped = groupMessagesByDate(c);
-            setGroupedMessages(grouped);
-        });
+            if (click) {
+                clearAllIntervals();
+                scroller();
+            }
+
+        } catch (error) {
+            if (currentId === requestIdRef.current) {
+                console.error("Error loading messages", error);
+            }
+        }
     };
+
 
     const groupMessagesByDate = (messages) => {
         if (!messages) return {};
@@ -349,13 +362,6 @@ export default function chat({
     }, [replyId, replyMessage]);
 
 
-    const callApi = () => {
-        const interval = setInterval(() => {
-            getMessages(localStorage.getItem("number"));
-        }, 10000);
-        return () => clearInterval(interval);
-    };
-
     const scroller = () => {
         const objDiv = document.getElementById("ko");
         if (objDiv) {
@@ -391,12 +397,20 @@ export default function chat({
 
 
     useEffect(() => {
-        if (localStorage.getItem("number")) {
-            const interval = callApi();
-            intervalRefs.current.push(interval); // Store the ID
-            return () => clearInterval(interval);
+        if (currentNumber) {
+            const interval = setInterval(() => {
+                getMessages(currentNumber);
+            }, 10000);
+
+            messageIntervalRef.current = interval;
         }
-    }, [localStorage.getItem("number")]);
+
+        // // Optional: cleanup when number changes or component unmounts
+        return () => {
+            if (messageIntervalRef.current) clearInterval(messageIntervalRef.current);
+        };
+    }, [currentNumber]);
+
 
 
     useEffect(() => {
@@ -415,18 +429,11 @@ export default function chat({
         getData(1, false);
     }, [fromNumber, filter, hasMore, dateRange, searchInput, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
-    useEffect(() => {
-        if (click) {
-            clearAllIntervals();
-            getMessages(localStorage.getItem("number"));
-        }
-    }, [click]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             getData(1, true);
         }, 10000);
-        intervalRefs.current.push(interval); // Store the ID
         return () => clearInterval(interval);
     }, [dateRange, filter, searchInput, fromNumber, activeTab.unread, activeTab.lead, activeTab.client, activeTab.worker, activeTab.all]);
 
@@ -467,27 +474,6 @@ export default function chat({
         });
     };
 
-    const parsedData = (data) => {
-        if (!data) {
-            // console.warn("Data is null or undefined");
-            return 'No data provided';
-        }
-
-        try {
-            let jsonData = typeof data === 'string' ? JSON.parse(data) : data;
-            // Check if the parsed data is still a string (stringified JSON inside JSON)
-            if (typeof jsonData === 'string') {
-                jsonData = JSON.parse(jsonData);
-            }
-            // Safely extract the message ID
-            const messageId = jsonData?.messages?.[0]?.id || 'Message ID not found';
-            // console.log(messageId, "Extracted Message ID");
-            return messageId;
-        } catch (error) {
-            return 'Invalid data format';
-        }
-    };
-
     const getLink = (id) => {
         if (activeTab.lead) {
             return `/admin/leads/view/${id}`;
@@ -508,8 +494,8 @@ export default function chat({
             return (
                 <div
                     className={"card p-3 cardList cl_" + d.number}
-                    style={
-                        d.unread > 0
+                    style={{
+                        ...(d.unread > 0
                             ? {
                                 background: "#e9dada",
                                 boxShadow: "none",
@@ -523,24 +509,26 @@ export default function chat({
                                 marginBottom: "0",
                                 borderRadius: "0",
                                 borderBottom: "1px solid #E5EBF1"
-                            }
-                    }
+                            }),
+                        ...(d.number == selectNumber && {
+                            background: "#d7dede"
+                        })
+                    }}
+
                     onClick={(e) => {
-                        setClick(true)
+                        getMessages(d.number, true);
                         setSelectNumber(d.number);
-                        setSelectedChat(d.number);  // Set the selected chat
+                        setSelectedChat(d.number);
                         setShowChatList(false);
                         handleClose();
 
                         localStorage.setItem("number", d.number);
-                        document.querySelector(
-                            ".cl_" + d.number
-                        ).style.background = "#fff";
+
+                        document.querySelector(".cl_" + d.number).style.background = "#fff";
                         const el = document.querySelector(".cn_" + d.number);
-                        if (el) {
-                            el.remove();
-                        }
+                        if (el) el.remove();
                     }}
+
                     key={i}
                 >
                     <div className="d-flex align-items-center">
@@ -1251,7 +1239,6 @@ export default function chat({
                                                                                         </div>
 
                                                                                         {groupedMessages[date].map((m, i) => {
-                                                                                            const chatId = parsedData(m.data);
                                                                                             let reviewLink = "https//www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl";
                                                                                             if (m.message !== "restart") {
                                                                                                 return (
@@ -1366,7 +1353,7 @@ export default function chat({
                                                                                                                         setImage(m?.image);
                                                                                                                     }
                                                                                                                     setReplyMessage(m.message);
-                                                                                                                    setReplyId(chatId ?? m.id);
+                                                                                                                    setReplyId(m.id);
                                                                                                                 }}
                                                                                                             ></i>
                                                                                                         </div>

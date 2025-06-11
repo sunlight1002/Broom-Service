@@ -16,6 +16,8 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import "datatables.net-rowreorder";
+import "datatables.net-rowreorder-dt/css/rowReorder.dataTables.css";
 import $ from "jquery";
 
 import FilterButtons from "../../../Components/common/FilterButton";
@@ -222,20 +224,28 @@ export default function TotalJobs() {
             lng: longitude
         }
         const res = await axios.post("/api/admin/jobs/complete-by-supervisor", data, { headers });
-        console.log(res);
-
         if (res.status == 200) {
             alert.success(res.data.message);
             $(tableRef.current).DataTable().draw();
         }
     }
 
+
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const allowReorder = showSupervisorJobsFilterRef?.current?.checked;
+            const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
+                rowReorder: allowReorder ? {
+                    enable: true,
+                    dataSrc: 'order_by',
+                    update: false,
+                    selector: 'td:not(.dt-action)', // ✅ exclude action column
+                } : false,
+
                 ajax: {
                     url: "/api/admin/jobs?role=" + role,
                     type: "GET",
@@ -268,7 +278,7 @@ export default function TotalJobs() {
                         d.end_date = endDateRef.current.value;
                     },
                 },
-                order: [[0, "asc"]],
+                order: [[0, "asc"]], // make sure to order by order_by column initially
                 columns: [
                     {
                         title: t("global.date"),
@@ -489,7 +499,7 @@ export default function TotalJobs() {
                         data: "action",
                         orderable: false,
                         width: "3%",
-                        className: "text-center",
+                        className: "text-center dt-action",
                         render: function (data, type, row, meta) {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
@@ -505,7 +515,6 @@ export default function TotalJobs() {
                                 }
 
                                 _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("global.view")}</button>`;
-                                _html += `<button type="button" class="dropdown-item dt-set-order-btn" data-id="${row.id}" data-order-by="${row.order_by}">Set Order</button>`;
 
                                 if (
                                     [
@@ -560,12 +569,62 @@ export default function TotalJobs() {
                     table.page(initialPage).draw("page");
                 },
             });
+
+            table.on("row-reorder.dt", function (e, diff, edit) {
+                if (diff.length) {
+                    const updates = diff
+                        .map((change) => {
+                            const rowData = table.row(change.node).data();
+
+                            if (rowData === undefined || rowData === null) {
+                                return null;
+                            }
+
+                            if (
+                                !rowData.hasOwnProperty("id") ||
+                                rowData.id === undefined ||
+                                rowData.id === null
+                            ) {
+                                return null;
+                            }
+
+                            return {
+                                id: rowData.id,
+                                new_order: change.newPosition,
+                            };
+                        })
+                        .filter((update) => update !== null);
+
+                    if (updates.length > 0) {
+                        $.ajax({
+                            url: "/api/admin/jobs/reorder",
+                            method: "POST",
+                            headers: headers,
+                            data: JSON.stringify({ updates }),
+                            success: function (response) {
+                                table.ajax.reload(null, false);
+                            },
+                            error: function (xhr, status, error) {
+                                console.error(
+                                    "Error updating order:",
+                                    status,
+                                    error,
+                                    xhr.responseText
+                                );
+                            },
+                        });
+                    } else {
+                        console.log("No valid rows to update after filtering.");
+                    }
+                }
+            });
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();
             table.page(initialPage).draw("page");
         }
     };
+
 
     const getCurrentPageNumber = () => {
         const table = $(tableRef.current).DataTable();
@@ -717,12 +776,12 @@ export default function TotalJobs() {
             handleSupervisorJobDone(_id, this.checked);
         });
 
-        $(tableRef.current).on("click", ".dt-set-order-btn", function () {
-            const _id = $(this).data("id");
-            const orderBy = $(this).data("order-by");
-            setOrderBy(orderBy ? orderBy : null);
-            handleOrderByModel(_id);
-        });
+        // $(tableRef.current).on("click", ".dt-set-order-btn", function () {
+        //     const _id = $(this).data("id");
+        //     const orderBy = $(this).data("order-by");
+        //     setOrderBy(orderBy ? orderBy : null);
+        //     handleOrderByModel(_id);
+        // });
 
 
         i18n.on("languageChanged", () => {
@@ -903,7 +962,6 @@ export default function TotalJobs() {
     const handleChangeShift = (_job) => {
         setSelectedJob(_job._id);
         setSelectedJobDate(_job.date);
-        console.log(_job);
 
         setIsChangeShiftModal(true);
     };
@@ -1523,12 +1581,19 @@ export default function TotalJobs() {
                                                 className="form-check-input"
                                                 type="checkbox"
                                                 id="inlineCheckbox5"
-                                                onChange={() => {
-                                                    $(tableRef.current)
-                                                        .DataTable()
-                                                        .draw();
-                                                }}
                                                 ref={showSupervisorJobsFilterRef}
+                                                onChange={() => {
+                                                    const table = $(tableRef.current);
+                                                    if (
+                                                        $.fn.DataTable.isDataTable(
+                                                            table
+                                                        )
+                                                    ) {
+                                                        table.DataTable().destroy();
+                                                    }
+
+                                                    initializeDataTable();
+                                                }}
                                             />
                                             <label
                                                 className="form-check-label"

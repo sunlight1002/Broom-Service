@@ -569,7 +569,8 @@ public function personalChat(Request $request)
 
         // Get chat messages for the number and from
         $chat = $model->where('number', $no)
-                    ->when($from, fn($q) => $q->where('from', $from))
+                    ->where('from', $from)
+                    ->orderBy('created_at', 'asc')
                     ->get();
 
         // Mark unread messages as read

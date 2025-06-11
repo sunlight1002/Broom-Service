@@ -121,7 +121,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::post('jobs/assign-job-to-supervisor', [JobController::class, 'assignJobToSupervisor']);
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
     Route::post('jobs/{id}/adjust-time', [JobCommentController::class, 'adjustJobCompleteTime']);
-
+    Route::post('jobs/reorder', [JobController::class, 'reorder']);
 
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);

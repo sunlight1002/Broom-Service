@@ -81,8 +81,10 @@ class JobController extends Controller
         $end_date = $request->get('end_date');
         $worker_ids = ['209', '185', '67'];
         $role = $request->query('role');
-        \Log::info($role);
         $assigned_jobs = $request->boolean('assigned_jobs');
+
+        $supervisor = Admin::where('role', 'supervisor')->first();
+        $timeLogs = $supervisor->timeLogs()->latest()->first(); // ✅ RIGHT
 
         $query = Job::query()
             ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
@@ -90,6 +92,7 @@ class JobController extends Controller
             ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
             ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
             ->leftJoin('order', 'order.id', '=', 'jobs.order_id')
+            ->leftJoin('client_property_addresses', 'client_property_addresses.id', '=', 'jobs.address_id')
             ->when(!$show_all_worker && is_array($worker_ids) && count($worker_ids), function ($q) use ($worker_ids) {
                 return $q->whereIn('jobs.worker_id', $worker_ids);
             })
@@ -108,18 +111,6 @@ class JobController extends Controller
             ->when($start_time_filter == 'afternoon', fn($q) => $q->where('jobs.start_time', '>', '16:00:00'))
             ->when($actual_time_exceed_filter == 1, fn($q) => $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes'))
             ->when($has_no_worker == 1, fn($q) => $q->whereNull('jobs.worker_id'))
-            // ->when($role === 'supervisor', function ($q) {
-            //     $q->where(function ($query) {
-            //         $query->whereDate('jobs.start_date', now()->toDateString())
-            //             ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
-            //     });
-            // })
-            // ->when($role === 'supervisor', function ($q) {
-            //     $q->where(function ($query) {
-            //         $query->orderBy('jobs.order_by', 'asc'); 
-
-            //     });
-            // })
             ->when($role === 'superadmin' && $assigned_jobs, function ($q) {
                 $jobIds = SupervisorJob::pluck('job_id');
 
@@ -168,21 +159,32 @@ class JobController extends Controller
                 DB::raw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name'),
                 DB::raw(
                     '
-                CASE
-                    WHEN job_services.name = "AirBnb" THEN "#00FF00"
-                    WHEN job_services.freq_name = "Once Time week" AND job_services.name LIKE "%Star%" THEN "#FFFFFF"
-                    WHEN job_services.freq_name = "Once in every two weeks" AND job_services.name LIKE "%Star%" THEN "#00FF"
-                    WHEN job_services.freq_name = "One Time" OR job_services.name = "Cleaning After Renovation" OR job_services.name = "Window cleaning" OR job_services.name LIKE "%Basic%" OR job_services.name LIKE "%Standard%" OR job_services.name LIKE "%Premium%" THEN "#D3D3D3"
-                    WHEN job_services.name LIKE "%Star%" THEN "#FFFFFF"
-                    WHEN job_services.name = "Office Cleaning" THEN "#FFA07A"
-                    ELSE services.color_code
-                END AS service_color'
+        CASE
+            WHEN job_services.name = "AirBnb" THEN "#00FF00"
+            WHEN job_services.freq_name = "Once Time week" AND job_services.name LIKE "%Star%" THEN "#FFFFFF"
+            WHEN job_services.freq_name = "Once in every two weeks" AND job_services.name LIKE "%Star%" THEN "#00FF"
+            WHEN job_services.freq_name = "One Time" OR job_services.name = "Cleaning After Renovation" OR job_services.name = "Window cleaning" OR job_services.name LIKE "%Basic%" OR job_services.name LIKE "%Standard%" OR job_services.name LIKE "%Premium%" THEN "#D3D3D3"
+            WHEN job_services.name LIKE "%Star%" THEN "#FFFFFF"
+            WHEN job_services.name = "Office Cleaning" THEN "#FFA07A"
+            ELSE services.color_code
+        END AS service_color'
                 ),
                 DB::raw('(CASE WHEN EXISTS (
-                    SELECT 1 FROM supervisors_jobs WHERE supervisors_jobs.job_id = jobs.id
-                ) THEN 1 ELSE 0 END) as is_assigned_to_supervisor')
+        SELECT 1 FROM supervisors_jobs WHERE supervisors_jobs.job_id = jobs.id
+    ) THEN 1 ELSE 0 END) as is_assigned_to_supervisor')
             )
             ->groupBy('jobs.id')
+            ->when($assigned_jobs && $timeLogs && $timeLogs->start_lat && $timeLogs->start_lng, function ($q) use ($timeLogs) {
+                $lat = $timeLogs->start_lat;
+                $lng = $timeLogs->start_lng;
+                \Log::info($lat." ".$lng);
+
+                $haversine = "(6371 * acos(cos(radians($lat)) * cos(radians(client_property_addresses.latitude)) * cos(radians(client_property_addresses.longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(client_property_addresses.latitude))))";
+
+                return $q->addSelect(DB::raw("$haversine AS distance"))
+                    ->orderBy('distance');
+            })
+
             ->when($role === 'supervisor', function ($q) {
                 return $q
                     ->orderByRaw('ISNULL(jobs.order_by), jobs.order_by ASC')
@@ -190,6 +192,7 @@ class JobController extends Controller
                     ->orderBy('jobs.start_time');
             }, function ($q) {
                 return $q
+                    ->orderByRaw('ISNULL(jobs.order_by), jobs.order_by ASC')
                     ->orderBy('jobs.start_date')
                     ->orderBy('jobs.start_time')
                     ->orderBy('users.id');
@@ -4389,5 +4392,18 @@ class JobController extends Controller
                 'message' => 'Job status updated successfully.',
             ]);
         }
+    }
+
+    public function reorder(Request $request)
+    {
+        $updates = $request->input('updates');
+        \Log::info("Updates", [$updates]);
+        foreach ($updates as $update) {
+            Job::where('id', $update['id'])->update([
+                'order_by' => $update['new_order']
+            ]);
+        }
+
+        return response()->json(['message' => 'Order updated successfully']);
     }
 }
