@@ -51,8 +51,6 @@ class TerminateTheWorker extends Command
                 $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
                 $file_name = $insuranceForm->pdf_name;
                 $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
-                \Log::info(['file_name' => $file_name]);
-
 
                 if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
                     App::setLocale('heb');

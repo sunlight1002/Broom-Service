@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAlert } from 'react-alert';
 import axios from 'axios';
+import { getLocationAndAddress } from '../../Utils/common.utils';
 
 const HeaderTimer = () => {
     const [time, setTime] = useState(0);
@@ -53,44 +54,12 @@ const HeaderTimer = () => {
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const getLocationAndAddress = async () => {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                alert.error('Geolocation is not supported by your browser.');
-                return reject('Geolocation not supported');
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const { latitude, longitude } = position.coords;
-
-                    try {
-                        const res = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
-                        );
-                        const data = await res.json();
-                        const address = data.display_name || 'Unknown location';
-
-                        resolve({ address, latitude, longitude });
-                    } catch (err) {
-                        console.error('Failed to fetch address:', err);
-                        reject(err);
-                    }
-                },
-                (error) => {
-                    console.error('Geolocation error:', error);
-                    alert.error('Location permission denied. Timer cannot be started.');
-                    reject(error);
-                }
-            );
-        });
-    };
 
     const handleStartStop = async () => {
         if (!isRunning) {
             // Starting
             try {
-                const { address, latitude, longitude } = await getLocationAndAddress();
+                const { address, latitude, longitude } = await getLocationAndAddress(alert);
                 setStartAddress(address);
 
                 const res = await handleAddtimer({
@@ -105,10 +74,8 @@ const HeaderTimer = () => {
                     localStorage.setItem('admin-timer-start-time', new Date().toISOString());
                     setIsRunning(true);
                 }
-
-                console.log('🟢 Start Address:', address);
             } catch (err) {
-                console.log('Timer not started due to location issue.');
+                console.log('Timer not started due to location issue.', err);
             }
         } else {
             // Stopping
@@ -127,7 +94,6 @@ const HeaderTimer = () => {
                 localStorage.removeItem('admin-timer-start-time');
                 setIsRunning(false);
                 setTime(0);
-                console.log('🔴 End Address:', address);
             } catch (err) {
                 console.log('Failed to fetch end address.');
             }

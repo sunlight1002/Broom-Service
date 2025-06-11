@@ -84,6 +84,11 @@ class Job extends Model
         'wednesday_notified',
         'default_comment_number',
         'offer_service',
+        'supervisor_id',
+        'supervison_completed',
+        'supervisor_location',
+        'supervisor_lat',
+        'supervisor_lng',
     ];
 
     /**

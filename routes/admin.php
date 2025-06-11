@@ -143,7 +143,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::post('jobs/{id}/extra-amount', [JobController::class, 'saveExtraAmount']);
     Route::post('jobs/save-comment', [JobController::class, 'saveComment']);
     Route::post('jobs/order-by', [JobController::class, 'jobOrderBy']);
-
+    Route::post('jobs/complete-by-supervisor', [JobController::class, 'handleSupervisorJobStatus']);
 
 
     // Lead Api

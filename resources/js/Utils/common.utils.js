@@ -1,5 +1,6 @@
 
 import heic2any from "heic2any";
+import useAlert from "react-alert";
 
 export const monthNames = [
     "January",
@@ -123,7 +124,7 @@ export function getShiftsDetails(job) {
     }
 
     const shiftsArray = job?.shifts ? job.shifts.split(",") : [];
-    
+
     if (durationInHours === 0) {
         durationInHours = shiftsArray.length / 4;
     }
@@ -171,7 +172,7 @@ export const objectToFormData = (obj, formData, namespace) => {
 export const workerHours = (s, msg) => {
     if (adminToken) {
         return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
-    }else{
+    } else {
         if (s.type === "hourly") {
             return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
         }
@@ -184,22 +185,56 @@ export const handleHeicConvert = async (file) => {
     const ext = file.name.split('.').pop().toLowerCase();
 
     if (file.type === "image/heic" || file.name.endsWith(".heic") || ext === "heic" || ext === "heif") {
-      const convertedBlob = await heic2any({
-        blob: file,
-        toType: "image/jpeg",
-        quality: 0.8,
-      });
-  
-      // Debug: check MIME type
-      console.log("Converted Blob type:", convertedBlob.type);
-  
-      const convertedFile = new File([convertedBlob], file.name.replace(".heic", ".jpg"), {
-        type: "image/jpeg",
-      });
-  
-      return convertedFile;
+        const convertedBlob = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+            quality: 0.8,
+        });
+
+        // Debug: check MIME type
+        console.log("Converted Blob type:", convertedBlob.type);
+
+        const convertedFile = new File([convertedBlob], file.name.replace(".heic", ".jpg"), {
+            type: "image/jpeg",
+        });
+
+        return convertedFile;
     }
-  
+
     return file;
-  };
-  
+};
+
+
+
+export const getLocationAndAddress = async (alert) => {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            alert.error('Geolocation is not supported by your browser.');
+            return reject('Geolocation not supported');
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+                    );
+                    const data = await res.json();
+                    const address = data.display_name || 'Unknown location';
+
+                    resolve({ address, latitude, longitude });
+                } catch (err) {
+                    console.error('Failed to fetch address:', err);
+                    reject(err);
+                }
+            },
+            (error) => {
+                console.error('Geolocation error:', error);
+                alert.error('Location permission denied. Timer cannot be started.');
+                reject(error);
+            }
+        );
+    });
+};

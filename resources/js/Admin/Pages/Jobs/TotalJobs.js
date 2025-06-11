@@ -23,6 +23,7 @@ import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import Sidebar from "../../Layouts/Sidebar";
 import { ChangeShiftModal } from "../../Components/Modals/ChangeShiftModal";
+import { getLocationAndAddress } from "../../../Utils/common.utils";
 
 export default function TotalJobs() {
     const { t, i18n } = useTranslation();
@@ -210,6 +211,25 @@ export default function TotalJobs() {
     }
 
 
+    const handleSupervisorJobDone = async (jobId, checked) => {
+        const { address, latitude, longitude } = await getLocationAndAddress(alert);
+
+        const data = {
+            job_id: jobId,
+            checked: checked,
+            location: address,
+            lat: latitude,
+            lng: longitude
+        }
+        const res = await axios.post("/api/admin/jobs/complete-by-supervisor", data, { headers });
+        console.log(res);
+
+        if (res.status == 200) {
+            alert.success(res.data.message);
+            $(tableRef.current).DataTable().draw();
+        }
+    }
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -241,7 +261,7 @@ export default function TotalJobs() {
                         d.show_cancel_jobs = showCancelJobsFilterRef.current.checked
                             ? 1
                             : 0;
-                        d.assigned_jobs = showSupervisorJobsFilterRef.current.checked
+                        d.assigned_jobs = showSupervisorJobsFilterRef?.current?.checked
                             ? 1
                             : 0;
                         d.start_date = startDateRef.current.value;
@@ -446,11 +466,23 @@ export default function TotalJobs() {
                             return _html;
                         },
                     },
+                    // {
+                    //     title: "Order by",
+                    //     data: "order_by",
+                    //     orderable: false,
+                    //     width: "6%",
+                    // },
                     {
-                        title: "Order by",
+                        title: t("global.supervison_completed"),
                         data: "order_by",
                         orderable: false,
-                        width: "6%",
+                        width: "8%",
+                        render: function (data, type, row, meta) {
+                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden"> <input  
+                                ${role == "supervisor" ? "" : "disabled"} type="checkbox" data-id="${row.id
+                                }" class="form-control dt-if-supervisor-job-done-checkbox" ${row.supervisors_completed_job ? "checked" : ""
+                                }/> </span> </div>`;
+                        },
                     },
                     {
                         title: t("global.action"),
@@ -565,6 +597,7 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-if-job-done-checkbox") &&
                     !e.target.closest(".dt-comment") &&
                     !e.target.closest(".worker-name-badge") &&
+                    !e.target.closest(".dt-if-supervisor-job-done-checkbox") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -580,7 +613,8 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-switch-worker-btn") &&
                     !e.target.closest(".dt-if-job-done-checkbox") &&
                     !e.target.closest(".dt-comment") &&
-                    !e.target.closest(".worker-name-badge")
+                    !e.target.closest(".worker-name-badge") &&
+                    !e.target.closest(".dt-if-supervisor-job-done-checkbox")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
@@ -676,6 +710,11 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-supervisor-btn", function () {
             const _id = $(this).data("id");
             handleAssignJobToSupervisor(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-if-supervisor-job-done-checkbox", function () {
+            const _id = $(this).data("id");
+            handleSupervisorJobDone(_id, this.checked);
         });
 
         $(tableRef.current).on("click", ".dt-set-order-btn", function () {
@@ -1477,25 +1516,29 @@ export default function TotalJobs() {
                                         {t("global.showCancelledJobs")}
                                     </label>
                                 </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="inlineCheckbox5"
-                                        onChange={() => {
-                                            $(tableRef.current)
-                                                .DataTable()
-                                                .draw();
-                                        }}
-                                        ref={showSupervisorJobsFilterRef}
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="inlineCheckbox5"
-                                    >
-                                        {role == "supervisor" ? "Show assigned Jobs" : t("global.supervisorAssignedJobs")}
-                                    </label>
-                                </div>
+                                {
+                                    role == "superadmin" && (
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id="inlineCheckbox5"
+                                                onChange={() => {
+                                                    $(tableRef.current)
+                                                        .DataTable()
+                                                        .draw();
+                                                }}
+                                                ref={showSupervisorJobsFilterRef}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="inlineCheckbox5"
+                                            >
+                                                {role == "supervisor" ? "Show assigned Jobs" : t("global.supervisorAssignedJobs")}
+                                            </label>
+                                        </div>
+                                    )
+                                }
                             </div>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-2">

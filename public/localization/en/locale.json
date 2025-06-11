@@ -369,7 +369,8 @@
         "assign_supervisor": "Assign Supervisor",
         "assign_supervisor_jobs": "Assign Supervisor Jobs",
         "assign_job_to_supervisor": "Assign Job To Supervisor",
-        "supervisor_jobs": "Supervisor Jobs"
+        "supervisor_jobs": "Supervisor Jobs",
+        "supervison_completed": "Supervison Completed"
     },
     "modal": {
         "title": "Modal",

@@ -45,10 +45,10 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
             ->first();
         $insuaranceForm = $worker->forms()->where('type', 'insurance')->first();
 
-        $file_name = $insuaranceForm ? $insuaranceForm->pdf_file : null;
+        $file_name = $insuaranceForm ? $insuaranceForm->pdf_name : null;
 
         $dateOfBeginningWork = $form101 ? data_get($form101->data, 'DateOfBeginningWork') : null;
-        $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+        $workerName = trim(trim($worker->firstname ?? '') . '-' . trim($worker->lastname ?? ''));
         App::setLocale('heb');
 
         if ($insuranceCompany && $insuranceCompany->email && $file_name) {
@@ -63,7 +63,7 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
             Mail::send(
                 '/insuaranceCompany',
                 ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork],
-                function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName) {
+                function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName, $pdfPath) {
                     $message->to($insuranceCompany->email)
                         ->subject(__('mail.insuarance_company.subject', [
                             'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')

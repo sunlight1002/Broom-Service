@@ -365,7 +365,8 @@
         "assign_supervisor": "הקצה מפקח",
         "assign_supervisor_jobs": "הקצה עבודות מפקח",
         "assign_job_to_supervisor": "הקצה עבודה למפקח",
-        "supervisor_jobs": "עבודות מפקח"
+        "supervisor_jobs": "עבודות מפקח",
+        "supervision_completed": "הפיקוח הושלם"
     },
     "modal": {
         "title": "מודל",

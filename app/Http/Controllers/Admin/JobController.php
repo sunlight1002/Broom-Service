@@ -81,6 +81,7 @@ class JobController extends Controller
         $end_date = $request->get('end_date');
         $worker_ids = ['209', '185', '67'];
         $role = $request->query('role');
+        \Log::info($role);
         $assigned_jobs = $request->boolean('assigned_jobs');
 
         $query = Job::query()
@@ -107,21 +108,39 @@ class JobController extends Controller
             ->when($start_time_filter == 'afternoon', fn($q) => $q->where('jobs.start_time', '>', '16:00:00'))
             ->when($actual_time_exceed_filter == 1, fn($q) => $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes'))
             ->when($has_no_worker == 1, fn($q) => $q->whereNull('jobs.worker_id'))
-            ->when($role === 'supervisor', function ($q) {
-                $q->where(function ($query) {
-                    $query->whereDate('jobs.start_date', now()->toDateString())
-                        ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
-                });
-            })
+            // ->when($role === 'supervisor', function ($q) {
+            //     $q->where(function ($query) {
+            //         $query->whereDate('jobs.start_date', now()->toDateString())
+            //             ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
+            //     });
+            // })
             // ->when($role === 'supervisor', function ($q) {
             //     $q->where(function ($query) {
             //         $query->orderBy('jobs.order_by', 'asc'); 
 
             //     });
             // })
-            ->when($assigned_jobs, function ($q) {
-                $jobIds = SupervisorJob::all()->pluck('job_id');
-                return $q->whereIn('jobs.id', $jobIds);
+            ->when($role === 'superadmin' && $assigned_jobs, function ($q) {
+                $jobIds = SupervisorJob::pluck('job_id');
+
+                $q->where(function ($query) use ($jobIds) {
+                    $query->whereIn('jobs.id', $jobIds)
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->whereDate('jobs.start_date', now()->toDateString())
+                                ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
+                        });
+                });
+            })
+            ->when(($role === 'supervisor'), function ($q) {
+                $jobIds = SupervisorJob::pluck('job_id');
+
+                $q->where(function ($query) use ($jobIds) {
+                    $query->whereIn('jobs.id', $jobIds)
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->whereDate('jobs.start_date', now()->toDateString())
+                                ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
+                        });
+                });
             })
             ->select(
                 'jobs.id',
@@ -131,6 +150,7 @@ class JobController extends Controller
                 'users.id as worker_id',
                 'jobs.shifts',
                 'jobs.is_job_done',
+                'jobs.supervison_completed as supervisors_completed_job',
                 'jobs.status',
                 'jobs.order_by',
                 'job_services.duration_minutes',
@@ -4345,5 +4365,29 @@ class JobController extends Controller
         return response()->json([
             'message' => 'Job order by updated successfully.',
         ]);
+    }
+
+    public function handleSupervisorJobStatus(Request $request)
+    {
+        $request->validate([
+            // 'admin_id' => 'required|exists:admins,id',
+            'job_id' => 'required|exists:jobs,id',
+        ]);
+
+        // Check if the job assignment already exists
+        $existing = Job::where('id', $request->job_id)->first();
+
+        if ($existing) {
+            $existing->supervisor_id = Auth::user()->id;
+            $existing->supervison_completed = $request->checked;
+            $existing->supervisor_location = $request->location;
+            $existing->supervisor_lat = $request->lat;
+            $existing->supervisor_lng = $request->lng;
+            $existing->save();
+
+            return response()->json([
+                'message' => 'Job status updated successfully.',
+            ]);
+        }
     }
 }
