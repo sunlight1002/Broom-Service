@@ -239,6 +239,7 @@ export default function TotalJobs() {
             const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
+                pageLength: 100,
                 rowReorder: allowReorder ? {
                     enable: true,
                     dataSrc: 'order_by',
@@ -666,7 +667,7 @@ export default function TotalJobs() {
         // ✅ Block drag if clicked on these elements
         const table = $(tableRef.current).DataTable();
         table.on('pre-row-reorder', function (e, node, index) {
-            
+
             const blockDragSelectors = [
                 '.dt-action',
                 '.dt-comment',
