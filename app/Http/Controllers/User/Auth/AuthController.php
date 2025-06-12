@@ -49,123 +49,123 @@ class AuthController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function login(Request $request)
-     {
-         $validator = Validator::make($request->all(), [
-             'email' => ['required'],
-             'password'  => ['required', 'string', 'min:6'],
-         ]);
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required'],
+            'password'  => ['required', 'string', 'min:6'],
+        ]);
 
-         if ($validator->fails()) {
-             return response()->json(['errors' => $validator->messages()]);
-         }
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
 
-         if (Auth::attempt([
-             'email'     => $request->email,
-             'password'  => $request->password
-         ])) {
-             $user = User::where('status', 1)->find(auth()->user()->id);
-             if (!$user) {
-                 return response()->json(['errors' => ['worker' => 'User not found']]);
-             }
-     
-             DeviceToken::where('tokenable_id', $user->id)
-             ->where('tokenable_type', User::class)
-             ->where('expires_at', '<', now())
-             ->delete();
+        if (Auth::attempt([
+            'email'     => $request->email,
+            'password'  => $request->password
+        ])) {
+            $user = User::where('status', 1)->find(auth()->user()->id);
+            if (!$user) {
+                return response()->json(['errors' => ['worker' => 'User not found']]);
+            }
 
-             $rememberDeviceToken = $request->cookie('remember_device_token');
-             if ($rememberDeviceToken) {
-                 $storedToken = DeviceToken::where('tokenable_id', $user->id)
-                     ->where('tokenable_type', User::class)
-                     ->where('token', $rememberDeviceToken)
-                     ->where('expires_at', '>', now())
-                     ->where('status', 1)
-                     ->first();
-                     if ($storedToken) {
-                        // Device is remembered
-                        $user->token = $user->createToken('User', ['user'])->accessToken;
-                        return response()->json($user);
-                    }
+            DeviceToken::where('tokenable_id', $user->id)
+                ->where('tokenable_type', User::class)
+                ->where('expires_at', '<', now())
+                ->delete();
+
+            $rememberDeviceToken = $request->cookie('remember_device_token');
+            if ($rememberDeviceToken) {
+                $storedToken = DeviceToken::where('tokenable_id', $user->id)
+                    ->where('tokenable_type', User::class)
+                    ->where('token', $rememberDeviceToken)
+                    ->where('expires_at', '>', now())
+                    ->where('status', 1)
+                    ->first();
+                if ($storedToken) {
+                    // Device is remembered
+                    $user->token = $user->createToken('User', ['user'])->accessToken;
+                    return response()->json($user);
+                }
+            }
+
+            if ($user->two_factor_enabled) {
+                $otp = strval(random_int(100000, 999999)); // Generate a random 6-digit number
+                $user->otp = $otp;
+                $user->otp_expiry = now()->addMinutes(10);
+                $user->save();
+
+                $emailSent = false;
+                $smsSent = false;
+                $emailError = null;
+                $smsError = null;
+
+                try {
+                    Mail::to($user->email)->send(new LoginOtpMail($otp, $user));
+                    $emailSent = true;
+                } catch (\Exception $e) {
+                    $emailError = $e->getMessage();
                 }
 
-             if ($user->two_factor_enabled) {
-                 $otp = strval(random_int(100000, 999999)); // Generate a random 6-digit number
-                 $user->otp = $otp;
-                 $user->otp_expiry = now()->addMinutes(10);
-                 $user->save();
+                try {
+                    App::setLocale($user->lng);
+                    // Send OTP via SMS using Twilio
+                    $otpMessage = __('mail.otp.body', ['otp' => $otp]);
 
-                 $emailSent = false;
-                 $smsSent = false;
-                 $emailError = null;
-                 $smsError = null;
+                    $twilioAccountSid = config('services.twilio.twilio_id');
+                    $twilioAuthToken = config('services.twilio.twilio_token');
+                    $twilioPhoneNumber = config('services.twilio.twilio_number');
 
-                 try {
-                     Mail::to($user->email)->send(new LoginOtpMail($otp, $user));
-                     $emailSent = true;
-                 } catch (\Exception $e) {
-                     $emailError = $e->getMessage();
-                 }
+                    $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
+                    $phone_number = '+' . $user->phone;
 
-                 try {
-                     App::setLocale($user->lng);
-                     // Send OTP via SMS using Twilio
-                     $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+                    $twilioClient->messages->create(
+                        $phone_number,
+                        ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
+                    );
+                    $smsSent = true;
+                } catch (\Exception $e) {
+                    $smsError = $e->getMessage();
+                }
 
-                     $twilioAccountSid = config('services.twilio.twilio_id');
-                     $twilioAuthToken = config('services.twilio.twilio_token');
-                     $twilioPhoneNumber = config('services.twilio.twilio_number');
-
-                     $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
-                     $phone_number = '+' . $user->phone;
-
-                     $twilioClient->messages->create(
-                         $phone_number,
-                         ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
-                     );
-                     $smsSent = true;
-                 } catch (\Exception $e) {
-                     $smsError = $e->getMessage();
-                 }
-
-                 if ($emailSent && $smsSent) {
-                     return response()->json([
-                         "two_factor_enabled" => $user->two_factor_enabled,
-                         "email" => $user->email,
-                         "lng" => $user->lng,
-                         'message' => 'OTP sent to your email and phone number for verification'
-                     ]);
-                 } elseif ($emailSent) {
-                     return response()->json([
-                         "two_factor_enabled" => $user->two_factor_enabled,
-                         "email" => $user->email,
-                         "lng" => $user->lng,
-                         'message' => 'OTP sent to your email for verification. Failed to send OTP via SMS.',
+                if ($emailSent && $smsSent) {
+                    return response()->json([
+                        "two_factor_enabled" => $user->two_factor_enabled,
+                        "email" => $user->email,
+                        "lng" => $user->lng,
+                        'message' => 'OTP sent to your email and phone number for verification'
+                    ]);
+                } elseif ($emailSent) {
+                    return response()->json([
+                        "two_factor_enabled" => $user->two_factor_enabled,
+                        "email" => $user->email,
+                        "lng" => $user->lng,
+                        'message' => 'OTP sent to your email for verification. Failed to send OTP via SMS.',
                         //  'errors' => ['sms' => $smsError]
-                     ]);
-                 } elseif ($smsSent) {
-                     return response()->json([
-                         "two_factor_enabled" => $user->two_factor_enabled,
-                         "email" => $user->email,
-                         "lng" => $user->lng,
-                         'message' => 'OTP sent to your phone number for verification. Failed to send OTP via email.',
+                    ]);
+                } elseif ($smsSent) {
+                    return response()->json([
+                        "two_factor_enabled" => $user->two_factor_enabled,
+                        "email" => $user->email,
+                        "lng" => $user->lng,
+                        'message' => 'OTP sent to your phone number for verification. Failed to send OTP via email.',
                         //  'errors' => ['email' => $emailError]
-                     ]);
-                 } else {
-                     return response()->json([
-                         'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
-                         'email_error' => $emailError,
-                         'sms_error' => $smsError
-                     ], 500);
-                 }
-             } else {
-                 $user->token = $user->createToken('User', ['user'])->accessToken;
-                 return response()->json($user);
-             }
-         } else {
-             return response()->json(['errors' => ['worker' => 'These credentials do not match our records.']]);
-         }
-     }
+                    ]);
+                } else {
+                    return response()->json([
+                        'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
+                        'email_error' => $emailError,
+                        'sms_error' => $smsError
+                    ], 500);
+                }
+            } else {
+                $user->token = $user->createToken('User', ['user'])->accessToken;
+                return response()->json($user);
+            }
+        } else {
+            return response()->json(['errors' => ['worker' => 'These credentials do not match our records.']]);
+        }
+    }
 
     public function verifyOtp(Request $request)
     {
@@ -178,9 +178,9 @@ class AuthController extends Controller
         }
 
         $user = User::where('otp', $request->otp)
-                    ->where('otp_expiry', '>=', now())
-                    ->where('status', 1)
-                    ->first();
+            ->where('otp_expiry', '>=', now())
+            ->where('status', 1)
+            ->first();
 
         if (!$user) {
             return response()->json(['errors' => ['otp' => 'Invalid OTP or OTP expired']]);
@@ -217,72 +217,72 @@ class AuthController extends Controller
     }
 
     public function resendOtp(Request $request)
-        {
-            $user = User::where('email', $request->email)
+    {
+        $user = User::where('email', $request->email)
             ->where('status', 1)
             ->first();
 
-            if (!$user) {
-                return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
-            }
-
-            $otp = strval(random_int(100000, 999999));
-            $user->otp = $otp;
-            $user->otp_expiry = now()->addMinutes(10);
-            $user->save();
-
-            // Attempt to send OTP via Email
-            try {
-                Mail::to($user->email)->send(new LoginOtpMail($otp, $user));
-                $emailSent = true;
-            } catch (\Exception $e) {
-                $emailSent = false;
-                $emailError = $e->getMessage();
-            }
-
-            // Attempt to send OTP via SMS using Twilio
-            try {
-                App::setLocale($user->lng);
-                $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-
-                $twilioAccountSid = config('services.twilio.twilio_id');
-                $twilioAuthToken = config('services.twilio.twilio_token');
-                $twilioPhoneNumber = config('services.twilio.twilio_number');
-
-                $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
-                $phone_number = '+' . $user->phone;
-
-                $twilioClient->messages->create(
-                    $phone_number,
-                    ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
-                );
-                $smsSent = true;
-            } catch (\Exception $e) {
-                $smsSent = false;
-                $smsError = $e->getMessage();
-            }
-
-            // Return the appropriate response
-            if ($emailSent && $smsSent) {
-                return response()->json(['message' => 'OTP sent to your email and phone number for verification']);
-            } elseif ($emailSent) {
-                return response()->json([
-                    'message' => 'OTP sent to your email. Failed to send OTP via SMS.',
-                    'sms_error' => $smsError
-                ]);
-            } elseif ($smsSent) {
-                return response()->json([
-                    'message' => 'OTP sent to your phone number. Failed to send OTP via email.',
-                    'email_error' => $emailError
-                ]);
-            } else {
-                return response()->json([
-                    'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
-                    'email_error' => $emailError ?? null,
-                    'sms_error' => $smsError ?? null
-                ], 500);
-            }
+        if (!$user) {
+            return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
         }
+
+        $otp = strval(random_int(100000, 999999));
+        $user->otp = $otp;
+        $user->otp_expiry = now()->addMinutes(10);
+        $user->save();
+
+        // Attempt to send OTP via Email
+        try {
+            Mail::to($user->email)->send(new LoginOtpMail($otp, $user));
+            $emailSent = true;
+        } catch (\Exception $e) {
+            $emailSent = false;
+            $emailError = $e->getMessage();
+        }
+
+        // Attempt to send OTP via SMS using Twilio
+        try {
+            App::setLocale($user->lng);
+            $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+
+            $twilioAccountSid = config('services.twilio.twilio_id');
+            $twilioAuthToken = config('services.twilio.twilio_token');
+            $twilioPhoneNumber = config('services.twilio.twilio_number');
+
+            $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
+            $phone_number = '+' . $user->phone;
+
+            $twilioClient->messages->create(
+                $phone_number,
+                ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
+            );
+            $smsSent = true;
+        } catch (\Exception $e) {
+            $smsSent = false;
+            $smsError = $e->getMessage();
+        }
+
+        // Return the appropriate response
+        if ($emailSent && $smsSent) {
+            return response()->json(['message' => 'OTP sent to your email and phone number for verification']);
+        } elseif ($emailSent) {
+            return response()->json([
+                'message' => 'OTP sent to your email. Failed to send OTP via SMS.',
+                'sms_error' => $smsError
+            ]);
+        } elseif ($smsSent) {
+            return response()->json([
+                'message' => 'OTP sent to your phone number. Failed to send OTP via email.',
+                'email_error' => $emailError
+            ]);
+        } else {
+            return response()->json([
+                'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
+                'email_error' => $emailError ?? null,
+                'sms_error' => $smsError ?? null
+            ], 500);
+        }
+    }
 
 
 
@@ -329,7 +329,7 @@ class AuthController extends Controller
 
         // Return the response based on the result
         return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => "Your password has been reset!"]) 
+            ? response()->json(['message' => "Your password has been reset!"])
             : back()->withErrors(['email' => [__($status)]]);
     }
 
@@ -443,15 +443,13 @@ class AuthController extends Controller
     public function getWorkerDetail(Request $request)
     {
         $isAdmin = false;
-    
-        // Check if the request has a valid admin token
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
-            $isAdmin = true; // The user is an authenticated admin
+            $isAdmin = true;
         }
 
-        $user = $request->type == 'lead' 
-            ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first() 
-            : ($isAdmin ? User::find($request->worker_id) : User::where('status', 1)->find($request->worker_id));
+        $user = $request->type == 'lead'
+            ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first()
+            : ($isAdmin ? User::where('status', 1)->find($request->worker_id) : User::where('status', 1)->find($request->worker_id));
 
         if (!$user) {
             return response()->json([
@@ -459,17 +457,17 @@ class AuthController extends Controller
                 'worker_id' => $request->worker_id
             ], 404);
         }
-    
+
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
             ->first();
-    
+
         return response()->json([
             'worker' => $user,
             'form' => $form
         ]);
     }
-    
+
 
     public function saveWorkerDetail(Request $request)
     {
@@ -553,7 +551,7 @@ class AuthController extends Controller
 
         $user->save();
 
-        if($type == 'lead') {
+        if ($type == 'lead') {
             $formEnum = new Form101FieldEnum;
 
             $defaultFields = $formEnum->getDefaultFields();
@@ -571,7 +569,6 @@ class AuthController extends Controller
                 'data' => $formData,
                 'submitted_at' => NULL
             ]);
-
         }
 
         return response()->json(['message' => 'Worker details updated successfully', 'worker' => $user], 200);
@@ -745,7 +742,7 @@ class AuthController extends Controller
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
             $isAdmin = true; // The user is an authenticated admin
         }
-    
+
         $workerId = base64_decode($id);
         $user = $isAdmin ? User::find($workerId) : User::where('status', 1)->find($workerId);
         if (!$user) {
@@ -781,7 +778,7 @@ class AuthController extends Controller
                 $forms['contractForm'] = $contractForm ? $contractForm : null;
             }
 
-            if ($user->company_type == 'manpower'){
+            if ($user->company_type == 'manpower') {
                 $forms['manpowerSaftyForm'] = $manpowerForm ? $manpowerForm : null;
             }
 
@@ -895,7 +892,6 @@ class AuthController extends Controller
             if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 $user = $this->createUser($worker);
             }
-
         }
 
         return response()->json([
@@ -959,14 +955,14 @@ class AuthController extends Controller
         // Look for an existing form (draft or submitted) for this worker
 
         $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)
-        ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
-            $q->where('id', $formId);
-        })
-        ->when(empty($formId) || $formId == "null", function ($q) {
-            $q->whereNull('submitted_at');
-        })
-        ->orderBy('created_at', 'DESC')
-        ->first();
+            ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
+                $q->where('id', $formId);
+            })
+            ->when(empty($formId) || $formId == "null", function ($q) {
+                $q->whereNull('submitted_at');
+            })
+            ->orderBy('created_at', 'DESC')
+            ->first();
 
         $formOldData = $form ? $form->data : [];
 
@@ -1189,12 +1185,12 @@ class AuthController extends Controller
         $user = null;
         // Trigger the event only when a submission is made
         if ($savingType === 'submit') {
-            if($request->type == 'lead' && $worker->company_type == 'manpower') {
+            if ($request->type == 'lead' && $worker->company_type == 'manpower') {
                 $user = $this->createUser($worker);
             }
             event(new SafetyAndGearFormSigned($worker, $form));
 
-            if($worker->company_type == 'manpower' ) {
+            if ($worker->company_type == 'manpower') {
                 App::setLocale('heb');
 
                 // **Retrieve all forms of the worker**
@@ -1214,7 +1210,6 @@ class AuthController extends Controller
 
                         $attachments[$filePath] = $fileName;
                     }
-
                 }
                 // Send email with all form attachments
                 Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
@@ -1230,7 +1225,6 @@ class AuthController extends Controller
                     }
                 });
             }
-
         }
 
         return response()->json([
@@ -1242,29 +1236,29 @@ class AuthController extends Controller
     public function getSafegear($id, $type = null, Request $request)
     {
         $isAdmin = false;
-    
+
         // Check if the request has a valid admin token
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
             $isAdmin = true; // The user is an authenticated admin
         }
-    
+
         \Log::info("Is Admin: " . ($isAdmin ? 'Yes' : 'No'));
-    
+
         // Fetch worker based on type and admin scope
-        $worker = $type == 'lead' 
-            ? WorkerLeads::find($id) 
+        $worker = $type == 'lead'
+            ? WorkerLeads::find($id)
             : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
-    
+
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-    
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
-    
+
         return response()->json([
             'lng' => $worker->lng,
             'worker' => $worker,
@@ -1275,16 +1269,16 @@ class AuthController extends Controller
     public function get101(Request $request, $id, $formId = null, $type = null)
     {
         $isAdmin = false;
-    
+
         // Check if the request has a valid admin token
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
             $isAdmin = true; // The user is an authenticated admin
         }
-    
+
         // Fetch worker based on type and admin scope
-        $worker = $type == 'lead' 
-        ? WorkerLeads::find($id) 
-        : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+        $worker = $type == 'lead'
+            ? WorkerLeads::find($id)
+            : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
 
         if (!$worker) {
             return response()->json([
@@ -1302,15 +1296,15 @@ class AuthController extends Controller
             })
             ->first();
 
-            // $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)
-            // ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
-            //     $q->where('id', $formId);
-            // })
-            // ->when(empty($formId) || $formId == "null", function ($q) {
-            //     $q->whereNull('submitted_at');
-            // })
-            // ->orderBy('created_at', 'DESC')
-            // ->first();
+        // $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)
+        // ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
+        //     $q->where('id', $formId);
+        // })
+        // ->when(empty($formId) || $formId == "null", function ($q) {
+        //     $q->whereNull('submitted_at');
+        // })
+        // ->orderBy('created_at', 'DESC')
+        // ->first();
 
         return response()->json([
             'lng' => $worker->lng,
@@ -1321,17 +1315,16 @@ class AuthController extends Controller
     public function getAllForms(Request $request, $id, $type = null)
     {
         $isAdmin = false;
-    
         // Check if the request has a valid admin token
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
             $isAdmin = true; // The user is an authenticated admin
         }
-    
+
         \Log::info("Is Admin: " . ($isAdmin ? 'Yes' : 'No'));
 
         // Fetch worker based on type and admin scope
-        $worker = $type == 'lead' 
-            ? WorkerLeads::find($id) 
+        $worker = $type == 'lead'
+            ? WorkerLeads::find($id)
             : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
 
         if (!$worker) {
@@ -1352,7 +1345,7 @@ class AuthController extends Controller
     public function getWorkContract($id)
     {
         $isAdmin = false;
-    
+
         // Check if the request has a valid admin token
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
             $isAdmin = true; // The user is an authenticated admin
@@ -1379,13 +1372,13 @@ class AuthController extends Controller
     public function getInsuranceForm(Request $request, $id, $type = null)
     {
         $isAdmin = false;
-    
+
         // Check if the request has a valid admin token
         if ($request->bearerToken() && Auth::guard('admin-api')->check()) {
             $isAdmin = true; // The user is an authenticated admin
         }
 
-        $worker = $type == 'lead' ? WorkerLeads::find($id) :  ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1476,7 +1469,7 @@ class AuthController extends Controller
         $user = null;
         // Trigger the event only if the form is submitted
         if ($form && $form->submitted_at) {
-            if($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country != 'Israel') {
+            if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country != 'Israel') {
                 $user = $this->createUser($worker);
             }
             event(new InsuranceFormSigned($worker, $form));
@@ -1542,7 +1535,7 @@ class AuthController extends Controller
             'formUrl' => Storage::disk('public')->url("signed-docs/{$file_name}")
         ];
 
-        if($manpowerCompany->email){
+        if ($manpowerCompany->email) {
             App::setLocale('heb');
             // Send email
             Mail::send('/manpowerCompany', $emailData, function ($message) use ($worker, $manpowerCompany, $file_name) {
@@ -1603,7 +1596,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function createUser($workerLead){
+    public function createUser($workerLead)
+    {
         $role = $workerLead->role ?? 'cleaner';
         $lng = $workerLead->lng;
 
@@ -1677,16 +1671,15 @@ class AuthController extends Controller
 
 
         $forms = $workerLead->forms()->get();
-            foreach ($forms as $form) {
-                $form->update([
-                    'user_type' => User::class,
-                    'user_id' => $worker->id
-                ]);
-            }
+        foreach ($forms as $form) {
+            $form->update([
+                'user_type' => User::class,
+                'user_id' => $worker->id
+            ]);
+        }
 
         $workerLead->delete();
 
         return $worker;
     }
-
 }

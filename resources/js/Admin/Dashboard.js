@@ -92,7 +92,7 @@ export default function Dashboard() {
         searchResults.clients.length ||
         searchResults.workers.length ||
         searchResults.WorkerLeads.length;
-
+    console.log("HAsResult",hasResults)
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -398,6 +398,7 @@ export default function Dashboard() {
                                                     <React.Fragment key={key}>
                                                         <h6 className="dropdown-header text-capitalize">{key}:</h6>
                                                         {items.map((item) => (
+                                                           
                                                             <button
                                                                 key={item.id}
                                                                 className="dropdown-item text-truncate"
@@ -406,6 +407,8 @@ export default function Dashboard() {
                                                                         navigate(`/admin/clients/view/${item.id}`);
                                                                     } else if (item.type === "client" && item.status != "2") {
                                                                         navigate(`/admin/leads/view/${item.id}`);
+                                                                    } else if (item.type === "user") {
+                                                                        navigate(`/admin/workers/view/${item.id}`);
                                                                     } else if (item.type === "workerlead") {
                                                                         navigate(`/admin/worker-leads/view/${item.id}`);
                                                                     }
