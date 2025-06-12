@@ -99,7 +99,6 @@ export default function EditTeam() {
             .get(`/api/admin/teams/${param.id}/edit`, { headers })
             .then((res) => {
                 const d = res.data.data;
-
                 setName(d.name);
                 setHebName(d.heb_name);
                 setEmail(d.email);
@@ -237,7 +236,7 @@ export default function EditTeam() {
                                 <div className="">
                                     <div className="d-flex justify-content-start align-items-center">
                                         <span className="rounded" style={{ "border": "1px solid #ebebeb", "overflow": "hidden" }}>
-                                            <input id="timer" onClick={(e) => setShowTimer(e.target.checked)} type="checkbox" className="form-control dt-if-completed-checkbox" style={{ "cursor": "pointer", "margin": "5px 5px" }} />
+                                            <input id="timer" checked={showTimer == 1 ? true : false} onClick={(e) => setShowTimer(e.target.checked)} type="checkbox" className="form-control dt-if-completed-checkbox" style={{ "cursor": "pointer", "margin": "5px 5px" }} />
                                         </span>
                                         <label htmlFor="timer" className="form-check-label mx-1" style={{ "cursor": "pointer" }}>Show timer</label>
                                     </div>

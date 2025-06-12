@@ -570,6 +570,31 @@ export default function TotalJobs() {
                 },
             });
 
+            // table.on('pre-row-reorder', function (e, node, index) {
+            //     // Prevent drag if interacting with these elements
+            //     const blockDragSelectors = [
+            //         '.dt-action',
+            //         '.dt-comment',
+            //         '.dt-switch-worker-btn',
+            //         '.dt-if-job-done-checkbox',
+            //         '.dt-if-supervisor-job-done-checkbox',
+            //         '.dropdown-toggle',
+            //         '.dropdown-menu',
+            //         'button',
+            //         'input',
+            //         'a'
+            //     ];
+
+            //     const target = e.originalEvent?.target;
+
+            //     if (target && blockDragSelectors.some(selector => target.closest(selector))) {
+            //         console.log("Drag blocked");
+
+            //         e.preventDefault(); // ✅ Cancel row reordering
+            //     }
+            // });
+
+
             table.on("row-reorder.dt", function (e, diff, edit) {
                 if (diff.length) {
                     const updates = diff
@@ -637,6 +662,30 @@ export default function TotalJobs() {
         const initialPage = pageFromUrl - 1;
 
         initializeDataTable(initialPage);
+
+        // ✅ Block drag if clicked on these elements
+        const table = $(tableRef.current).DataTable();
+        table.on('pre-row-reorder', function (e, node, index) {
+            
+            const blockDragSelectors = [
+                '.dt-action',
+                '.dt-comment',
+                '.dt-switch-worker-btn',
+                '.dt-if-job-done-checkbox',
+                '.dt-if-supervisor-job-done-checkbox',
+                '.dropdown-toggle',
+                '.dropdown-menu',
+                'button',
+                'input',
+                'a'
+            ];
+
+            const target = e.originalEvent?.target;
+            if (target && blockDragSelectors.some(selector => target.closest(selector))) {
+                console.log("🚫 Drag blocked due to interaction with:", target);
+                e.preventDefault();
+            }
+        });
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;

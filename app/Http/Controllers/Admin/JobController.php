@@ -174,29 +174,37 @@ class JobController extends Controller
     ) THEN 1 ELSE 0 END) as is_assigned_to_supervisor')
             )
             ->groupBy('jobs.id')
-            ->when($assigned_jobs && $timeLogs && $timeLogs->start_lat && $timeLogs->start_lng, function ($q) use ($timeLogs) {
-                $lat = $timeLogs->start_lat;
-                $lng = $timeLogs->start_lng;
-                \Log::info($lat." ".$lng);
+            ->when(
+                ($role === 'supervisor' || $assigned_jobs) &&
+                    $timeLogs && $timeLogs->start_lat && $timeLogs->start_lng,
+                function ($q) use ($timeLogs, $role) {
+                    $lat = $timeLogs->start_lat;
+                    $lng = $timeLogs->start_lng;
+                    \Log::info("Applying haversine with: $lat, $lng");
 
-                $haversine = "(6371 * acos(cos(radians($lat)) * cos(radians(client_property_addresses.latitude)) * cos(radians(client_property_addresses.longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(client_property_addresses.latitude))))";
+                    $haversine = "(6371 * acos(cos(radians($lat)) * cos(radians(client_property_addresses.latitude)) * cos(radians(client_property_addresses.longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(client_property_addresses.latitude))))";
 
-                return $q->addSelect(DB::raw("$haversine AS distance"))
-                    ->orderBy('distance');
-            })
+                    return $q->addSelect(DB::raw("$haversine AS distance"))
+                        ->orderByRaw("ISNULL(jobs.order_by), jobs.order_by ASC") // prioritize order_by when not null
+                        ->orderBy('distance')
+                        ->orderBy('jobs.start_date')
+                        ->orderBy('jobs.start_time');
+                }
+            )
+            ->when(
+                !(
+                    ($role === 'supervisor' || $assigned_jobs) &&
+                    $timeLogs && $timeLogs->start_lat && $timeLogs->start_lng
+                ),
+                function ($q) use ($role) {
+                    return $q
+                        // ->orderByRaw("ISNULL(jobs.order_by), jobs.order_by ASC")
+                        ->orderBy('jobs.start_date')
+                        ->orderBy('jobs.start_time')
+                        ->when($role !== 'supervisor', fn($q) => $q->orderBy('users.id'));
+                }
+            );
 
-            ->when($role === 'supervisor', function ($q) {
-                return $q
-                    ->orderByRaw('ISNULL(jobs.order_by), jobs.order_by ASC')
-                    ->orderBy('jobs.start_date')
-                    ->orderBy('jobs.start_time');
-            }, function ($q) {
-                return $q
-                    ->orderByRaw('ISNULL(jobs.order_by), jobs.order_by ASC')
-                    ->orderBy('jobs.start_date')
-                    ->orderBy('jobs.start_time')
-                    ->orderBy('users.id');
-            });
 
 
         return DataTables::eloquent($query)

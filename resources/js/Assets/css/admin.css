@@ -4621,7 +4621,7 @@ video::-webkit-media-controls-panel {
   }
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .timer-container {
       gap: 10px;
       padding: 6px 12px;
@@ -4641,4 +4641,4 @@ video::-webkit-media-controls-panel {
   .timer-status {
       display: none;
   }
-}
+} */

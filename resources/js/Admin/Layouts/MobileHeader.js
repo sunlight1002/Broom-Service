@@ -9,12 +9,14 @@ import { useTranslation } from "react-i18next";
 import { LuShuffle } from "react-icons/lu";
 import { IoIosLogOut } from "react-icons/io";
 import { GiReceiveMoney } from "react-icons/gi";
+import HeaderTimer from "./HeaderTimer";
 
 export default function MobileHeader() {
     const { t } = useTranslation();
     const alert = useAlert();
     const navigate = useNavigate();
     const [role, setRole] = useState();
+    const [admin, setAdmin] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar visibility
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -45,7 +47,8 @@ export default function MobileHeader() {
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
-            setRole(res.data.success.role);
+            setAdmin(res.data.success);
+            // setRole(res.data.success.role);
         });
     };
 
@@ -85,6 +88,13 @@ export default function MobileHeader() {
                         </svg>
                     </span>
                 </button>
+                {
+                    (admin && admin?.show_timer == 1) && (
+                        <div className="w-100 my-1 d-flex justify-content-end align-items-center">
+                            <HeaderTimer />
+                        </div>
+                    )
+                }
                 <div className={`navbar-collapse ${isSidebarOpen ? 'show' : ''}`} id="navbarCollapse">
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item">
@@ -93,9 +103,9 @@ export default function MobileHeader() {
                             </a>
                         </li>
                         {
-                            role !== "hr" && (
+                            admin && admin?.role !== "hr" && (
                                 <>
-                                    {role !== "supervisor" && (
+                                    {admin?.role !== "supervisor" && (
                                         <li className="nav-item">
                                             <a href="/admin/leads" onClick={(e) => handleClick(e, "/admin/leads")}>
                                                 <i className="fa-solid fa-poll-h"></i>{t("admin.sidebar.leads")}
@@ -131,9 +141,9 @@ export default function MobileHeader() {
                                                                 href="/admin/clients"
                                                                 onClick={(e) => handleClick(e, "/admin/clients")}
                                                             >
-                                                                {role !== "supervisor" ? (
+                                                                {admin?.role !== "supervisor" ? (
                                                                     <>
-                                                                     <i className="fa fa-angle-right"></i> All Clients
+                                                                        <i className="fa fa-angle-right"></i> All Clients
                                                                     </>
                                                                 ) : (
                                                                     <>Clients</>
@@ -141,7 +151,7 @@ export default function MobileHeader() {
 
                                                             </a>
                                                         </li>
-                                                        {role !== "supervisor" && (
+                                                        {admin?.role !== "supervisor" && (
                                                             <>
                                                                 <li className="list-group-item">
                                                                     <a
@@ -196,7 +206,7 @@ export default function MobileHeader() {
                                 <i className="fa-solid fa-users"></i>{t("admin.sidebar.workers")}
                             </a>
                         </li>
-                        {role !== "supervisor" && (
+                        {admin?.role !== "supervisor" && (
                             <>
                                 <li className="nav-item">
                                     <a href="/admin/workers-leaves" onClick={(e) => handleClick(e, "/admin/workers-leaves")}>
@@ -219,9 +229,9 @@ export default function MobileHeader() {
                                     </a>
                                 </li>
                             </>
-                        ) }
+                        )}
 
-                        {role == "supervisor" && (
+                        {admin?.role == "supervisor" && (
                             <li className="nav-item">
                                 <a href="/admin/jobs" onClick={(e) => handleClick(e, "/admin/jobs")}>
                                     <i className="fa-solid fa-briefcase"></i>
@@ -231,7 +241,7 @@ export default function MobileHeader() {
                         )}
 
                         {
-                            (role !== "hr" && role !== "supervisor") && (
+                            (admin?.role !== "hr" && admin?.role !== "supervisor") && (
                                 <>
                                     <li className="nav-item">
                                         <a href="/admin/schedule" onClick={(e) => handleClick(e, "/admin/schedule")}>
@@ -308,7 +318,7 @@ export default function MobileHeader() {
                             )
                         }
 
-                        {(role !== "member" && role !== "hr" && role !== "supervisor") && (
+                        {(admin?.role !== "member" && admin?.role !== "hr" && admin?.role !== "supervisor") && (
                             <li className="nav-item">
                                 <a href="/admin/income" onClick={(e) => handleClick(e, "/admin/income")}>
                                     <i className="fa-solid fa-ils"></i>{t("admin.sidebar.earnings")}
@@ -316,7 +326,7 @@ export default function MobileHeader() {
                             </li>
                         )}
                         {
-                            role !== "hr" && role !== "supervisor" && (
+                            admin?.role !== "hr" && admin?.role !== "supervisor" && (
                                 <li className="nav-item">
                                     <a href="/admin/notifications" onClick={(e) => handleClick(e, "/admin/notifications")}>
                                         <i className="fa-solid fa-bullhorn"></i>
@@ -349,7 +359,7 @@ export default function MobileHeader() {
                                 >
                                     <div className="card-body">
                                         <ul className="list-group">
-                                            {role !== "member" && role !== "hr" && role !== "supervisor" && (
+                                            {admin?.role !== "member" && admin?.role !== "hr" && admin?.role !== "supervisor" && (
                                                 <li className="list-group-item">
                                                     <a href="/admin/manage-team">
                                                         <i className="fa fa-angle-right"></i>{" "}
@@ -358,7 +368,7 @@ export default function MobileHeader() {
                                                 </li>
                                             )}
                                             {
-                                                role !== "hr" && role !== "supervisor" && (
+                                                admin?.role !== "hr" && admin?.role !== "supervisor" && (
                                                     <>
                                                         <li className="list-group-item">
                                                             <a href="/admin/services">
@@ -393,7 +403,8 @@ export default function MobileHeader() {
                                                         <li className="list-group-item">
                                                             <a href="/admin/discount">
                                                                 <i className="fa fa-angle-right"></i>{" "}
-                                                                {t("admin.sidebar.settings.add_discount")}                                                </a>
+                                                                {t("admin.sidebar.settings.add_discount")}
+                                                            </a>
                                                         </li>
                                                         <li className="list-group-item">
                                                             <a href="/admin/templates">
@@ -422,7 +433,7 @@ export default function MobileHeader() {
                             </div>
                         </li>
                     </ul>
-                   <div className="sideLogout ml-3">
+                    <div className="sideLogout ml-3">
                         <div className="logoutBtn">
                             <button
                                 className="btn btn-danger d-flex align-items-center"
