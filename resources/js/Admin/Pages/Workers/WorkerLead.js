@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
@@ -33,14 +33,13 @@ export default function WorkerLead() {
     const [email, setEmail] = useState("");
     const [paymentPerHour, setPaymentPerHour] = useState("");
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
-    console.log("ManpowerCompanies", manpowerCompanies);
     const sourceRef = useRef(source);
     const [formValues, setFormValues] = useState({
         email: "",
 
         payment_per_hour: "",
 
-        company_type: "",
+        company_type: "my-company",
         manpower_company_id: "",
     });
     const headers = {
@@ -101,6 +100,11 @@ export default function WorkerLead() {
         setIsOpen(!isOpen);
         setWorkerLeadId(_id);
     };
+    useEffect(() => {
+        if (workerLeadId && isOpen) {
+            getWorker();
+        }
+    }, [workerLeadId, isOpen]);
     const [errors, setErrors] = useState([]);
     const handleChangeStatus = async () => {
         setLoading(true);
@@ -145,6 +149,21 @@ export default function WorkerLead() {
             });
     };
 
+    const getWorker = () => {
+        axios
+            .get(`/api/admin/worker-leads/${workerLeadId}/edit`, { headers })
+            .then((response) => {
+                const worker = response.data;
+                setFormValues({
+                    ...formValues,
+
+                    email: worker.email,
+                    payment_per_hour: worker.hourly_rate,
+                    company_type: worker.company_type || "my-company", 
+                    manpower_company_id: worker.manpower_company_id,
+                });
+            });
+    };
     useEffect(() => {
         getUniqueSource();
     }, []);
@@ -230,7 +249,6 @@ export default function WorkerLead() {
                         title: t("admin.global.Status"),
                         data: "status",
                         render: function (data, type, row) {
-                            console.log("Data", data);
                             const _statusColor = leadStatusColor(data);
                             return `<p class="status-clickable" data-id="${row.id}" 
                                        style="cursor: pointer; background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 100px; text-align: center;">
@@ -624,84 +642,153 @@ export default function WorkerLead() {
 
                         {status == "hiring" && (
                             <>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            className="form-control mb-3"
+                                            value={formValues.email}
+                                            onChange={(e) =>
+                                                setFormValues({
+                                                    ...formValues,
+                                                    email: e.target.value,
+                                                })
+                                            }
+                                            placeholder="Enter email"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Payment Per Hour
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control mb-3"
+                                            value={formValues.payment_per_hour}
+                                            onChange={(e) =>
+                                                setFormValues({
+                                                    ...formValues,
+                                                    payment_per_hour:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            placeholder="Enter payment per hour"
+                                        />
+                                    </div>
+                                    <div>
+                                        {errors.payment_per_hour ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.payment_per_hour}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
                                             {t("global.company")}
                                         </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="my-company"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        company_type:
-                                                            e.target.value,
-                                                        manpower_company_id: "",
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.company_type ===
-                                                    "my-company"
-                                                }
-                                            />
-                                            {t("admin.global.myCompany")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="manpower"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        company_type:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.company_type ===
-                                                    "manpower"
-                                                }
-                                            />
-                                            {t("admin.global.manpower")}
-                                        </label>
-                                    </div>
-                                    <div className="form-check-inline">
-                                        <label className="form-check-label">
-                                            <input
-                                                type="radio"
-                                                className="form-check-input"
-                                                value="freelancer"
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        company_type:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                checked={
-                                                    formValues.company_type ===
-                                                    "freelancer"
-                                                }
-                                            />
-                                            {t("admin.global.freelancer")}
-                                        </label>
-                                    </div>
-                                    <div>
-                                        {errors.company_type ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.company_type}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
+
+                                        <div className="d-flex flex-nowrap align-items-center gap-3">
+                                            <div
+                                                className="form-check"
+                                                style={{ whiteSpace: "nowrap" }}
+                                            >
+                                                <label className="form-check-label">
+                                                    <input
+                                                        type="radio"
+                                                        className="form-check-input"
+                                                        value="my-company"
+                                                        onChange={(e) => {
+                                                            setFormValues({
+                                                                ...formValues,
+                                                                company_type:
+                                                                    e.target
+                                                                        .value,
+                                                                manpower_company_id:
+                                                                    "",
+                                                            });
+                                                        }}
+                                                        checked={
+                                                            formValues.company_type ===
+                                                            "my-company"
+                                                        }
+                                                    />
+                                                    {t(
+                                                        "admin.global.myCompany"
+                                                    )}
+                                                </label>
+                                            </div>
+                                            <div
+                                                className="form-check"
+                                                style={{ whiteSpace: "nowrap" }}
+                                            >
+                                                <label className="form-check-label">
+                                                    <input
+                                                        type="radio"
+                                                        className="form-check-input"
+                                                        value="manpower"
+                                                        onChange={(e) => {
+                                                            setFormValues({
+                                                                ...formValues,
+                                                                company_type:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                        checked={
+                                                            formValues.company_type ===
+                                                            "manpower"
+                                                        }
+                                                    />
+                                                    {t("admin.global.manpower")}
+                                                </label>
+                                            </div>
+                                            <div
+                                                className="form-check"
+                                                style={{ whiteSpace: "nowrap" }}
+                                            >
+                                                <label className="form-check-label">
+                                                    <input
+                                                        type="radio"
+                                                        className="form-check-input"
+                                                        value="freelancer"
+                                                        onChange={(e) => {
+                                                            setFormValues({
+                                                                ...formValues,
+                                                                company_type:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                        checked={
+                                                            formValues.company_type ===
+                                                            "freelancer"
+                                                        }
+                                                    />
+                                                    {t(
+                                                        "admin.global.freelancer"
+                                                    )}
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            {errors.company_type ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.company_type}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -754,55 +841,6 @@ export default function WorkerLead() {
                                         </div>
                                     </div>
                                 )}
-
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Email
-                                        </label>
-                                        <input
-                                            type="email"
-                                            className="form-control mb-3"
-                                            value={formValues.email}
-                                            onChange={(e) =>
-                                                setFormValues({
-                                                    ...formValues,
-                                                    email: e.target.value,
-                                                })
-                                            }
-                                            placeholder="Enter email"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Payment Per Hour
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="form-control mb-3"
-                                            value={formValues.payment_per_hour}
-                                            onChange={(e) =>
-                                                setFormValues({
-                                                    ...formValues,
-                                                    payment_per_hour:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            placeholder="Enter payment per hour"
-                                        />
-                                    </div>
-                                    <div>
-                                        {errors.payment_per_hour ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.payment_per_hour}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
                             </>
                         )}
                     </div>

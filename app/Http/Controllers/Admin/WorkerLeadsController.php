@@ -190,6 +190,7 @@ class WorkerLeadsController extends Controller
                 'phone' => $request->phone ?? '',
                 'status' => $request->status ?? '',
                 'role' => $role ?? '',
+                'hourly_rate' => $request->payment_hour ?? '',
                 'lng' => $request->lng ?? "en",
                 'latitude' => $request->latitude ?? '',
                 'longitude' => $request->longitude ?? '',
@@ -312,6 +313,7 @@ class WorkerLeadsController extends Controller
 
     public function changeStatus(Request $request, $id)
     {
+
         $validator = Validator::make($request->all(), [
 
             'email'     => ['nullable',  'unique:users,email,' . $id],
@@ -337,7 +339,7 @@ class WorkerLeadsController extends Controller
         $workerLead->sub_status = $request->status == "not-hired" ? $request->sub_status : null;
         if ($request->status === 'hiring') {
             $workerLead->email = $request->email;
-            $workerLead->payment_per_hour = $request->payment_per_hour;
+            $workerLead->hourly_rate = $request->payment_per_hour;
             $workerLead->company_type = $request->company_type;
 
             if ($request->company_type === 'manpower') {
@@ -440,7 +442,7 @@ class WorkerLeadsController extends Controller
             'latitude' => $workerLead->latitude ?? NULL,
             'longitude' => $workerLead->longitude ?? NULL,
             'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
-            'payment_per_hour' => $workerLead->payment_per_hour ?? NULL,
+            'payment_per_hour' => $workerLead->hourly_rate ?? NULL,
             'two_factor_enabled' => 1,
             'step' => $workerLead->step ?? 0
         ]);

@@ -1,9 +1,9 @@
-import React, { useEffect, useState , useRef, createRef} from "react";
+import React, { useEffect, useState, useRef, createRef } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { IoSaveOutline } from "react-icons/io5";
 
@@ -47,7 +47,7 @@ export default function WorkerLeadView({ mode }) {
         gender: "",
         role: "cleaner",
         country: "Israel",
-        // payment_hour: "",
+        payment_hour: "",
         // worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
         renewal_visa: "",
         company_type: "",
@@ -121,14 +121,14 @@ export default function WorkerLeadView({ mode }) {
                 email: res?.email,
                 phone: res?.phone,
                 status: res?.status,
-                // payment_hour: res?.payment_hour,
+                payment_hour: res?.hourly_rate,
                 gender: res?.gender,
                 renewal_visa: res?.renewal_visa,
                 company_type: res?.company_type,
                 manpower_company_id: res?.manpower_company_id,
                 // employment_type: res?.employment_type,
                 // salary: res?.salary,
-                lng: res?.lng,  
+                lng: res?.lng,
                 // worker_id: res?.worker_id,
                 // send_bot_message: res?.send_bot_message,
                 // hourly_rate: res?.hourly_rate,
@@ -142,11 +142,10 @@ export default function WorkerLeadView({ mode }) {
             setLongitude(res?.longitude);
             elementsRef.current.map(
                 (ref) =>
-                (ref.current.checked =
-                    ref.current.name === animalArray[0].key
-                        ? res?.is_afraid_by_dog
-                        : res?.is_afraid_by_cat
-                    )
+                    (ref.current.checked =
+                        ref.current.name === animalArray[0].key
+                            ? res?.is_afraid_by_dog
+                            : res?.is_afraid_by_cat)
             );
         } catch (error) {
             console.log(error);
@@ -215,15 +214,10 @@ export default function WorkerLeadView({ mode }) {
             (ref) => (data[ref.current.name] = ref.current.checked)
         );
 
-        console.log(data);
-        
-
         try {
-            await axios.put(
-                `/api/admin/worker-leads/${params.id}`,
-                data,
-                { headers }
-            );
+            await axios.put(`/api/admin/worker-leads/${params.id}`, data, {
+                headers,
+            });
             alert.success("Worker lead updated successfully");
             handleGetWorkerLead();
         } catch (error) {
@@ -238,6 +232,7 @@ export default function WorkerLeadView({ mode }) {
             ...formValues,
             phone: formValues.phone,
             address: address,
+            payment_hour: formValues.payment_hour,
             renewal_visa: formValues.renewal_visa,
             lng: !formValues.lng ? "en" : formValues.lng,
             // password: password,
@@ -305,7 +300,6 @@ export default function WorkerLeadView({ mode }) {
         getCountries();
         getManpowerCompanies();
         handleGetWorkerLead();
-
     }, []);
 
     return (
@@ -317,8 +311,8 @@ export default function WorkerLeadView({ mode }) {
                         {mode === "edit"
                             ? `Edit Worker Lead #${params.id}`
                             : mode === "add"
-                                ? "Add Worker Lead"
-                                : `View Worker Lead #${params.id}`}
+                            ? "Add Worker Lead"
+                            : `View Worker Lead #${params.id}`}
                     </h1>
                     <div
                         className="dashBox p-4"
@@ -329,8 +323,8 @@ export default function WorkerLeadView({ mode }) {
                                 mode === "edit"
                                     ? handleUpdate
                                     : mode === "add"
-                                        ? handleAdd
-                                        : (e) => e.preventDefault()
+                                    ? handleAdd
+                                    : (e) => e.preventDefault()
                             }
                         >
                             <div className="row">
@@ -480,13 +474,11 @@ export default function WorkerLeadView({ mode }) {
                                                 onChange={(e) => {
                                                     setFormValues({
                                                         ...formValues,
-                                                        gender: e.target
-                                                            .value,
+                                                        gender: e.target.value,
                                                     });
                                                 }}
                                                 checked={
-                                                    formValues.gender ===
-                                                    "male"
+                                                    formValues.gender === "male"
                                                 }
                                             />
                                             {t("worker.settings.male")}
@@ -501,8 +493,7 @@ export default function WorkerLeadView({ mode }) {
                                                 onChange={(e) => {
                                                     setFormValues({
                                                         ...formValues,
-                                                        gender: e.target
-                                                            .value,
+                                                        gender: e.target.value,
                                                     });
                                                 }}
                                                 checked={
@@ -552,7 +543,7 @@ export default function WorkerLeadView({ mode }) {
                                         )}
                                     </div>
                                 </div>
-                                {/* <div className="col-sm-6">
+                                <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
                                             {t("worker.settings.p_ph")}(ILS)
@@ -568,10 +559,12 @@ export default function WorkerLeadView({ mode }) {
                                                 });
                                             }}
                                             className="form-control"
-                                            placeholder={t("worker.settings.p_ph")}
+                                            placeholder={t(
+                                                "worker.settings.p_ph"
+                                            )}
                                         />
                                     </div>
-                                </div> */}
+                                </div>
                                 {/* <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
@@ -636,22 +629,14 @@ export default function WorkerLeadView({ mode }) {
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
-                                                    lng: e.target.value
-                                                })
+                                                    lng: e.target.value,
+                                                });
                                             }}
                                         >
-                                            <option value="en">
-                                                English
-                                            </option>
-                                            <option value="heb">
-                                                Hebrew
-                                            </option>
-                                            <option value="ru">
-                                                Russian
-                                            </option>
-                                            <option value="spa">
-                                                Spanish
-                                            </option>
+                                            <option value="en">English</option>
+                                            <option value="heb">Hebrew</option>
+                                            <option value="ru">Russian</option>
+                                            <option value="spa">Spanish</option>
                                         </select>
                                     </div>
                                 </div>
@@ -667,24 +652,19 @@ export default function WorkerLeadView({ mode }) {
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
-                                                    country:
-                                                        e.target.value,
+                                                    country: e.target.value,
                                                 });
                                             }}
                                         >
                                             {countries &&
-                                                countries.map(
-                                                    (item, index) => (
-                                                        <option
-                                                            value={
-                                                                item.name
-                                                            }
-                                                            key={index}
-                                                        >
-                                                            {item.name}
-                                                        </option>
-                                                    )
-                                                )}
+                                                countries.map((item, index) => (
+                                                    <option
+                                                        value={item.name}
+                                                        key={index}
+                                                    >
+                                                        {item.name}
+                                                    </option>
+                                                ))}
                                         </select>
                                     </div>
                                 </div>
@@ -692,7 +672,9 @@ export default function WorkerLeadView({ mode }) {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                {t("worker.settings.renewal_visa")}
+                                                {t(
+                                                    "worker.settings.renewal_visa"
+                                                )}
                                             </label>
                                             <input
                                                 type="date"
@@ -705,7 +687,9 @@ export default function WorkerLeadView({ mode }) {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder={t("worker.settings.renewal_visa")}
+                                                placeholder={t(
+                                                    "worker.settings.renewal_visa"
+                                                )}
                                             />
                                         </div>
                                     </div>
@@ -736,8 +720,6 @@ export default function WorkerLeadView({ mode }) {
                                         ""
                                     )}
                                 </div> */}
-
-
 
                                 {/* {
                                     payment === "money_transfer" && (
@@ -873,8 +855,7 @@ export default function WorkerLeadView({ mode }) {
                                                         ...formValues,
                                                         company_type:
                                                             e.target.value,
-                                                        manpower_company_id:
-                                                            "",
+                                                        manpower_company_id: "",
                                                     });
                                                 }}
                                                 checked={
@@ -959,7 +940,9 @@ export default function WorkerLeadView({ mode }) {
                                                 }
                                             >
                                                 <option value="">
-                                                    {t("admin.global.select_manpower")}
+                                                    {t(
+                                                        "admin.global.select_manpower"
+                                                    )}
                                                 </option>
                                                 {manpowerCompanies.map(
                                                     (mpc, index) => (
@@ -976,9 +959,7 @@ export default function WorkerLeadView({ mode }) {
                                         <div>
                                             {errors.manpower_company_id ? (
                                                 <small className="text-danger mb-1">
-                                                    {
-                                                        errors.manpower_company_id
-                                                    }
+                                                    {errors.manpower_company_id}
                                                 </small>
                                             ) : (
                                                 ""
@@ -1030,7 +1011,7 @@ export default function WorkerLeadView({ mode }) {
                                                     ...formValues,
                                                     experience_in_house_cleaning:
                                                         e.target.value ===
-                                                            "true"
+                                                        "true"
                                                             ? true
                                                             : false, // Ensure boolean conversion
                                                 });
@@ -1058,7 +1039,7 @@ export default function WorkerLeadView({ mode }) {
                                                     ...formValues,
                                                     you_have_valid_work_visa:
                                                         e.target.value ===
-                                                            "true"
+                                                        "true"
                                                             ? true
                                                             : false, // Ensure boolean conversion
                                                 });
@@ -1184,7 +1165,9 @@ export default function WorkerLeadView({ mode }) {
                                     >
                                         <input
                                             type="text"
-                                            placeholder={t("workerInviteForm.search_your_address")}
+                                            placeholder={t(
+                                                "workerInviteForm.search_your_address"
+                                            )}
                                             className="form-control mt-1"
                                         />
                                     </Autocomplete>
@@ -1194,14 +1177,17 @@ export default function WorkerLeadView({ mode }) {
                                 <label className="control-label">
                                     {t("workerInviteForm.full_address")}
                                     <small className="text-pink mb-1">
-                                        &nbsp; ({t("workerInviteForm.auto_complete")})
+                                        &nbsp; (
+                                        {t("workerInviteForm.auto_complete")})
                                     </small>
                                 </label>
                                 <input
                                     type="text"
                                     value={address}
                                     className="form-control"
-                                    placeholder={t("workerInviteForm.enter_your_address")}
+                                    placeholder={t(
+                                        "workerInviteForm.enter_your_address"
+                                    )}
                                     readOnly
                                 />
                                 {errors.address ? (
@@ -1254,17 +1240,10 @@ export default function WorkerLeadView({ mode }) {
                                     </label>
                                 </div>
                                 {animalArray.map((item, index) => (
-                                    <div
-                                        className="form-check"
-                                        key={item.key}
-                                    >
+                                    <div className="form-check" key={item.key}>
                                         <label className="form-check-label">
                                             <input
-                                                ref={
-                                                    elementsRef.current[
-                                                    index
-                                                    ]
-                                                }
+                                                ref={elementsRef.current[index]}
                                                 type="checkbox"
                                                 className="form-check-input"
                                                 name={item.key}
