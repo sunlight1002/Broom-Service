@@ -106,6 +106,22 @@ class LeadController extends Controller
             $query->where('clients.source', $source);
         }
 
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('clients.created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+            \Log::info('Filtering from', [
+                'start' => Carbon::parse($request->start_date)->startOfDay()->toDateTimeString(),
+                'end'   => Carbon::parse($request->end_date)->endOfDay()->toDateTimeString()
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('clients.created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('clients.created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
+
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
@@ -887,6 +903,49 @@ class LeadController extends Controller
 
         return response()->json([
             'sources' => $sources->isEmpty() ? [] : $sources
+        ]);
+    }
+    public function export(Request $request)
+    {
+        $clients = collect();
+        $query = \App\Models\LeadStatus::query();
+        $query->where('lead_status', $request->filter);
+        $clientIds = $query->pluck('client_id');
+        $clients = Client::whereIn('id', $clientIds)->where('status', 0)->get();
+        if (!is_null($request->action)) {
+            $ac = $request->action;
+
+            if ($ac == 'booked') {
+                $clients = Client::with('jobs')->has('jobs')->get();
+            }
+
+            if ($ac == 'notbooked') {
+                $clients = Client::with('jobs')->whereDoesntHave('jobs')->get();
+            }
+        }
+
+        if ($request->filter == 'All') {
+            $clients = Client::where('status', 0)->get();
+        }
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $clients = $clients->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        } elseif (!empty($request->start_date)) {
+            $clients = $clients->where('created_at', '>=', $request->start_date);
+        } elseif (!empty($request->end_date)) {
+            $clients = $clients->where('created_at', '<=', $request->end_date);
+        }
+        foreach ($clients as $i => $c) {
+            if ($c->status == 0) {
+                $clients[$i]['status'] = 'Lead';
+            } else if ($c->status == 1) {
+                $clients[$i]['status'] = 'Potential Customer';
+            } else if ($c->status == 2) {
+                $clients[$i]['status'] = 'Customer';
+            }
+        }
+
+        return response()->json([
+            'leads' => $clients
         ]);
     }
 }

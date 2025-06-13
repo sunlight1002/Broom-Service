@@ -88,6 +88,16 @@ class WorkerController extends Controller
             // })
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'users.status', 'users.address', 'users.latitude', 'users.longitude');
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('users.created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('users.created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('users.created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
@@ -1377,6 +1387,62 @@ class WorkerController extends Controller
 
         return response()->json([
             'path' => Storage::url($document->file),
+        ]);
+    }
+    // public function export(Request $request)
+    // {
+    //     \Log::info("Rewuest filter",$request->all());
+
+
+    //     if (!$request->filter) {
+    //         $workers = User::get();
+    //     }
+    //     if($request->filter == 'inactive'){
+    //         \Log::info('inactive');
+    //         $workers = User::where('status', '0')->get();
+    //     }
+    //     if($request->filter == 'active'){
+    //         \Log::info('Active');
+    //         $workers = User::where('status', '1')->get();
+    //     }
+    //     if (!empty($request->start_date) && !empty($request->end_date)) {
+    //         $workers = $workers->whereBetween('created_at', [$request->start_date, $request->end_date]);
+    //     } elseif (!empty($request->start_date)) {
+    //         $workers = $workers->where('created_at', '>=', $request->start_date);
+    //     } elseif (!empty($request->end_date)) {
+    //         $workers = $workers->where('created_at', '<=', $request->end_date);
+    //     }
+
+
+    //     return response()->json([
+    //         'workers' => $workers
+    //     ]);
+    // }
+    public function export(Request $request)
+    {
+        $workers = User::query();
+
+        if ($request->filter == 'inactive') {
+            $workers->where('status', '0');
+        } elseif ($request->filter == 'active') {
+            $workers->where('status', '1');
+        } elseif ($request->filter == 'past') {
+            $workers
+                ->whereNotNull('last_work_date')
+                ->whereDate('last_work_date', '<', now()->toDateString());
+        }
+
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $workers->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        } elseif (!empty($request->start_date)) {
+            $workers->where('created_at', '>=', $request->start_date);
+        } elseif (!empty($request->end_date)) {
+            $workers->where('created_at', '<=', $request->end_date);
+        }
+        $workerResults = $workers->get();
+
+        return response()->json([
+            'workers' => $workerResults
         ]);
     }
 }

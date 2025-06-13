@@ -316,6 +316,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::put('client/{client_id}/cards/{id}/mark-default', [ClientCardController::class, 'markDefault']);
 
     Route::get('clients_export', [ClientController::class, 'export']);
+    Route::get('leads_export', [LeadController::class, 'export']);
+    Route::get('workerleads_export', [WorkerLeadsController::class, 'export']);
+    Route::get('workers_export', [WorkerController::class, 'export']);
     Route::post('add-contacts/{id}', [ClientController::class, 'addContactsToClient']);
     Route::get('get-contacts/{id}', [ClientController::class, 'getContactsByClient']);
 

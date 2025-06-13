@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import i18next from "i18next";
 import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
-
+import Moment from "moment";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -17,7 +17,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
-
+import { CSVLink } from "react-csv";
 export default function Lead() {
     const { t, i18n } = useTranslation();
     const statusArr = {
@@ -38,9 +38,14 @@ export default function Lead() {
         isOpen: false,
         id: 0,
     });
-    const [sources, setSources] = useState([])
-    const [source, setSource] = useState("")
-
+    const [sources, setSources] = useState([]);
+    const [source, setSource] = useState("");
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
     const sourceRef = useRef(source);
     const filterRef = useRef(filter);
 
@@ -58,7 +63,7 @@ export default function Lead() {
         t("admin.leads.Unanswered_final"),
         t("admin.leads.Potential_client"),
         t("admin.leads.Reschedule_call"),
-        t("admin.leads.Voice_bot")
+        t("admin.leads.Voice_bot"),
     ];
 
     const headers = {
@@ -66,7 +71,6 @@ export default function Lead() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
 
     const getUniqueSource = async () => {
         await axios
@@ -80,11 +84,11 @@ export default function Lead() {
                     setSources([]);
                 }
             });
-    }
+    };
 
     useEffect(() => {
         getUniqueSource();
-    }, [])
+    }, []);
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -104,6 +108,8 @@ export default function Lead() {
                     data: function (d) {
                         d.filter = filterRef.current;
                         d.source = sourceRef.current;
+                        d.start_date = startDateRef.current?.value || null;
+                        d.end_date = endDateRef.current?.value || null;
                     },
                 },
                 order: [[0, "desc"]],
@@ -117,7 +123,7 @@ export default function Lead() {
                             if (!data) return "";
                             const [day, month] = data.split("/");
                             return `${day}/${month}`;
-                        }
+                        },
                     },
                     {
                         title: t("admin.global.Name"),
@@ -133,7 +139,9 @@ export default function Lead() {
                         width: "15%",
                         className: "text-left",
                         render: function (data) {
-                            return `<a href="tel:${data}">${data ? "+" + data : ""}</a>`;
+                            return `<a href="tel:${data}">${
+                                data ? "+" + data : ""
+                            }</a>`;
                         },
                     },
                     {
@@ -146,7 +154,11 @@ export default function Lead() {
                             let _html = ``;
 
                             // Add reschedule details with tooltip if the lead status is 'reschedule call'
-                            if (row.lead_status === 'reschedule call' && row.reschedule_date && row.reschedule_time) {
+                            if (
+                                row.lead_status === "reschedule call" &&
+                                row.reschedule_date &&
+                                row.reschedule_time
+                            ) {
                                 const tooltipContent = `${row.reschedule_date} ${row.reschedule_time}<br>${row.reason}`;
                                 _html += `<p 
                                     class="badge dt-change-status-btn" 
@@ -191,10 +203,26 @@ export default function Lead() {
                                         <i class="fa fa-ellipsis-vertical"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t("admin.leads.Edit")}</button>
-                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>
-                                        ${role == "superadmin" ? `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>` : ""}
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.Edit")}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.leads.view")}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${
+                                            row.id
+                                        }">${t(
+                                "admin.leads.change_status"
+                            )}</button>
+                                        ${
+                                            role == "superadmin"
+                                                ? `<button type="button" class="dropdown-item dt-delete-btn" data-id="${
+                                                      row.id
+                                                  }">${t(
+                                                      "admin.leads.Delete"
+                                                  )}</button>`
+                                                : ""
+                                        }
                                     </div>
                                 </div>`;
                         },
@@ -306,7 +334,6 @@ export default function Lead() {
         };
     }, []);
 
-
     const sortTable = (colIdx) => {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
@@ -349,7 +376,7 @@ export default function Lead() {
         sourceRef.current = source;
 
         $(tableRef.current).DataTable().draw();
-    }, [filter, source]);
+    }, [filter, source, selectedDateRange, selectedDateStep, dateRange]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -378,9 +405,110 @@ export default function Lead() {
             }
         });
     };
+    const params = new URLSearchParams(location.search);
+    const type = params.get("type");
+    const [Alldata, setAllData] = useState([]);
+    const handleReport = (e) => {
+        e.preventDefault();
 
+        // let cn =
+        //     filter.action == "booked" || filter.action == "notbooked"
+        //         ? "action="
+        //         : "f=";
+        let queryParams = new URLSearchParams();
 
+        if (type) {
+            queryParams.append("type", type);
+        }
 
+        if (filter) {
+            queryParams.append("filter", filter);
+        }
+        if (dateRange.start_date) {
+            queryParams.append("start_date", dateRange.start_date);
+        }
+
+        if (dateRange.end_date) {
+            queryParams.append("end_date", dateRange.end_date);
+        }
+        axios
+            .get(`/api/admin/leads_export?${queryParams.toString()}`, {
+                headers,
+            })
+            .then((response) => {
+                console.log("Response", response);
+                if (response.data.leads.length > 0) {
+                    let r = response.data.leads;
+
+                    if (r.length > 0) {
+                        for (let k in r) {
+                            delete r[k]["extra"];
+                            delete r[k]["jobs"];
+                        }
+                    }
+                    setAllData(r);
+                    document.querySelector("#csv").click();
+                } else {
+                }
+            });
+    };
+    const csvReport = {
+        data: Alldata,
+        filename: "leads",
+    };
+    const [selectedDateRange, setSelectedDateRange] = useState("");
+    const [selectedDateStep, setSelectedDateStep] = useState("");
+
+    useEffect(() => {
+        let _startMoment = Moment();
+        let _endMoment = Moment();
+        if (selectedDateRange == "Day") {
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "day");
+                _endMoment.subtract(1, "day");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "day");
+                _endMoment.add(1, "day");
+            }
+        } else if (selectedDateRange == "Week") {
+            _startMoment.startOf("week");
+            _endMoment.endOf("week");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "week");
+                _endMoment.subtract(1, "week");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "week");
+                _endMoment.add(1, "week");
+            }
+        } else if (selectedDateRange == "Month") {
+            _startMoment.startOf("month");
+            _endMoment.endOf("month");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "month");
+                _endMoment.subtract(1, "month");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "month");
+                _endMoment.add(1, "month");
+            }
+        } else if (selectedDateRange == "Year") {
+            _startMoment.startOf("year");
+            _endMoment.endOf("year");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "year");
+                _endMoment.subtract(1, "year");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "year");
+                _endMoment.add(1, "year");
+            }
+        } else {
+            _startMoment = Moment("2000-01-01");
+        }
+
+        setDateRange({
+            start_date: _startMoment.format("YYYY-MM-DD"),
+            end_date: _endMoment.format("YYYY-MM-DD"),
+        });
+    }, [selectedDateRange, selectedDateStep]);
     return (
         <div id="container">
             <Sidebar />
@@ -395,7 +523,6 @@ export default function Lead() {
 
                         <div className="col-sm-6">
                             <div className="search-data">
-
                                 <Link
                                     to="/admin/leads/create"
                                     className="btn navyblue no-hover add-btn"
@@ -405,6 +532,22 @@ export default function Lead() {
                                         {t("admin.leads.AddNew")}
                                     </span>
                                 </Link>
+                                <div
+                                    className="App"
+                                    style={{ display: "none" }}
+                                >
+                                    <CSVLink {...csvReport} id="csv">
+                                        {t("admin.global.Export")}
+                                    </CSVLink>
+                                </div>
+                                <div className=" mt-0 mt-lg-4 mr-2 d-lg-block">
+                                    <button
+                                        className="btn navyblue ml-2"
+                                        onClick={(e) => handleReport(e)}
+                                    >
+                                        {t("admin.client.Export")}
+                                    </button>
+                                </div>
                                 <div className="action-dropdown dropdown mt-md-4 mx-2 d-lg-none">
                                     <button
                                         type="button"
@@ -413,11 +556,16 @@ export default function Lead() {
                                     >
                                         <i className="fa fa-filter"></i>
                                     </button>
-                                    <span className="ml-2" style={{
-                                        padding: "6px",
-                                        border: "1px solid #ccc",
-                                        borderRadius: "5px"
-                                    }}>{filter || t("admin.leads.All")}</span>
+                                    <span
+                                        className="ml-2"
+                                        style={{
+                                            padding: "6px",
+                                            border: "1px solid #ccc",
+                                            borderRadius: "5px",
+                                        }}
+                                    >
+                                        {filter || t("admin.leads.All")}
+                                    </span>
                                     <div className="dropdown-menu">
                                         <button
                                             className="dropdown-item "
@@ -442,7 +590,6 @@ export default function Lead() {
                                         })}
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
@@ -474,50 +621,307 @@ export default function Lead() {
                 </div>
                 <div className="row mb-2">
                     <div className="col-sm-12 d-none d-lg-block">
-                        <FilterButtons
-                            text={t("admin.leads.All")}
-                            className="px-3 mr-1"
-                            selectedFilter={filter}
-                            setselectedFilter={setFilter}
-                        />
-                        {leadStatuses.map((_status, _index) => {
-                            return (
-                                <FilterButtons
-                                    text={_status}
-                                    className="px-3 mr-1"
-                                    key={_index}
-                                    selectedFilter={filter}
-                                    setselectedFilter={setFilter}
-                                />
-                            );
-                        })}
+                        <div className="row">
+                            <div
+                                style={{
+                                    fontWeight: "bold",
+                                    marginTop: 10,
+                                    marginLeft: 15,
+                                    marginRight: 15,
+                                }}
+                            >
+                                {t("global.filter")}
+                            </div>
+                            <FilterButtons
+                                text={t("admin.leads.All")}
+                                className="px-3 mr-1"
+                                selectedFilter={filter}
+                                setselectedFilter={setFilter}
+                            />
+                            {leadStatuses.map((_status, _index) => {
+                                return (
+                                    <FilterButtons
+                                        text={_status}
+                                        className="px-3 mr-1"
+                                        key={_index}
+                                        selectedFilter={filter}
+                                        setselectedFilter={setFilter}
+                                    />
+                                );
+                            })}
+                        </div>
                     </div>
-                    {
-                        sources.length > 0 && (
-                            <div className="col-sm-3 mt-2">
+                    <div className="col-sm-12 d-none d-lg-flex mt-2">
+                        <div className="d-flex align-items-center">
+                            <div
+                                style={{ fontWeight: "bold" }}
+                                className="mr-2"
+                            >
+                                {t("global.date_period")}
+                            </div>
+                            <FilterButtons
+                                text={t("global.day")}
+                                className="px-4 mr-1"
+                                selectedFilter={selectedDateRange}
+                                setselectedFilter={setSelectedDateRange}
+                            />
+                            <FilterButtons
+                                text={t("global.week")}
+                                className="px-4 mr-1"
+                                selectedFilter={selectedDateRange}
+                                setselectedFilter={setSelectedDateRange}
+                            />
+
+                            <FilterButtons
+                                text={t("global.month")}
+                                className="px-4 mr-3"
+                                selectedFilter={selectedDateRange}
+                                setselectedFilter={setSelectedDateRange}
+                            />
+
+                            <FilterButtons
+                                text={t("client.previous")}
+                                className="px-3 mr-1"
+                                selectedFilter={selectedDateStep}
+                                setselectedFilter={setSelectedDateStep}
+                            />
+                            <FilterButtons
+                                text={t("global.current")}
+                                className="px-3 mr-1"
+                                selectedFilter={selectedDateStep}
+                                setselectedFilter={setSelectedDateStep}
+                            />
+                            <FilterButtons
+                                text={t("global.next")}
+                                className="px-3"
+                                selectedFilter={selectedDateStep}
+                                setselectedFilter={setSelectedDateStep}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-sm-6 mt-2 pl-0 d-flex d-lg-none">
+                        <div className="search-data">
+                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
                                 <div
+                                    className=" mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("global.date_period")}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <span
+                                    className="ml-2"
                                     style={{
-                                        fontWeight: "bold",
-                                        marginTop: 10,
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
                                     }}
                                 >
-                                    {t("worker.source")}
+                                    {selectedDateRange || t("admin.leads.All")}
+                                </span>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateRange(
+                                                t("global.day")
+                                            );
+                                        }}
+                                    >
+                                        {t("global.day")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateRange(
+                                                t("global.week")
+                                            );
+                                        }}
+                                    >
+                                        {t("global.week")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateRange(
+                                                t("global.month")
+                                            );
+                                        }}
+                                    >
+                                        {t("global.month")}
+                                    </button>
                                 </div>
-                                <select
-                                    className="form-control"
-                                    onChange={(e) => setSource(e.target.value)}
-                                    value={source}
-                                >
-                                    <option value="">--- Select ---</option>
-                                    {sources.map((source) => (
-                                        <option value={source} key={source}>
-                                            {source}
-                                        </option>
-                                    ))}
-                                </select>
                             </div>
-                        )
-                    }
+                        </div>
+                    </div>
+                    <div className="col-sm-6 mt-2 pl-0 d-flex d-lg-none">
+                        <div className="search-data">
+                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                <div
+                                    className=" mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("global.date_period")}
+                                    {t("global.type")}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <span
+                                    className="ml-2"
+                                    style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
+                                    }}
+                                >
+                                    {selectedDateStep || t("admin.leads.All")}
+                                </span>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateStep(
+                                                t("client.previous")
+                                            );
+                                        }}
+                                    >
+                                        {t("client.previous")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateStep(
+                                                t("global.current")
+                                            );
+                                        }}
+                                    >
+                                        {t("global.current")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setSelectedDateStep(
+                                                t("global.next")
+                                            );
+                                        }}
+                                    >
+                                        {t("global.next")}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "left",
+                        }}
+                        className="hide-scrollbar my-2"
+                    >
+                        <p
+                            className="mr-2"
+                            style={{ fontWeight: "bold", marginTop: 10 }}
+                        >
+                            {t("admin.schedule.date")}
+                        </p>
+                        <div
+                            className="d-flex align-items-center flex-wrap"
+                            style={{ marginTop: 10 }}
+                        >
+                            <input
+                                className="form-control calender"
+                                type="date"
+                                placeholder="From date"
+                                name="from filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.start_date}
+                                onChange={(e) => {
+                                    const updatedDateRange = {
+                                        start_date: e.target.value,
+                                        end_date: dateRange.end_date,
+                                    };
+
+                                    setDateRange(updatedDateRange);
+                                    startDateRef.current.value = e.target.value;
+                                    const table = $(
+                                        tableRef.current
+                                    ).DataTable();
+                                    table.ajax.reload();
+                                }}
+                            />
+                            <div className="mx-2">-</div>
+                            <input
+                                className="form-control calender mr-1"
+                                type="date"
+                                placeholder="To date"
+                                name="to_filter"
+                                style={{ width: "fit-content" }}
+                                value={dateRange.end_date}
+                                onChange={(e) => {
+                                    const updatedDateRange = {
+                                        start_date: dateRange.start_date,
+                                        end_date: e.target.value,
+                                    };
+
+                                    setDateRange(updatedDateRange);
+                                    endDateRef.current.value = e.target.value;
+                                    const table = $(
+                                        tableRef.current
+                                    ).DataTable();
+                                    table.ajax.reload();
+                                }}
+                            />
+                            <input
+                                type="hidden"
+                                value={dateRange.start_date}
+                                ref={startDateRef}
+                            />
+
+                            <input
+                                type="hidden"
+                                value={dateRange.end_date}
+                                ref={endDateRef}
+                            />
+                        </div>
+                    </div>
+                    {sources.length > 0 && (
+                        <div className="col-sm-3 mt-2">
+                            <div
+                                style={{
+                                    fontWeight: "bold",
+                                    marginTop: 10,
+                                }}
+                            >
+                                {t("worker.source")}
+                            </div>
+                            <select
+                                className="form-control"
+                                onChange={(e) => setSource(e.target.value)}
+                                value={source}
+                            >
+                                <option value="">--- Select ---</option>
+                                {sources.map((source) => (
+                                    <option value={source} key={source}>
+                                        {source}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body px-0">
@@ -539,7 +943,13 @@ export default function Lead() {
                     statusArr={statusArr}
                 />
             )}
-            <Tooltip id="reschedule" place="top" type="dark" effect="solid" style={{ zIndex: "99999" }} />
+            <Tooltip
+                id="reschedule"
+                place="top"
+                type="dark"
+                effect="solid"
+                style={{ zIndex: "99999" }}
+            />
         </div>
     );
 }

@@ -1841,6 +1841,7 @@
             "Irrelevant": "Irrelevant",
             "Potential_client": "Potential client",
             "Pending_client": "Pending client",
+            "Waiting":"Waiting",
             "Freeze_client": "Freeze client",
             "Waiting_client": "Waiting",
             "Active_client": "Active client",

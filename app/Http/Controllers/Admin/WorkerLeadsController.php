@@ -105,6 +105,16 @@ class WorkerLeadsController extends Controller
         if (!empty($source)) {
             $query->where('source', $source);
         }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
 
         // Select specified columns
         $query->select($columns);
@@ -492,6 +502,25 @@ class WorkerLeadsController extends Controller
 
         return response()->json([
             'sources' => $sources->isEmpty() ? [] : $sources
+        ]);
+    }
+    public function export(Request $request)
+    {
+        $workerLeads = WorkerLeads::where('status', $request->filter)->get();
+        if ($request->filter == 'All') {
+            $workerLeads = WorkerLeads::get();
+        }
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $workerLeads = $workerLeads->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        } elseif (!empty($request->start_date)) {
+            $workerLeads = $workerLeads->where('created_at', '>=', $request->start_date);
+        } elseif (!empty($request->end_date)) {
+            $workerLeads = $workerLeads->where('created_at', '<=', $request->end_date);
+        }
+
+
+        return response()->json([
+            'workerleads' => $workerLeads
         ]);
     }
 }

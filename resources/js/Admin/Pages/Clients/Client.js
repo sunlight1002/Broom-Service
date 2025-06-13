@@ -8,7 +8,7 @@ import Modal from "react-bootstrap/Modal";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
-
+import Moment from "moment";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -21,7 +21,6 @@ import { leadStatusColor } from "../../../Utils/client.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Clients() {
-
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const type = params.get("type");
@@ -40,33 +39,34 @@ export default function Clients() {
     const alert = useAlert();
     const { t, i18n } = useTranslation();
 
-    const [filter, setFilter] = useState('');
+    const [filter, setFilter] = useState("");
 
     const leadStatuses = {
         // "potential": t("admin.client.Potential"),
-        "pending client": t("admin.client.Pending_client"),
+        "pending client": t("admin.client.Waiting"),
         "active client": t("admin.client.Active_client"),
         "freeze client": t("admin.client.Freeze_client"),
-        "past": t("admin.client.Past_client"),
+        past: t("admin.client.Past_client"),
     };
 
     const [filters, set_Filters] = useState({
         action: "past",
     });
 
-    const statusArr = type === "past"
-        ? {
-            "unhappy": t("admin.client.Unhappy"),
-            "price issue": t("admin.client.Price_issue"),
-            "moved": t("admin.client.Moved"),
-            "one-time": t("admin.client.One_Time"),
-        }
-        : {
-            "pending client": "Waiting",
-            "freeze client": t("admin.client.Freeze_client"),
-            "active client": t("admin.client.Active_client"),
-            "past": t("admin.client.Past_client")
-        };
+    const statusArr =
+        type === "past"
+            ? {
+                  unhappy: t("admin.client.Unhappy"),
+                  "price issue": t("admin.client.Price_issue"),
+                  moved: t("admin.client.Moved"),
+                  "one-time": t("admin.client.One_Time"),
+              }
+            : {
+                  "pending client": "Waiting",
+                  "freeze client": t("admin.client.Freeze_client"),
+                  "active client": t("admin.client.Active_client"),
+                  past: t("admin.client.Past_client"),
+              };
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -89,6 +89,10 @@ export default function Clients() {
                     //     // d.lead_status = filter === "All" ? "" : filter;
                     //     d.role = role;
                     // },
+                    data: function (d) {
+                        d.start_date = startDateRef.current?.value || null;
+                        d.end_date = endDateRef.current?.value || null;
+                    },
                 },
                 order: [[0, "desc"]],
                 columns: [
@@ -109,7 +113,7 @@ export default function Clients() {
                         data: "phone",
                         render: function (data) {
                             return `+${data}`;
-                        }
+                        },
                     },
                     {
                         title: t("admin.global.Status"),
@@ -132,20 +136,34 @@ export default function Clients() {
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
                             if (role == "supervisor") {
-                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${
+                                    row.id
+                                }">${t("admin.leads.view")}</button>`;
                             } else {
                                 if (row.has_contract == 1) {
-                                    _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">${t('admin.leads.AddLead.Options.CreateJob.title')}</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${
+                                        row.id
+                                    }">${t(
+                                        "admin.leads.AddLead.Options.CreateJob.title"
+                                    )}</button>`;
                                 }
 
-                                _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${
+                                    row.id
+                                }">${t("admin.leads.Edit")}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${
+                                    row.id
+                                }">${t("admin.leads.view")}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${
+                                    row.id
+                                }">${t("admin.leads.change_status")}</button>`;
 
                                 if (role == "superadmin") {
-                                    _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                                    _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${
+                                        row.id
+                                    }">${t("admin.leads.Delete")}</button>`;
                                 }
                             }
 
@@ -167,11 +185,17 @@ export default function Clients() {
                 },
                 columnDefs: [
                     {
-                        targets: '_all',
-                        createdCell: function (td, cellData, rowData, row, col) {
-                            $(td).addClass('custom-cell-class ');
-                        }
-                    }
+                        targets: "_all",
+                        createdCell: function (
+                            td,
+                            cellData,
+                            rowData,
+                            row,
+                            col
+                        ) {
+                            $(td).addClass("custom-cell-class ");
+                        },
+                    },
                 ],
                 initComplete: function () {
                     // Explicitly set the initial page after table initialization
@@ -259,17 +283,20 @@ export default function Clients() {
         });
 
         if (role != "supervisor") {
-            $(tableRef.current).on("click", ".dt-change-status-btn", function () {
-                const _id = $(this).data("id");
-                toggleChangeStatusModal(_id);
-            });
+            $(tableRef.current).on(
+                "click",
+                ".dt-change-status-btn",
+                function () {
+                    const _id = $(this).data("id");
+                    toggleChangeStatusModal(_id);
+                }
+            );
         }
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
             handleDelete(_id);
         });
-
 
         // Handle language changes
         i18n.on("languageChanged", () => {
@@ -333,9 +360,12 @@ export default function Clients() {
     };
 
     useEffect(() => {
-
         if (type == "past") {
-            $(tableRef.current).DataTable().column(4).search(filters.action).draw();
+            $(tableRef.current)
+                .DataTable()
+                .column(4)
+                .search(filters.action)
+                .draw();
         } else if (type == null) {
             // $(tableRef.current).DataTable().column(4).search('').draw();
             $(tableRef.current).DataTable().column(4).search(filter).draw();
@@ -343,7 +373,6 @@ export default function Clients() {
             $(tableRef.current).DataTable().column(4).search(type).draw();
         }
     }, [type, filters, filter]);
-
 
     const updateData = () => {
         setTimeout(() => {
@@ -400,14 +429,35 @@ export default function Clients() {
 
     const handleReport = (e) => {
         e.preventDefault();
+        // let cn =
+        //     filters.action == "booked" || filters.action == "notbooked"
+        //         ? "action="
+        //         : "f=";
+        let queryParams = new URLSearchParams();
 
-        let cn =
-            filters.action == "booked" || filters.action == "notbooked"
-                ? "action="
-                : "f=";
+        if (filters.action === "booked" || filters.action === "notbooked") {
+            queryParams.append("action", filters.action);
+        } else {
+            queryParams.append("f", filters.action);
+        }
 
+        if (type) {
+            queryParams.append("type", type);
+        }
+
+        if (filter) {
+            queryParams.append("filter", filter);
+        }
+        if (dateRange.start_date) {
+            queryParams.append("start_date", dateRange.start_date);
+        }
+
+        if (dateRange.end_date) {
+            queryParams.append("end_date", dateRange.end_date);
+        }
         axios
-            .get("/api/admin/clients_export?" + cn + type, {
+            // .get("/api/admin/clients_export?" + cn + type , {
+            .get(`/api/admin/clients_export?${queryParams.toString()}`, {
                 headers,
             })
             .then((response) => {
@@ -440,7 +490,69 @@ export default function Clients() {
             };
         });
     };
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
+    const startDateRef = useRef(null);
+    const endDateRef = useRef(null);
+    const [selectedDateRange, setSelectedDateRange] = useState("");
+    const [selectedDateStep, setSelectedDateStep] = useState("");
+    useEffect(() => {
+        const table = $(tableRef.current).DataTable();
+        table.ajax.reload(null, false);
+        table.columns.adjust().draw();
+    }, [filter, type, selectedDateRange, selectedDateStep, dateRange]);
+    useEffect(() => {
+        let _startMoment = Moment();
+        let _endMoment = Moment();
+        if (selectedDateRange == "Day") {
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "day");
+                _endMoment.subtract(1, "day");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "day");
+                _endMoment.add(1, "day");
+            }
+        } else if (selectedDateRange == "Week") {
+            _startMoment.startOf("week");
+            _endMoment.endOf("week");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "week");
+                _endMoment.subtract(1, "week");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "week");
+                _endMoment.add(1, "week");
+            }
+        } else if (selectedDateRange == "Month") {
+            _startMoment.startOf("month");
+            _endMoment.endOf("month");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "month");
+                _endMoment.subtract(1, "month");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "month");
+                _endMoment.add(1, "month");
+            }
+        } else if (selectedDateRange == "Year") {
+            _startMoment.startOf("year");
+            _endMoment.endOf("year");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "year");
+                _endMoment.subtract(1, "year");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "year");
+                _endMoment.add(1, "year");
+            }
+        } else {
+            _startMoment = Moment("2000-01-01");
+        }
 
+        setDateRange({
+            start_date: _startMoment.format("YYYY-MM-DD"),
+            end_date: _endMoment.format("YYYY-MM-DD"),
+        });
+    }, [selectedDateRange, selectedDateStep]);
     return (
         <div id="container">
             <Sidebar />
@@ -460,130 +572,124 @@ export default function Clients() {
                             </Link>
                         </div>
 
-
                         <div className="clearfix w-100 justify-content-between align-items-center">
                             <h1 className="page-title d-none d-lg-block float-left">
                                 {t("admin.sidebar.clients")}
                             </h1>
                             <div className="search-data">
-                                {
-                                    role !== "supervisor" && (
-                                        <>
-                                            <div
-                                                className="App"
-                                                style={{ display: "none" }}
-                                            >
-                                                <CSVLink {...csvReport} id="csv">
-                                                    {t("admin.global.Export")}
-                                                </CSVLink>
-                                            </div>
-                                            <div className="mt-4 mr-2">
-                                                <button
-                                                    className="btn navyblue"
-                                                    onClick={handleShow}
-                                                >
-                                                    {t("admin.global.Import")}
-                                                </button>
-                                            </div>
-                                            <div className=" mt-4 mr-2 d-lg-block">
-                                                <button
-                                                    className="btn navyblue ml-2"
-                                                    onClick={(e) => handleReport(e)}
-                                                >
-                                                    {t("admin.client.Export")}
-                                                </button>
-                                            </div>
-                                            <div className="mr-2">
-                                                <Link
-                                                    to="/admin/clients/create"
-                                                    className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
-                                                >
-                                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                                    {t("admin.client.AddNew")}
-                                                </Link>
-                                            </div>
-                                        </>
-                                    )
-                                }
-
-                                {
-                                    (type == "past" && role !== "supervisor") && (
-                                        <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
-                                            <button
-                                                type="button"
-                                                className="btn navyblue dropdown-toggle"
-                                                data-toggle="dropdown"
-                                            >
-                                                <i className="fa fa-filter"></i>
-                                            </button>
-                                            <div className="dropdown-menu dropdown-menu-right">
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={(e) => {
-                                                        set_Filters({
-                                                            action: "past",
-                                                        });
-                                                    }}
-                                                >
-                                                    {t("admin.client.past")}
-                                                </button>
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        set_Filters({
-                                                            action: "unhappy",
-                                                        });
-                                                    }}
-                                                >
-                                                    {t("admin.client.Unhappy")}
-                                                </button>
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        set_Filters({
-                                                            action: "price issue",
-                                                        });
-                                                    }}
-                                                >
-                                                    {t("admin.client.Price_issue")}
-                                                </button>
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        set_Filters({
-                                                            action: "moved",
-                                                        });
-                                                    }}
-                                                >
-                                                    {t("admin.client.Moved")}
-                                                </button>
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        set_Filters({
-                                                            action: "one-Time",
-                                                        });
-                                                    }}
-                                                >
-                                                    {t("admin.client.One_Time")}
-                                                </button>
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={(e) => handleReport(e)}
-                                                >
-                                                    {t("admin.client.Export")}
-                                                </button>
-
-                                                <input
-                                                    type="hidden"
-                                                    value={filters.action}
-                                                    ref={actionRef}
-                                                />
-                                            </div>
+                                {role !== "supervisor" && (
+                                    <>
+                                        <div
+                                            className="App"
+                                            style={{ display: "none" }}
+                                        >
+                                            <CSVLink {...csvReport} id="csv">
+                                                {t("admin.global.Export")}
+                                            </CSVLink>
                                         </div>
-                                    )
-                                }
+                                        <div className="mt-4 mr-2">
+                                            <button
+                                                className="btn navyblue"
+                                                onClick={handleShow}
+                                            >
+                                                {t("admin.global.Import")}
+                                            </button>
+                                        </div>
+                                        <div className=" mt-4 mr-2 d-lg-block">
+                                            <button
+                                                className="btn navyblue ml-2"
+                                                onClick={(e) => handleReport(e)}
+                                            >
+                                                {t("admin.client.Export")}
+                                            </button>
+                                        </div>
+                                        <div className="mr-2">
+                                            <Link
+                                                to="/admin/clients/create"
+                                                className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
+                                            >
+                                                <i className="btn-icon fas fa-plus-circle"></i>
+                                                {t("admin.client.AddNew")}
+                                            </Link>
+                                        </div>
+                                    </>
+                                )}
 
+                                {type == "past" && role !== "supervisor" && (
+                                    <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
+                                        <button
+                                            type="button"
+                                            className="btn navyblue dropdown-toggle"
+                                            data-toggle="dropdown"
+                                        >
+                                            <i className="fa fa-filter"></i>
+                                        </button>
+                                        <div className="dropdown-menu dropdown-menu-right">
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={(e) => {
+                                                    set_Filters({
+                                                        action: "past",
+                                                    });
+                                                }}
+                                            >
+                                                {t("admin.client.past")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    set_Filters({
+                                                        action: "unhappy",
+                                                    });
+                                                }}
+                                            >
+                                                {t("admin.client.Unhappy")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    set_Filters({
+                                                        action: "price issue",
+                                                    });
+                                                }}
+                                            >
+                                                {t("admin.client.Price_issue")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    set_Filters({
+                                                        action: "moved",
+                                                    });
+                                                }}
+                                            >
+                                                {t("admin.client.Moved")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    set_Filters({
+                                                        action: "one-Time",
+                                                    });
+                                                }}
+                                            >
+                                                {t("admin.client.One_Time")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={(e) => handleReport(e)}
+                                            >
+                                                {t("admin.client.Export")}
+                                            </button>
+
+                                            <input
+                                                type="hidden"
+                                                value={filters.action}
+                                                ref={actionRef}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="hidden-xl mt-4">
@@ -591,87 +697,108 @@ export default function Clients() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">{t("admin.client.Options.sortBy")}</option>
-                                <option value="0">{t("admin.client.Options.ID")}</option>
-                                <option value="1">{t("admin.client.Options.Name")}</option>
-                                <option value="2">{t("admin.client.Options.Email")}</option>
-                                <option value="3">{t("admin.client.Options.Phone")}</option>
+                                <option value="">
+                                    {t("admin.client.Options.sortBy")}
+                                </option>
+                                <option value="0">
+                                    {t("admin.client.Options.ID")}
+                                </option>
+                                <option value="1">
+                                    {t("admin.client.Options.Name")}
+                                </option>
+                                <option value="2">
+                                    {t("admin.client.Options.Email")}
+                                </option>
+                                <option value="3">
+                                    {t("admin.client.Options.Phone")}
+                                </option>
                             </select>
                         </div>
                     </div>
                 </div>
-                {
-                    (type == "past" && role !== "supervisor") && (
-                        <div className="row mb-2 d-none d-lg-block">
-                            <div className="col-sm-12 d-flex align-items-center">
-                                <div className="mr-3" style={{ fontWeight: "bold" }}>
-                                    {t("global.status")}:
-                                </div>
-                                <Filter_Buttons
-                                    text={t("admin.client.past")}
-                                    className="px-3 mr-1"
-                                    value="past"
-                                    onClick={() => {
-                                        set_Filters({
-                                            action: "past",
-                                        });
-                                    }}
-                                    selectedFilter={filters.action}
-                                />
-
-                                <Filter_Buttons
-                                    text={t("admin.client.Unhappy")}
-                                    value="unhappy"
-                                    className="px-3 mr-1"
-                                    onClick={() => {
-                                        set_Filters({
-                                            action: "unhappy",
-                                        });
-                                    }}
-                                    selectedFilter={filters.action}
-                                />
-                                <Filter_Buttons
-                                    text={t("admin.client.Price_issue")}
-                                    className="px-3 mr-1"
-                                    value="price issue"
-                                    onClick={() => {
-                                        set_Filters({
-                                            action: "price issue",
-                                        });
-                                    }}
-                                    selectedFilter={filters.action}
-                                />
-                                <Filter_Buttons
-                                    text={t("admin.client.Moved")}
-                                    className="px-3 mr-1"
-                                    value="moved"
-                                    onClick={() => {
-                                        set_Filters({
-                                            action: "moved",
-                                        });
-                                    }}
-                                    selectedFilter={filters.action}
-                                />
-                                <Filter_Buttons
-                                    text={t("admin.client.One_Time")}
-                                    className="px-3 mr-1"
-                                    value="one-Time"
-                                    onClick={() => {
-                                        set_Filters({
-                                            action: "one-Time",
-                                        });
-                                    }}
-                                    selectedFilter={filters.action}
-                                />
+                {type == "past" && role !== "supervisor" && (
+                    <div className="row mb-2 d-none d-lg-block">
+                        <div className="col-sm-12 d-flex align-items-center">
+                            <div
+                                className="mr-3"
+                                style={{ fontWeight: "bold" }}
+                            >
+                                {t("global.status")}:
                             </div>
+                            <Filter_Buttons
+                                text={t("admin.client.past")}
+                                className="px-3 mr-1"
+                                value="past"
+                                onClick={() => {
+                                    set_Filters({
+                                        action: "past",
+                                    });
+                                }}
+                                selectedFilter={filters.action}
+                            />
+
+                            <Filter_Buttons
+                                text={t("admin.client.Unhappy")}
+                                value="unhappy"
+                                className="px-3 mr-1"
+                                onClick={() => {
+                                    set_Filters({
+                                        action: "unhappy",
+                                    });
+                                }}
+                                selectedFilter={filters.action}
+                            />
+                            <Filter_Buttons
+                                text={t("admin.client.Price_issue")}
+                                className="px-3 mr-1"
+                                value="price issue"
+                                onClick={() => {
+                                    set_Filters({
+                                        action: "price issue",
+                                    });
+                                }}
+                                selectedFilter={filters.action}
+                            />
+                            <Filter_Buttons
+                                text={t("admin.client.Moved")}
+                                className="px-3 mr-1"
+                                value="moved"
+                                onClick={() => {
+                                    set_Filters({
+                                        action: "moved",
+                                    });
+                                }}
+                                selectedFilter={filters.action}
+                            />
+                            <Filter_Buttons
+                                text={t("admin.client.One_Time")}
+                                className="px-3 mr-1"
+                                value="one-Time"
+                                onClick={() => {
+                                    set_Filters({
+                                        action: "one-Time",
+                                    });
+                                }}
+                                selectedFilter={filters.action}
+                            />
                         </div>
-                    )
-                }
+                    </div>
+                )}
                 {/* Integrating new FilterButtons section here */}
-                {
-                    (type != "past" && type == null && role !== "supervisor") && (
-                        <>
-                            <div className="col-sm-12 d-none d-lg-flex align-items-center">
+                {type != "past" && type == null && role !== "supervisor" && (
+                    <>
+                        <div className="col-sm-12 d-none d-lg-flex align-items-center">
+                            <div className="row">
+                                <div
+                                    style={{
+                                        fontWeight: "bold",
+                                        marginTop: 10,
+                                        marginLeft: 15,
+                                        marginRight: 15,
+                                    }}
+                                >
+                                    {t("global.filter")}
+                                </div>
                                 <FilterButtons
                                     text={t("admin.leads.All")}
                                     name=""
@@ -681,90 +808,341 @@ export default function Clients() {
                                         setFilter(status);
                                     }}
                                 />
-                                {Object.entries(leadStatuses).map(([key, value]) => (
-                                    <FilterButtons
-                                        text={value}
-                                        name={key}
-                                        className="px-3 mr-1"
-                                        key={key}
-                                        selectedFilter={filter}
-                                        setselectedFilter={(status) => setFilter(status)}
-                                    />
-                                ))}
+                                {Object.entries(leadStatuses).map(
+                                    ([key, value]) => (
+                                        <FilterButtons
+                                            text={value}
+                                            name={key}
+                                            className="px-3 mr-1"
+                                            key={key}
+                                            selectedFilter={filter}
+                                            setselectedFilter={(status) =>
+                                                setFilter(status)
+                                            }
+                                        />
+                                    )
+                                )}
                             </div>
-                            <div className="col-sm-6 mt-2 pl-0 d-flex">
-                                <div className="search-data">
-                                    <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
-                                        <div
-                                            className=" mr-3"
-                                            style={{ fontWeight: "bold" }}
-                                        >
-                                            {t("admin.global.status")}
-                                        </div>
-                                        <button
-                                            type="button"
-                                            className="btn btn-default navyblue dropdown-toggle"
-                                            data-toggle="dropdown"
-                                        >
-                                            <i className="fa fa-filter"></i>
-                                        </button>
-                                        <span className="ml-2" style={{
+                        </div>
+                        <div className="col-sm-6 mt-2 pl-0 d-flex">
+                            <div className="search-data">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("admin.global.status")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span
+                                        className="ml-2"
+                                        style={{
                                             padding: "6px",
                                             border: "1px solid #ccc",
-                                            borderRadius: "5px"
-                                        }}>{filter || t("admin.leads.All")}</span>
+                                            borderRadius: "5px",
+                                        }}
+                                    >
+                                        {filter || t("admin.leads.All")}
+                                    </span>
 
-                                        <div className="dropdown-menu dropdown-menu-right">
-
-                                            <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                    setFilter("potentail");
-                                                }}
-                                            >
-                                                {t("admin.client.Potential")}
-                                            </button>
-                                            <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                    setFilter("pending client");
-                                                }}
-                                            >
-                                                {t("admin.client.Pending_client")}
-                                            </button>
-                                            <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                    setFilter("active client");
-                                                }}
-                                            >
-                                                {t("admin.client.Active_client")}
-                                            </button>
-                                            <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                    setFilter("freeze client");
-                                                }}
-                                            >
-                                                {t("admin.client.Freeze_client")}
-                                            </button>
-                                            <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                    setFilter("past client");
-                                                }}
-                                            >
-                                                {t("admin.client.Past_client")}
-                                            </button>
-                                        </div>
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("potentail");
+                                            }}
+                                        >
+                                            {t("admin.client.Potential")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("pending client");
+                                            }}
+                                        >
+                                            {t("admin.client.Pending_client")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("active client");
+                                            }}
+                                        >
+                                            {t("admin.client.Active_client")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("freeze client");
+                                            }}
+                                        >
+                                            {t("admin.client.Freeze_client")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilter("past client");
+                                            }}
+                                        >
+                                            {t("admin.client.Past_client")}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        </>
-                    )
-                }
+                            <div className="col-sm-12 d-none d-lg-flex mt-2">
+                                <div className="d-flex align-items-center">
+                                    <div
+                                        style={{ fontWeight: "bold" }}
+                                        className="mr-2"
+                                    >
+                                        {t("global.date_period")}
+                                    </div>
+                                    <FilterButtons
+                                        text={t("global.day")}
+                                        className="px-4 mr-1"
+                                        selectedFilter={selectedDateRange}
+                                        setselectedFilter={setSelectedDateRange}
+                                    />
+                                    <FilterButtons
+                                        text={t("global.week")}
+                                        className="px-4 mr-1"
+                                        selectedFilter={selectedDateRange}
+                                        setselectedFilter={setSelectedDateRange}
+                                    />
+
+                                    <FilterButtons
+                                        text={t("global.month")}
+                                        className="px-4 mr-3"
+                                        selectedFilter={selectedDateRange}
+                                        setselectedFilter={setSelectedDateRange}
+                                    />
+
+                                    <FilterButtons
+                                        text={t("client.previous")}
+                                        className="px-3 mr-1"
+                                        selectedFilter={selectedDateStep}
+                                        setselectedFilter={setSelectedDateStep}
+                                    />
+                                    <FilterButtons
+                                        text={t("global.current")}
+                                        className="px-3 mr-1"
+                                        selectedFilter={selectedDateStep}
+                                        setselectedFilter={setSelectedDateStep}
+                                    />
+                                    <FilterButtons
+                                        text={t("global.next")}
+                                        className="px-3"
+                                        selectedFilter={selectedDateStep}
+                                        setselectedFilter={setSelectedDateStep}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 mt-2 pl-0 d-flex d-lg-none">
+                            <div className="search-data">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span
+                                        className="ml-2"
+                                        style={{
+                                            padding: "6px",
+                                            border: "1px solid #ccc",
+                                            borderRadius: "5px",
+                                        }}
+                                    >
+                                        {selectedDateRange ||
+                                            t("admin.leads.All")}
+                                    </span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(
+                                                    t("global.day")
+                                                );
+                                            }}
+                                        >
+                                            {t("global.day")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(
+                                                    t("global.week")
+                                                );
+                                            }}
+                                        >
+                                            {t("global.week")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(
+                                                    t("global.month")
+                                                );
+                                            }}
+                                        >
+                                            {t("global.month")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 mt-2 pl-0 d-flex d-lg-none">
+                            <div className="search-data">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}
+                                        {t("global.type")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span
+                                        className="ml-2"
+                                        style={{
+                                            padding: "6px",
+                                            border: "1px solid #ccc",
+                                            borderRadius: "5px",
+                                        }}
+                                    >
+                                        {selectedDateStep ||
+                                            t("admin.leads.All")}
+                                    </span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(
+                                                    t("client.previous")
+                                                );
+                                            }}
+                                        >
+                                            {t("client.previous")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(
+                                                    t("global.current")
+                                                );
+                                            }}
+                                        >
+                                            {t("global.current")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(
+                                                    t("global.next")
+                                                );
+                                            }}
+                                        >
+                                            {t("global.next")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "left",
+                            }}
+                            className="hide-scrollbar my-2"
+                        >
+                            <p
+                                className="mr-2"
+                                style={{
+                                    fontWeight: "bold",
+                                    marginTop: 10,
+                                }}
+                            >
+                                {t("admin.schedule.date")}
+                            </p>
+                            <div className="d-flex align-items-center flex-wrap">
+                                <input
+                                    className="form-control calender"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        const updatedDateRange = {
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        };
+
+                                        setDateRange(updatedDateRange);
+                                    }}
+                                />
+                                <div className="mx-2">-</div>
+                                <input
+                                    className="form-control calender mr-1"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to_filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        const updatedDateRange = {
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        };
+
+                                        setDateRange(updatedDateRange);
+                                    }}
+                                />
+                                <input
+                                    type="hidden"
+                                    value={dateRange.start_date}
+                                    ref={startDateRef}
+                                />
+
+                                <input
+                                    type="hidden"
+                                    value={dateRange.end_date}
+                                    ref={endDateRef}
+                                />
+                            </div>
+                        </div>
+                    </>
+                )}
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className={`card-body px-0 ${role == "supervisor" ? "pt-0" : ""}`}>
+                    <div
+                        className={`card-body px-0 ${
+                            role == "supervisor" ? "pt-0" : ""
+                        }`}
+                    >
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}
@@ -823,16 +1201,22 @@ export default function Clients() {
         </div>
     );
 }
-const Filter_Buttons = ({ text, className, selectedFilter, onClick, value }) => (
+const Filter_Buttons = ({
+    text,
+    className,
+    selectedFilter,
+    onClick,
+    value,
+}) => (
     <button
         className={`btn border rounded ${className}`}
         style={
             selectedFilter === value
                 ? { background: "white" }
                 : {
-                    background: "#2c3f51",
-                    color: "white",
-                }
+                      background: "#2c3f51",
+                      color: "white",
+                  }
         }
         onClick={() => {
             onClick?.();

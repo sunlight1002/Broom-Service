@@ -114,6 +114,17 @@ class ClientController extends Controller
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('clients.created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('clients.created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('clients.created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
+
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if ($request->has('search')) {
@@ -888,8 +899,18 @@ class ClientController extends Controller
 
     public function export(Request $request)
     {
-        if (isset($request->f) &&  $request->f != "null") {
-            $clients = Client::where('status', $request->f)->get();
+        \Log::info("request", $request->all());
+
+        // if (isset($request->f) &&  $request->f != "null") {
+        //     $clients = Client::where('status', $request->f)->get();
+        // }
+        $clients = collect();
+
+        if (!empty($request->f)) {
+            $query = \App\Models\LeadStatus::query();
+            $query->where('lead_status', $request->filter);
+            $clientIds = $query->pluck('client_id');
+            $clients = Client::whereIn('id', $clientIds)->whereIn('status', [1, 2])->get();
         }
 
         if (!is_null($request->action)) {
@@ -907,7 +928,15 @@ class ClientController extends Controller
         if ($request->f == 'null') {
             $clients = Client::get();
         }
-
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $clients = $clients->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        } elseif (!empty($request->start_date)) {
+            // If only start_date is provided, filter from that date onward
+            $clients = $clients->where('created_at', '>=', $request->start_date);
+        } elseif (!empty($request->end_date)) {
+            // If only end_date is provided, filter up to that date
+            $clients = $clients->where('created_at', '<=', $request->end_date);
+        }
         foreach ($clients as $i => $c) {
             if ($c->status == 0) {
                 $clients[$i]['status'] = 'Lead';
@@ -922,6 +951,8 @@ class ClientController extends Controller
             'clients' => $clients
         ]);
     }
+
+
 
     public function import(Request $request)
     {
