@@ -84,7 +84,11 @@ class JobController extends Controller
         $assigned_jobs = $request->boolean('assigned_jobs');
 
         $supervisor = Admin::where('role', 'supervisor')->first();
-        $timeLogs = $supervisor->timeLogs()->latest()->first(); // ✅ RIGHT
+        $timeLogs = $supervisor->timeLogs()->latest()->first();
+
+        $fromDate = Carbon::now()->subMonthNoOverflow()->startOfDay()->format('Y-m-d H:i:s');
+        $today = Carbon::now()->toDateString();
+        $tomorrow = Carbon::tomorrow()->toDateString();
 
         $query = Job::query()
             ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
@@ -111,28 +115,20 @@ class JobController extends Controller
             ->when($start_time_filter == 'afternoon', fn($q) => $q->where('jobs.start_time', '>', '16:00:00'))
             ->when($actual_time_exceed_filter == 1, fn($q) => $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes'))
             ->when($has_no_worker == 1, fn($q) => $q->whereNull('jobs.worker_id'))
-            ->when($role === 'superadmin' && $assigned_jobs, function ($q) {
-                $jobIds = SupervisorJob::pluck('job_id');
+            ->when(
+                ($role === 'superadmin' && $assigned_jobs) || $role === 'supervisor',
+                function ($q) use ($fromDate, $today, $tomorrow) {
+                    $jobIds = SupervisorJob::pluck('job_id');
 
-                $q->where(function ($query) use ($jobIds) {
-                    $query->whereIn('jobs.id', $jobIds)
-                        ->orWhere(function ($subQuery) {
-                            $subQuery->whereDate('jobs.start_date', now()->toDateString())
-                                ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
-                        });
-                });
-            })
-            ->when(($role === 'supervisor'), function ($q) {
-                $jobIds = SupervisorJob::pluck('job_id');
-
-                $q->where(function ($query) use ($jobIds) {
-                    $query->whereIn('jobs.id', $jobIds)
-                        ->orWhere(function ($subQuery) {
-                            $subQuery->whereDate('jobs.start_date', now()->toDateString())
-                                ->orWhereDate('jobs.start_date', now()->addDay()->toDateString());
-                        });
-                });
-            })
+                    $q->where(function ($query) use ($jobIds, $fromDate, $today, $tomorrow) {
+                        $query->whereIn('jobs.id', $jobIds)
+                            ->orWhereDate('jobs.start_date', $today)
+                            ->orWhereDate('jobs.start_date', $tomorrow)
+                            ->orWhere('clients.created_at', '>=', $fromDate)
+                            ->orWhere('users.created_at', '>=', $fromDate);
+                    });
+                }
+            )
             ->select(
                 'jobs.id',
                 'jobs.start_date',
@@ -186,9 +182,9 @@ class JobController extends Controller
 
                     return $q->addSelect(DB::raw("$haversine AS distance"))
                         ->orderByRaw("ISNULL(jobs.order_by), jobs.order_by ASC") // prioritize order_by when not null
-                        ->orderBy('distance')
                         ->orderBy('jobs.start_date')
-                        ->orderBy('jobs.start_time');
+                        ->orderBy('jobs.start_time')
+                        ->orderBy('distance');
                 }
             )
             ->when(

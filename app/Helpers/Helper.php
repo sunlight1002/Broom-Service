@@ -68,14 +68,14 @@ if (!function_exists('generateShortUrl')) {
 }
 
 if (!function_exists('StoreWebhookResponse')) {
-    function StoreWebhookResponse($text, $receiverNumber, $data = null)
+    function StoreWebhookResponse($text, $receiverNumber, $data = null, $whapi = false)
     {
 
         WebhookResponse::create([
             'status'        => 1,
             'name'          => 'whatsapp',
             'message'       => $text,
-            'from'          => str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')),
+            'from'          => $whapi ? config("services.whapi.whapi_number") : str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')),
             'number'        => $receiverNumber,
             'flex'          => 'A',
             'read'          => 1,
@@ -85,13 +85,13 @@ if (!function_exists('StoreWebhookResponse')) {
 }
 
 if (!function_exists('StoreWorkerWebhookResponse')) {
-    function StoreWorkerWebhookResponse($text, $receiverNumber, $data = null)
+    function StoreWorkerWebhookResponse($text, $receiverNumber, $data = null, $secondNumber = false)
     {
         WorkerWebhookResponse::create([
             'status'        => 1,
             'name'          => 'whatsapp',
             'message'       => $text,
-            'from'          => str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number')),
+            'from'          => $secondNumber ? config("services.whapi.whapi_worker_lead_number_2") : config("services.whapi.whapi_worker_lead_number_1"),
             'number'        => $receiverNumber,
             'flex'          => 'A',
             'read'          => 1,
@@ -131,7 +131,7 @@ if (!function_exists('sendWhatsappMessage')) {
         $buttons = $data['buttons'] ?? [];
         $list = $data['list'] ?? [];
 
-        if(!empty($buttons) || !empty($list)){
+        if (!empty($buttons) || !empty($list)) {
             $type = 'messages/interactive';
         } else {
             $type = 'messages/text';
@@ -154,7 +154,7 @@ if (!function_exists('sendWhatsappMessage')) {
             $payload['type'] = 'list';
             $payload['body']['text'] = str_replace("\t", "", $data['message'] ?? '');
             $payload['action'] = ['list' => $list];
-        }else{
+        } else {
             $payload['body'] = str_replace("\t", "", $data['message'] ?? '');
         }
 
@@ -163,6 +163,55 @@ if (!function_exists('sendWhatsappMessage')) {
         }
 
         $response = Http::withToken(config('services.whapi.token'))
+            ->post(config('services.whapi.url') . $type, $payload);
+
+        if ($response->successful()) {
+            return $response->json();
+        } else {
+            \Log::error('Whatsapp API error', [
+                'payload' => $payload,
+                'response' => json_decode($response->body(), true),
+            ]);
+            return json_decode($response->body(), true);
+        }
+    }
+}
+
+if (!function_exists('sendWorkerLeadWhatsappMessage')) {
+    function sendWorkerLeadWhatsappMessage($number, $data = array(), $secondNumber = false)
+    {
+        $numberToken = $secondNumber ? config("services.whapi.worker_token_2") : config('services.whapi.worker_token');
+        $buttons = $data['buttons'] ?? [];
+        $list = $data['list'] ?? [];
+
+        if (!empty($buttons) || !empty($list)) {
+            $type = 'messages/interactive';
+        } else {
+            $type = 'messages/text';
+        }
+
+        $mobile_no = str_replace("-", "", $number);
+        if (strlen($mobile_no) <= 10) {
+            $mobile_no = '972' . $mobile_no;
+        }
+
+        $payload = [
+            'to' => $mobile_no,
+        ];
+
+        if (!empty($buttons)) {
+            $payload['type'] = 'button';
+            $payload['body']['text'] = str_replace("\t", "", $data['message'] ?? '');
+            $payload['action'] = ['buttons' => $buttons];
+        } elseif (!empty($list)) {
+            $payload['type'] = 'list';
+            $payload['body']['text'] = str_replace("\t", "", $data['message'] ?? '');
+            $payload['action'] = ['list' => $list];
+        } else {
+            $payload['body'] = str_replace("\t", "", $data['message'] ?? '');
+        }
+
+        $response = Http::withToken($numberToken)
             ->post(config('services.whapi.url') . $type, $payload);
 
         if ($response->successful()) {

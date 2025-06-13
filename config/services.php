@@ -83,8 +83,11 @@ return [
         'token' => env('WHAPI_API_TOKEN'),
         'client_token' => env('CLIENT_WHAPI_API_TOKEN'),
         'worker_token' => env('WORKER_WHAPI_API_TOKEN'),
+        'worker_token_2' => env('WORKER_WHAPI_API_TOKEN_2'), //worker lead second number token
         'worker_job_token' => env('WORKER_WHAPI_JOB_API_TOKEN'),
         'whapi_number' => env('WHAPI_NUMBER'),
+        'whapi_worker_lead_number_1' => env('WHAPI_WORKER_LEAD_NUMBER_1'),
+        'whapi_worker_lead_number_2' => env('WHAPI_WORKER_LEAD_NUMBER_2')
     ],
 
     'whatsapp_groups' => [

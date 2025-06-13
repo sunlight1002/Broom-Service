@@ -303,7 +303,7 @@ www.broomservice.co.il
                         "from" => $this->twilioWhatsappNumber,
                         "contentSid" => $sid,
                         "contentVariables" => json_encode([
-                            '1' => (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')),
+                            '1' => trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')),
                             '2' => preg_replace("/[\n\r\t]+/", " ", $msg)
                         ]),
                         // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",

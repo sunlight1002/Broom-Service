@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Offer;
+use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Fblead;
 use App\Models\Setting;
@@ -20,6 +21,7 @@ use Illuminate\Http\Request;
 use App\Enums\LeadStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\JobStatusEnum;
+use App\Models\SupervisorJob;
 use App\Models\ScheduleChange;
 use App\Events\SendClientLogin;
 use App\Models\WebhookResponse;
@@ -61,15 +63,23 @@ class LeadWebhookController extends Controller
 
     protected $botMessages = [
         'main-menu' => [
-            'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time",
-            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu' . "\n\n" . "אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת."
+            'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊",
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊'
+        ],
+        'about_service' => [
+            'en' => "Broom Service - Room service for your 🏠.\nWe’re a professional cleaning company offering ✨ top-notch services for homes or apartments, available regularly or one-time, with no 🤯 hassle. Choose from 🧹 tailored packages like routine cleaning, or extras such as post-construction, pre-move, or window cleaning at any height.\nVisit 🌐 www.broomservice.co.il for all services and details.\nOur fixed prices per visit include everything—☕️ social benefits and travel—based on your package. We employ a skilled, permanent team led by a work manager. Pay by 💳 credit card monthly or post-visit, depending on your plan.\nTo get a quote, book a free, no-obligation visit from a supervisor who’ll assess your needs and provide a detailed estimate. Office hours: 🕖 Monday-Thursday, 8:00-14:00",
+            "heb" => "ברום סרוויס - שירות חדרים לביתכם 🏠.\nחברת ניקיון מקצועית המספקת שירותי ניקיון ברמה גבוהה לבתים ודירות, קבוע או חד-פעמי, ללא התעסקות מיותרת 🧹. אנו מציעים חבילות מותאמות: ניקיון קבוע, ניקיון לאחר שיפוץ, לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨.\nרטים באתר 🌐 www.broomservice.co.il. המחירים קבועים לביקור, כוללים הכל—תנאים סוציאליים ונסיעות 🍵—לפי החבילה. צוות קבוע ומיומן בפיקוח מנהל עבודה 👨🏻‍💼. תשלום בכרטיס אשראי בסוף החודש או לאחר ביקור 💳.\nלהצעת מחיר, תאמו פגישה חינם וללא התחייבות עם מפקח שיסייע בבחירת חבילה וישלח הצעה מפורטת 📝. שעות משרד: א-ה, 8:00-14:00 🕓. "
+        ],
+        'enter_phone' => [
+            'en' => "Hello! To verify your account, please enter the phone number you registered with our service.",
+            'heb' => 'שלום! לאימות החשבון שלך, אנא הזן את מספר הטלפון איתו נרשמת לשירות.'
         ]
     ];
 
     protected $activeClientBotMessages = [
         "main_menu" => [
-            "en" => "Hello :client_name 🌸, I’m Gali, the digital secretary of Broom Service!\nHow can I assist you today ? 😊\n\nHere are your options:\n1️⃣ Contact me urgently\n2️⃣ When is my next service?\n3️⃣ Request a new quote\n4️⃣ Invoice and accounting inquiry\n5️⃣ Change or update schedul\n6️⃣ Access our client portal\n\n❓ If you have a question or request not listed, type 'Menu' to return to the main menu at any time.",
-            "heb" => "שלום - :client_name -🌸, אני גלי, המזכירה הדיגיטלית של ברום סרוויס!\nבמה אוכל לעזור לך היום? 😊\n\nלהלן האפשרויות:\n1️⃣ צרו איתי קשר דחוף\n2️⃣ מתי מגיעים אלי?\n3️⃣ בקשה להצעת מחיר חדשה\n4️⃣ הנה'ח - פנייה למחלקת הנהלת חשבונות\n5️⃣ שינוי או עדכון שיבוץ\n6️⃣ גישה לפורטל הלקוחות שלנו\n\n❓ אם יש לך שאלה אחרת או בקשה שלא בתפריט, תוכל תמיד להחזיר אותי לתפריט הראשי על ידי כתיבת 'תפריט'."
+            "en" => "Hello :client_name 🌸, I’m Gali, the digital secretary of Broom Service!\nHow can I assist you today ? 😊\n\nIf you have a question or request not listed, type 'Menu' to return to the main menu at any time.",
+            "heb" => "שלום - :client_name -🌸, אני גלי, המזכירה הדיגיטלית של ברום סרוויס!\nבמה אוכל לעזור לך היום? 😊\n\nאם יש לך שאלה אחרת או בקשה שלא בתפריט, תוכל תמיד להחזיר אותי לתפריט הראשי על ידי כתיבת 'תפריט'."
         ],
         "not_recognized" => [
             "en" => "Hello, we couldn’t recognize your number in our system.\nAre you an existing client, or would you like to receive a quote for our service?\n 1️⃣ I am an existing client\n 2️⃣ I’d like a quote",
@@ -88,8 +98,8 @@ class LeadWebhookController extends Controller
             "heb" => "שלחנו קוד לכתובת המייל איתה נרשמת לשירות, שמתחילה ב- :email###@#####.\nאנא הזן את הקוד להמשך התהליך."
         ],
         "incorect_otp" => [
-            "en" => "The code you entered is incorrect. Please try again.\nIf you'd like us to resend the code, reply with 0.",
-            "heb" => "הקוד שהזנת אינו נכון. אנא נסה שוב.\nאם תרצה שנשלח את הקוד מחדש, השב 0."
+            "en" => "The code you entered is incorrect. Please try again.\nIf you'd like us to resend the code.",
+            "heb" => "הקוד שהזנת אינו נכון. אנא נסה שוב.\nאם תרצה שנשלח את הקוד מחדש."
         ],
         "failed_attempts" => [
             "en" => "We're sorry, but you've exceeded the maximum number of attempts.\nFor security reasons, your account is temporarily locked. Our team has been notified and will contact you shortly. \nIf urgent, you can reach out to us at: 03-525-70-60.",
@@ -120,8 +130,8 @@ class LeadWebhookController extends Controller
             "heb" => "השירות בשבוע הבא מתוכנן ל- \n:date_time\n⏰ שים לב: זמן ההגעה עשוי להשתנות ולהגיע לעד כשעה וחצי משעת ההתחלה."
         ],
         "no_service_avail" => [
-            "en" => "We couldn't find any upcoming bookings for you in the system.\nClick 5 to ask for more information about your schedule.",
-            "heb" => "לא מצאנו שיבוצים קרובים עבורך במערכת.\nניתן ללחוץ על 5 ולבקש פרטים נוספים."
+            "en" => "We couldn't find any upcoming bookings for you in the system.\nClick to ask for more information about your schedule.",
+            "heb" => "לא מצאנו שיבוצים קרובים עבורך במערכת.\nניתן ללחוץ על ולבקש פרטים נוספים."
         ],
         "request_new_qoute" => [
             "en" => "Your request for a new quote has been recorded.\nOur team will contact you shortly. Thank you! 🌸",
@@ -156,8 +166,8 @@ class LeadWebhookController extends Controller
             "heb" => "🔔 לקוח בשם *:client_name* ביקש לשנות או לעדכן שיבוץ. ההודעה שנרשמה: *:message* \n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
         ],
         "access_portal" => [
-            "en" => "To access our client portal, please click here: :client_portal_link.",
-            "heb" => "לכניסה לפורטל הלקוחות שלנו, אנא לחץ כאן: :client_portal_link."
+            "en" => "To access our client portal",
+            "heb" => "לכניסה לפורטל הלקוחות שלנו."
         ],
         "sorry" => [
             "en" => "Sorry, I didn’t understand your request.\nPlease try again or type 'Menu' to return to the main menu.",
@@ -182,6 +192,10 @@ Broom Service Team 🌹",
 
 בברכה,
 צוות ברום סרוויס 🌹"
+        ],
+        "schedule_preferrence" => [
+            "en" => "We’d love to know your preferred time slots for the upcoming service.\nWe recommend listing more than one option.\n\nPlease note – we typically have more availability during afternoon hours, so if you’re flexible, we’ll do our best to accommodate for maximum convenience.\n\n🕒 Available days and times:\nSunday to Thursday\n\nMorning: arrival between 08:00–09:30\n\nAfternoon: arrival between 12:00–13:30\n\n📥 Please reply with your preferences.\nExample:\n4-star package, weekly, prefer Tuesday or Wednesday, afternoon is okay too.",
+            "heb" => "נשמח לדעת מהי העדפתך לשיבוץ הקרוב.\nמומלץ לרשום יותר מאופציה אחת.\n\nשימו לב – לרוב יש זמינות גבוהה יותר בשעות הצהריים, כך שאם יש לכם גמישות – נשמח לתאם בהתאם כדי להבטיח זמינות מקסימלית.\n\n🕒 שעות אופציונליות:\nימים ראשון עד חמישי\n\nבוקר: הגעה בין 8:00 ל־9:30\n\nצהריים: הגעה בין 12:00 ל־13:30\n\n📥 נא לציין בהודעה חוזרת את העדפתכם.\nלדוגמה:\nחבילת 4 כוכבים, פעם בשבוע, עדיפות ליום שלישי או רביעי, אפשר גם בצהריים."
         ]
     ];
 
@@ -579,10 +593,8 @@ Broom Service Team 🌹",
             case 'team_send_message_1':
                 \Log::info('team_send_message_1');
                 $text = [
-                    "en" => "Hello :client_name,
-Please let us know what additional information or request you would like to add.",
-                    "heb" => "שלום :client_name,
-אנא עדכן אותנו מה ברצונך להוסיף או לבקש."
+                    "en" => "Hello :client_name,\nPlease let us know what additional information or request you would like to add.",
+                    "heb" => "שלום :client_name,\nאנא עדכן אותנו מה ברצונך להוסיף או לבקש."
                 ];
 
                 $nextMessage = $text[$lng];
@@ -615,14 +627,8 @@ Please let us know what additional information or request you would like to add.
 
             case "client_add_request":
                 $text = [
-                    "en" => "Hello :client_name,
-We’ve received your updated request:
-':client_message'
-Your message has been forwarded to the team for further handling. Thank you for your patience!",
-                    "heb" => "שלום :client_name,
-קיבלנו את עדכון הבקשה שלך:
-':client_message'
-ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                    "en" => "Hello :client_name,\nWe’ve received your updated request:\n':client_message'\nYour message has been forwarded to the team for further handling. Thank you for your patience!",
+                    "heb" => "שלום :client_name,\nקיבלנו את עדכון הבקשה שלך:\n':client_message'\nההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
                 ];
 
                 $nextMessage = $text[$lng];
@@ -695,17 +701,27 @@ Your message has been forwarded to the team for further handling. Thank you for 
         // Store the messageId in the cache for 1 hour
         Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
 
-        if (!$isTwilio) {
+        if (
+            !$isTwilio &&
+            isset($data['messages']) &&
+            isset($data['messages'][0]['from_me']) &&
+            $data['messages'][0]['from_me'] == false
+        ) {
             $message_data = $data['messages'];
+            \Log::info($message_data);
             $from = $message_data[0]['from'];
+
+            $listId = isset($data['messages'][0]['reply']['list_reply']['id']) ? str_replace("ListV3:", "", $data['messages'][0]['reply']['list_reply']['id']) : "";
+            $ButtonPayload = isset($data['messages'][0]['reply']['buttons_reply']['id']) ? str_replace("ButtonsV3:", "", $data['messages'][0]['reply']['buttons_reply']['id']) : "";
             $input = $data['messages'][0]['text']['body'] ?? "";
+            \Log::info($input . "       llalalalalaalala");
             $lng = $this->detectLanguage($input);
 
             WebhookResponse::create([
                 'status'        => 1,
                 'name'          => 'whatsapp',
                 'entry_id'      => $messageId,
-                'message'       => $input,
+                'message'       => !empty($input) ? $input : ($listId ?? $ButtonPayload),
                 'from'          => config("services.whapi.whapi_number"),
                 'number'        => $from,
                 'read'          => 0,
@@ -719,18 +735,25 @@ Your message has been forwarded to the team for further handling. Thank you for 
                 ->first();
             $client = Client::where('phone', $from)->first();
 
-            if ($client) {
-                \Log::info('client already exist ...' . $client->id);
-                die("client already exist");
-            }
+            // if ($client) {
+            //     \Log::info('client already exist ...' . $client->id);
+            //     die("client already exist");
+            // }
 
-            if ($user) {
-                \Log::info('user already exist ...');
-                die("user already exist");
-            }
+            // if ($user) {
+            //     \Log::info('user already exist ...');
+            //     die("user already exist");
+            // }
 
             if (!$client && !$user && !$workerLead) {
                 $this->sendNewLeadMainMenu($lng, $from);
+            } else if ($client && $client->lead_status && in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])) {
+                \Log::info('client already exist from whapi');
+                $this->WhapifbActiveClientsWebhookCurrentLive($request);
+            } else if ($user && (!$client || $client->lead_status->lead_status !== "active client")) {
+                \Log::info('User: ' . $user->id);
+                $controller = app(WorkerLeadWebhookController::class);
+                return $controller->WhapifbActiveWorkersWebhookCurrentLive($request);
             }
         }
 
@@ -1314,12 +1337,8 @@ Your message has been forwarded to the team for further handling. Thank you for 
                         '4' => [
                             'title' => "coustomer_service",
                             'content' => [
-                                'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
-You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
-Enter your phone number or email address with which you registered for the service 📝',
-                                'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
-תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
-הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
+                                'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.\nYou can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.\nEnter your phone number or email address with which you registered for the service 📝',
+                                'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.\nתוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.\nהזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
                             ]
                         ],
                         '5' => [
@@ -2696,160 +2715,769 @@ Enter your phone number or email address with which you registered for the servi
         die('sent');
     }
 
-    public function saveLeadFromContactForm(Request $request)
+    public function MetaWhapifbActiveClientsWebhookLive(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required_without:email'],
-            'email' => ['required_without:phone|email'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $phone = $request->phone;
-
-        $phone = preg_replace('/[^0-9+]/', '', $phone);
-
-        // 2. If there's any string or invalid characters in the phone, extract the digits
-        if (preg_match('/\d+/', $phone, $matches)) {
-            $phone = $matches[0]; // Extract the digits
-
-            // Reapply rules on extracted phone number
-            // If the phone number starts with 0, add 972 and remove the first 0
-            if (strpos($phone, '0') === 0) {
-                $phone = '972' . substr($phone, 1);
-            }
-
-            // If the phone number starts with +, remove the +
-            if (strpos($phone, '+') === 0) {
-                $phone = substr($phone, 1);
-            }
-        }
-
-        $phoneLength = strlen($phone);
-        if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
-            $phone = '972' . $phone;
-        }
-
-        $lead_exists = Client::with('property_addresses')->where('phone', $phone)->orWhere('email', $request->email)->exists();
-        if (!$lead_exists) {
-            $lead = new Client;
-
-            $name = explode(' ', $request->name);
-
-            $lead->firstname = $name[0];
-            $lead->lastname = (isset($name[1])) ? $name[1] : '';
-            $lead->phone = $phone;
-            $lead->email = $request->email;
-            $lead->status = 0;
-            $lead->lng = 'heb';
-            $lead->password = Hash::make(Str::random(20));
-            $lead->passcode = $phone;
-            $lead->source = 'website';
-            $lead->save();
-
-            $lead->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => LeadStatusEnum::PENDING]
-            );
-
-            LeadActivity::create([
-                'client_id' => $lead->id,
-                'created_date' => now(),
-                'status_changed_date' => now(),
-                'changes_status' => LeadStatusEnum::PENDING,
-                'reason' => "",
-            ]);
-
-            $m = $this->botMessages['main-menu']['heb'];
-            $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
-
-            $twi = $this->twilio->messages->create(
-                "whatsapp:+$lead->phone",
-                [
-                    "from" => $this->twilioWhatsappNumber,
-                    "contentSid" => $sid,
-
-                ]
-            );
-
-            WhatsAppBotClientState::updateOrCreate([
-                'client_id' => $lead->id,
-            ], [
-                'menu_option' => 'main_menu',
-                'language' => 'he',
-            ]);
-
-            WebhookResponse::create([
-                'status'        => 1,
-                'name'          => 'whatsapp',
-                'message'       => $twi->body ?? '',
-                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
-                'number'        => $lead->phone,
-                'flex'          => 'A',
-                'read'          => 1,
-                'data'          => json_encode($twi->toArray()),
-            ]);
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
-                "notificationData" => [
-                    'client' => $lead->toArray(),
-                    'type' => "website"
-                ]
-            ]));
+        // Check if request content is JSON (likely from Whapi)
+        $content = $request->getContent();
+        if ($this->isJson($content)) {
+            \Log::info('Webhook received from Whapi');
+            $this->WhapifbActiveClientsWebhookCurrentLive($request);
         } else {
-            $lead = Client::where('phone', $phone)->first();
-            if (empty($lead)) {
-                $lead = Client::where('email', $request->email)->first();
+            \Log::info('Webhook received from Twilio');
+            // Otherwise it's form-data (likely from Twilio)
+            $this->fbActiveClientsWebhookCurrentLive($request);
+        }
+    }
+
+    public function WhapifbActiveClientsWebhookCurrentLive(Request $request)
+    {
+        \Log::info('Webhook received');
+        $content = $request->getContent();
+        $data = json_decode($content, true);
+        $chatId = $data['messages'][0]['chat_id'] ?? null;
+
+        // if ($chatId != "918000318833@s.whatsapp.net" || !empty($data['statuses'][0]['id'])) {
+        //     return response()->json(['status' => 'Invalid message data'], 400);
+        // }
+
+        $messageId = $data['messages'][0]['id'] ?? null;
+
+        if (!$messageId) {
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('active_client_processed_message_' . $messageId) == $messageId) {
+            \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+
+        // Store the messageId in the cache for 1 hour
+        Cache::put('active_client_processed_message_' . $messageId, $messageId, now()->addHours(1));
+
+        if (
+            isset($data['messages']) &&
+            isset($data['messages'][0]['from_me']) &&
+            $data['messages'][0]['from_me'] == false
+        ) {
+            \Log::info($data);
+            $list = [];
+            $buttons = [];
+
+            $from = $data['messages'][0]['from'];
+
+            $isMonday = now()->isMonday();
+
+            $workerLead = WorkerLeads::where('phone', $from)->first();
+            if ($workerLead) {
+                \Log::info('Worker lead already exists');
             }
 
-            if ($lead->lead_status) {
-                $leadStatus = $lead->lead_status;
-                $leadUpdatedAt = $leadStatus->updated_at;
-                $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING
-                    && $leadUpdatedAt->diffInDays(now()) > 2;
-                $isNotPending = $leadStatus->lead_status !== LeadStatusEnum::PENDING;
+            $user = User::where('phone', $from)
+                ->where('status', 1)
+                ->first();
+            if ($user) {
+                \Log::info('User already exists');
+            }
+            $client = Client::where('phone', $from)
+                ->orWhereJsonContains('extra', [['phone' => $from]])
+                ->first();
 
-                if ($isPendingForMoreThanTwoDays || $isNotPending) {
-                    $lead->lead_status()->updateOrCreate(
-                        [],
-                        ['lead_status' => LeadStatusEnum::PENDING]
+            $msgStatus = null;
+            $input = null;
+
+            if ($client) {
+                $listId = isset($data['messages'][0]['reply']['list_reply']['id']) ? str_replace("ListV3:", "", $data['messages'][0]['reply']['list_reply']['id']) : "";
+                $ButtonPayload = isset($data['messages'][0]['reply']['buttons_reply']['id']) ? str_replace("ButtonsV3:", "", $data['messages'][0]['reply']['buttons_reply']['id']) : "";
+                $input = $data['messages'][0]['text']['body'] ?? $listId ?? $ButtonPayload ?? "";
+
+                // $msgStatus = Cache::get('client_review' . $client->id);
+                // // \Log::info($msgStatus . ' ' . $client->id);
+
+                // if (!empty($msgStatus)) {
+                //     \Log::info('Client already reviewed');
+                //     $this->clientReview($request);
+                //     die('Client already reviewed');
+                // }
+
+                // $msgStatus = Cache::get('client_review_input2' . $client->id);
+                // if (!empty($msgStatus)) {
+                //     \Log::info('Client already reviewed');
+                //     $this->clientReview($request);
+                //     die('Client already reviewed');
+                // }
+
+                // $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
+                // \Log::info($msgStatus . ' ' . $client->id);
+                // if ((!empty($msgStatus) && ($listId || $ButtonPayload) == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
+                //     \Log::info('Client already in (monday / wednesday) message first reply');
+                //     $this->activeClientsWednesday($request);
+                //     die('Client confirm job');
+                // }
+            }
+
+            if ($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT) {
+                die('Client already active');
+            }
+
+            $lng = $client->lng ?? $this->detectLanguage($input);
+            if ($user || $workerLead) {
+                die('Worker or worker lead found');
+            }
+
+            if ($client && $client->disable_notification == 1) {
+                \Log::info('Client disabled notification');
+                die('Client disabled notification');
+            }
+
+            if ($isMonday && $client && $client->stop_last_message != 1 && !in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
+                if ($client->stop_last_message == 0 && in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
+                    $client->stop_last_message = 1;
+                    $client->save();
+                }
+                // else {
+                //     \Log::info('Monday msg reply is pending');
+                //     $this->activeClientsMonday($request);
+                //     die('Monday msg reply is pending.');
+                // }
+            }
+            $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
+
+            $last_menu = null;
+            $send_menu = null;
+            if ($clientMessageStatus) {
+                $lng = $clientMessageStatus->lng ?? 'heb';
+                $menu_option = explode('->', $clientMessageStatus->menu_option);
+                $last_menu = end($menu_option);
+            }
+
+            if (in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
+                $client->disable_notification = 1;
+                $client->save();
+                $send_menu = 'stop';
+            } else if (empty($last_menu) || in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
+                if (!$client && !$user && !$workerLead) {
+                    $send_menu = 'not_recognized';
+                } else {
+                    \Log::info('Client menu');
+                    $send_menu = 'main_menu';
+                }
+            } else if ($last_menu == 'main_menu' && $listId == '1') {
+                $send_menu = 'urgent_contact';
+            } else if ($last_menu == 'main_menu' && $listId == '2') {
+                $send_menu = 'service_schedule';
+            } else if ($last_menu == 'main_menu' && $listId == '3') {
+                $send_menu = 'request_new_qoute';
+            } else if ($last_menu == 'main_menu' && $listId == '4') {
+                $send_menu = 'invoice_account';
+            } else if ($last_menu == 'main_menu' && $listId == '5') {
+                $send_menu = 'change_update_schedule';
+            } else if ($last_menu == 'main_menu' && $listId == '6') {
+                $send_menu = 'access_portal';
+            } else if ($last_menu == 'urgent_contact' && !empty($input)) {
+                $send_menu = 'thankyou';
+            } else if ($last_menu == 'service_schedule' && $ButtonPayload == '5') {
+                $send_menu = 'change_update_schedule';
+            } else if ($last_menu == 'invoice_account' && !empty($input)) {
+                $send_menu = 'thank_you_invoice_account';
+            } else if ($last_menu == 'change_update_schedule' && !empty($input)) {
+                $send_menu = 'thank_you_change_update_schedule';
+            } else if ($last_menu == 'team_send_message' && ($listId == '1' || $ButtonPayload == '1')) {
+                $send_menu = 'team_send_message_1';
+            } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
+                $send_menu = 'client_add_request';
+            } else if ($ButtonPayload == "menu") {
+                \Log::info('menu');
+                $send_menu = 'main_menu';
+            } else if ($last_menu == 'main_menu' && $ButtonPayload == 'schedule_preferrence') {
+                \Log::info('schedule_preferrence');
+                $send_menu = 'schedule_preferrence';
+            } else if ($last_menu == 'schedule_preferrence' && !empty($input)) {
+                $send_menu = 'schedule_preferrence_input';
+            } else {
+                // $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
+                // $MondaymsgStatus = Cache::get('client_monday_msg_status_' . $client->id);
+
+                // if (!empty($msgStatus) || !empty($MondaymsgStatus)) {
+                //     \Log::info('Client already in (monday / wednesday) message second reply');
+                //     $this->activeClientsWednesday($request);
+                //     die("already client in (monday / wednesday) message");
+                // }
+                $send_menu = 'sorry';
+            }
+
+            switch ($send_menu) {
+                case 'main_menu':
+                    $this->sendWhapiMainMenu($client, $from);
+                    break;
+
+                case 'urgent_contact':
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+
+                    $nextMessage = $this->activeClientBotMessages['urgent_contact'][$lng];
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage));
+                    StoreWebhookResponse($personalizedMessage, $from, $result, true);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu->urgent_contact',
+                    ]);
+
+                    break;
+
+                case 'thankyou':
+                    \Log::info('Thank you message');
+
+                    $nextMessage = $this->activeClientBotMessages['thankyou'][$lng];
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף";
+                    $scheduleChange->comments = trim($input);
+                    $scheduleChange->save();
+
+                    $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+
+                    $scheduleLink = generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin');
+
+                    $personalizedMessage = str_replace([
+                        ':client_name',
+                        ':message',
+                        ':client_phone',
+                        ':comment_link',
+                        ':client_link'
+                    ], [
+                        $clientName,
+                        '*' . trim($input) . '*',
+                        $client->phone,
+                        $scheduleLink,
+                        generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
+
+                    $clientMessageStatus->delete();
+                    break;
+
+                case 'service_schedule':
+                    $today = Carbon::today()->toDateString();
+                    $weekEndDate = Carbon::today()->endOfWeek(Carbon::SATURDAY)->toDateString();
+                    $dateTime = '';
+
+                    $nextWeekStart = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addWeek()->format('Y-m-d');
+                    $nextWeekEnd = Carbon::now()->endOfWeek(Carbon::SATURDAY)->addWeek()->format('Y-m-d');
+
+                    // Fetch jobs for the current week
+                    $currentWeekJobs = Job::where('client_id', $client->id)
+                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                        ->whereBetween('start_date', [$today, $weekEndDate])
+                        ->get();
+
+                    // Fetch jobs for the next week
+                    $nextWeekJobs = Job::where('client_id', $client->id)
+                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                        ->whereBetween('start_date', [$nextWeekStart, $nextWeekEnd])
+                        ->get();
+
+
+                    $this->initGoogleConfig();
+                    $sheets = $this->getAllSheetNames();
+                    if (count($sheets) <= 0) {
+                        Log::info("No sheet found", ['sheets' => $sheets]);
+                    }
+                    $currentWeeks = [];
+                    $nextWeeks = [];
+                    $currentDate = null;
+                    $dates = [];
+                    $shifts = [];
+                    foreach ($sheets as $key => $sheet) {
+                        $data = $this->getGoogleSheetData($sheet);
+                        if (empty($data)) {
+                            Log::warning("Sheet $sheet is empty.");
+                            continue;
+                        }
+
+                        foreach ($data as $index => $row) {
+                            if ($index == 0) {
+                                continue;
+                            }
+                            if (!empty($row[3]) && (
+                                preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
+                                preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
+                                // preg_match('/(?:יום\s*)?[א-ת]+\s*\d{2}\d{2}/u', $row[3])
+                            )) {
+                                $currentDate = $this->convertDate($row[3], $sheet);
+                                $grouped[$currentDate] = [];
+                            }
+                            if ($currentDate !== null && !empty($row[1]) && !empty($row[5]) && $row[5] == 'TRUE') {
+                                $grouped[$currentDate][] = $row;
+                                $id = null;
+                                $email = null;
+                                if (strpos(trim($row[1]), '#') === 0) {
+                                    $id = substr(trim($row[1]), 1);
+                                } else if (filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
+                                    $email = trim($row[1]);
+                                }
+
+                                if (($id || $email) && !empty($row[10])) {
+                                    $shifts[] = trim($row[10] ?? '');
+                                    if ($id == $client->id || (!empty($email) && $email == $client->email)) {
+                                        $currentDateObj = Carbon::parse($currentDate); // Current date
+                                        \Log::info($currentDateObj);
+
+                                        // $today = Carbon::today()->toDateString();
+                                        // $weekEndDate = Carbon::today()->endOfWeek(Carbon::SATURDAY)->toDateString();
+
+                                        $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
+                                        $nextWeekEnd = $nextWeekStart->copy()->addDays(6); // Next week's Saturday
+                                        $shift = "";
+                                        $day = $currentDateObj->format('l');
+                                        if ($client->lng == 'en') {
+                                            switch (trim($row[10])) {
+                                                case 'יום':
+                                                case 'בוקר':
+                                                case '7 בבוקר':
+                                                case 'בוקר 11':
+                                                case 'בוקר מוקדם':
+                                                case 'בוקר 6':
+                                                    $shift = "Morning";
+                                                    break;
+
+                                                case 'צהריים':
+                                                case 'צהריים 14':
+                                                    $shift = "Noon";
+                                                    break;
+
+                                                case 'אחהצ':
+                                                case 'אחה״צ':
+                                                case 'ערב':
+                                                case 'אחר״צ':
+                                                    $shift = "After noon";
+                                                    break;
+
+                                                default:
+                                                    $shift = $row[10];
+                                                    break;
+                                            }
+                                        } else {
+                                            switch (trim($row[10])) {
+                                                case 'יום':
+                                                case 'בוקר':
+                                                case '7 בבוקר':
+                                                case 'בוקר 11':
+                                                case 'בוקר מוקדם':
+                                                case 'בוקר 6':
+                                                    $shift = "בוקר";
+                                                    break;
+
+                                                case 'צהריים':
+                                                case 'צהריים 14':
+                                                    $shift = 'צהריים';
+                                                    break;
+
+                                                case 'אחהצ':
+                                                case 'אחה״צ':
+                                                case 'ערב':
+                                                case 'אחר״צ':
+                                                    $shift = "אחה״צ";
+                                                    break;
+
+
+                                                default:
+                                                    $shift = $row[10];
+                                                    break;
+                                            }
+                                            switch ($day) {
+                                                case 'Sunday':
+                                                    $day = "ראשון";
+                                                    break;
+                                                case 'Monday':
+                                                    $day = "שני";
+                                                    break;
+                                                case 'Tuesday':
+                                                    $day = "שלישי";
+                                                    break;
+                                                case 'Wednesday':
+                                                    $day = "רביעי";
+                                                    break;
+                                                case 'Thursday':
+                                                    $day = "חמישי";
+                                                    break;
+                                                case 'Friday':
+                                                    $day = "שישי";
+                                                    break;
+                                                case 'Saturday':
+                                                    $day = "שבת";
+                                                    break;
+                                            }
+                                        }
+                                        if ($currentDateObj->lessThan($nextWeekStart) && $currentDateObj->greaterThan(now())) {
+                                            $currentWeeks[] = [
+                                                "shift" => $shift,
+                                                "dayName" => $day,
+                                                "currentDate" => $currentDateObj->format('j.n.y')
+                                            ];
+                                        }
+                                        if ($currentDateObj->between($nextWeekStart, $nextWeekEnd)) {
+                                            $nextWeeks[] = [
+                                                "shift" => $shift,
+                                                "dayName" => $day,
+                                                "currentDate" => $currentDateObj->format('j.n.y')
+                                            ];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if ($currentWeeks && count($currentWeeks) > 0) {
+                        $dateTime = "";
+                        foreach ($currentWeeks as $job) {
+                            $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
+                        }
+
+                        $nextMessage = $this->activeClientBotMessages['service_schedule'][$lng];
+                        $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
+
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage));
+                        StoreWebhookResponse($personalizedMessage, $from, $result, true);
+
+                        $clientMessageStatus->delete();
+                    }
+
+                    if ($nextWeeks && count($nextWeeks) > 0) {
+                        $dateTime = "";
+                        foreach ($nextWeeks as $job) {
+                            $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
+                        }
+
+
+                        $nextMessage = $this->activeClientBotMessages['next_week_service_schedule'][$lng];
+                        $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
+
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage));
+                        StoreWebhookResponse($personalizedMessage, $from, $result, true);
+
+                        $clientMessageStatus->delete();
+                    }
+
+                    // If no jobs are found for both weeks
+                    if (empty($currentWeeks) && empty($nextWeeks)) {
+                        $buttons = [
+                            [
+                                'type' => 'quick_reply',
+                                'title' => $lng == "heb" ? "פרטים נוספים" : "More details",
+                                'id' => '5',
+                            ]
+                        ];
+
+                        $nextMessage = $this->activeClientBotMessages['no_service_avail'][$lng];
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'buttons' => $buttons));
+                        StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                        // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        $clientMessageStatus->update([
+                            'menu_option' => 'main_menu->service_schedule',
+                        ]);
+                    }
+
+                    break;
+                case 'request_new_qoute':
+                    $nextMessage = $this->activeClientBotMessages['request_new_qoute'][$lng];
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    $nextMessage = $this->activeClientBotMessages['team_new_qoute']["heb"];
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+                    $personalizedMessage = str_replace([
+                        ':client_name',
+                        ':client_phone',
+                        ':client_link'
+                    ], [
+                        $clientName,
+                        $client->phone,
+                        generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
+                    $clientMessageStatus->delete();
+
+                    break;
+                case 'invoice_account':
+                    $nextMessage = $this->activeClientBotMessages['invoice_account'][$lng];
+
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu->invoice_account',
+                    ]);
+
+                    break;
+                case 'thank_you_invoice_account':
+                    $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage));
+                    StoreWebhookResponse($personalizedMessage, $from, $result, true);
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Invoice and accounting inquiry" : 'הנה"ח - פנייה למחלקת הנהלת חשבונות';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+                    $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
+                    $personalizedMessage = str_replace([
+                        ':client_name',
+                        ":client_phone",
+                        ":message",
+                        ":comment_link",
+                        ':client_link'
+                    ], [
+                        $clientName,
+                        $client->phone,
+                        '*' . trim($input) . '*',
+                        generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'),
+                        generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $personalizedMessage,
+                        'from'          => config("services.whapi.whapi_number"),
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+
+                    $clientMessageStatus->delete();
+                    break;
+
+                case 'change_update_schedule':
+                    \Log::info('Change update schedule');
+
+                    $nextMessage = $this->activeClientBotMessages['change_update_schedule'][$lng];
+
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu->change_update_schedule',
+                    ]);
+
+                    break;
+
+                case 'thank_you_change_update_schedule':
+
+                    $nextMessage = $this->activeClientBotMessages['thank_you_change_update_schedule'][$lng];
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+
+                    $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    $personalizedMessage = str_replace(
+                        [':client_name', ":client_phone", ":message", ":comment_link", ':client_link'],
+                        [
+                            $clientName,
+                            $client->phone,
+                            trim($input),
+                            generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'),
+                            generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                        ],
+                        $nextMessage
                     );
 
-                    LeadActivity::create([
-                        'client_id' => $lead->id,
-                        'created_date' => now(),
-                        'status_changed_date' => now(),
-                        'changes_status' => LeadStatusEnum::PENDING,
-                        'reason' => "",
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $personalizedMessage,
+                        'from'          => config("services.whapi.whapi_number"),
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
                     ]);
 
-                    $lead->status = 0;
-                    $lead->source = 'website';
-                    $lead->save();
+                    $clientMessageStatus->delete();
+                    break;
+                case 'access_portal':
 
-                    // Create a notification
-                    Notification::create([
-                        'user_id' => $lead->id,
-                        'user_type' => get_class($lead),
-                        'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
-                        'status' => 'created'
-                    ]);
+                    $buttons = [
+                        [
+                            'type' => 'url',
+                            'title' => $lng == "heb" ? "אנא לחץ כאן" : "please click here",
+                            'id' => 'portal',
+                            "url" => generateShortUrl(url("client/login"), 'admin')
 
-                    $lead->load('property_addresses');
-
-                    // Trigger WhatsApp notification
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
-                        "notificationData" => [
-                            'client' => $lead->toArray(),
-                            'type' => "website"
                         ]
-                    ]));
-                }
+                    ];
+
+                    $nextMessage = $this->activeClientBotMessages['access_portal'][$lng];
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    $clientMessageStatus->delete();
+
+                    break;
+
+                case 'sorry':
+                    \Log::info('Sorry');
+                    // $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
+
+                    // $result = sendWhatsappMessage($from, array('name' => '', 'message' => $msg, 'list' => [], 'buttons' => []));
+
+                    // // sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    // WebhookResponse::create([
+                    //     'status'        => 1,
+                    //     'name'          => 'whatsapp',
+                    //     'entry_id'      => $messageId,
+                    //     'message'       => $msg ?? '',
+                    //     'from'          => config("services.whapi.whapi_number"),
+                    //     'number'        => $from,
+                    //     'flex'          => 'A',
+                    //     'read'          => 1,
+                    // ]);
+
+                    break;
+
+                case 'team_send_message_1':
+                    \Log::info('team_send_message_1');
+                    $text = [
+                        "en" => "Hello :client_name,\nPlease let us know what additional information or request you would like to add.",
+                        "heb" => "שלום :client_name,\nאנא עדכן אותנו מה ברצונך להוסיף או לבקש."
+                    ];
+
+                    $nextMessage = $text[$lng];
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($personalizedMessage, $from, $result, true);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'team_send_message_1'
+                        ]
+                    );
+
+                    break;
+
+                case "client_add_request":
+                    $text = [
+                        "en" => "Hello :client_name,\nWe’ve received your updated request:\n':client_message'Your message has been forwarded to the team for further handling. Thank you for your patience!",
+                        "heb" => "שלום :client_name,קיבלנו את עדכון הבקשה שלך:':client_message'ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                    ];
+
+                    $nextMessage = $text[$lng];
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+                    $personalizedMessage = str_replace([':client_name', ':client_message'], [$clientName, '*' . trim($input) . '*'], $nextMessage);
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($personalizedMessage, $from, $result, true);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "additional information" : 'מידע נוסף';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+                    $clientMessageStatus->delete();
+
+                    break;
+
+                case 'stop':
+                    \Log::info("edfedf");
+                    $nextMessage = $this->activeClientBotMessages['stop'][$lng];
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($personalizedMessage, $from, $result, true);
+                    // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'stop'
+                        ]
+                    );
+
+                    break;
+
+                case 'schedule_preferrence':
+                    \Log::info("edfedf");
+                    $nextMessage = $this->activeClientBotMessages['schedule_preferrence'][$lng];
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($nextMessage, $from, $result, true);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'schedule_preferrence'
+                        ]
+                    );
+
+                    break;
+
+                case 'schedule_preferrence_input':
+                    $text = [
+                        "en" => "Hello :client_name,\nWe’ve received your request:\n':client_message'\n\n:comment_link\nYour message has been forwarded to the team for further handling. Thank you for your patience!",
+                        "heb" => "שלום :client_name,\nקיבלנו את עדכון הבקשה שלך:\n':client_message'\n\n:comment_link\nההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                    ];
+
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = trim($input);
+                    $scheduleChange->save();
+
+                    // Send message to team
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+                    $personalizedMessage = str_replace([':comment_link', ':client_name', ':client_message'], [generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $clientName, trim($input)], $text[$client->lng]);
+
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+
+                    $confirmationMessage = $client->lng == 'heb'
+                        ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                        : "Your message has been received and will be forwarded to our team for further handling.";
+                    // sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $confirmationMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($confirmationMessage, $from, $result, true);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'main_menu'
+                        ]
+                    );
+
+                    break;
             }
         }
     }
@@ -3031,7 +3659,7 @@ Enter your phone number or email address with which you registered for the servi
                     break;
 
                 case 'urgent_contact':
-                    $clientName = ($client->firstname ?? '' . ' ' . $client->lastname ?? '');
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
 
                     $sid = $lng == "heb" ? "HXc09d5e17ab1745632532697feb91f6e9" : "HXb7328df44612acd61ed1215635bce56a";
                     $twi = $this->twilio->messages->create(
@@ -3101,7 +3729,7 @@ Enter your phone number or email address with which you registered for the servi
                     $scheduleChange->save();
 
                     $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
-                    $clientName = "*" . (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
 
                     $scheduleLink = generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin');
 
@@ -3436,7 +4064,7 @@ Enter your phone number or email address with which you registered for the servi
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_new_qoute']["heb"];
-                    $clientName = "*" . (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
                     $personalizedMessage = str_replace([
                         ':client_name',
                         ':client_phone',
@@ -3485,7 +4113,7 @@ Enter your phone number or email address with which you registered for the servi
                     break;
                 case 'thank_you_invoice_account':
                     $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
-                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
 
                     $sid = $lng == "heb" ? "HX64e67fb1965d72599c71d67c123255fc" : "HX82d5bb589792ad278a11fe6d47fc9dba";
                     $twi = $this->twilio->messages->create(
@@ -3523,7 +4151,7 @@ Enter your phone number or email address with which you registered for the servi
                     $scheduleChange->comments = $input;
                     $scheduleChange->save();
 
-                    $clientName = "*" . (($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
                     $personalizedMessage = str_replace([
                         ':client_name',
@@ -3623,7 +4251,7 @@ Enter your phone number or email address with which you registered for the servi
                     $scheduleChange->save();
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
-                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                    $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
                     $personalizedMessage = str_replace(
                         [':client_name', ":client_phone", ":message", ":comment_link", ':client_link'],
                         [
@@ -3743,14 +4371,12 @@ Enter your phone number or email address with which you registered for the servi
                 case 'team_send_message_1':
                     \Log::info('team_send_message_1');
                     $text = [
-                        "en" => "Hello :client_name,
-        Please let us know what additional information or request you would like to add.",
-                        "heb" => "שלום :client_name,
-        אנא עדכן אותנו מה ברצונך להוסיף או לבקש."
+                        "en" => "Hello :client_name,\nPlease let us know what additional information or request you would like to add.",
+                        "heb" => "שלום :client_name,\nאנא עדכן אותנו מה ברצונך להוסיף או לבקש."
                     ];
 
                     $nextMessage = $text[$lng];
-                    $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
 
                     $sid = $lng == "heb" ? "HXc46b10d21adc445c1fa02dc0ed4c8a56" : "HXb1ec5e70b6c52fa089c9589d5eb3fcf8";
                     $twi = $this->twilio->messages->create(
@@ -3793,18 +4419,12 @@ Enter your phone number or email address with which you registered for the servi
 
                 case "client_add_request":
                     $text = [
-                        "en" => "Hello :client_name,
-        We’ve received your updated request:
-        ':client_message'
-        Your message has been forwarded to the team for further handling. Thank you for your patience!",
-                        "heb" => "שלום :client_name,
-        קיבלנו את עדכון הבקשה שלך:
-        ':client_message'
-        ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                        "en" => "Hello :client_name,\nWe’ve received your updated request:\n':client_message'\nYour message has been forwarded to the team for further handling. Thank you for your patience!",
+                        "heb" => "שלום :client_name,\nקיבלנו את עדכון הבקשה שלך:\n':client_message'\nההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
                     ];
 
                     $nextMessage = $text[$lng];
-                    $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
 
                     $sid = $lng == "heb" ? "HX0f0cfcddd27d013b226b01115c87064f" : "HX95355ef547f10d901520bc5b1bfb8d09";
                     $twi = $this->twilio->messages->create(
@@ -3849,7 +4469,7 @@ Enter your phone number or email address with which you registered for the servi
                 case 'stop':
                     \Log::info("edfedf");
                     $nextMessage = $this->activeClientBotMessages['stop'][$lng];
-                    $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
 
                     $sid = $lng == "heb" ? "HX00e7bc01708b33616e1bae87d30b5f73" : "HXe9949fa1498d8835db84ed37fe7a95ec";
                     $twi = $this->twilio->messages->create(
@@ -3893,7 +4513,7 @@ Enter your phone number or email address with which you registered for the servi
                 case 'schedule_preferrence':
                     \Log::info("edfedf");
 
-                    $clientName = "*" . trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '') . "*";
+                    $clientName = "*" . trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? '')) . "*";
 
                     $sid = $lng == "heb" ? "HX24009443dc6a202f914c9861b4c4052d" : "HX0cd64799afa9596f47e3cd2adcbcc3de";
                     $twi = $this->twilio->messages->create(
@@ -3932,18 +4552,8 @@ Enter your phone number or email address with which you registered for the servi
 
                 case 'schedule_preferrence_input':
                     $text = [
-                        "en" => "Hello :client_name,
-We’ve received your request:
-':client_message'
-
-:comment_link
-Your message has been forwarded to the team for further handling. Thank you for your patience!",
-                        "heb" => "שלום :client_name,
-קיבלנו את עדכון הבקשה שלך:
-':client_message'
-
-:comment_link
-ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                        "en" => "Hello :client_name,\nWe’ve received your request:\n':client_message'\n\n:comment_link\nYour message has been forwarded to the team for further handling. Thank you for your patience!",
+                        "heb" => "שלום :client_name,\bקיבלנו את עדכון הבקשה שלך:\n':client_message'\n\n:comment_link\nההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
                     ];
 
                     $scheduleChange = new ScheduleChange();
@@ -3972,6 +4582,17 @@ Your message has been forwarded to the team for further handling. Thank you for 
 
                         ]
                     );
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => $messageId,
+                        'message'       => $twi->body ?? '',
+                        'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($twi->toArray()),
+                    ]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
                         ["from" => $from],
@@ -4114,6 +4735,90 @@ Your message has been forwarded to the team for further handling. Thank you for 
         return response()->json(['status' => 'success'], 200);
     }
 
+    public function sendWhapiMainMenu($client, $from)
+    {
+        // Check if the client is active
+        $lng = $client->lng;
+        $list = [];
+        $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+        // $sid = $lng == "heb" ? "HX6ee1d6e8f5daa427b78917db34bfd05c" : "HX46684b2aee6eca7848bd9a36d7a86e78";
+        // $twi = $this->twilio->messages->create(
+        //     "whatsapp:+$from",
+        //     [
+        //         "from" => $this->twilioWhatsappNumber,
+        //         "contentSid" => $sid,
+        //         "contentVariables" => json_encode([
+        //             '1' => $clientName
+        //         ]),
+
+        //     ]
+        // );
+
+        // Fetch the initial message based on the selected language
+        $initialMessage = $this->activeClientBotMessages['main_menu'][$lng];
+
+        // Replace :client_name with the client's firstname and lastname
+        $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
+        $list = [
+            'sections' => [
+                [
+                    'rows' => [
+                        [
+                            "id" => "1",
+                            "title" => $client->lng == "heb" ? "צרו איתי קשר דחוף" : "Contact me urgently",
+                        ],
+                        [
+                            "id" => "2",
+                            "title" => $client->lng == "heb" ? "מתי מגיעים אלי?" : "Next service schedule?",
+                        ],
+                        [
+                            "id" => "3",
+                            "title" => $client->lng == "heb" ? "בקשה להצעת מחיר חדשה" : "Request a new quote",
+                        ],
+                        [
+                            "id" => "4",
+                            "title" => $client->lng == "heb" ? "הנה\"ח - פנייה למח' הנה\"ח" : "Invoice/account inquiry",
+                        ],
+                        [
+                            "id" => "5",
+                            "title" => $client->lng == "heb" ? "שינוי או עדכון שיבוץ" : "Change/update schedule",
+                        ],
+                        [
+                            "id" => "6",
+                            "title" => $client->lng == "heb" ? "גישה לפורטל הלקוחות שלנו" : "Access our client portal",
+                        ]
+                    ]
+                ]
+            ],
+            'label' => $client->lng == 'heb' ? "להלן האפשרויות" : 'Here are options'
+        ];
+
+
+        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => $list, 'buttons' => []));
+        StoreWebhookResponse($personalizedMessage, $from, $result);
+
+        WhatsAppBotActiveClientState::updateOrCreate(
+            ['from' => $from],
+            [
+                'client_id' => $client->id,
+                'menu_option' => 'main_menu',
+                'lng' => $lng
+            ]
+        );
+
+        // WhatsAppBotActiveClientState::where('from', $from)->delete();
+
+        WhatsAppBotClientState::updateOrCreate([
+            'client_id' => $client->id,
+        ], [
+            'menu_option' => 'main_menu',
+            'language' => $lng,
+            'final' => 1,
+        ]);
+
+        return response()->json(['status' => 'success'], 200);
+    }
+
     public function sendNewLeadMainMenu($lng, $from)
     {
         $sid = $lng == "heb" ? "HX3d7a626548e2c058c1fd609219588318" : "HX224fe723aaf81c50ee85b90a2ffbf859";
@@ -4132,7 +4837,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
             'status'        => 1,
             'name'          => 'whatsapp',
             'message'       =>  $message->body ?? '',
-            'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+            'from'          => config("services.whapi.whapi_number"),
             'number'        =>  $from,
             'read'          => 1,
             'flex'          => 'A',
@@ -4286,13 +4991,36 @@ Your message has been forwarded to the team for further handling. Thank you for 
                             'number'        => $from,
                             'flex'          => 'A',
                             'read'          => 1,
-                            'data'          => json_encode($twi->toArray()),
+                            'data'          => json_encode($twi->toArray() ?? []),
                         ]);
 
                         // sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
                     } else if (!empty($last_input2) && !empty($messageBody)) {
+                        
+                        $job = Job::where('client_id', $client->id)
+                            ->where('status', JobStatusEnum::COMPLETED)
+                            ->latest()
+                            ->first();
+
+                        $admins = Admin::all();
+                        $supervisor = $admins->where('role', 'supervisor')->first();
+                        $existing = SupervisorJob::where('supervisor_id', $supervisor->id)
+                            ->where('job_id', $job->id)
+                            ->first();
+
+                        if (!$existing) {
+                            $superadmin = $admins->where('role', 'superadmin')->first();
+                            // Otherwise, create the assignment
+                            SupervisorJob::create([
+                                'supervisor_id' => $supervisor->id,
+                                'job_id' => $job->id,
+                                'assigned_by_admin_id' => $superadmin->id,
+                                'comment_by_client' => $messageBody
+                            ]);
+                        }
+
                         \Log::info('last input2');
                         $scheduleChange = ScheduleChange::create([
                             'user_type' => get_class($client),
@@ -5292,6 +6020,164 @@ office@broomservice.co.il';
 
         // Return formatted date
         return "$year-$month-$day";
+    }
+
+    public function saveLeadFromContactForm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required_without:email'],
+            'email' => ['required_without:phone|email'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $phone = $request->phone;
+
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // 2. If there's any string or invalid characters in the phone, extract the digits
+        if (preg_match('/\d+/', $phone, $matches)) {
+            $phone = $matches[0]; // Extract the digits
+
+            // Reapply rules on extracted phone number
+            // If the phone number starts with 0, add 972 and remove the first 0
+            if (strpos($phone, '0') === 0) {
+                $phone = '972' . substr($phone, 1);
+            }
+
+            // If the phone number starts with +, remove the +
+            if (strpos($phone, '+') === 0) {
+                $phone = substr($phone, 1);
+            }
+        }
+
+        $phoneLength = strlen($phone);
+        if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+            $phone = '972' . $phone;
+        }
+
+        $lead_exists = Client::with('property_addresses')->where('phone', $phone)->orWhere('email', $request->email)->exists();
+        if (!$lead_exists) {
+            $lead = new Client;
+
+            $name = explode(' ', $request->name);
+
+            $lead->firstname = $name[0];
+            $lead->lastname = (isset($name[1])) ? $name[1] : '';
+            $lead->phone = $phone;
+            $lead->email = $request->email;
+            $lead->status = 0;
+            $lead->lng = 'heb';
+            $lead->password = Hash::make(Str::random(20));
+            $lead->passcode = $phone;
+            $lead->source = 'website';
+            $lead->save();
+
+            $lead->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => LeadStatusEnum::PENDING]
+            );
+
+            LeadActivity::create([
+                'client_id' => $lead->id,
+                'created_date' => now(),
+                'status_changed_date' => now(),
+                'changes_status' => LeadStatusEnum::PENDING,
+                'reason' => "",
+            ]);
+
+            $m = $this->botMessages['main-menu']['heb'];
+            $sid = "HX46b1587bfcaa3e6b29869edb538f45e0";
+
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+$lead->phone",
+                [
+                    "from" => $this->twilioWhatsappNumber,
+                    "contentSid" => $sid,
+
+                ]
+            );
+
+            WhatsAppBotClientState::updateOrCreate([
+                'client_id' => $lead->id,
+            ], [
+                'menu_option' => 'main_menu',
+                'language' => 'he',
+            ]);
+
+            WebhookResponse::create([
+                'status'        => 1,
+                'name'          => 'whatsapp',
+                'message'       => $twi->body ?? '',
+                'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                'number'        => $lead->phone,
+                'flex'          => 'A',
+                'read'          => 1,
+                'data'          => json_encode($twi->toArray()),
+            ]);
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                "notificationData" => [
+                    'client' => $lead->toArray(),
+                    'type' => "website"
+                ]
+            ]));
+        } else {
+            $lead = Client::where('phone', $phone)->first();
+            if (empty($lead)) {
+                $lead = Client::where('email', $request->email)->first();
+            }
+
+            if ($lead->lead_status) {
+                $leadStatus = $lead->lead_status;
+                $leadUpdatedAt = $leadStatus->updated_at;
+                $isPendingForMoreThanTwoDays = $leadStatus->lead_status === LeadStatusEnum::PENDING
+                    && $leadUpdatedAt->diffInDays(now()) > 2;
+                $isNotPending = $leadStatus->lead_status !== LeadStatusEnum::PENDING;
+
+                if ($isPendingForMoreThanTwoDays || $isNotPending) {
+                    $lead->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => LeadStatusEnum::PENDING]
+                    );
+
+                    LeadActivity::create([
+                        'client_id' => $lead->id,
+                        'created_date' => now(),
+                        'status_changed_date' => now(),
+                        'changes_status' => LeadStatusEnum::PENDING,
+                        'reason' => "",
+                    ]);
+
+                    $lead->status = 0;
+                    $lead->source = 'website';
+                    $lead->save();
+
+                    // Create a notification
+                    Notification::create([
+                        'user_id' => $lead->id,
+                        'user_type' => get_class($lead),
+                        'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
+                        'status' => 'created'
+                    ]);
+
+                    $lead->load('property_addresses');
+
+                    // Trigger WhatsApp notification
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                        "notificationData" => [
+                            'client' => $lead->toArray(),
+                            'type' => "website"
+                        ]
+                    ]));
+                }
+            }
+        }
     }
 
     public function saveLead(Request $request)

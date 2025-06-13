@@ -44,6 +44,7 @@ Route::any('/webhook_worker_lead', [WorkerLeadWebhookController::class, 'fbWebho
 Route::any('/webhook_active_worker_monday', [WorkerLeadWebhookController::class, 'activeWorkersMonday'])->name('webhook_active_worker_monday');
 
 Route::any('/twilio/worker-lead-webhook', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive']);
+Route::any('/twilio/worker-lead-webhook2', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive2']);
 Route::any('/twilio/webhook', [LeadWebhookController::class, 'fbWebhookCurrentLive']);
 
 

@@ -82,6 +82,7 @@ Please reply with the appropriate number.",
     public function handle()
     {
         $clients = Client::where('status', '2')
+        ->where('id', "3832")
         ->whereHas('lead_status', function ($query) {
             $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
         })
@@ -89,7 +90,7 @@ Please reply with the appropriate number.",
         
         foreach ($clients as $client) {
             WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-            $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
+            $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
             $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HX230e572381fa582bbb37949bd7798916";
             $twi = $this->twilio->messages->create(
                 "whatsapp:+$client->phone",

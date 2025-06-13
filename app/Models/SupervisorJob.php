@@ -14,7 +14,8 @@ class SupervisorJob extends Model
     protected $fillable = [
         'supervisor_id',
         'job_id',
-        'assigned_by_admin_id'
+        'assigned_by_admin_id',
+        'comment_by_client'
     ];
 
     /**
