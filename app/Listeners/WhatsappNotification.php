@@ -3480,6 +3480,7 @@ class WhatsappNotification
                         WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
                         WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
+                        WhatsappMessageTemplateEnum::WORKER_FORMS,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
                     ])) {
                         StoreWorkerWebhookResponse($text, $receiverNumber, $data);
@@ -3502,6 +3503,7 @@ class WhatsappNotification
                         WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
                         WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
+                        WhatsappMessageTemplateEnum::WORKER_FORMS,
                         WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING
                     ])) {
                         StoreWorkerWebhookResponse($data['body'] ?? $text, $receiverNumber, $data);
