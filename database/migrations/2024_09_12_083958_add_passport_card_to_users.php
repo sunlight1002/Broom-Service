@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RenameIsOneTimeJobInJobsTable extends Migration
+class AddPassportCardToUsers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class RenameIsOneTimeJobInJobsTable extends Migration
      */
     public function up()
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->renameColumn('is_one_time_job', 'is_one_time_in_month_job');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('passport_card')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class RenameIsOneTimeJobInJobsTable extends Migration
      */
     public function down()
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->renameColumn('is_one_time_in_month_job', 'is_one_time_job');
+        Schema::table('users', function (Blueprint $table) {
+            //
         });
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDescriptionColumnToWhatsappTemplatesTable extends Migration
+class AddDrivingFeesToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddDescriptionColumnToWhatsappTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::table('whatsapp_templates', function (Blueprint $table) {
-            $table->text('description')->nullable()->after('key');
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('driving_fees')->default(false)->after('payment_per_hour')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class AddDescriptionColumnToWhatsappTemplatesTable extends Migration
      */
     public function down()
     {
-        Schema::table('whatsapp_templates', function (Blueprint $table) {
-            $table->dropColumn('description');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['driving_fees']);
         });
     }
 }

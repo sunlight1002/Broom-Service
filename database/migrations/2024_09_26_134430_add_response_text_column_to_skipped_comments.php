@@ -26,7 +26,7 @@ class AddResponseTextColumnToSkippedComments extends Migration
     public function down()
     {
         Schema::table('skipped_comments', function (Blueprint $table) {
-            //
+            $table->dropColumn('response_text');
         });
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSuggestionsToWhatsappTemplatesTable extends Migration
+class CreatePhaseTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddSuggestionsToWhatsappTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::table('whatsapp_templates', function (Blueprint $table) {
-            $table->json('suggestions')->nullable()->after('message_ru');
+        Schema::create('phase', function (Blueprint $table) {
+            $table->id();
+            $table->string('phase_name');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -25,8 +28,6 @@ class AddSuggestionsToWhatsappTemplatesTable extends Migration
      */
     public function down()
     {
-        Schema::table('whatsapp_templates', function (Blueprint $table) {
-            $table->dropColumn('suggestions');
-        });
+        Schema::dropIfExists('phase');
     }
 }

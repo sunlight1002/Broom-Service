@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class DropCvvFromClientCardTable extends Migration
@@ -15,11 +14,15 @@ class DropCvvFromClientCardTable extends Migration
     public function up()
     {
         Schema::table('client_card', function (Blueprint $table) {
-            $table->dropColumn(['cvv']);
-            $table->string('card_holder_id', 50)->nullable()->after('card_type');
-        });
+            // Drop 'cvv' column
+            $table->dropColumn('cvv');
 
-        DB::statement("ALTER TABLE `client_card` RENAME COLUMN `card_holder` TO `card_holder_name`;");
+            // Add 'card_holder_id' column after 'card_type'
+            $table->string('card_holder_id', 50)->nullable()->after('card_type');
+
+            // Rename 'card_holder' to 'card_holder_name'
+            $table->renameColumn('card_holder', 'card_holder_name');
+        });
     }
 
     /**
@@ -29,11 +32,15 @@ class DropCvvFromClientCardTable extends Migration
      */
     public function down()
     {
-        DB::statement("ALTER TABLE `client_card` RENAME COLUMN `card_holder_name` TO `card_holder`;");
-
         Schema::table('client_card', function (Blueprint $table) {
+            // Rename 'card_holder_name' back to 'card_holder'
+            $table->renameColumn('card_holder_name', 'card_holder');
+
+            // Add 'cvv' column after 'valid'
             $table->longText('cvv')->nullable()->after('valid');
-            $table->dropColumn(['card_holder_id']);
+
+            // Drop 'card_holder_id'
+            $table->dropColumn('card_holder_id');
         });
     }
 }

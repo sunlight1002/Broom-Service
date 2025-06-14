@@ -14,12 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(AdminSeed::class);
+        // $this->call(AdminSeed::class);
         $this->call(ServiceSeed::class);
         $this->call(ServiceScheduleSeed::class);
         $this->call(CountrySeeder::class);
         $this->call(TimeSeed::class);
+        $this->call(SubservicesSeed::class);
         //$this->call(LanguageSeed::class);
-        
+
     }
 }

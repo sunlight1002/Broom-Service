@@ -30,37 +30,36 @@ class AddIndexesToTables extends Migration
         }
 
         // Adding index for the 'users' table
-        // Schema::table('users', function (Blueprint $table) {
-        //     $table->index('country', 'idx_users_country');
-        // });
+        Schema::table('users', function (Blueprint $table) {
+            $table->index('country', 'idx_users_country');
+        });
 
         // Adding index for the 'leadstatus' table
-        // Schema::table('leadstatus', function (Blueprint $table) {
-        //     $table->index('lead_status', 'idx_leadstatus_lead_status');
-        //     $table->index('client_id', 'idx_leadstatus_client_id');
-        // });
+        Schema::table('leadstatus', function (Blueprint $table) {
+            $table->index('lead_status', 'idx_leadstatus_lead_status');
+            $table->index('client_id', 'idx_leadstatus_client_id');
+        });
 
         // Adding index for the 'schedules' table
         Schema::table('schedules', function (Blueprint $table) {
-            // $table->index('client_id', 'idx_schedules_client_id');
-            // $table->index('start_date', 'idx_schedules_start_date');
-            // $table->index('start_time', 'idx_schedules_start_time');
-            // $table->index('end_time', 'idx_schedules_end_time');
-            // $table->index('meet_via', 'idx_schedules_meet_via');
-            // $table->index('purpose', 'idx_schedules_purpose');
-            // $table->index('google_calendar_event_id', 'idx_schedules_google_calendar_event_id');
+            $table->index('client_id', 'idx_schedules_client_id');
+            $table->index('start_date', 'idx_schedules_start_date');
+            $table->index('start_time', 'idx_schedules_start_time');
+            $table->index('end_time', 'idx_schedules_end_time');
+            $table->index('meet_via', 'idx_schedules_meet_via');
+            $table->index('purpose', 'idx_schedules_purpose');
+            $table->index('google_calendar_event_id', 'idx_schedules_google_calendar_event_id');
         });
 
         // Adding index for the 'services' table
         Schema::table('services', function (Blueprint $table) {
-            // $table->index('name', 'idx_services_name');
+            $table->index('name', 'idx_services_name');
         });
 
         // Adding index for the 'offers' table
         Schema::table('offers', function (Blueprint $table) {
-            // $table->index('status', 'idx_offers_status');
-            // $table->index('client_id', 'idx_offers_client_id');
-            // $table->index('services', 'idx_offers_services');
+            $table->index('status', 'idx_offers_status');
+            $table->index('client_id', 'idx_offers_client_id');
         });
 
         // Adding index for the 'contracts' table
@@ -102,7 +101,7 @@ class AddIndexesToTables extends Migration
             $table->index('user_id', 'idx_worker_avialibilties_user_id');
             $table->index('date', 'idx_worker_avialibilties_date');
         });
-        
+
     }
 
     /**
@@ -120,7 +119,6 @@ class AddIndexesToTables extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->dropIndex('idx_users_email');
             $table->dropIndex('idx_users_address');
             $table->dropIndex('idx_users_country');
         });
@@ -148,7 +146,6 @@ class AddIndexesToTables extends Migration
         Schema::table('offers', function (Blueprint $table) {
             $table->dropIndex('idx_offers_status');
             $table->dropIndex('idx_offers_client_id');
-            $table->dropIndex('idx_offers_services');
         });
 
         Schema::table('contracts', function (Blueprint $table) {

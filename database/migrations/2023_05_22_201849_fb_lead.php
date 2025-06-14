@@ -27,6 +27,6 @@ class FbLead extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('fb_leads');
     }
 }

@@ -13,13 +13,13 @@ class CreateClientMetaTable extends Migration
      */
     public function up()
     {
-        // Schema::create('client_metas', function (Blueprint $table) {
-        //     // $table->id();
-        //     // $table->integer('client_id');
-        //     // $table->string('key');
-        //     // $table->text('value');
-        //     // $table->timestamps();
-        // });
+        Schema::create('client_metas', function (Blueprint $table) {
+            $table->id();
+            $table->integer('client_id');
+            $table->string('key');
+            $table->text('value');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -29,6 +29,6 @@ class CreateClientMetaTable extends Migration
      */
     public function down()
     {
-        // Schema::dropIfExists('client_meta');
+        Schema::dropIfExists('client_meta');
     }
 }

@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class ChangeForJobInInvoicesTable extends Migration
@@ -14,8 +13,13 @@ class ChangeForJobInInvoicesTable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE `invoices` MODIFY COLUMN `job_id` VARCHAR(255) NULL AFTER `invoice_id`");
-        DB::statement("ALTER TABLE `invoices` RENAME COLUMN `customer` TO `client_id`;");
+        Schema::table('invoices', function (Blueprint $table) {
+            // Change job_id to nullable and move after invoice_id
+            $table->string('job_id', 255)->nullable()->change(); // `after` is not supported here
+
+            // Rename customer to client_id (requires doctrine/dbal)
+            $table->renameColumn('customer', 'client_id');
+        });
     }
 
     /**
@@ -25,7 +29,9 @@ class ChangeForJobInInvoicesTable extends Migration
      */
     public function down()
     {
-        DB::statement("ALTER TABLE `invoices` MODIFY COLUMN `job_id` VARCHAR(255) NOT NULL AFTER `invoice_id`");
-        DB::statement("ALTER TABLE `invoices` RENAME COLUMN `client_id` TO `customer`;");
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->string('job_id', 255)->nullable(false)->change();
+            $table->renameColumn('client_id', 'customer');
+        });
     }
 }

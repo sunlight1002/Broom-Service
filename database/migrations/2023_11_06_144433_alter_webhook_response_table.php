@@ -14,7 +14,7 @@ class AlterWebhookResponseTable extends Migration
     public function up()
     {
         Schema::table('webhook_responses',function ( Blueprint $table){
-           
+
             $table->integer('read')->after('flex')->default(null);
 
         });
@@ -27,6 +27,8 @@ class AlterWebhookResponseTable extends Migration
      */
     public function down()
     {
-        //
+         Schema::table('webhook_responses', function (Blueprint $table) {
+           $table->dropColumn('read');
+        });
     }
 }

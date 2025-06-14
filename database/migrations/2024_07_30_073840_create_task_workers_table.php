@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Refunds extends Migration
+class CreateTaskWorkersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class Refunds extends Migration
      */
     public function up()
     {
-        Schema::create('refunds', function (Blueprint $table) {
+        Schema::create('task_workers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('invoice_id');
-            $table->unsignedBigInteger('invoice_icount_id');
-            $table->unsignedBigInteger('refrence');
-            $table->longText('message');
+            $table->foreignId('task_management_id')->constrained('task_management')->onDelete('cascade'); 
+            $table->unsignedBigInteger('assignable_id');
+            $table->string('assignable_type');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -30,6 +30,6 @@ class Refunds extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('refunds');
+        Schema::dropIfExists('task_workers');
     }
 }

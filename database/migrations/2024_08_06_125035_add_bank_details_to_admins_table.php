@@ -14,12 +14,12 @@ class AddBankDetailsToAdminsTable extends Migration
     public function up()
     {
         Schema::table('admins', function (Blueprint $table) {
-            // $table->string('payment_type')->nullable();
-            // $table->string('full_name')->nullable();
-            // $table->string('bank_name')->nullable();
-            // $table->string('bank_number')->nullable();
-            // $table->string('branch_number')->nullable();
-            // $table->string('account_number')->nullable();
+            $table->string('payment_type')->nullable();
+            $table->string('full_name')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('bank_number')->nullable();
+            $table->string('branch_number')->nullable();
+            $table->string('account_number')->nullable();
         });
     }
 
@@ -31,7 +31,7 @@ class AddBankDetailsToAdminsTable extends Migration
     public function down()
     {
         Schema::table('admins', function (Blueprint $table) {
-            //
+            $table->dropColumn(['payment_type', 'full_name', 'bank_name', 'bank_number', 'branch_number', 'account_number']);
         });
     }
 }

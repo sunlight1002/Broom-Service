@@ -19,7 +19,9 @@ class CreateWhatsappTemplatesTable extends Migration
             $table->longText('message_en')->nullable();
             $table->longText('message_heb')->nullable();
             $table->longText('message_spa')->nullable();
-            $table->longText('message_rus')->nullable();
+            $table->longText('message_ru')->nullable();
+            $table->string('description')->nullable();
+            $table->json('suggestions')->nullable();
             $table->timestamps();
         });
     }

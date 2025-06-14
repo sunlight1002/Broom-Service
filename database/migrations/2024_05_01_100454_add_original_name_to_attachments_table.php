@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AddOriginalNameToAttachmentsTable extends Migration
@@ -14,8 +13,12 @@ class AddOriginalNameToAttachmentsTable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE `attachments` RENAME COLUMN `file` TO `file_name`;");
+        // Step 1: Rename the column
+        Schema::table('attachments', function (Blueprint $table) {
+            $table->renameColumn('file', 'file_name');
+        });
 
+        // Step 2: Add new column after renaming is complete
         Schema::table('attachments', function (Blueprint $table) {
             $table->string('original_name')->nullable()->after('file_name');
         });
@@ -28,10 +31,14 @@ class AddOriginalNameToAttachmentsTable extends Migration
      */
     public function down()
     {
+        // Step 1: Drop the added column
         Schema::table('attachments', function (Blueprint $table) {
             $table->dropColumn('original_name');
         });
 
-        DB::statement("ALTER TABLE `attachments` RENAME COLUMN `file_name` TO `file`;");
+        // Step 2: Rename column back
+        Schema::table('attachments', function (Blueprint $table) {
+            $table->renameColumn('file_name', 'file');
+        });
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RenameColumnsToWhatsappTemplatesTable extends Migration
+class AddSortOrderToTaskManagementTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class RenameColumnsToWhatsappTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::table('whatsapp_templates', function (Blueprint $table) {
-            $table->rename('message_rus', 'message_ru');
+        Schema::table('task_management', function (Blueprint $table) {
+            $table->integer('sort_order')->default(0);
         });
     }
 
@@ -25,8 +25,8 @@ class RenameColumnsToWhatsappTemplatesTable extends Migration
      */
     public function down()
     {
-        Schema::table('whatsapp_templates', function (Blueprint $table) {
-            $table->rename('message_ru', 'message_rus');
+        Schema::table('task_management', function (Blueprint $table) {
+           $table->dropColumn('sort_order');
         });
     }
 }

@@ -14,7 +14,7 @@ class AddFileToHearingInvitationsTable extends Migration
     public function up()
     {
         Schema::table('hearing_invitations', function (Blueprint $table) {
-            $table->string('file')->nullable()->after('booking_status');
+            $table->string('file')->nullable();
         });
     }
 

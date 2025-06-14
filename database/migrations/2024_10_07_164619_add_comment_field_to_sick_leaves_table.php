@@ -14,8 +14,8 @@ class AddCommentFieldToSickLeavesTable extends Migration
     public function up()
     {
         Schema::table('sick_leaves', function (Blueprint $table) {
-            // $table->text('rejection_comment')->nullable()->after('status');
-            // $table->text('reason_for_leave')->nullable()->after('status');
+            $table->text('rejection_comment')->nullable()->after('status');
+            $table->text('reason_for_leave')->nullable()->after('status');
         });
     }
 
@@ -27,7 +27,7 @@ class AddCommentFieldToSickLeavesTable extends Migration
     public function down()
     {
         Schema::table('sick_leaves', function (Blueprint $table) {
-            //
+            $table->dropColumn(['rejection_comment', 'reason_for_leave']);
         });
     }
 }

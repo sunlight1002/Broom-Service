@@ -14,7 +14,7 @@ class AddDescriptionToTaskManagement extends Migration
     public function up()
     {
         Schema::table('task_management', function (Blueprint $table) {
-            // $table->string('description')->nullable();
+            $table->string('description')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddDescriptionToTaskManagement extends Migration
     public function down()
     {
         Schema::table('task_management', function (Blueprint $table) {
-            //
+            $table->dropColumn('description');
         });
     }
 }

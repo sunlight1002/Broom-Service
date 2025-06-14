@@ -14,7 +14,7 @@ class AddAdminNotifiedColumnToJob extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            // $table->boolean('admin_notified')->default(false); // Adding a default value
+            $table->boolean('admin_notified')->default(false); // Adding a default value
         });
     }
 
@@ -26,7 +26,7 @@ class AddAdminNotifiedColumnToJob extends Migration
     public function down()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            //
+            $table->dropColumn('admin_notified');
         });
     }
 }
