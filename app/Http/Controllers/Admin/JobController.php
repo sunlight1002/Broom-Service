@@ -84,7 +84,10 @@ class JobController extends Controller
         $assigned_jobs = $request->boolean('assigned_jobs');
 
         $supervisor = Admin::where('role', 'supervisor')->first();
-        $timeLogs = $supervisor->timeLogs()->latest()->first();
+        $timeLogs = null;
+        if($supervisor) {
+            $timeLogs = $supervisor->timeLogs()->latest()->first();
+        }
 
         $fromDate = Carbon::now()->subMonthNoOverflow()->startOfDay()->format('Y-m-d H:i:s');
         $today = Carbon::now()->toDateString();
@@ -2388,10 +2391,10 @@ class JobController extends Controller
                     ->where('start_time', '=', $startStime)
                     ->where('end_time', '=', $endTime);
                 // ->where(function ($timeQuery) use ($startStime, $endTime) {
-                //     $timeQuery->whereBetween('start_time', [$startStime, $endTime]) 
-                //         ->orWhereBetween('end_time', [$startStime, $endTime]) 
+                //     $timeQuery->whereBetween('start_time', [$startStime, $endTime])
+                //         ->orWhereBetween('end_time', [$startStime, $endTime])
                 //         ->orWhere(function ($innerQuery) use ($startStime, $endTime) {
-                //             $innerQuery->where('start_time', '<=', $startStime) 
+                //             $innerQuery->where('start_time', '<=', $startStime)
                 //                 ->where('end_time', '>=', $endTime);
                 //         });
                 // });
@@ -3454,14 +3457,14 @@ class JobController extends Controller
                         ->whereHas('offer', function ($q) use ($selectedFrequency, $serviceId) {
                             $q->whereRaw("
                                     EXISTS (
-                                        SELECT 1 
-                                        FROM JSON_TABLE(offers.services, '$[*]' 
+                                        SELECT 1
+                                        FROM JSON_TABLE(offers.services, '$[*]'
                                             COLUMNS (
                                                 service INT PATH '$.service',
                                                 frequency INT PATH '$.frequency'
                                             )
                                         ) AS services_table
-                                        WHERE services_table.service = ? 
+                                        WHERE services_table.service = ?
                                         AND services_table.frequency = ?
                                     )
                                 ", [$serviceId, $selectedFrequency->id]);
@@ -3884,14 +3887,14 @@ class JobController extends Controller
                     ->whereHas('offer', function ($q) use ($selectedFrequency, $serviceId) {
                         $q->whereRaw("
                                 EXISTS (
-                                    SELECT 1 
-                                    FROM JSON_TABLE(offers.services, '$[*]' 
+                                    SELECT 1
+                                    FROM JSON_TABLE(offers.services, '$[*]'
                                         COLUMNS (
                                             service INT PATH '$.service',
                                             frequency INT PATH '$.frequency'
                                         )
                                     ) AS services_table
-                                    WHERE services_table.service = ? 
+                                    WHERE services_table.service = ?
                                     AND services_table.frequency = ?
                                 )
                             ", [$serviceId, $selectedFrequency->id]);
