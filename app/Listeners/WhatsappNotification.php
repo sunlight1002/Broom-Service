@@ -1202,35 +1202,54 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $sid = "HX833a10f4f0e6101d10182ffb93a8307e";
-                        } elseif ($lng == "spa") {
-                            $sid = "HX4dff3cef86c76ce228a95e84b495036e";
-                        } elseif ($lng == "ru") {
-                            $sid = "HX54fb9be645633a669c8a71390db936ad";
-                        } else {
-                            $sid = "HX017483cf367bef17c5c0f42be9ab2214";
-                        }
+                        // if ($lng == "heb") {
+                        //     $title1 = "בדוק טפסים";
+                        // } elseif ($lng == "spa") {
+                        //     $title1 = "Consultar formularios";
+                        // } elseif ($lng == "ru") {
+                        //     $title1 = "Проверить формы";
+                        // } else {
+                        //     $title1 = "Check Forms";
+                        // }
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => "worker-forms/" . base64_encode($workerData['id'])
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'url',
+                        //         'title' => $title1,
+                        //         'id' => '1',
+                        //         'url' => "worker-forms/" . base64_encode($workerData['id']),
+                        //     ]
+                        // ];
+
+                        // if ($lng == "heb") {
+                        //     $sid = "HX833a10f4f0e6101d10182ffb93a8307e";
+                        // } elseif ($lng == "spa") {
+                        //     $sid = "HX4dff3cef86c76ce228a95e84b495036e";
+                        // } elseif ($lng == "ru") {
+                        //     $sid = "HX54fb9be645633a669c8a71390db936ad";
+                        // } else {
+                        //     $sid = "HX017483cf367bef17c5c0f42be9ab2214";
+                        // }
+
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => "worker-forms/" . base64_encode($workerData['id'])
+                        // ];
 
 
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+" . $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber,
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+" . $receiverNumber,
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber,
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
-                            ]
-                        );
+                        //     ]
+                        // );
 
-                        \Log::info($twi->sid);
-                        $data = $twi->toArray();
-                        $isTwilio = true;
+                        // \Log::info($twi->sid);
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
 
                         break;
 
