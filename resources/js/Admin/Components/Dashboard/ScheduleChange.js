@@ -158,10 +158,12 @@ function ScheduleChange() {
                         data: "user_type",
                         className: "text-center",
                         render: function (data) {
-                            if (data === "Client") {
+                            if (data == "Client") {
                                 return `<span class="">C</span>`;
-                            } else if (data === "Worker") {
+                            } else if (data == "Worker") {
                                 return `<span class="">W</span>`;
+                            }else{
+                                return `<span class=""></span>`;
                             }
                         },
                     },
@@ -171,7 +173,7 @@ function ScheduleChange() {
                         className: "cursor-pointer text-center",
                         width: "20%",
                         render: function (data, type, row, meta) {
-                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p
+                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}" data-type="${row.user_type}"><p
                                         data-tooltip-id="comment"
                                         data-tooltip-html="${data}">
                                         ${data}
@@ -316,9 +318,11 @@ function ScheduleChange() {
 
         $(tableRef.current).on("click", ".dt-user-name-btn", function (e) {
             const _id = $(this).data("id");
-
-            if (_id) {
+            const userType = $(this).data("type");
+            if (_id && userType == "Client") {
                 navigate(`/admin/clients/view/${_id}`);
+            }else if(_id && userType == "Worker"){
+                navigate(`/admin/workers/view/${_id}`);
             }
         });
 

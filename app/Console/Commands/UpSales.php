@@ -61,7 +61,7 @@ class UpSales extends Command
             $this->info("Checking client: {$client->firstname}");
     
             // Step 2: Get available workers today
-            $availableWorkers = User::where('status', 1)
+            $availableWorkers = User::where('status', '!=' , 0)
                 ->whereHas('availabilities', function ($query) use ($today) {
                     $query->where('date', $today)
                           ->where('status', '1');

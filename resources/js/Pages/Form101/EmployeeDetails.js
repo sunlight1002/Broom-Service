@@ -295,7 +295,7 @@ export default function EmployeeDetails({ values }) {
                         </div>
                     </div>
 
-                    <div className="text-start form-group">
+                    {/* <div className="text-start form-group">
                         <label htmlFor="employeePostalCode" className="control-label font-w-500 navyblueColor">
                             {t("form101.postal_code")} {"*"}
                         </label>
@@ -310,7 +310,7 @@ export default function EmployeeDetails({ values }) {
                                 readOnly={true}
                             />
                         </div>
-                    </div>
+                    </div> */}
                     <div className="text-start form-group">
                         <label htmlFor="employeeMobileNo" className="control-label font-w-500 navyblueColor">
                             {t("form101.mob_num")} {"*"}

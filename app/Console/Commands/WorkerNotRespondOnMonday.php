@@ -45,7 +45,7 @@ class WorkerNotRespondOnMonday extends Command
      */
     public function handle()
     {
-        $users = User::where('status', '1')
+        $users = User::where('status', '!=' , 0)
         ->where('stop_last_message', 0)
         ->get();
 
@@ -60,7 +60,7 @@ class WorkerNotRespondOnMonday extends Command
         $workersName = [];
         foreach ($users as $user) {
             \Log::info($user->id);
-            $workerName = ($user->firstname ?? '') . ' ' . ($user->lastname ?? '');
+            $workerName = trim(trim($user->firstname ?? '') . ' ' . trim($user->lastname ?? ''));
             $workersName[] = $workerName;
 
         }

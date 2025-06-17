@@ -79,7 +79,7 @@ class GoogleSheetController extends Controller
             "201" => "טרנס",
             "202" => "דדונו",
         ];
-        $users = User::where('status', 1)->get();
+        $users = User::where('status', '!=' , 0)->get();
 
         $users = $users->map(function ($user) use ($sheetsName) {
             // Check if a sheet name exists for this user's id.

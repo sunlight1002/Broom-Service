@@ -449,7 +449,7 @@ class AuthController extends Controller
 
         $user = $request->type == 'lead'
             ? WorkerLeads::with('forms')->where('id', $request->worker_id)->first()
-            : ($isAdmin ? User::where('status', 1)->find($request->worker_id) : User::where('status', 1)->find($request->worker_id));
+            : ($isAdmin ? User::where('status', '!=', 0)->find($request->worker_id) : User::where('status', '!=', 0)->find($request->worker_id));
 
         if (!$user) {
             return response()->json([
@@ -744,7 +744,7 @@ class AuthController extends Controller
         }
 
         $workerId = base64_decode($id);
-        $user = $isAdmin ? User::find($workerId) : User::where('status', 1)->find($workerId);
+        $user = $isAdmin ? User::find($workerId) : User::where('status', '!=', 0)->find($workerId);
         if (!$user) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -812,11 +812,10 @@ class AuthController extends Controller
         $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
 
-        \Log::info($data);
         unset($data['pdf_file']);
 
         // Find worker based on type (lead or user)
-        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('id', $id)->where('status', 1)->first();
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('id', $id)->where('status', '!=', 0)->first();
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -892,6 +891,11 @@ class AuthController extends Controller
             if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 $user = $this->createUser($worker);
             }
+
+            if($worker->country == "Israel") {
+                $worker->status = 1;
+                $worker->save();
+            }
         }
 
         return response()->json([
@@ -922,7 +926,7 @@ class AuthController extends Controller
 
     public function form101(Request $request, $id)
     {
-        $worker = $request->input('type') == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $worker = $request->input('type') == 'lead' ? WorkerLeads::find($id) : User::where('status', '!=', 0)->find($id);
 
         if (!$worker) {
             return response()->json([
@@ -1095,7 +1099,7 @@ class AuthController extends Controller
 
     public function safegear(Request $request, $id)
     {
-        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', '!=', 0)->find($id);
 
         if (!$worker) {
             return response()->json([
@@ -1189,41 +1193,9 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
             event(new SafetyAndGearFormSigned($worker, $form));
-
-            if ($worker->company_type == 'manpower') {
-                App::setLocale('heb');
-
-                // **Retrieve all forms of the worker**
-                $workerForms = $worker->forms()->get();
-                $attachments = [];
-                $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
-                $admin = Admin::where('role', 'hr')->first();
-
-                foreach ($workerForms as $workerForm) {
-                    $formType = $workerForm->type; // e.g., "form101"
-                    $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
-
-                    if (file_exists($filePath)) {
-                        $workerIdentifier = $worker->id_number ?: $worker->passport;
-                        $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
-                        $fileName = str_replace(' ', '-', $fileName);
-
-                        $attachments[$filePath] = $fileName;
-                    }
-                }
-                // Send email with all form attachments
-                Mail::send('/sendAllFormsToAdmin', ["worker" => $worker], function ($message) use ($worker, $attachments, $admin) {
-                    $message->to(config("services.mail.default"));
-                    if ($admin) {
-                        $message->bcc($admin->email);
-                    }
-                    $message->subject(__('mail.all_forms.subject'));
-
-                    // Attach all available forms
-                    foreach ($attachments as $filePath => $fileName) {
-                        $message->attach($filePath, ['as' => $fileName]);
-                    }
-                });
+            if ($worker->company_type == "manpower") {
+                $worker->status = 1;
+                $worker->save();
             }
         }
 
@@ -1247,7 +1219,7 @@ class AuthController extends Controller
         // Fetch worker based on type and admin scope
         $worker = $type == 'lead'
             ? WorkerLeads::find($id)
-            : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+            : ($isAdmin ? User::find($id) : User::where('status', '!=', 0)->find($id));
 
         if (!$worker) {
             return response()->json([
@@ -1278,7 +1250,7 @@ class AuthController extends Controller
         // Fetch worker based on type and admin scope
         $worker = $type == 'lead'
             ? WorkerLeads::find($id)
-            : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+            : ($isAdmin ? User::find($id) : User::where('status', '!=', 0)->find($id));
 
         if (!$worker) {
             return response()->json([
@@ -1325,7 +1297,7 @@ class AuthController extends Controller
         // Fetch worker based on type and admin scope
         $worker = $type == 'lead'
             ? WorkerLeads::find($id)
-            : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+            : ($isAdmin ? User::find($id) : User::where('status', '!=', 0)->find($id));
 
         if (!$worker) {
             return response()->json([
@@ -1351,7 +1323,7 @@ class AuthController extends Controller
             $isAdmin = true; // The user is an authenticated admin
         }
 
-        $worker = $isAdmin ? User::find($id) : User::where('status', 1)->find($id);
+        $worker = $isAdmin ? User::find($id) : User::where('status', '!=', 0)->find($id);
 
         if (!$worker) {
             return response()->json([
@@ -1378,7 +1350,7 @@ class AuthController extends Controller
             $isAdmin = true; // The user is an authenticated admin
         }
 
-        $worker = $type == 'lead' ? WorkerLeads::find($id) : ($isAdmin ? User::find($id) : User::where('status', 1)->find($id));
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : ($isAdmin ? User::find($id) : User::where('status', '!=', 0)->find($id));
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1399,7 +1371,7 @@ class AuthController extends Controller
 
     public function saveInsuranceForm(Request $request, $id)
     {
-        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', '!=', 0)->find($id);
 
         if (!$worker) {
             return response()->json([
@@ -1474,6 +1446,9 @@ class AuthController extends Controller
             }
             event(new InsuranceFormSigned($worker, $form));
 
+            $worker->status = 1;
+            $worker->save();
+
             App::setLocale('heb');
         }
 
@@ -1487,7 +1462,7 @@ class AuthController extends Controller
 
     public function manpowerForm(Request $request, $id)
     {
-        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', 1)->find($id);
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', '!=', 0)->find($id);
 
         if (!$worker) {
             return response()->json([

@@ -74,7 +74,7 @@ export default function ClientLogin() {
 
                 i18next.changeLanguage(lng);
 
-                if (lng === "en") {
+                if (lng == "en") {
                     document.querySelector("html").removeAttribute("dir");
                     const rtlLink = document.querySelector('link[href*="rtl.css"]');
                     if (rtlLink) rtlLink.remove();
@@ -86,19 +86,21 @@ export default function ClientLogin() {
             };
 
             if (isRemembered) {
-                if (first_login === 1) {
+                if (first_login == 1) {
+                    localStorage.setItem("client-id", id);
                     redirectTo("/client/change-password");
                 } else {
                     saveClientData();
                     redirectTo("/client/dashboard");
                 }
             } else {
-                if (two_factor_enabled === 1 || result.data[0] === 1) {
+                if (two_factor_enabled == 1 || result.data[0] === 1) {
                     localStorage.setItem("client-email", email);
                     localStorage.setItem("client-lng", lng);
                     redirectTo("/client/login-otp");
                 } else {
-                    if (first_login === 1) {
+                    if (first_login == 1) {
+                        localStorage.setItem("client-id", id);
                         redirectTo("/client/change-password");
                     } else {
                         saveClientData();

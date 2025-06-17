@@ -125,6 +125,12 @@ class ChatController extends Controller
         $isLead      = $request->boolean('lead');
         $isClient    = $request->boolean('client');
         $isWorker    = $request->boolean('worker');
+        $isWorkerLead = $request->boolean('workerLead');
+
+        $whapiNumber = [
+            config('services.whapi.whapi_worker_lead_number_1'),
+            config('services.whapi.whapi_worker_lead_number_2')
+        ];
 
         $perPage     = 20;
         $data        = collect();
@@ -147,7 +153,7 @@ class ChatController extends Controller
                         $term = '%' . $search . '%';
                         $q->where(function ($q2) use ($term) {
                             $q2->where('message', 'like', $term)
-                            ->orWhere('number', 'like', $term);
+                                ->orWhere('number', 'like', $term);
                         });
                     }
 
@@ -168,8 +174,8 @@ class ChatController extends Controller
                     $searchTerm = '%' . $search . '%';
                     $userQuery->where(function ($q) use ($searchTerm) {
                         $q->orWhere('phone', 'like', $searchTerm)
-                        ->orWhere('firstname', 'like', $searchTerm)
-                        ->orWhere('lastname', 'like', $searchTerm);
+                            ->orWhere('firstname', 'like', $searchTerm)
+                            ->orWhere('lastname', 'like', $searchTerm);
                     });
                 }
 
@@ -210,7 +216,7 @@ class ChatController extends Controller
                     if ($data->count() >= $perPage) break;
                 }
 
-                    $pagination = [
+                $pagination = [
                     'current_page' => $results->currentPage(),
                     'last_page'    => $results->lastPage(),
                     'per_page'     => $results->perPage(),
@@ -240,8 +246,8 @@ class ChatController extends Controller
                 $searchTerm = '%' . $search . '%';
                 $clientQuery->where(function ($q) use ($searchTerm) {
                     $q->orWhere('phone', 'like', $searchTerm)
-                    ->orWhere('firstname', 'like', $searchTerm)
-                    ->orWhere('lastname', 'like', $searchTerm);
+                        ->orWhere('firstname', 'like', $searchTerm)
+                        ->orWhere('lastname', 'like', $searchTerm);
                 });
             }
 
@@ -283,26 +289,25 @@ class ChatController extends Controller
                 if ($data->count() >= $perPage) break;
             }
 
-                    $pagination = [
-                        'current_page' => $results->currentPage(),
-                        'last_page'    => $results->lastPage(),
-                        'per_page'     => $results->perPage(),
-                        'total'        => $results->total(),
-                        'from'         => $results->firstItem(),
-                        'to'           => $results->lastItem(),
-                    ];
+            $pagination = [
+                'current_page' => $results->currentPage(),
+                'last_page'    => $results->lastPage(),
+                'per_page'     => $results->perPage(),
+                'total'        => $results->total(),
+                'from'         => $results->firstItem(),
+                'to'           => $results->lastItem(),
+            ];
 
             return response()->json([
                 'clients' => $clients,
                 'data'    => $data->values(),
                 'pagination' => $pagination
             ]);
-
         }
 
 
         // Use correct model based on 'from'
-        if ($from == str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))) {
+        if (!$from) {
             $model = new WorkerWebhookResponse;
         } else {
             $model = new WebhookResponse;
@@ -319,8 +324,10 @@ class ChatController extends Controller
             ->orderBy(DB::raw("MAX({$table}.created_at)"), 'desc')
             ->leftJoin('clients', "{$table}.number", '=', 'clients.phone');
 
-        if ($from) {
+        if ($from && $model instanceof WebhookResponse) {
             $query->where("{$table}.from", $from);
+        } elseif (!$from && $isWorkerLead) {
+            $query->whereIn("{$table}.from", $whapiNumber);
         }
 
         if ($start && $end) {
@@ -332,12 +339,12 @@ class ChatController extends Controller
             $query->where(function ($q) use ($search, $searchTerm, $table) {
                 if (is_numeric($search)) {
                     $q->orWhere("{$table}.number", 'like', $searchTerm)
-                    ->orWhere("{$table}.message", 'like', $searchTerm)
-                    ->orWhere('clients.phone', 'like', $searchTerm);
+                        ->orWhere("{$table}.message", 'like', $searchTerm)
+                        ->orWhere('clients.phone', 'like', $searchTerm);
                 } else {
                     $q->orWhere('clients.firstname', 'like', $searchTerm)
-                    ->orWhere('clients.lastname', 'like', $searchTerm)
-                    ->orWhere("{$table}.message", 'like', $searchTerm);
+                        ->orWhere('clients.lastname', 'like', $searchTerm)
+                        ->orWhere("{$table}.message", 'like', $searchTerm);
                 }
             });
         }
@@ -356,7 +363,7 @@ class ChatController extends Controller
                 ->where('read', 0)
                 ->count();
 
-            if($table == 'worker_webhook_responses') {
+            if ($table == 'worker_webhook_responses') {
                 $client = WorkerLeads::where('phone', $number)->first();
 
                 if (!empty($filter)) {
@@ -364,10 +371,10 @@ class ChatController extends Controller
                         continue;
                     }
                 }
-            }else{
+            } else {
                 $client = Client::with('lead_status')
-                ->where('phone', $number)
-                ->first();
+                    ->where('phone', $number)
+                    ->first();
 
                 $worker = User::where('phone', $number)->first();
 
@@ -411,108 +418,108 @@ class ChatController extends Controller
 
 
 
-public function personalChat(Request $request)
-{
-    $page = $request->input('page', 1);
-    $from = $request->input('from');
-    $unread = $request->boolean('unread'); // ensure it's treated as boolean
-    $filter = $request->input('filter') ?? null;
-    $start_date = $request->input('start_date');
-    $end_date = $request->input('end_date');
-    $perPage = 20;
+    public function personalChat(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $from = $request->input('from');
+        $unread = $request->boolean('unread'); // ensure it's treated as boolean
+        $filter = $request->input('filter') ?? null;
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $perPage = 20;
 
-    $query = WebhookResponse::query()
-        ->select('number')
-        ->groupBy('number')
-        ->whereNotNull('number')
-        ->orderBy('created_at', 'desc');
+        $query = WebhookResponse::query()
+            ->select('number')
+            ->groupBy('number')
+            ->whereNotNull('number')
+            ->orderBy('created_at', 'desc');
 
-    if ($from) {
-        $query->where('from', $from);
-    }
-
-    if ($start_date && $end_date) {
-        $query->whereBetween('created_at', [
-            Carbon::parse($start_date)->startOfDay(),
-            Carbon::parse($end_date)->endOfDay()
-        ]);
-    }
-
-    $rawData = $query
-        ->skip(($page - 1) * $perPage * 2)
-        ->take($perPage * 2)
-        ->get();
-
-    $data = collect();
-    $clients = [];
-
-    foreach ($rawData as $entry) {
-        $number = $entry->number;
-
-        // Skip group chats
-        if (strpos($number, '@g.us') !== false) {
-            continue;
+        if ($from) {
+            $query->where('from', $from);
         }
 
-        // Load client with lead_status
-        $client = Client::with('lead_status')->where('phone', $number)->first();
-
-        // Count unread messages
-        $unreadCount = WebhookResponse::where('number', $number)
-            ->where('read', 0)
-            ->count();
-
-        // Apply unread filter if requested
-        if ($unread && $unreadCount === 0) {
-            continue;
+        if ($start_date && $end_date) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($start_date)->startOfDay(),
+                Carbon::parse($end_date)->endOfDay()
+            ]);
         }
 
-        // Apply lead_status filter if provided
-        if (!empty($filter)) {
-            if (!$client || !$client->lead_status || $client->lead_status->lead_status != $filter) {
+        $rawData = $query
+            ->skip(($page - 1) * $perPage * 2)
+            ->take($perPage * 2)
+            ->get();
+
+        $data = collect();
+        $clients = [];
+
+        foreach ($rawData as $entry) {
+            $number = $entry->number;
+
+            // Skip group chats
+            if (strpos($number, '@g.us') !== false) {
                 continue;
+            }
+
+            // Load client with lead_status
+            $client = Client::with('lead_status')->where('phone', $number)->first();
+
+            // Count unread messages
+            $unreadCount = WebhookResponse::where('number', $number)
+                ->where('read', 0)
+                ->count();
+
+            // Apply unread filter if requested
+            if ($unread && $unreadCount === 0) {
+                continue;
+            }
+
+            // Apply lead_status filter if provided
+            if (!empty($filter)) {
+                if (!$client || !$client->lead_status || $client->lead_status->lead_status != $filter) {
+                    continue;
+                }
+            }
+
+            $entry->unread = $unreadCount;
+            $data->push($entry);
+
+            if ($client) {
+                $clients[] = [
+                    'name'   => trim("{$client->firstname} {$client->lastname}"),
+                    'id'     => $client->id,
+                    'num'    => $number,
+                    'client' => $client->status != 0 ? 1 : 0,
+                ];
+            }
+
+            if ($data->count() >= $perPage) {
+                break;
             }
         }
 
-        $entry->unread = $unreadCount;
-        $data->push($entry);
-
-        if ($client) {
-            $clients[] = [
-                'name'   => trim("{$client->firstname} {$client->lastname}"),
-                'id'     => $client->id,
-                'num'    => $number,
-                'client' => $client->status != 0 ? 1 : 0,
-            ];
-        }
-
-        if ($data->count() >= $perPage) {
-            break;
-        }
+        return response()->json([
+            'data'    => $data->values(),
+            'clients' => $clients,
+        ]);
     }
 
-    return response()->json([
-        'data'    => $data->values(),
-        'clients' => $clients,
-    ]);
-}
-    
     public function allLeads(Request $request)
     {
         $perPage = $request->get('per_page', 20); // default 20
         $filter = $request->get('filter');
-    
+
         if (!empty($filter)) {
-            $clients = Client::whereHas('lead_status', function($query) use ($filter) {
+            $clients = Client::whereHas('lead_status', function ($query) use ($filter) {
                 $query->where('lead_status', $filter);
             })->paginate($perPage);
-        }else{
+        } else {
             $clients = Client::paginate($perPage);
         }
-    
+
         return response()->json($clients);
     }
-    
+
 
 
     public function storeWebhookResponse(Request $request)
@@ -562,16 +569,22 @@ public function personalChat(Request $request)
         $fullname = null;
         $from = $request->input('from');
         $isWorkerLead = $request->boolean('isWorkerLead'); // use boolean for safety
+        \Log::info($isWorkerLead);
 
         // Dynamically use the correct model
         $model = $isWorkerLead ? new WorkerWebhookResponse : new WebhookResponse;
-        $table = $model->getTable();
+        $whapiNumber = [
+            config('services.whapi.whapi_worker_lead_number_1'),
+            config('services.whapi.whapi_worker_lead_number_2')
+        ];
 
-        // Get chat messages for the number and from
         $chat = $model->where('number', $no)
-                    ->where('from', $from)
-                    ->orderBy('created_at', 'asc')
-                    ->get();
+            ->when($isWorkerLead, function ($query) use ($whapiNumber) {
+                return $query->whereIn('from', $whapiNumber);
+            }, function ($query) use ($from) {
+                return $query->where('from', $from);
+            })->orderBy('created_at', 'asc')
+            ->get();
 
         // Mark unread messages as read
         $model->where('number', $no)
@@ -615,6 +628,7 @@ public function personalChat(Request $request)
     {
         $replyId = $request->input('replyId'); // Get replyId from request
         $from = $request->input('from');
+        $isWorkerLead = $request->boolean('workerLead'); // use boolean for safety
         $mediaPath = null;
         $result = null;
         $mimeType = null;
@@ -627,11 +641,11 @@ public function personalChat(Request $request)
         // Initialize the Twilio client
         $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
 
-        if(in_array($from, [str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')), str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))])) {
+        if (in_array($from, [str_replace("whatsapp:+", "", config('services.twilio.twilio_whatsapp_number')), str_replace("whatsapp:+", "", config('services.twilio.worker_lead_whatsapp_number'))])) {
             $offical = true;
         }
 
-        if($offical == true) {
+        if ($offical == true) {
 
             $twi = $twilio->messages->create(
                 "whatsapp:+$request->number",
@@ -642,9 +656,8 @@ public function personalChat(Request $request)
 
                 ]
             );
-            \Log::info("twilio response". $twi->sid);
-
-        }else{
+            \Log::info("twilio response" . $twi->sid);
+        } else {
             // Check if a media file is included in the request
             if ($request->hasFile('media')) {
                 // Handle media upload
@@ -659,29 +672,56 @@ public function personalChat(Request $request)
                 if (strpos($mimeType, 'image') !== false) {
                     \Log::info($request->message);
                     // Send image message
-                    $result = sendWhatsappImageMessage(
-                        $request->number,
-                        $fullMediaPath, // Path to the uploaded image
-                        $request->message, // Caption for the image
-                        $mimeType, // MIME type (e.g., image/jpeg)
-                        $replyId ? $replyId : null
-                    );
+                    if ($isWorkerLead) {
+                        $result = sendWorkerLeadWhatsappImageMessage(
+                            $request->number,
+                            $fullMediaPath, // Path to the uploaded image
+                            $request->message, // Caption for the image
+                            $mimeType, // MIME type (e.g., image/jpeg)
+                            $replyId ? $replyId : null
+                        );
+                    } else {
+                        $result = sendWhatsappImageMessage(
+                            $request->number,
+                            $fullMediaPath, // Path to the uploaded image
+                            $request->message, // Caption for the image
+                            $mimeType, // MIME type (e.g., image/jpeg)
+                            $replyId ? $replyId : null
+                        );
+                    }
                 } else {
                     // Send video message
-                    $result = sendWhatsappMediaMessage(
-                        $request->number,
-                        $fullMediaPath, // Full path of the uploaded video file
-                        $request->message,
-                        $replyId ? $replyId : null
-                    );
+                    if ($isWorkerLead) {
+                        $result = sendWorkerLeadWhatsappMediaMessage(
+                            $request->number,
+                            $fullMediaPath, // Full path of the uploaded video file
+                            $request->message,
+                            $replyId ? $replyId : null
+                        );
+                    } else {
+                        $result = sendWhatsappMediaMessage(
+                            $request->number,
+                            $fullMediaPath, // Full path of the uploaded video file
+                            $request->message,
+                            $replyId ? $replyId : null
+                        );
+                    }
                 }
             } else {
                 // Send regular message (text only)
-                $result = sendWhatsappMessage(
-                    $request->number,
-                    array('message' => $request->message),
-                    $replyId ? $replyId : null
-                );
+                if ($isWorkerLead) {
+                    $result = sendWorkerLeadWhatsappMessage(
+                        $request->number,
+                        array('message' => $request->message),
+                        $replyId ? $replyId : null
+                    );
+                } else {
+                    $result = sendWhatsappMessage(
+                        $request->number,
+                        array('message' => $request->message),
+                        $replyId ? $replyId : null
+                    );
+                }
             }
         }
 
@@ -691,23 +731,41 @@ public function personalChat(Request $request)
         $messageId = is_array($result) ? ($result['message']['id'] ?? null) : ($result->message->id ?? null);
 
         // Log the response and create a webhook response entry
-        $response = WebhookResponse::create([
-            'status' => 1,
-            'name' => 'whatsapp',
-            'message' => $request->message,
-            'number' => $request->number,
-            'from' => $from,
-            'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
-            'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
-            'wa_id' => $replyId ? $replyId : null,
-            'res_id' => $messageId,
-            'video' => (strpos($mimeType, 'video') !== false) ? basename($mediaPath) : null, // Store video file name if it's a video
-            'image' => (strpos($mimeType, 'image') !== false) ? basename($mediaPath) : null, // Store image file name if it's an image
-        ]);
+        if ($isWorkerLead) {
+            WorkerWebhookResponse::create([
+                'status' => 1,
+                'name' => 'whatsapp',
+                'message' => $request->message,
+                'number' => $request->number,
+                'from' => config("services.whapi.whapi_worker_lead_number_1"),
+                'data' => $result ? json_encode($result) : null,
+                'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
+                'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+                'wa_id' => $replyId ? $replyId : null,
+                'res_id' => $messageId,
+                'video' => (strpos($mimeType, 'video') !== false) ? basename($mediaPath) : null, // Store video file name if it's a video
+                'image' => (strpos($mimeType, 'image') !== false) ? basename($mediaPath) : null, // Store image file name if it's an image
+            ]);
+        } else {
+            WebhookResponse::create([
+                'status' => 1,
+                'name' => 'whatsapp',
+                'message' => $request->message,
+                'number' => $request->number,
+                'from' => $from,
+                'data' => $result ? json_encode($result) : null,
+                'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
+                'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+                'wa_id' => $replyId ? $replyId : null,
+                'res_id' => $messageId,
+                'video' => (strpos($mimeType, 'video') !== false) ? basename($mediaPath) : null, // Store video file name if it's a video
+                'image' => (strpos($mimeType, 'image') !== false) ? basename($mediaPath) : null, // Store image file name if it's an image
+            ]);
+        }
 
         return response()->json([
             'msg' => 'Message sent successfully',
-        ]);
+        ], 200);
     }
 
 
@@ -769,11 +827,10 @@ public function personalChat(Request $request)
 
     public function chatSearch($s, $type)
     {
-        if ($type == 'number'){
+        if ($type == 'number') {
             $data = WebhookResponse::distinct()->where('number', 'like', '%' . $s . '%')
-            ->get(['number']);
-            
-        }else {
+                ->get(['number']);
+        } else {
             $data = WebhookResponse::distinct()
                 ->Where(function ($query) use ($s) {
                     for ($i = 0; $i < count($s); $i++) {
@@ -783,7 +840,7 @@ public function personalChat(Request $request)
                 })
                 ->get(['number']);
         }
-            
+
         $clients = [];
 
         if (count($data) > 0) {
@@ -815,7 +872,7 @@ public function personalChat(Request $request)
     {
         $s = $request->s;
         $type = $request->type; // 'lead' or 'client'
-    
+
         if (is_null($s)) {
             if ($type === 'lead') {
                 return Client::all(); // Return all leads
@@ -823,12 +880,12 @@ public function personalChat(Request $request)
                 return $this->chats($request); // Existing behavior for clients
             }
         }
-    
+
         // If it's a numeric search, treat it as phone
         if ($type === 'client') {
             if (is_numeric($s)) {
                 return $this->chatSearch($s, 'number');
-            }else{
+            } else {
                 // Search by name
                 $cx = explode(' ', $s);
                 $fn = $cx[0];
@@ -858,33 +915,33 @@ public function personalChat(Request $request)
                     return $this->chatSearch($existingClientNumbers->toArray(), 'name');
                 }
             }
-        }else{
+        } else {
             $cx = explode(' ', $s);
             $fn = $cx[0];
             $ln = $cx[1] ?? $cx[0];
-    
+
             $leads = Client::where('firstname', 'like', '%' . $fn . '%')
                 ->orWhere('lastname', 'like', '%' . $ln . '%')
                 ->orWhere('phone', 'like', '%' . $s . '%')
                 ->get(['phone', 'firstname', 'lastname']);
-    
+
             if ($leads->count() > 0) {
                 return $leads;
             }
-    
+
             // 👇 Fallback: message search where number exists in leads
             $numbersInMessages = WebhookResponse::where('message', 'like', '%' . $s . '%')
                 ->pluck('number')
                 ->unique();
-    
+
             $matchingLeadNumbers = Client::whereIn('phone', $numbersInMessages)->get(['phone', 'firstname', 'lastname']);
-    
+
             return $matchingLeadNumbers;
         }
-       
+
         return response()->json(['data' => []]);
     }
-    
+
 
     public function responseImport()
     {

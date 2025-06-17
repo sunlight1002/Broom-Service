@@ -52,7 +52,7 @@ class SendReminderWithPendingForms extends Command
     public function handle()
     {
 
-        $users = User::where('status', 1)->get();
+        $users = User::where('status', '!=' , 0)->get();
         $matchingUsers = collect();
 
         foreach ($users as $user) {

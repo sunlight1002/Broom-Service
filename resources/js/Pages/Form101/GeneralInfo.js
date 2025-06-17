@@ -36,9 +36,6 @@ export default function GeneralInfo({
         }
     }, [values.employeecountry]);
 
-    console.log(values);
-
-
     const { t } = useTranslation();
 
     const sexOptions = [
@@ -609,7 +606,7 @@ export default function GeneralInfo({
                                         </div>
                                     )}
                                 </div>
-                                <div className="col-sm">
+                                {/* <div className="col-sm">
                                     <TextField
                                         name="employeePostalCode"
                                         label={t("form101.postal_code")}
@@ -632,7 +629,7 @@ export default function GeneralInfo({
                                             </div>
                                         </div>
                                     )}
-                                </div>
+                                </div> */}
                             </div>
                             <div className="row">
                                 <div className="col-sm">

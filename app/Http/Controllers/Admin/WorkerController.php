@@ -67,6 +67,9 @@ class WorkerController extends Controller
                 return $q
                     ->where('status', 0);
             })
+            ->when($status == "waiting", function ($q) {
+                return $q->where('status', 2);
+            })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
             })
@@ -253,7 +256,7 @@ class WorkerController extends Controller
                 return $q->selectRaw("* , {$haversine} AS distance")
                     ->orderBy('distance', 'desc');
             })
-            ->where('status', 1)
+            ->where('status', '!=' , 0)
             ->get();
 
         if (isset($request->filter)) {
@@ -970,7 +973,7 @@ class WorkerController extends Controller
             ->whereDoesntHave('notAvailableDates', function ($q) use ($dates) {
                 $q->whereIn('date', $dates);
             })
-            ->where('status', 1)
+            ->where('status', '!=' , 0)
             ->select(['id', 'firstname', 'lastname'])
             ->selectRaw('( 6371 * acos( cos( radians(' . $property['lat'] . ') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(' . $property['lng'] . ') ) + sin( radians(' . $property['lat'] . ') ) * sin( radians( latitude ) ) ) ) AS distance')
             ->orderBy('distance')

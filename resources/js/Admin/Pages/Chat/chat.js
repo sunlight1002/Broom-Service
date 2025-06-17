@@ -16,7 +16,7 @@ import './ChatFooter.css'; // Import the CSS
 
 export default function chat({
     number: fromNumber,
-    workerLead = false
+    workerLead = false,
 }) {
     const [currentNumber, setCurrentNumber] = useState(localStorage.getItem("number"));
     const { t } = useTranslation();
@@ -166,7 +166,8 @@ export default function chat({
             .get(`/api/admin/chats`, {
                 params: {
                     page: pageToLoad,
-                    from: fromNumber,
+                    from: fromNumber ? fromNumber : null,
+                    workerLead,
                     filter,
                     start_date: dateRange.start_date,
                     end_date: dateRange.end_date,
@@ -275,6 +276,7 @@ export default function chat({
         send.append("number", selectNumber);
         send.append("from", fromNumber);
         send.append("message", messageToSend);
+        send.append("workerLead", workerLead);
         if (replyId) {
             send.append("replyId", replyId);
         }
@@ -299,10 +301,9 @@ export default function chat({
                 setImage('');
                 setReplyId(null);
                 setLoading(false)
-                getWebhook()
-                setTimeout(() => {
-                    scroller();
-                }, 200);
+                if(res.status === 200){
+                    getMessages(selectNumber, true);
+                }
             })
             .catch((error) => {
                 setLoading(false)
@@ -491,6 +492,8 @@ export default function chat({
     const clientsCard = data
         .map((d, i) => {
             let cd = clients?.find(({ num }) => num == d.number);
+            console.log(d);
+            
             return (
                 <div
                     className={"card p-3 cardList cl_" + d.number}
@@ -504,14 +507,14 @@ export default function chat({
                                 borderBottom: "1px solid #E5EBF1"
                             }
                             : {
-                                background: "#fff",
+                                background: "#ffffff",
                                 boxShadow: "none",
                                 marginBottom: "0",
                                 borderRadius: "0",
                                 borderBottom: "1px solid #E5EBF1"
                             }),
                         ...(d.number == selectNumber && {
-                            background: "#d7dede"
+                            borderLeft: "10px solid #d7dede"
                         })
                     }}
 
@@ -524,7 +527,7 @@ export default function chat({
 
                         localStorage.setItem("number", d.number);
 
-                        document.querySelector(".cl_" + d.number).style.background = "#fff";
+                        document.querySelector(".cl_" + d.number).style.background = "#ffffff";
                         const el = document.querySelector(".cn_" + d.number);
                         if (el) el.remove();
                     }}

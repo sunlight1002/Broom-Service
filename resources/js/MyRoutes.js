@@ -1186,9 +1186,13 @@ export default function MyRoutes() {
                             <Route
                                 exact
                                 path="worker-lead-chat"
-                                element={<Chat key="worker-lead" number={process.env.MIX_WORKER_LEAD_TWILIO_WHATSAPP_NUMBER} workerLead={true} />}
+                                element={<Chat key="worker-lead" number={null} workerLead={true} />}
                             />
-
+                            <Route
+                                exact
+                                path="whapi-chat"
+                                element={<Chat key="whapi-chat" number={process.env.MIX_WHAPI_NUMBER} />}
+                            />
                             <Route
                                 exact
                                 path="responses"

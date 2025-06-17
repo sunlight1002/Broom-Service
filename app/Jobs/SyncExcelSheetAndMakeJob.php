@@ -168,7 +168,7 @@ class SyncExcelSheetAndMakeJob implements ShouldQueue
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
         $frequencyArr = ServiceSchedule::where('status', 1)
             ->get()->pluck('name_heb')->toArray();
-        $workers = User::where('status', 1)->get();
+        $workers = User::where('status', '!=' , 0)->get();
         $workers = $workers->map(function ($user) use ($sheetsName) {
             // Check if a sheet name exists for this user's id.
             // Casting $user->id to string is optional if you're sure about types.

@@ -39,7 +39,7 @@ class SetActiveWorkersMondayMessage extends Command
      */
     public function handle()
     {
-        $users = User::where('status', 1)->where('stop_last_message', 1)->update(['stop_last_message' => 0]);
+        $users = User::where('status', '!=' , 0)->where('stop_last_message', 1)->update(['stop_last_message' => 0]);
         return 0;
     }
 }

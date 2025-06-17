@@ -62,7 +62,7 @@ class NotifyForContractFormSigned implements ShouldQueue
             // **Retrieve all forms of the worker**
             $workerForms = $worker->forms()->get();
             $attachments = [];
-            $workerName = trim(($worker->firstname ?? '') . '-' . ($worker->lastname ?? ''));
+            $workerName = trim(trim($worker->firstname ?? '') . '-' . trim($worker->lastname ?? ''));
             $admin = Admin::where('role', 'hr')->first();
 
             foreach ($workerForms as $workerForm) {

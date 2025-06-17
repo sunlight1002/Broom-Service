@@ -19,6 +19,11 @@ class WorkerWebhookResponse extends Model
         'data',
         'flex',
         'read',
+        'video',
+        'image',
+        'contact',
+        'wa_id',
+        'res_id'
     ];
 
 }

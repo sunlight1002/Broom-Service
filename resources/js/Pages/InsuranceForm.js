@@ -149,7 +149,7 @@ const InsuranceForm = ({
         canTown: yup.string().trim().required(t("insurance.townReq")),
         canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
         canStreet: yup.string().trim().required(t("insurance.streetReq")),
-        canTelephone: yup.number().required(t("insurance.telReq")),
+        // canTelephone: yup.number().required(t("insurance.telReq")),
         canCellPhone: yup.number().required(t("insurance.phoneReq")),
         canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
         gender: yup.string().trim().required(t("insurance.genderReq")),

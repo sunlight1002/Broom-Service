@@ -222,7 +222,7 @@ class DecisionController extends Controller
         }
     
         $worker = User::find($workerId);
-        $user = User::find($workerId);
+        $user = $worker;
     
         if (!$worker) {
             return response()->json(['error' => "Worker not found."], 404);

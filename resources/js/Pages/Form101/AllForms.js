@@ -279,9 +279,9 @@ function AllForms() {
             employeeHouseNo: yup
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
-            employeePostalCode: yup
-                .string()
-                .required(t("form101.errorMsg.PostalCodeReq")),
+            // employeePostalCode: yup
+            //     .string()
+            //     .required(t("form101.errorMsg.PostalCodeReq")),
             employeeMobileNo: yup
                 .string()
                 .required(t("form101.errorMsg.MobileNoReq")),
@@ -294,7 +294,6 @@ function AllForms() {
             employeeMaritalStatus: yup
                 .string()
                 .required(t("form101.errorMsg.MaritalStatusReq")),
-
             employeeCollectiveMoshavMember: yup
                 .string()
                 .required(t("form101.errorMsg.CollectiveMoshavMemberReq")),
@@ -875,7 +874,7 @@ function AllForms() {
             employeeMaritalStatus:
                 formValues && formValues.employeeMaritalStatus
                     ? formValues.employeeMaritalStatus
-                    : "",
+                    : worker?.country != "Israel" ? "Single" : "",
             employeeIsraeliResident:
                 formValues && formValues.employeeIsraeliResident
                     ? formValues.employeeIsraeliResident
@@ -883,11 +882,11 @@ function AllForms() {
             employeeCollectiveMoshavMember:
                 formValues && formValues.employeeCollectiveMoshavMember
                     ? formValues.employeeCollectiveMoshavMember
-                    : "",
+                    : worker?.country != "Israel" ? "No" : "Yes",
             employeeHealthFundMember:
                 formValues && formValues.employeeHealthFundMember
                     ? formValues.employeeHealthFundMember
-                    : "",
+                    : worker?.country != "Israel" ? "No" : "Yes",
             employeeHealthFundname:
                 formValues && formValues.employeeHealthFundname
                     ? formValues.employeeHealthFundname
@@ -899,11 +898,11 @@ function AllForms() {
             incomeType:
                 formValues && formValues.incomeType
                     ? formValues.incomeType
-                    : "",
+                    : "Monthly salary",
             DateOfBeginningWork:
                 formValues && formValues.DateOfBeginningWork
                     ? formValues.DateOfBeginningWork
-                    : "",
+                    : new Date().toISOString().split("T")[0],
             children:
                 formValues && formValues.children ? formValues.children : [],
             otherIncome: {
@@ -1630,7 +1629,7 @@ function AllForms() {
         }
     };
 
-    console.log(nextStep);
+    console.log(values);
 
 
     return (
@@ -1814,25 +1813,39 @@ function AllForms() {
                                         activeBubble={activeBubble}
                                     />
                                 </div>
-                                <div className="box-heading">
-                                    <TaxExemption
-                                        handleBlur={handleBlur}
-                                        handleChange={handleChange}
-                                        errors={errors}
-                                        values={values}
-                                        touched={touched}
-                                        setFieldValue={setFieldValue}
-                                        handleBubbleToggle={handleBubbleToggle}
-                                        activeBubble={activeBubble}
-                                    />
-                                </div>
+                                {
+                                    worker?.country == "Israel" ? (
+                                        <div className="box-heading">
+                                            <TaxExemption
+                                                handleBlur={handleBlur}
+                                                handleChange={handleChange}
+                                                errors={errors}
+                                                values={values}
+                                                touched={touched}
+                                                setFieldValue={setFieldValue}
+                                                handleBubbleToggle={handleBubbleToggle}
+                                                activeBubble={activeBubble}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="box-heading mt-2">
+                                            <p className="navyblueColor font-24  font-w-500">{t("form101.year_changes")}</p>
+                                            <p>{t("form101.year_changes_details1")}</p>
+                                            <p>{t("form101.year_changes_details2")}</p>
+                                        </div>
+                                    )
+                                }
                             </section>
                             <section className="col pt-4 pb-5">
-                                <div className="box-heading ">
-                                    <p className="navyblueColor font-24  font-w-500">{t("form101.year_changes")}</p>
-                                    <p>{t("form101.year_changes_details1")}</p>
-                                    <p>{t("form101.year_changes_details2")}</p>
-                                </div>
+                                {
+                                    worker?.country == "Israel" && (
+                                        <div className="box-heading ">
+                                            <p className="navyblueColor font-24  font-w-500">{t("form101.year_changes")}</p>
+                                            <p>{t("form101.year_changes_details1")}</p>
+                                            <p>{t("form101.year_changes_details2")}</p>
+                                        </div>
+                                    )
+                                }
 
                                 <div className="box-heading">
                                     <TaxCoordination
@@ -1994,7 +2007,7 @@ function AllForms() {
 
             {
                 (nextStep === 8 || (worker?.country == "Israel" && nextStep == 7)) && (
-                    <VideoGalleryPage worker={worker} nextStep={nextStep} setNextStep={setNextStep} forms={true}/>
+                    <VideoGalleryPage worker={worker} nextStep={nextStep} setNextStep={setNextStep} forms={true} />
                 )
             }
 

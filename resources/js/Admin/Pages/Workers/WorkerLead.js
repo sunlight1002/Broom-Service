@@ -56,8 +56,8 @@ export default function WorkerLead() {
         unanswered: t("admin.leads.Unanswered"),
         hiring: t("admin.leads.Hiring"),
         "not-hired": t("admin.leads.Not_hired"),
-        "Not respond to bot": t("admin.leads.not_respond_to_bot"),
-        "Not respond to messages": t("admin.leads.not_respond_to_messages"),
+        // "Not respond to bot": t("admin.leads.not_respond_to_bot"),
+        // "Not respond to messages": t("admin.leads.not_respond_to_messages"),
     };
     const statusArr = {
         pending: "pending",
@@ -67,8 +67,8 @@ export default function WorkerLead() {
         hiring: "hiring",
         "will-think": "will-think",
         "not-hired": "not-hired",
-        "Not respond to bot": "Not respond to bot",
-        "Not respond to messages": "Not respond to messages",
+        // "Not respond to bot": "Not respond to bot",
+        // "Not respond to messages": "Not respond to messages",
     };
 
     const notHiredSubStatus = {
@@ -271,20 +271,16 @@ export default function WorkerLead() {
                                         <i class="fa fa-ellipsis-vertical"></i> 
                                     </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${
-                                            row.id
-                                        }">${t("admin.leads.Edit")}</button>
-                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${
-                                            row.id
-                                        }">${t("admin.leads.view")}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${
-                                            row.id
-                                        }">${t(
-                                "admin.leads.change_status"
-                            )}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${
-                                            row.id
-                                        }">${t("admin.leads.Delete")}</button>
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id
+                                }">${t("admin.leads.Edit")}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id
+                                }">${t("admin.leads.view")}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id
+                                }">${t(
+                                    "admin.leads.change_status"
+                                )}</button>
+                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id
+                                }">${t("admin.leads.Delete")}</button>
                                     </div> 
                                 </div>`;
                         },
@@ -557,10 +553,11 @@ export default function WorkerLead() {
                                 {t("worker.leaveRequest")}
                             </h1>
                         </div>
-                        <div className="d-flex">
+                        <div className="d-flex" style={{ alignItems: "baseline" }}>
                             <Link
                                 to="/admin/worker-leads/add"
                                 className="btn navyblue align-content-center addButton no-hover"
+                                style={{ height: "fit-content" }}
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 {t("admin.client.AddNew")}
@@ -585,7 +582,7 @@ export default function WorkerLead() {
                     className="dashBox pt-0 pb-4"
                     style={{ backgroundColor: "inherit", border: "none" }}
                 >
-                    <div className="row d-flex flex-column">
+                    <div className="row d-none d-lg-flex flex-column">
                         <div
                             style={{
                                 fontWeight: "bold",
@@ -618,6 +615,7 @@ export default function WorkerLead() {
                             )}
                         </div>
                     </div>
+
                     {filter == "not-hired" && (
                         <div className="row mt-2">
                             <div
@@ -653,33 +651,59 @@ export default function WorkerLead() {
                             </div>
                         </div>
                     )}
+                    <div className="col-sm-6 mt-2 pl-0 d-flex d-lg-none">
+                        <div className="search-data">
+                            <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                <div
+                                    className=" mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    {t("global.filter")}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+                                <span
+                                    className="ml-2"
+                                    style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
+                                    }}
+                                >
+                                    {filter || t("admin.leads.All")}
+                                </span>
 
-                    {sources.length > 0 && (
-                        <div className="col-sm-3 px-0 mt-2">
-                            <div
-                                style={{
-                                    fontWeight: "bold",
-                                    marginTop: 10,
-                                }}
-                            >
-                                {t("worker.source")}
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilter("All");
+                                        }}
+                                    >
+                                        {t("admin.global.All")}
+                                    </button>
+                                    {Object.entries(leaveStatuses).map(
+                                        ([key, value]) => (
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilter(key);
+                                                }}
+                                            >
+                                                {value}
+                                            </button>
+                                        )
+                                    )}
+                                </div>
                             </div>
-                            <select
-                                className="form-control"
-                                onChange={(e) => setSource(e.target.value)}
-                                value={source}
-                            >
-                                <option value="">--- Select ---</option>
-                                {sources.length > 0 &&
-                                    sources.map((source) => (
-                                        <option value={source} key={source}>
-                                            {source}
-                                        </option>
-                                    ))}
-                            </select>
                         </div>
-                    )}
-                    <div className="col-sm-12 d-none d-lg-flex mt-2">
+                    </div>
+                    <div className="col-sm-12 d-none d-lg-flex mt-2 px-0">
                         <div className="d-flex align-items-center">
                             <div
                                 style={{ fontWeight: "bold" }}
@@ -852,6 +876,31 @@ export default function WorkerLead() {
                             </div>
                         </div>
                     </div>
+                    {sources.length > 0 && (
+                        <div className="col-sm-3 px-0 mt-2">
+                            <div
+                                style={{
+                                    fontWeight: "bold",
+                                    // marginTop: 10,
+                                }}
+                            >
+                                {t("worker.source")}
+                            </div>
+                            <select
+                                className="form-control"
+                                onChange={(e) => setSource(e.target.value)}
+                                value={source}
+                            >
+                                <option value="">--- Select ---</option>
+                                {sources.length > 0 &&
+                                    sources.map((source) => (
+                                        <option value={source} key={source}>
+                                            {source}
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+                    )}
                     <div
                         style={{
                             display: "flex",
@@ -917,7 +966,7 @@ export default function WorkerLead() {
                         </div>
                     </div>
                     <div
-                        className="dashBox pt-4 pb-4 w-100"
+                        className="dashBox pb-4 w-100"
                         style={{
                             backgroundColor: "inherit",
                             border: "none",

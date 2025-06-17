@@ -22,6 +22,9 @@ const IncomeDetails = ({
         setFieldValue(name, newValue);
     };
 
+    // console.log(values);
+    
+
     return (
         <div className="mt-3">
             <p className="navyblueColor font-24 font-w-500  mb-2">{t("form101.employer_income_details")}</p>

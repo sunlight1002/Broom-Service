@@ -71,7 +71,7 @@ class CustomHolidays extends Command
                 $query->where('lead_status', 'active client');
             })->get();
 
-        $users = User::where('status', 1)->get();
+        $users = User::where('status', '!=' , 0)->get();
 
         foreach ($clients as $client) {
             $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));

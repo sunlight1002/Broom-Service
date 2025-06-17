@@ -89,10 +89,9 @@ export default function Dashboard() {
     };
 
     const hasResults =
-        searchResults.clients.length ||
-        searchResults.workers.length ||
-        searchResults.WorkerLeads.length;
-    console.log("HAsResult",hasResults)
+        searchResults.clients?.length ||
+        searchResults.workers?.length ||
+        searchResults.WorkerLeads?.length;
 
     const handleInputChange = (e) => {
         const value = e.target.value;

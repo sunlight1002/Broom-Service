@@ -35,6 +35,7 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
      */
     public function handle(SafetyAndGearFormSigned $event)
     {
+        $worker = $event->worker;
         // no whatsapp notification to admin in group
         Notification::create([
             'user_id' => $event->worker->id,
@@ -47,6 +48,42 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
             ->where('role', 'admin')
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
+
+        if ($event->worker->company_type == 'manpower') {
+            App::setLocale('heb');
+
+            // **Retrieve all forms of the worker**
+            $workerForms = $event->worker->forms()->get();
+            $attachments = [];
+            $workerName = trim(trim($event->worker->firstname ?? '') . '-' . trim($event->worker->lastname ?? ''));
+            $admin = Admin::where('role', 'hr')->first();
+
+            foreach ($workerForms as $workerForm) {
+                $formType = $workerForm->type; // e.g., "form101"
+                $filePath = storage_path("app/public/signed-docs/{$workerForm->pdf_name}");
+
+                if (file_exists($filePath)) {
+                    $workerIdentifier = $event->worker->id_number ?: $event->worker->passport;
+                    $fileName = "{$formType}-{$workerName}-{$workerIdentifier}.pdf";
+                    $fileName = str_replace(' ', '-', $fileName);
+
+                    $attachments[$filePath] = $fileName;
+                }
+            }
+            // Send email with all form attachments
+            Mail::send('/sendAllFormsToAdmin', ["worker" => $event->worker], function ($message) use ($worker, $attachments, $admin) {
+                $message->to(config("services.mail.default"));
+                if ($admin) {
+                    $message->bcc($admin->email);
+                }
+                $message->subject(__('mail.all_forms.subject'));
+
+                // Attach all available forms
+                foreach ($attachments as $filePath => $fileName) {
+                    $message->attach($filePath, ['as' => $fileName]);
+                }
+            });
+        }
 
         // App::setLocale('en');
         // foreach ($admins as $key => $admin) {

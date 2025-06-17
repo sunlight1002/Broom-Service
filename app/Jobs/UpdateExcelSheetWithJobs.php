@@ -231,7 +231,7 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
         $contract = $job->contract ?? null;
     
         // Fetch dropdown options
-        $workerArr = User::where('status', 1)->get()->pluck('firstname')->toArray();
+        $workerArr = User::where('status', '!=' , 0)->get()->pluck('firstname')->toArray();
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
         $frequencyArr = ServiceSchedule::where('status', 1)
             ->get()->pluck('name_heb')->toArray();

@@ -80,7 +80,7 @@ class WorkerController extends Controller
             ->whereDoesntHave('notAvailableDates', function ($q) use ($available_date) {
                 $q->where('date', $available_date);
             })
-            ->where('status', 1)
+            ->where('status', '!=' , 0)
             ->get();
 
         if (isset($request->filter)) {

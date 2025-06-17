@@ -50,6 +50,9 @@ export default function AllWorkers() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    console.log(filters);
+
+
     const role = localStorage.getItem("admin-role");
 
     const initializeDataTable = (initialPage = 0) => {
@@ -127,13 +130,19 @@ export default function AllWorkers() {
                         orderable: false,
                         render: function (data, type, row, meta) {
                             // return data == 1 ? "Active" : "Inactive";
-                            return data == 1
-                                ? `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        Active
-                                    </p>`
-                                : `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        Inactive
+                            if (data == 1) {
+                                return `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        ${t("admin.global.active")}
                                     </p>`;
+                            } else if (data == 0) {
+                                return `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        ${t("admin.global.inactive")}
+                                    </p>`;
+                            } else {
+                                return `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: purple; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        ${t("worker.settings.waiting")}
+                                    </p>`;
+                            }
                         },
                     },
                     {
@@ -146,13 +155,11 @@ export default function AllWorkers() {
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
                             if (role == "supervisor") {
-                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${
-                                    row.id
-                                }">${t("admin.leads.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id
+                                    }">${t("admin.leads.view")}</button>`;
                             } else {
-                                _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${
-                                    row.id
-                                }">${t("admin.leads.Edit")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id
+                                    }">${t("admin.leads.Edit")}</button>`;
 
                                 _html += `<button type="button" class="dropdown-item dt-worker-forms-btn" data-id="${Base64.encode(
                                     row.id.toString()
@@ -160,21 +167,17 @@ export default function AllWorkers() {
                                     "admin.leads.viewWorkerForms"
                                 )}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${
-                                    row.id
-                                }">${t("admin.leads.view")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id
+                                    }">${t("admin.leads.view")}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${
-                                    row.id
-                                }">${t("global.freezeShift")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id
+                                    }">${t("global.freezeShift")}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${
-                                    row.id
-                                }">${t("modal.leave_job")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id
+                                    }">${t("modal.leave_job")}</button>`;
 
-                                _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${
-                                    row.id
-                                }">${t("admin.leads.Delete")}</button>`;
+                                _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id
+                                    }">${t("admin.leads.Delete")}</button>`;
                             }
 
                             _html += "</div> </div>";
@@ -596,7 +599,7 @@ export default function AllWorkers() {
                                 </button>
                                 <Link
                                     to="/admin/workers/working-hours"
-                                    className="btn navyblue addButton mr-md-2 ml-auto no-hover"
+                                    className="btn navyblue addButton mr-md-2 no-hover"
                                 >
                                     {t("price_offer.worker_hours")}
                                 </Link>
@@ -622,7 +625,7 @@ export default function AllWorkers() {
                                         {t("admin.global.Export")}
                                     </CSVLink>
                                 </div>
-                                <div className=" mt-4 mr-2 d-lg-block">
+                                <div className="mt-2 mt-lg-4 mr-2 d-lg-block">
                                     <button
                                         className="btn navyblue ml-2"
                                         onClick={(e) => handleReport(e)}
@@ -723,7 +726,7 @@ export default function AllWorkers() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-sm-6 hidden-xl mt-4">
+                            <div className="col-sm-6 hidden-xl mt-2 px-0">
                                 <select
                                     className="form-control"
                                     onChange={(e) => sortTable(e.target.value)}
@@ -768,9 +771,9 @@ export default function AllWorkers() {
                                     filters.status === "active"
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
@@ -791,9 +794,9 @@ export default function AllWorkers() {
                                     filters.status === "inactive"
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
@@ -814,9 +817,9 @@ export default function AllWorkers() {
                                     filters.status === "past"
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
@@ -837,9 +840,9 @@ export default function AllWorkers() {
                                     filters.status === ""
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
@@ -891,9 +894,9 @@ export default function AllWorkers() {
                                         filters.is_my_company === true
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -923,9 +926,9 @@ export default function AllWorkers() {
                                         filters.is_manpower === true
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -955,9 +958,9 @@ export default function AllWorkers() {
                                         filters.is_freelancer === true
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -985,14 +988,14 @@ export default function AllWorkers() {
                                     className={`btn border rounded px-3 mx-1`}
                                     style={
                                         filters.is_my_company !== true &&
-                                        filters.is_freelancer !== true &&
-                                        filters.is_manpower !== true &&
-                                        filters.manpower_company_id === ""
+                                            filters.is_freelancer !== true &&
+                                            filters.is_manpower !== true &&
+                                            filters.manpower_company_id === ""
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -1023,7 +1026,7 @@ export default function AllWorkers() {
 
                 {role != "supervisor" && (
                     <div className="row mb-2 d-block d-lg-none">
-                        <div className="col-sm-12 mt-2">
+                        <div className="col-sm-12">
                             <div
                                 className="mb-2"
                                 style={{ fontWeight: "bold" }}
@@ -1049,16 +1052,16 @@ export default function AllWorkers() {
                                 ))}
                             </select>
 
-                            <div className="d-flex flex-wrap gap-1">
+                            <div className="mb-2 d-none d-lg-block gap-1">
                                 <button
                                     className="btn border rounded px-3"
                                     style={
                                         filters.is_my_company
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -1087,9 +1090,9 @@ export default function AllWorkers() {
                                         filters.is_manpower
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -1118,9 +1121,9 @@ export default function AllWorkers() {
                                         filters.is_freelancer
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -1147,14 +1150,14 @@ export default function AllWorkers() {
                                     className="btn border rounded px-3 ml-2 mt-1"
                                     style={
                                         !filters.is_my_company &&
-                                        !filters.is_freelancer &&
-                                        !filters.is_manpower &&
-                                        filters.manpower_company_id === ""
+                                            !filters.is_freelancer &&
+                                            !filters.is_manpower &&
+                                            filters.manpower_company_id === ""
                                             ? { background: "white" }
                                             : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
+                                                background: "#2c3f51",
+                                                color: "white",
+                                            }
                                     }
                                     onClick={() => {
                                         setFilters({
@@ -1176,6 +1179,139 @@ export default function AllWorkers() {
                                 >
                                     {t("admin.global.All")}
                                 </button>
+                            </div>
+                            <div className="d-bock d-lg-none">
+                                <div className="search-data">
+                                    <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                        {/* <div
+                                            className=" mr-3"
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            {t("global.date_period")}
+                                        </div> */}
+                                        <button
+                                            type="button"
+                                            className="btn btn-default navyblue dropdown-toggle"
+                                            data-toggle="dropdown"
+                                        >
+                                            <i className="fa fa-filter"></i>
+                                        </button>
+                                        <span
+                                            className="ml-2"
+                                            style={{
+                                                padding: "6px",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "5px",
+                                            }}
+                                        >
+                                            {Object.values(filters).some(value => value === true) ? (
+                                                Object.entries(filters)
+                                                    .filter(([_, value]) => value === true)
+                                                    .map(([key]) => (
+                                                        <span key={key} className="filter-tag">
+                                                            {key == "is_my_company" ? t("admin.global.myCompany") : key == "is_freelancer" ? t("admin.global.freelancer") : t("admin.global.manpower_company")}
+                                                        </span>
+                                                    ))
+                                            ) : (
+                                                <span className="filter-tag">{t("admin.leads.All")}</span>
+                                            )}
+                                        </span>
+
+                                        <div className="dropdown-menu dropdown-menu-right">
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilters({
+                                                        ...filters,
+                                                        manpower_company_id: "",
+                                                        is_my_company: true,
+                                                        is_manpower: false,
+                                                        is_freelancer: false,
+                                                    });
+                                                    localStorage.setItem(
+                                                        "company",
+                                                        JSON.stringify({
+                                                            is_my_company: true,
+                                                            is_manpower: false,
+                                                            is_freelancer: false,
+                                                        })
+                                                    );
+                                                }}
+                                            >
+                                                {t("admin.global.myCompany")}
+                                            </button>
+
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilters({
+                                                        ...filters,
+                                                        manpower_company_id: "",
+                                                        is_manpower: true,
+                                                        is_my_company: false,
+                                                        is_freelancer: false,
+                                                    });
+                                                    localStorage.setItem(
+                                                        "company",
+                                                        JSON.stringify({
+                                                            is_my_company: false,
+                                                            is_manpower: true,
+                                                            is_freelancer: false,
+                                                        })
+                                                    );
+                                                }}
+                                            >
+                                                {t("admin.global.manpower_company")}
+                                            </button>
+
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilters({
+                                                        ...filters,
+                                                        manpower_company_id: "",
+                                                        is_freelancer: true,
+                                                        is_my_company: false,
+                                                        is_manpower: false,
+                                                    });
+                                                    localStorage.setItem(
+                                                        "company",
+                                                        JSON.stringify({
+                                                            is_my_company: false,
+                                                            is_manpower: false,
+                                                            is_freelancer: true,
+                                                        })
+                                                    );
+                                                }}
+                                            >
+                                                {t("admin.global.freelancer")}
+                                            </button>
+
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilters({
+                                                        ...filters,
+                                                        manpower_company_id: "",
+                                                        is_my_company: false,
+                                                        is_manpower: false,
+                                                        is_freelancer: false,
+                                                    });
+                                                    localStorage.setItem(
+                                                        "company",
+                                                        JSON.stringify({
+                                                            is_my_company: false,
+                                                            is_manpower: false,
+                                                            is_freelancer: false,
+                                                        })
+                                                    );
+                                                }}
+                                            >
+                                                {t("admin.global.All")}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1204,7 +1340,7 @@ export default function AllWorkers() {
                     value={filters.is_freelancer}
                     ref={isFreelancerRef}
                 />
-                <div className="col-sm-12 d-none d-lg-flex mt-2">
+                <div className="col-sm-12 d-none d-lg-flex mt-2 pl-0">
                     <div className="d-flex align-items-center">
                         <div style={{ fontWeight: "bold" }} className="mr-2">
                             {t("global.date_period")}
@@ -1372,7 +1508,7 @@ export default function AllWorkers() {
                         alignItems: "center",
                         justifyContent: "left",
                     }}
-                    className="hide-scrollbar my-2"
+                    className=" my-2"
                 >
                     <p
                         className="mr-2"
@@ -1434,7 +1570,7 @@ export default function AllWorkers() {
                     </div>
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body">
+                    <div className="card-body p-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}
@@ -1500,14 +1636,14 @@ export default function AllWorkers() {
                 backdrop="static"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Change status</Modal.Title>
+                    <Modal.Title>{t("admin.leads.change_status")}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-12">
                             <div className="form-group">
-                                <label className="control-label">Status</label>
+                                <label className="control-label">{t("worker.status")}</label>
 
                                 <select
                                     name="status"
@@ -1517,10 +1653,11 @@ export default function AllWorkers() {
                                 >
                                     <option value="">
                                         {" "}
-                                        ---Select Status---
+                                        {t("admin.global.select_status")}
                                     </option>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
+                                    <option value="2">{t("worker.settings.waiting")}</option>
+                                    <option value="1">{t("admin.global.active")}</option>
+                                    <option value="0">{t("admin.global.inactive")}</option>
                                 </select>
                             </div>
                         </div>

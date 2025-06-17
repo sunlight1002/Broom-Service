@@ -731,7 +731,7 @@ Broom Service Team 🌹",
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
             $user = User::where('phone', $from)
-                ->where('status', 1)
+                ->where('status', '!=', 0)
                 ->first();
             $client = Client::where('phone', $from)->first();
 
@@ -2774,7 +2774,7 @@ Broom Service Team 🌹",
             }
 
             $user = User::where('phone', $from)
-                ->where('status', 1)
+                ->where('status', '!=', 0)
                 ->first();
             if ($user) {
                 \Log::info('User already exists');
@@ -3511,7 +3511,7 @@ Broom Service Team 🌹",
             }
 
             $user = User::where('phone', $from)
-                ->where('status', 1)
+                ->where('status', '!=', 0)
                 ->first();
             if ($user) {
                 \Log::info('User already exists');
@@ -3655,7 +3655,7 @@ Broom Service Team 🌹",
 
             switch ($send_menu) {
                 case 'main_menu':
-                    $this->sendMainMenu($client, $from);
+                    $this->sendMainMenu($client, $from, $input);
                     break;
 
                 case 'urgent_contact':
@@ -4551,11 +4551,6 @@ Broom Service Team 🌹",
                     break;
 
                 case 'schedule_preferrence_input':
-                    $text = [
-                        "en" => "Hello :client_name,\nWe’ve received your request:\n':client_message'\n\n:comment_link\nYour message has been forwarded to the team for further handling. Thank you for your patience!",
-                        "heb" => "שלום :client_name,\bקיבלנו את עדכון הבקשה שלך:\n':client_message'\n\n:comment_link\nההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
-                    ];
-
                     $scheduleChange = new ScheduleChange();
                     $scheduleChange->user_type = get_class($client);
                     $scheduleChange->user_id = $client->id;
@@ -4565,7 +4560,13 @@ Broom Service Team 🌹",
 
                     // Send message to team
                     $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
-                    $personalizedMessage = str_replace([':comment_link', ':client_name', ':client_message'], [generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $clientName, trim($input)], $text[$client->lng]);
+                    $teammsg = "שלום צוות, לקוח *:client_name* ביקש. בקשתו היא: *:client_message* אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+
+                    $personalizedMessage = str_replace(
+                        [':comment_link', ':client_name', ':client_message'],
+                        [generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $clientName, trim($input)],
+                        $teammsg
+                    );
 
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -4677,11 +4678,11 @@ Broom Service Team 🌹",
         }
     }
 
-    public function sendMainMenu($client, $from)
+    public function sendMainMenu($client, $from, $input = null)
     {
         // Check if the client is active
         $lng = $client->lng;
-        $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+        $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
         $sid = $lng == "heb" ? "HX290ac2d38673f69f4588643fd2850cab" : "HX46684b2aee6eca7848bd9a36d7a86e78";
         $twi = $this->twilio->messages->create(
             "whatsapp:+$from",
@@ -4701,6 +4702,31 @@ Broom Service Team 🌹",
         // Replace :client_name with the client's firstname and lastname
         $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
         // $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        $activeClientBotstate = WhatsAppBotActiveClientState::where('from', $from)->first();
+        $cacheKey = 'first_time_client_' . $from;
+
+        if (!$activeClientBotstate && !Cache::has($cacheKey)) {
+            Cache::put($cacheKey, true, now()->addHours(1));
+
+            $scheduleChange = new ScheduleChange();
+            $scheduleChange->user_type = get_class($client);
+            $scheduleChange->user_id = $client->id;
+            $scheduleChange->reason = $client->lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף";
+            $scheduleChange->comments = trim($input);
+            $scheduleChange->save();
+
+            // Send message to team
+            $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
+            $teammsg = "שלום צוות, לקוח *:client_name* ביקש. בקשתו היא: *:client_message* אנא בדוק וטפל בהתאם. בברכה, צוות השירות של ברום\n:comment_link";
+
+            $personalizedMessage = str_replace(
+                [':comment_link', ':client_name', ':client_message'],
+                [generateShortUrl(url('admin/schedule-requests' . '?id=' . $scheduleChange->id), 'admin'), $clientName, trim($input)],
+                $teammsg
+            );
+
+            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+        }
 
         WhatsAppBotActiveClientState::updateOrCreate(
             ['from' => $from],
@@ -4998,7 +5024,7 @@ Broom Service Team 🌹",
 
                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
                     } else if (!empty($last_input2) && !empty($messageBody)) {
-                        
+
                         $job = Job::where('client_id', $client->id)
                             ->where('status', JobStatusEnum::COMPLETED)
                             ->latest()

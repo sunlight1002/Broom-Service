@@ -32,7 +32,7 @@ class AddWorkerContactToGoogleContact extends Command
         $this->info('Checking workers for missing Google contactId...');
 
         // Retrieve all workers where contactId is null
-        $workers = User::whereNull('contactId')->where('status', 1)->get();
+        $workers = User::whereNull('contactId')->where('status', '!=' , 0)->get();
 
         if ($workers->isEmpty()) {
             $this->info('No workers with null contactId found.');

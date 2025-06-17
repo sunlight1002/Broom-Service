@@ -104,6 +104,7 @@ export default function Sidebar() {
         payslipSettings: "/admin/payslip-settings",
         client_worker_chat: `/admin/chat`,
         worker_lead_chat: `/admin/worker-lead-chat`,
+        whapi_chat: '/admin/whapi-chat',
         // Client routes
         clients: "/admin/clients",
         pendingClient: "/admin/clients?type=pending%20client",
@@ -415,7 +416,7 @@ export default function Sidebar() {
                                 </div>
                                 <div
                                     id="chat"
-                                    className={`collapse ${isParentActive(["client_worker_chat", "worker_lead_chat"]) ? "show" : ""}`}
+                                    className={`collapse ${isParentActive(["client_worker_chat", "worker_lead_chat", "whapi_chat"]) ? "show" : ""}`}
                                     aria-labelledby="chat"
                                     data-parent="#chat"
                                 >
@@ -431,6 +432,12 @@ export default function Sidebar() {
                                                     </li>
                                                 )
                                             }
+                                            <li className={`list-group-item ${isActive(routes.whapi_chat) ? "active" : ""}`}>
+                                                <Link to={routes.whapi_chat} style={isActive(routes.whapi_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.whapi_bot_chat")}
+                                                </Link>
+                                            </li>
                                             <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
                                                 <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
                                                     <i className="fa fa-angle-right"></i>{" "}

@@ -606,7 +606,7 @@ class GoogleSheetsJobSyncService
      */
     protected function getWorkerDropdownOptions()
     {
-        return User::where('status', 1)->get()->pluck('fullname')->toArray();
+        return User::where('status', '!=' , 0)->get()->pluck('fullname')->toArray();
     }
 
     /**

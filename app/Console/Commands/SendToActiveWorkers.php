@@ -108,8 +108,8 @@ The Broom Service Team 🌹',
             "ru" => "Здравствуйте :worker_name,\n\nВ среду, 30 апреля (канун Дня независимости) – мы работаем только до 13:00.\nВ четверг, 1 мая (День независимости) – работы не будет.\n\nЕсли у вас есть пожелания или изменения на эту неделю – пожалуйста, сообщите нам.\n\nС уважением,\nКоманда Broom Service"
         ];
 
-        // $workers = User::where('status', '1')->where('phone', '918469138538')->get();
-         $workers = User::where('status', '1')->where('stop_last_message', 0)->get();
+        // $workers = User::where('status', '!=' , 0)->where('phone', '918469138538')->get();
+         $workers = User::where('status', '!=' , 0)->where('stop_last_message', 0)->get();
         //  dd($workers);
         foreach ($workers as $worker) {
             \Log::info('Sending message to ' . $worker->phone . ' (' . $worker->firstname . ')');

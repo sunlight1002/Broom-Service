@@ -38,7 +38,7 @@ class TerminateTheWorker extends Command
         $today = Carbon::today()->toDateString();
 
         // Find users whose last_work_date is today and update their status
-        $workers = User::with('forms')->where('status', 1)->whereDate('last_work_date', $today)->get();
+        $workers = User::with('forms')->where('status', '!=' , 0)->whereDate('last_work_date', $today)->get();
         $insuranceCompany = InsuranceCompany::first();
 
 

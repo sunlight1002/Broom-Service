@@ -45,7 +45,7 @@ class SendReminderforPendingform101 extends Command
      */
     public function handle()
     {
-        $workers = User::where('status', 1)
+        $workers = User::where('status', '!=' , 0)
             ->where('company_type', 'my-company')
             ->whereHas('forms', function ($query) {
                 $query->where('type', WorkerFormTypeEnum::FORM101)
