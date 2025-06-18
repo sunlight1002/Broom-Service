@@ -55,17 +55,17 @@ export default function ManageTeam() {
                 {
                     title: t("global.phone"),
                     data: "phone",
-                    render: function(data) {
+                    render: function (data) {
                         return `+${data}`;
                     }
                 },
-                { 
-                    title: t("admin.global.IPAddress"), 
-                    data: "ip" 
+                {
+                    title: t("admin.global.IPAddress"),
+                    data: "ip"
                 },
-                { 
+                {
                     title: t("admin.global.Country"),
-                    data: "country" 
+                    data: "country"
                 },
                 {
                     title: t("admin.global.LastActivity"),
@@ -89,6 +89,8 @@ export default function ManageTeam() {
                     render: function (data, type, row, meta) {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                        _html += `<button type="button" class="dropdown-item dt-timer-logs-btn" data-id="${row.id}">${t("admin.view_timer_logs")}</button>`;
 
                         _html += `<button type="button" class="dropdown-item dt-availability-btn" data-id="${row.id}">${t("admin.availability")}</button>`;
 
@@ -169,6 +171,11 @@ export default function ManageTeam() {
             handleDelete(_id);
         });
 
+        $(tableRef.current).on("click", ".dt-timer-logs-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/manage-team/timer-logs/${_id}`);
+        });
+
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
         };
@@ -239,7 +246,7 @@ export default function ManageTeam() {
                         </div>
                     </div>
                 </div>
-                <div className="dashBox p-0 p-md-4" style={{backgroundColor: "inherit", border: "none"}}>
+                <div className="dashBox p-0 p-md-4" style={{ backgroundColor: "inherit", border: "none" }}>
                     <table
                         ref={tableRef}
                         className="display table table-bordered"

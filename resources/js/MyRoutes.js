@@ -207,6 +207,7 @@ import Conflicts from "./Admin/Pages/Jobs/Conflicts";
 import Contracts from "./Pages/Contracts";
 import Discount from "./Admin/Pages/Setting/Discount";
 import WorkerTutorial from "./Worker/Pages/MyAccount/WorkerTutorial";
+import AdminTimerLogs from "./Admin/Pages/Setting/AdminTimerLogs";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -855,6 +856,11 @@ export default function MyRoutes() {
                                 exact
                                 path="manage-team"
                                 element={<ManageTeam />}
+                            />
+                            <Route
+                                exact
+                                path="manage-team/timer-logs/:id"
+                                element={<AdminTimerLogs />}
                             />
                             <Route
                                 exact

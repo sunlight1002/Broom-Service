@@ -372,6 +372,97 @@ class AuthController extends Controller
     }
 
 
+    public function gettimerLogs(Request $request)
+    {
+        $columns = [
+            'admin_time_logs.id',
+            'admin_time_logs.created_at',
+            'admins.name',
+            'admins.email',
+            'admin_time_logs.start_timer',
+            'admin_time_logs.end_timer',
+            'admin_time_logs.start_location',
+            'admin_time_logs.end_location',
+            'admin_time_logs.start_lat',
+            'admin_time_logs.start_lng',
+            'admin_time_logs.end_lat',
+            'admin_time_logs.end_lng',
+            'admin_time_logs.difference_minutes',
+        ];
+
+        $length = $request->get('length', 10);
+        $start = $request->get('start', 0);
+        $order = $request->get('order', []);
+        $columnIndex = $order[0]['column'] ?? 0;
+        $dir = $order[0]['dir'] ?? 'desc';
+        $search = $request->get('search')['value'] ?? null;
+        $adminId = $request->get('id'); 
+
+        $query = AdminTimeLog::query()
+            ->join('admins', 'admin_time_logs.admins_id', '=', 'admins.id');
+
+        if ($adminId) {
+            $query->where('admin_time_logs.admins_id', $adminId);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('admins.name', 'like', "%{$search}%")
+                    ->orWhere('admins.email', 'like', "%{$search}%")
+                    ->orWhere('admin_time_logs.start_location', 'like', "%{$search}%")
+                    ->orWhere('admin_time_logs.end_location', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('admin_time_logs.created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay(),
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('admin_time_logs.created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('admin_time_logs.created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
+
+        $totalRecords = $query->count();
+
+        $query->orderBy($columns[$columnIndex] ?? 'admin_time_logs.id', $dir);
+
+        $logs = $query
+            ->select($columns)
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = $logs->map(function ($log) {
+            return [
+                'id' => $log->id,
+                'created_at' => Carbon::parse($log->created_at)->format('d/m/Y H:i'),
+                'name' => $log->name ?? '-',
+                'email' => $log->email ?? '-',
+                'start_timer' => optional($log->start_timer)->format('H:i d/m/Y'),
+                'end_timer' => optional($log->end_timer)->format('H:i d/m/Y'),
+                'start_location' => $log->start_location ?? '-',
+                'end_location' => $log->end_location ?? '-',
+                'start_lat' => $log->start_lat,
+                'start_lng' => $log->start_lng,
+                'end_lat' => $log->end_lat,
+                'end_lng' => $log->end_lng,
+                'difference_minutes' => $log->difference_minutes,
+            ];
+        });
+
+        return response()->json([
+            'draw' => intval($request->get('draw')),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $totalRecords,
+            'data' => $data,
+        ]);
+    }
+
+
+
     public function storeAdminTimeLogs(Request $request)
     {
         $request->validate([
