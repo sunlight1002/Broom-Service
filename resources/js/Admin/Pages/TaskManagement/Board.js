@@ -15,6 +15,7 @@ import { useAlert } from "react-alert";
 import CommentModal from './CommentModal';
 import TaskModal from './TaskModal';
 import debounce from "lodash.debounce";
+import FilterButtons from '../../../Components/common/FilterButton';
 
 const App = () => {
     const { t } = useTranslation();
@@ -56,6 +57,9 @@ const App = () => {
     const pageSize = 10;
     const tableRef = useRef();
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [datePeriod, setDatePeriod] = useState('');
+    const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
     const admin_id = localStorage.getItem("admin-id");
 
@@ -131,25 +135,38 @@ const App = () => {
         }
     };
 
+    // Helper to get date range for period
+    const getDateRangeForPeriod = (period) => {
+        const today = Moment().format('YYYY-MM-DD');
+        if (period === 'Day') {
+            return { start: today, end: today };
+        } else if (period === 'Week') {
+            return {
+                start: Moment().startOf('week').format('YYYY-MM-DD'),
+                end: Moment().endOf('week').format('YYYY-MM-DD'),
+            };
+        } else if (period === 'Month') {
+            return {
+                start: Moment().startOf('month').format('YYYY-MM-DD'),
+                end: Moment().endOf('month').format('YYYY-MM-DD'),
+            };
+        }
+        return { start: '', end: '' };
+    };
+
     const getTasks = async (params = {}) => {
         setLoading("Loading...");
         try {
             const response = await axios.get(`/api/admin/tasks`, {
                 headers,
                 params: {
-                    status: selectedStatus,
-                    worker_id: selectedWorker?.value,
-                    user_id: selectedTeam?.value,
-                    due_date: selectedDueDate,
-                    search: debouncedSearch,
-                    sort_by: sortCol,
-                    sort_order: order,
-                    per_page: pageSize,
-                    page,
+                    status: statusFilter !== 'All' ? statusFilter : '',
+                    due_date_start: dateRange.start,
+                    due_date_end: dateRange.end,
+                    // add other filters as needed
                     ...params
                 }
             });
-            console.log({ response });
             setTasks(response.data.data);
             setPageCount(response.data.last_page);
             setLoading("");
@@ -183,7 +200,7 @@ const App = () => {
     useEffect(() => {
         getTasks();
         // eslint-disable-next-line
-    }, [selectedStatus, selectedWorker, selectedTeam, selectedDueDate, debouncedSearch, sortCol, order, page]);
+    }, [statusFilter, datePeriod, dateRange.start, dateRange.end, sortCol, order, page]);
 
     const handleSort = async (sortedTaskIds) => {
         try {
@@ -518,64 +535,26 @@ const App = () => {
                     </div>
                 </div>
 
-                <div className="sales-filter">
-                    <div className="row">
-                        <div className="col-sm-2 col-6">
-                            <div className="form-group">
-                                <label>Status</label>
-                                <Select
-                                    options={statusOptions}
-                                    value={statusOptions.find(o => o.value === selectedStatus) || null}
-                                    onChange={opt => setSelectedStatus(opt ? opt.value : "")}
-                                    isClearable
-                                />
-                            </div>
-                        </div>
-                        <div className="col-sm-2 col-6">
-                            <div className="form-group">
-                                <label>Worker</label>
-                                <Select
-                                    options={workerOptions}
-                                    value={selectedWorker}
-                                    onChange={setSelectedWorker}
-                                    isClearable
-                                />
-                            </div>
-                        </div>
-                        <div className="col-sm-2 col-6">
-                            <div className="form-group">
-                                <label>Team Member</label>
-                                <Select
-                                    options={teamOptions}
-                                    value={selectedTeam}
-                                    onChange={setSelectedTeam}
-                                    isClearable
-                                />
-                            </div>
-                        </div>
-                        <div className="col-sm-2 col-6">
-                            <div className="form-group">
-                                <label>Due Date</label>
-                                <input
-                                    type="date"
-                                    className="form-control"
-                                    value={selectedDueDate}
-                                    onChange={e => setSelectedDueDate(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className="col-sm-2 col-6">
-                            <div className="form-group">
-                                <label>Search</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Search by name or description"
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                <div className="mb-3">
+                    <div className="d-flex align-items-center mb-2">
+                        <span style={{ fontWeight: 'bold', marginRight: 10 }}>Filter</span>
+                        <FilterButtons text="All" name="All" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                        <FilterButtons text="Pending" name="Pending" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                        <FilterButtons text="In Progress" name="In Progress" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                        <FilterButtons text="Completed" name="Completed" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                        <span style={{ fontWeight: 'bold', marginRight: 10 }}>Date Period</span>
+                        <FilterButtons text="Day" name="Day" className="px-3 mr-1" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Day')); }} />
+                        <FilterButtons text="Week" name="Week" className="px-3 mr-1" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Week')); }} />
+                        <FilterButtons text="Month" name="Month" className="px-3 mr-1" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Month')); }} />
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <span style={{ fontWeight: 'bold', marginRight: 10 }}>Date</span>
+                        <input type="date" className="form-control mr-2" style={{ width: 170 }} value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} />
+                        <span className="mx-2">-</span>
+                        <input type="date" className="form-control mr-2" style={{ width: 170 }} value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} />
+                        <button className="btn btn-dark ml-2" onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); }}>Reset</button>
                     </div>
                 </div>
 
@@ -583,23 +562,36 @@ const App = () => {
                     <div className="card-body">
                         <div className="boxPanel">
                             <div className="table-responsive">
-                                {loading ? (
-                                    <div>{loading}</div>
-                                ) : (
-                                    <Table className="table table-bordered">
-                                        <Thead>
+                                <Table className="table table-bordered">
+                                    <Thead>
+                                        <Tr>
+                                            <Th style={{ width: '50px' }}>No.</Th>
+                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>Task Name <span className="arr">&darr;</span></Th>
+                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>Status <span className="arr">&darr;</span></Th>
+                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>Deadline <span className="arr">&darr;</span></Th>
+                                            <Th>Comment</Th>
+                                            <Th>Worker/Team Member</Th>
+                                            <Th>Actions</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                        {loading ? (
                                             <Tr>
-                                                <Th style={{ width: '50px' }}>No.</Th>
-                                                <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>Task Name <span className="arr">&darr;</span></Th>
-                                                <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>Status <span className="arr">&darr;</span></Th>
-                                                <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>Deadline <span className="arr">&darr;</span></Th>
-                                                <Th>Comment</Th>
-                                                <Th>Worker/Team Member</Th>
-                                                <Th>Actions</Th>
+                                                <Td colSpan={7} className="text-center py-5">
+                                                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 120 }}>
+                                                        <div className="spinner-border text-primary mr-2" role="status">
+                                                            <span className="sr-only">Loading...</span>
+                                                        </div>
+                                                        <span className="ml-2">Loading...</span>
+                                                    </div>
+                                                </Td>
                                             </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {paginatedTasks.map((task, idx) => (
+                                        ) : paginatedTasks.length === 0 ? (
+                                            <Tr>
+                                                <Td colSpan={7} className="text-center py-5">No tasks found</Td>
+                                            </Tr>
+                                        ) : (
+                                            paginatedTasks.map((task, idx) => (
                                                 <Tr key={task.id}>
                                                     <Td>{(page - 1) * pageSize + idx + 1}</Td>
                                                     <Td>{task.task_name}</Td>
@@ -637,10 +629,10 @@ const App = () => {
                                                         <button className="btn btn-sm btn-danger mr-1" onClick={() => handleDeleteCard(task.id)}><i className="fa fa-trash"></i></button>
                                                     </Td>
                                                 </Tr>
-                                            ))}
-                                        </Tbody>
-                                    </Table>
-                                )}
+                                            ))
+                                        )}
+                                    </Tbody>
+                                </Table>
                                 {/* Pagination */}
                                 <div className="d-flex justify-content-between align-items-center mt-3">
                                     <div>Page {page} of {pageCount}</div>
