@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import './Board.css';
 import Sidebar from '../../Layouts/Sidebar';
@@ -7,20 +7,31 @@ import axios from 'axios';
 import { GrUpgrade } from "react-icons/gr";
 import { ReactSortable, Sortable, MultiDrag, Swap } from "react-sortablejs";
 import { v4 as uuidv4 } from 'uuid';
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import Select from "react-select";
+import Moment from "moment";
 
 import { useAlert } from "react-alert";
 import CommentModal from './CommentModal';
 import TaskModal from './TaskModal';
+import debounce from "lodash.debounce";
 
 const App = () => {
     const { t } = useTranslation();
     const [team, setTeam] = useState([]);
     const [worker, setWorker] = useState([])
-    const [phase, setPhase] = useState([]);
-    const [phaseEdit, setPhaseEdit] = useState(null);
-    const [isAddingPhase, setIsAddingPhase] = useState(false);
-    const [newPhaseTitle, setNewPhaseTitle] = useState('');
     const [tasks, setTasks] = useState([])
+    const [filteredTasks, setFilteredTasks] = useState([]);
+    const [statusOptions, setStatusOptions] = useState([]);
+    const [workerOptions, setWorkerOptions] = useState([]);
+    const [teamOptions, setTeamOptions] = useState([]);
+    const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedWorker, setSelectedWorker] = useState(null);
+    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedDueDate, setSelectedDueDate] = useState("");
+    const [search, setSearch] = useState("");
+    const [order, setOrder] = useState("ASC");
+    const [sortCol, setSortCol] = useState("due_date");
     const [isOpen, setIsOpen] = useState(false);
     const [isComModal, setIsComModal] = useState(false)
     const [comment, setComments] = useState('');
@@ -40,6 +51,12 @@ const App = () => {
     const [selectedFrequency, setSelectedFrequency] = useState(1);
     const [repeatancy, setRepeatancy] = useState('');
     const [untilDate, setUntilDate] = useState('');
+    const [page, setPage] = useState(1);
+    const [pageCount, setPageCount] = useState(1);
+    const [loading, setLoading] = useState("Loading...");
+    const pageSize = 10;
+    const tableRef = useRef();
+    const [debouncedSearch, setDebouncedSearch] = useState("");
 
     const admin_id = localStorage.getItem("admin-id");
 
@@ -77,42 +94,86 @@ const App = () => {
 
     const getWorkers = async () => {
         try {
-            const response = await axios.get(`/api/admin/workers`, { headers })
-            const workers = response?.data?.data?.map(worker => ({
+            const response = await axios.get(`/api/admin/workers`, { headers });
+            // DataTables structure: response.data.data is the array
+            const workers = (response.data.data || []).map(worker => ({
                 value: worker.id,
-                label: worker.name
-            }))
-            setWorker(workers)
+                label: (worker.firstname || '') + ' ' + (worker.lastname || '')
+            }));
+            setWorkerOptions(workers);
         } catch (error) {
-            console.error(error);
+            setWorkerOptions([]);
         }
     }
 
-    const getTasks = async () => {
+    const getTeams = async () => {
         try {
-            const response = await axios.get(`/api/admin/tasks`, { headers })
-            setTasks(response.data);
-
+            const response = await axios.get(`/api/admin/teams`, { headers });
+            // DataTables structure: response.data.data is the array
+            const teams = (response.data.data || []).map(team => ({
+                value: team.id,
+                label: team.name
+            }));
+            setTeamOptions(teams);
         } catch (error) {
-            console.error(error);
+            setTeamOptions([]);
         }
-    }
+    };
 
-    const getPhase = async () => {
+    const getTasks = async (params = {}) => {
+        setLoading("Loading...");
         try {
-            const response = await axios.get(`/api/admin/phase`, { headers });
-            setPhase(response.data);
+            const response = await axios.get(`/api/admin/tasks`, {
+                headers,
+                params: {
+                    status: selectedStatus,
+                    worker_id: selectedWorker?.value,
+                    user_id: selectedTeam?.value,
+                    due_date: selectedDueDate,
+                    search: debouncedSearch,
+                    sort_by: sortCol,
+                    sort_order: order,
+                    per_page: pageSize,
+                    page,
+                    ...params
+                }
+            });
+            console.log({ response });
+            setTasks(response.data.data);
+            setPageCount(response.data.last_page);
+            setLoading("");
         } catch (error) {
-            console.error(error);
+            setLoading("No tasks found");
+            setTasks([]);
         }
     };
 
     useEffect(() => {
         getTeamMembers();
         getWorkers();
-        getPhase();
+        getTeams();
         getTasks();
+        setStatusOptions([
+            { value: "Open", label: "Open" },
+            { value: "In Progress", label: "In Progress" },
+            { value: "Completed", label: "Completed" },
+            { value: "Blocked", label: "Blocked" },
+        ]);
     }, []);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 300);
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [search]);
+
+    useEffect(() => {
+        getTasks();
+        // eslint-disable-next-line
+    }, [selectedStatus, selectedWorker, selectedTeam, selectedDueDate, debouncedSearch, sortCol, order, page]);
 
     const handleSort = async (sortedTaskIds) => {
         try {
@@ -168,35 +229,6 @@ const App = () => {
         }
     };
 
-    const handleAddList = () => {
-        setIsAddingPhase(true);
-    };
-
-    const handleSavePhase = async () => {
-        const data = {
-            phase_name: newPhaseTitle
-        };
-        try {
-            await axios.post(`/api/admin/phase`, data, { headers });
-            getPhase();
-        } catch (error) {
-            console.error(error);
-        }
-        if (newPhaseTitle.trim()) {
-            setNewPhaseTitle('');
-            setIsAddingPhase(false);
-        }
-    };
-
-    const handleDeleteList = async (phaseId) => {
-        try {
-            await axios.delete(`/api/admin/phase/${phaseId}`, { headers });
-            getPhase();
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     const handleEditTask = async (tid) => {
         try {
             const response = await axios.get(`/api/admin/tasks/${tid}`, { headers })
@@ -207,13 +239,8 @@ const App = () => {
             console.error(error);
         }
     }
-    // useEffect(() => {
-    //     handleEditTask();
-    // }, [])
-
 
     const handleDeleteCard = async (tid) => {
-
         try {
             const res = await axios.delete(`/api/admin/tasks/${tid}`, { headers });
             alert.success(res?.data?.message)
@@ -222,24 +249,6 @@ const App = () => {
             console.error(error);
         }
     }
-
-    const handleTitleChange = (listIndex, e) => {
-        const newPhase = [...phase];
-        newPhase[listIndex].phase_name = e.target.value;
-        setPhase(newPhase);
-    };
-
-    const updatePhase = async (phaseId, listIndex) => {
-        const data = phase[listIndex];
-        try {
-            const res = await axios.put(`/api/admin/phase/${phaseId}`, data, { headers });
-            getPhase()
-            setPhaseEdit(null)
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
 
     const handleComment = async () => {
         const data = {
@@ -265,8 +274,6 @@ const App = () => {
         return name.split(' ').map(part => part[0]).join('');
     };
 
-
-
     const handleOpenAddTaskModal = (phaseId) => {
         setSelectedPhaseId(phaseId);
         clearModalFields();
@@ -282,7 +289,15 @@ const App = () => {
         setStatus(task.status);
         setDescription(task.description);
         setSelectedPhaseId(task.phase_id);
-        setSelectedOptions(task ? task?.users?.map(user => ({ value: user.id, label: user.name })) : []);
+        setSelectedOptions(
+            task && task.users
+                ? task.users.map(user => {
+                    // Try to find the label from teamOptions, fallback to user.name
+                    const found = teamOptions.find(opt => opt.value === user.id);
+                    return found || { value: user.id, label: user.name };
+                })
+                : []
+        );
         setSelectedWorkers(task ? task?.workers?.map(worker => ({ value: worker.id, label: worker.firstname })) : []);
         setSelectedFrequency(task.frequency_id);
         setRepeatancy(task.repeatancy);
@@ -368,6 +383,44 @@ const App = () => {
         }
     };
 
+    // Remove all frontend-only filtering, searching, and sorting logic
+    // Use tasks directly from backend response
+    const paginatedTasks = tasks;
+
+    // Sorting
+    const sortTable = (col) => {
+        if (sortCol === col) {
+            setOrder(order === "ASC" ? "DESC" : "ASC");
+        } else {
+            setSortCol(col);
+            setOrder("ASC");
+        }
+    };
+
+    // Pagination controls
+    const handlePageClick = (newPage) => {
+        setPage(newPage);
+    };
+
+    // Assignment
+    const handleAssignWorker = async (taskId, worker) => {
+        try {
+            await axios.put(`/api/admin/tasks/${taskId}`, { worker_ids: [worker.value] }, { headers });
+            getTasks();
+            alert.success("Worker assigned");
+        } catch (error) {
+            alert.error("Failed to assign worker");
+        }
+    };
+    const handleAssignTeam = async (taskId, team) => {
+        try {
+            await axios.put(`/api/admin/tasks/${taskId}`, { user_ids: [team.value] }, { headers });
+            getTasks();
+            alert.success("Team member assigned");
+        } catch (error) {
+            alert.error("Failed to assign team member");
+        }
+    };
 
     return (
         <div id="container">
@@ -376,167 +429,146 @@ const App = () => {
                 <div className="titleBox customer-title">
                     <div className="row align-items-center justify-space-between">
                         <div className="col">
-                            <h1 className="page-title">{t("admin.sidebar.task_management")}</h1>
+                            <h1 className="page-title">Task Management</h1>
+                        </div>
+                        <div className="col text-right">
+                            <button className="btn btn-pink addButton" onClick={() => {
+                                setSelectedTaskId(null);
+                                setIsEditing(false);
+                                setIsOpen(true);
+                            }}>
+                                <i className="btn-icon fas fa-plus-circle"></i> Add Task
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="dashBox" style={{ backgroundColor: "inherit", border: "none" }}>
-                    <div id='ko' style={{ overflowX: "scroll", maxWidth: "100%" }}>
-                        <div id="main" className="d-flex" >
-                            {phase.length > 0 ? phase.map((list, listIndex) => {
-                                const tasksForPhase = tasks.filter(task => task.phase_id === list.id);
-                                return (
-                                    <div className="list" key={list.id}>
-                                        <div className='d-flex align-items-center mb-2'>
-                                            <input
-                                                type="text"
-                                                className="list-title editable mb-0"
-                                                value={list.phase_name}
-                                                readOnly={phaseEdit !== listIndex}
-                                                onChange={(e) => handleTitleChange(listIndex, e)}
-                                            />
-                                            {
-                                                phaseEdit === listIndex ? (
-                                                    <button className="p-1 px-2 mr-1 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)', borderRadius: "5px" }} onClick={() => updatePhase(list.id, listIndex)}>
-                                                        <i className="fa-solid fa-arrow-up-from-bracket"></i>
-                                                    </button>
-                                                ) : (
-                                                    <button className="mr-1 p-1 px-2 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)', borderRadius: "5px" }} onClick={() => setPhaseEdit(listIndex)}>
-                                                        <i className="fa-solid fa-edit"></i>
-                                                    </button>
-                                                )
-                                            }
-                                            <span className="del" onClick={() => handleDeleteList(list.id)}>&times;</span>
-                                        </div>
+                <div className="sales-filter">
+                    <div className="row">
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label>Status</label>
+                                <Select
+                                    options={statusOptions}
+                                    value={statusOptions.find(o => o.value === selectedStatus) || null}
+                                    onChange={opt => setSelectedStatus(opt ? opt.value : "")}
+                                    isClearable
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label>Worker</label>
+                                <Select
+                                    options={workerOptions}
+                                    value={selectedWorker}
+                                    onChange={setSelectedWorker}
+                                    isClearable
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label>Team Member</label>
+                                <Select
+                                    options={teamOptions}
+                                    value={selectedTeam}
+                                    onChange={setSelectedTeam}
+                                    isClearable
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label>Due Date</label>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    value={selectedDueDate}
+                                    onChange={e => setSelectedDueDate(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm-2 col-6">
+                            <div className="form-group">
+                                <label>Search</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search by name or description"
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                        <div className="content">
-                                            <ReactSortable
-                                                list={tasksForPhase}
-                                                setList={(newTasksForPhase) => {
-                                                    const updatedTasks = tasks.map(task => {
-                                                        const newTask = newTasksForPhase.find(t => t.id === task.id);
-                                                        if (newTask) {
-                                                            return { ...task, phase_id: list.id };  // Update the phase_id as needed
-                                                        }
-                                                        return task;
-                                                    });
-                                                }}
-                                                onEnd={async ({ oldIndex, newIndex, from, to }) => {
-                                                    if (oldIndex === newIndex && from === to) return; // No change
-
-                                                    // Get task IDs in the current phase before the move
-                                                    const currentTaskIds = tasksForPhase.map(task => task.id);
-
-                                                    // Handle reordering within the same phase
-                                                    if (from === to) {
-                                                        const reorderedTaskIds = [...currentTaskIds];
-                                                        const [movedId] = reorderedTaskIds.splice(oldIndex, 1);  // Remove from old index
-                                                        reorderedTaskIds.splice(newIndex, 0, movedId);  // Add at new index
-
-                                                        // Call the handleSort function to update task order in the backend
-                                                        await handleSort(reorderedTaskIds);
-                                                    } else {
-                                                        // Handle moving between phases
-                                                        const taskId = tasksForPhase[oldIndex].id;
-                                                        // await handleMoveTask(taskIdPhaseId.taskId,taskIdPhaseId.phaseId);
-                                                        const destinationPhaseId = $(to).children('div').data('phase-id');  // Extract phase ID from the `to` container
-                                                        await handleMoveTask(taskId, destinationPhaseId);
-                                                    }
-                                                }}
-                                                group="tasks"
-                                                animation={200}
-                                                delayOnDrag={0}
-                                                delayOnStart={0}
-                                            >
-                                                {tasksForPhase.length > 0 ? tasksForPhase.map((task, taskIndex) => (
-                                                    <div className="taskcard" data-phase-id={list?.id} key={task.id}>
-                                                        <div className="task-info">
-                                                            <span className="task-name">{task.task_name}</span>
-                                                            <span className="task-priority">
-                                                                <i className="fa-solid fa-flag mr-1"></i>{task.priority}
-                                                            </span>
-                                                        </div>
-                                                        <div className="task-details">
-                                                            <span><i className="fa-solid fa-calendar-alt"></i> {task.due_date}</span>
-                                                            <span><i className="fa-solid fa-tasks"></i> {task.status}</span>
-                                                        </div>
-                                                        <div className="task-users d-flex justify-content-between">
-                                                            <div className='d-flex'>
-                                                                <div className="user-icons">
-                                                                    {task.workers.map(worker => (
-                                                                        <div key={worker.id} className="user-icon">
-                                                                            {getInitials(worker.firstname)}
-                                                                        </div>
-                                                                    ))}
+                <div className="card">
+                    <div className="card-body">
+                        <div className="boxPanel">
+                            <div className="table-responsive">
+                                {loading ? (
+                                    <div>{loading}</div>
+                                ) : (
+                                    <Table className="table table-bordered">
+                                        <Thead>
+                                            <Tr>
+                                                <Th style={{ width: '50px' }}>No.</Th>
+                                                <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>Task Name <span className="arr">&darr;</span></Th>
+                                                <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>Status <span className="arr">&darr;</span></Th>
+                                                <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>Deadline <span className="arr">&darr;</span></Th>
+                                                <Th>Comment</Th>
+                                                <Th>Worker/Team Member</Th>
+                                                <Th>Actions</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                            {paginatedTasks.map((task, idx) => (
+                                                <Tr key={task.id}>
+                                                    <Td>{(page - 1) * pageSize + idx + 1}</Td>
+                                                    <Td>{task.task_name}</Td>
+                                                    <Td>
+                                                        <span className={`badge badge-${task.status === "Completed" ? "success" : task.status === "Blocked" ? "danger" : task.status === "In Progress" ? "warning" : "secondary"}`}>{task.status}</span>
+                                                    </Td>
+                                                    <Td>{task.due_date ? Moment(task.due_date).format("YYYY-MM-DD") : ""}</Td>
+                                                    <Td>
+                                                        <button className="btn btn-sm btn-light" onClick={() => handleAddComment(task)}>
+                                                            <i className="fa fa-comment"></i> {task.comments?.length || 0}
+                                                        </button>
+                                                    </Td>
+                                                    <Td>
+                                                        <div>
+                                                            {/* Show current assignees only, no dropdowns */}
+                                                            {task.workers && task.workers.length > 0 && (
+                                                                <div>
+                                                                    <strong>Worker:</strong> {task.workers.map(w => w.name || w.firstname).join(", ")}
                                                                 </div>
-                                                                <div className="user-icons">
-                                                                    {task.users.map(user => (
-                                                                        <div key={user.id} className="user-icon">
-                                                                            {getInitials(user.name)}
-                                                                        </div>
-                                                                    ))}
+                                                            )}
+                                                            {task.users && task.users.length > 0 && (
+                                                                <div>
+                                                                    <strong>Team:</strong> {task.users.map(u => u.name).join(", ")}
                                                                 </div>
-                                                            </div>
-                                                            <div className="task-actions">
-                                                                <button className="mr-1 btn-add-comment" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleAddComment(task)}>
-                                                                    <span className='mr-2'>{task?.comments?.length}</span>
-                                                                    <i className="fa-solid fa-comment-dots"></i>
-                                                                </button>
-                                                                <button className="mr-1 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleOpenEditTaskModal(task)}>
-                                                                    <i className="fa-solid fa-edit"></i>
-                                                                </button>
-                                                                <button className="btn-delete" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleDeleteCard(task.id)}>
-                                                                    <i className="fa-solid fa-trash"></i>
-                                                                </button>
-                                                            </div>
+                                                            )}
                                                         </div>
-                                                    </div>
-                                                )) : <div data-phase-id={list?.id}>{t("admin.global.no_task")}</div>
-                                                }
-                                            </ReactSortable>
-                                        </div>
-
-                                        <div className="add-card editable" onClick={() => handleOpenAddTaskModal(list.id)}>
-                                            {t("admin.global.add_another_task")}
-                                        </div>
-                                    </div>
-                                );
-                            }) : ""}
-
-                            <div className="add-phase-container">
-                                {!isAddingPhase && (
-                                    <button
-                                        type='button'
-                                        className=' px-3 py-2'
-                                        style={{ borderRadius: "5px", width: "8rem" }}
-                                        onClick={handleAddList}
-                                    >
-                                        <i className="fa-solid fa-plus"></i> {t("admin.global.add_phase")}
-                                    </button>
+                                                    </Td>
+                                                    <Td>
+                                                        <button className="btn btn-sm btn-info mr-1" onClick={() => handleOpenEditTaskModal(task)}><i className="fa fa-edit"></i></button>
+                                                        <button className="btn btn-sm btn-danger mr-1" onClick={() => handleDeleteCard(task.id)}><i className="fa fa-trash"></i></button>
+                                                    </Td>
+                                                </Tr>
+                                            ))}
+                                        </Tbody>
+                                    </Table>
                                 )}
-                                {isAddingPhase && (
-                                    <div className="mb-4">
-                                        <div className='d-flex'>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="Enter phase title"
-                                                value={newPhaseTitle}
-                                                onChange={(e) => setNewPhaseTitle(e.target.value)}
-                                            />
-                                            <span className="del" onClick={() => setIsAddingPhase(false)}>
-                                                &times;
-                                            </span>
-                                        </div>
-                                        <button
-                                            className='btn  mt-2'
-                                            onClick={handleSavePhase}
-                                        >
-                                            <i className="fa-solid fa-plus"></i> {t("admin.global.add")}
-                                        </button>
+                                {/* Pagination */}
+                                <div className="d-flex justify-content-between align-items-center mt-3">
+                                    <div>Page {page} of {pageCount}</div>
+                                    <div>
+                                        <button className="btn btn-light mr-2" disabled={page === 1} onClick={() => handlePageClick(page - 1)}>Prev</button>
+                                        <button className="btn btn-light" disabled={page === pageCount} onClick={() => handlePageClick(page + 1)}>Next</button>
                                     </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -573,7 +605,6 @@ const App = () => {
                 untilDate={untilDate}
             />
 
-
             <CommentModal
                 comment={comment}
                 isComModal={isComModal}
@@ -586,7 +617,7 @@ const App = () => {
                 setComments={setComments}
                 isEditable={isEditable}
                 setIsEditable={setIsEditable}
-                userType={"admin"} // Add userType prop (admin/worker)
+                userType={"admin"}
             />
         </div>
     );

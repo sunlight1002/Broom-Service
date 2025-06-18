@@ -25,17 +25,49 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = TaskManagement::with([
-            'phase', 
-            'comments', 
+        $query = TaskManagement::with([
+            'phase',
+            'comments',
             'workers:id,firstname',
             'users:id,name'
-        ])
-        ->orderBy('sort_order')
-        ->get();
-        
+        ]);
+
+        // Filtering
+        if ($request->has('status') && $request->status) {
+            $query->whereRaw('LOWER(TRIM(status)) = ?', [strtolower(trim($request->status))]);
+        }
+        if ($request->has('worker_id') && $request->worker_id) {
+            $query->whereHas('workers', function ($q) use ($request) {
+                $q->where('users.id', $request->worker_id);
+            });
+        }
+        if ($request->has('user_id') && $request->user_id) {
+            $query->whereHas('users', function ($q) use ($request) {
+                $q->where('admins.id', $request->user_id);
+            });
+        }
+        if ($request->has('due_date') && $request->due_date) {
+            $query->whereDate('due_date', $request->due_date);
+        }
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('task_name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%");
+            });
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'due_date');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Pagination
+        $perPage = $request->get('per_page', 10);
+        $tasks = $query->paginate($perPage);
+
         return response()->json($tasks);
     }
 
@@ -263,7 +295,7 @@ class TaskController extends Controller
         $tasks = TaskManagement::with([
             'phase', 
             'comments', 
-            'workers:id,firstname',
+            'workers:id,firstname,lastname',
             'users:id,name' 
         ])->find($id);
         
