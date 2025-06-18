@@ -20,7 +20,7 @@ import companySign from '../Assets/image/company-sign.png'
 import Font from '../../../public/fonts/OSAran400FFC.ttf'
 import { GrFormPreviousLink } from "react-icons/gr";
 import { GrFormNextLink } from "react-icons/gr";
-import {useAlert} from "react-alert";
+import { useAlert } from "react-alert";
 
 import moment from "moment";
 import FullPageLoader from "../Components/common/FullPageLoader";
@@ -259,7 +259,7 @@ const InsuranceForm = ({
 
 
     const saveFormData = async (isSubmit) => {
-         const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(res => res.arrayBuffer());
+        const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(res => res.arrayBuffer());
         const pdfDoc = await PDFDocument.load(formPdfBytes);
         pdfDoc.registerFontkit(fontkit);
 
@@ -281,7 +281,7 @@ const InsuranceForm = ({
             try {
                 // Set the text first
                 field.setText(fieldText);
-                
+
                 // Only attempt to update appearances with Hebrew font if Hebrew characters detected
                 if (containsHebrew(fieldText)) {
                     // Use the lower-level API to update appearances with the Hebrew font
@@ -355,6 +355,7 @@ const InsuranceForm = ({
         pdfForm
             .getTextField("G-stopped-smoking-on-heb")
             .setText(values.g4WhenStop || "");
+
         // pdfForm.getTextField("details").setText(values.details || "");
 
         for (let i = 1; i <= 24; i++) {
@@ -389,8 +390,57 @@ const InsuranceForm = ({
             const page3 = pdfDoc.getPage(2);
             const page4 = pdfDoc.getPage(3);
 
-            const fontBytes = await fetch(Font).then((res) => res.arrayBuffer());
-            const hebrewFont = await pdfDoc.embedFont(fontBytes);
+            const occupasionRadioGroup = pdfForm.getRadioGroup("occupasion");
+            occupasionRadioGroup.select("other");
+            occupasionRadioGroup.defaultUpdateAppearances();
+
+            const agentName = pdfForm.getTextField("AgentName");
+            agentName.setText("קושלביץ שרה");
+            agentName.setFontSize(14);
+            agentName.updateAppearances(hebrewFont);
+
+            const agentNo = pdfForm.getTextField("AgentNo");
+            agentNo.setText("972134");
+            agentNo.setFontSize(14);
+
+            const companyName = pdfForm.getTextField("CompanyName");
+            companyName.setText("ברום סרוויס בע\"מ");
+            companyName.setFontSize(14);
+            companyName.updateAppearances(hebrewFont);
+
+            const companyNo = pdfForm.getTextField("CompanyNo");
+            companyNo.setText("515184208");
+            companyNo.setFontSize(14);
+
+            const AgreementNo = pdfForm.getTextField("AgreementNo");
+            AgreementNo.setText("20051");
+            AgreementNo.setFontSize(14);
+
+            const employerLastName = pdfForm.getTextField("LastName");
+            employerLastName.setText("ברום סרוויס ל.מ בע\"מ");
+            employerLastName.setFontSize(14);
+            employerLastName.updateAppearances(hebrewFont);
+
+            const employerStreet = pdfForm.getTextField("Street");
+            employerStreet.setText("עמל 11 ראש העין");
+            employerStreet.setFontSize(14);
+            employerStreet.updateAppearances(hebrewFont);
+
+            const idNumber = pdfForm.getTextField("IDNumber");
+            idNumber.setText("515184208");
+            idNumber.setFontSize(14);
+
+            const email = pdfForm.getTextField("Email");
+            email.setText("office@broomservice.co.il");
+            email.setFontSize(14);
+
+            const phone = pdfForm.getTextField("CellphoneNo");
+            phone.setText("0525264264");
+            phone.setFontSize(14);
+
+            const professionRadioGroup = pdfForm.getRadioGroup("prevInsurance");
+            professionRadioGroup.select("No");
+            professionRadioGroup.defaultUpdateAppearances();
 
             page2.drawText(values.canDate, {
                 x: 480,

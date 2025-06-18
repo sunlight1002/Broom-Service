@@ -1629,9 +1629,6 @@ function AllForms() {
         }
     };
 
-    console.log(values);
-
-
     return (
         <div className=" mt-4 mb-5 bg-transparent " style={{
             margin: mobileView ? "0 20px" : "0 120px"
