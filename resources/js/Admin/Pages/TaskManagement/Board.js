@@ -74,8 +74,20 @@ const App = () => {
     };
 
     const handleMoveTask = async (taskId, phaseId) => {
-        const res = await axios.post(`/api/admin/tasks/${taskId}/move`, { phase_id: phaseId }, { headers });
-        getTasks();
+        try {
+            const res = await axios.post(`/api/admin/tasks/${taskId}/move`, { phase_id: phaseId }, { headers });
+            getTasks();
+            if (res?.data?.message) {
+                alert.success(res.data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to move task. Please try again.');
+            }
+        }
     };
 
     const getTeamMembers = async () => {
@@ -153,10 +165,9 @@ const App = () => {
         getTeams();
         getTasks();
         setStatusOptions([
-            { value: "Open", label: "Open" },
+            { value: "Pending", label: "Pending" },
             { value: "In Progress", label: "In Progress" },
             { value: "Completed", label: "Completed" },
-            { value: "Blocked", label: "Blocked" },
         ]);
     }, []);
 
@@ -176,11 +187,18 @@ const App = () => {
 
     const handleSort = async (sortedTaskIds) => {
         try {
-            await axios.post('/api/admin/tasks/sort', { ids: sortedTaskIds }, { headers });
+            const res = await axios.post('/api/admin/tasks/sort', { ids: sortedTaskIds }, { headers });
             getTasks();
+            if (res?.data?.message) {
+                alert.success(res.data.message);
+            }
         } catch (error) {
             console.error(error);
-            alert.error('Failed to reorder tasks.');
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to reorder tasks. Please try again.');
+            }
         }
     };
 
@@ -210,11 +228,12 @@ const App = () => {
 
         try {
             const response = await axios.post(`/api/admin/tasks`, data, { headers });
-            alert.success(response?.data?.message);
+            alert.success(response?.data?.message || 'Task created successfully!');
             clearModalFields();
             setIsOpen(false);
             getTasks();
         } catch (error) {
+            console.error(error);
             if (error.response && error.response.data.errors) {
                 const errors = error.response.data.errors;
                 Object.keys(errors).forEach((field) => {
@@ -222,6 +241,8 @@ const App = () => {
                         alert.error(message);
                     });
                 });
+            } else if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
             } else {
                 alert.error('Something went wrong, please try again.');
             }
@@ -236,16 +257,26 @@ const App = () => {
             setTaskName(response.data?.task_name)
         } catch (error) {
             console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to load task details. Please try again.');
+            }
         }
     }
 
     const handleDeleteCard = async (tid) => {
         try {
             const res = await axios.delete(`/api/admin/tasks/${tid}`, { headers });
-            alert.success(res?.data?.message)
+            alert.success(res?.data?.message || 'Task deleted successfully!');
             getTasks();
         } catch (error) {
             console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to delete task. Please try again.');
+            }
         }
     }
 
@@ -256,11 +287,16 @@ const App = () => {
         try {
             const res = await axios.post(`/api/admin/tasks/${selectedTaskId}/comments`, data, { headers });
             setComments('')
-            alert.success(res?.data?.message)
+            alert.success(res?.data?.message || 'Comment added successfully!')
             getTasks();
             handleEditTask(selectedTaskId)
         } catch (error) {
             console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to add comment. Please try again.');
+            }
         }
     }
 
@@ -340,10 +376,11 @@ const App = () => {
 
         try {
             const response = await axios.put(`/api/admin/tasks/${selectedTaskId}`, data, { headers });
-            alert.success('Task updated successfully!');
+            alert.success(response?.data?.message || 'Task updated successfully!');
             setIsOpen(false);
             getTasks();
         } catch (error) {
+            console.error(error);
             if (error.response && error.response.data.errors) {
                 const errors = error.response.data.errors;
 
@@ -352,6 +389,8 @@ const App = () => {
                         alert.error(message);
                     });
                 });
+            } else if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
             } else {
                 alert.error('Something went wrong, please try again.');
             }
@@ -361,11 +400,16 @@ const App = () => {
     const handleDeleteComment = async (cid) => {
         try {
             const res = await axios.delete(`/api/admin/comments/${cid}`, { headers })
-            alert.success(res?.data?.message)
+            alert.success(res?.data?.message || 'Comment deleted successfully!');
             handleEditTask(selectedTaskId);
             getTasks();
         } catch (error) {
-            alert.error("something went wrong")
+            console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to delete comment. Please try again.');
+            }
         }
     }
 
@@ -375,10 +419,15 @@ const App = () => {
         };
         try {
             const res = await axios.put(`/api/admin/tasks/${selectedTaskId}/comments/${cid}`, data, { headers });
-            alert.success("Comment updated successfully");
+            alert.success(res?.data?.message || "Comment updated successfully");
             handleEditTask(selectedTaskId);
         } catch (error) {
-            alert.error("Something went wrong");
+            console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error('Failed to update comment. Please try again.');
+            }
         }
     };
 
@@ -404,20 +453,46 @@ const App = () => {
     // Assignment
     const handleAssignWorker = async (taskId, worker) => {
         try {
-            await axios.put(`/api/admin/tasks/${taskId}`, { worker_ids: [worker.value] }, { headers });
+            const res = await axios.put(`/api/admin/tasks/${taskId}`, { worker_ids: [worker.value] }, { headers });
             getTasks();
-            alert.success("Worker assigned");
+            alert.success(res?.data?.message || "Worker assigned successfully");
         } catch (error) {
-            alert.error("Failed to assign worker");
+            console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error("Failed to assign worker. Please try again.");
+            }
         }
     };
     const handleAssignTeam = async (taskId, team) => {
         try {
-            await axios.put(`/api/admin/tasks/${taskId}`, { user_ids: [team.value] }, { headers });
+            const res = await axios.put(`/api/admin/tasks/${taskId}`, { user_ids: [team.value] }, { headers });
             getTasks();
-            alert.success("Team member assigned");
+            alert.success(res?.data?.message || "Team member assigned successfully");
         } catch (error) {
-            alert.error("Failed to assign team member");
+            console.error(error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert.error(error.response.data.message);
+            } else {
+                alert.error("Failed to assign team member. Please try again.");
+            }
+        }
+    };
+
+    const taskStatusColor = (status) => {
+        const statusLower = status?.toLowerCase() || '';
+
+        console.log({statusLower});
+        
+        if (statusLower.includes('complete')) {
+            return { backgroundColor: '#28a745' };
+        } else if (statusLower.includes('progress')) {
+            return { backgroundColor: '#ffc107' };
+        } else if (statusLower.includes('pending')) {
+            return { backgroundColor: '#6c757d' };
+        } else {
+            return { backgroundColor: '#6c757d' };
         }
     };
 
@@ -434,6 +509,7 @@ const App = () => {
                             <button className="btn btn-pink addButton" onClick={() => {
                                 setSelectedTaskId(null);
                                 setIsEditing(false);
+                                clearModalFields();
                                 setIsOpen(true);
                             }}>
                                 <i className="btn-icon fas fa-plus-circle"></i> Add Task
@@ -528,7 +604,12 @@ const App = () => {
                                                     <Td>{(page - 1) * pageSize + idx + 1}</Td>
                                                     <Td>{task.task_name}</Td>
                                                     <Td>
-                                                        <span className={`badge badge-${task.status === "Completed" ? "success" : task.status === "Blocked" ? "danger" : task.status === "In Progress" ? "warning" : "secondary"}`}>{task.status}</span>
+                                                        <span 
+                                                            style={taskStatusColor(task.status)}
+                                                            className="status-badge"
+                                                        >
+                                                            {task.status}
+                                                        </span>
                                                     </Td>
                                                     <Td>{task.due_date ? Moment(task.due_date).format("YYYY-MM-DD") : ""}</Td>
                                                     <Td>
