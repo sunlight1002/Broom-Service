@@ -581,5 +581,37 @@ class TaskController extends Controller
         $task = TaskManagement::with('comments.commentable')->findOrFail($taskId);
         return response()->json($task->comments);
     }
+
+    /**
+     * Get team members that workers can access
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getWorkerTeamMembers()
+    {
+        $user = Auth::user();
+        
+        // Get team members (admins) that are assigned to tasks with this worker
+        $teamMembers = Admin::whereHas('taskWorkers', function ($query) use ($user) {
+            $query->whereHas('task', function ($taskQuery) use ($user) {
+                $taskQuery->whereHas('workers', function ($workerQuery) use ($user) {
+                    $workerQuery->where('assignable_id', $user->id)
+                               ->where('assignable_type', User::class);
+                });
+            });
+        })
+        ->select('id', 'name')
+        ->distinct()
+        ->orderBy('name')
+        ->get()
+        ->map(function ($admin) {
+            return [
+                'value' => $admin->id,
+                'label' => $admin->name
+            ];
+        });
+
+        return response()->json($teamMembers);
+    }
 }
 

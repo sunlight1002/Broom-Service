@@ -35,8 +35,6 @@ function Tasks() {
     const [statusFilter, setStatusFilter] = useState('All');
     const [datePeriod, setDatePeriod] = useState('');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
-    const [teamOptions, setTeamOptions] = useState([]);
-    const [selectedTeam, setSelectedTeam] = useState(null);
     const [isDetailModal, setIsDetailModal] = useState(false);
     const [detailTask, setDetailTask] = useState(null);
     const [detailStatus, setDetailStatus] = useState('');
@@ -76,7 +74,6 @@ function Tasks() {
                 params: {
                     status: statusFilter !== 'All' ? statusFilter : undefined,
                     search: search || undefined,
-                    user_id: selectedTeam?.value || undefined,
                     due_date_start: dateRange.start || undefined,
                     due_date_end: dateRange.end || undefined,
                     sort_by: sortCol,
@@ -117,12 +114,6 @@ function Tasks() {
         getTasks();
         // eslint-disable-next-line
     }, [statusFilter, datePeriod, dateRange.start, dateRange.end, search, sortCol, order, page]);
-
-    useEffect(() => {
-        // Example: fetch team options from API if available
-        // For now, just set empty or static options
-        setTeamOptions([]); // Replace with actual fetch if needed
-    }, []);
 
     const handleEditTask = async (tid) => {
         try {
@@ -314,13 +305,13 @@ function Tasks() {
                                 <input type="date" className="form-control mr-2 mb-2" style={{ width: 130 }} value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} />
                                 <span className="mx-1 mb-2">-</span>
                                 <input type="date" className="form-control mr-2 mb-2" style={{ width: 130 }} value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} />
-                                <button className="btn btn-dark ml-2 mb-2" style={{ minWidth: 70 }} onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); setSelectedTeam(null); setSearch(''); }}>Reset</button>
+                                <button className="btn btn-dark ml-2 mb-2" style={{ minWidth: 70 }} onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); setSearch(''); }}>Reset</button>
                             </div>
                         </div>
                     </div>
-                    {/* Second row: Search, Team Member */}
+                    {/* Second row: Search */}
                     <div className="row align-items-end">
-                        <div className="col-md-6 mb-2">
+                        <div className="col-md-6 col-12 mb-2">
                             <label style={{ fontWeight: 500 }}>Search</label>
                             <input
                                 type="text"
@@ -328,17 +319,6 @@ function Tasks() {
                                 placeholder="Search by name or description"
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
-                            />
-                        </div>
-                        <div className="col-md-6 mb-2">
-                            <label style={{ fontWeight: 500 }}>Team Member</label>
-                            <Select
-                                options={teamOptions}
-                                value={selectedTeam}
-                                onChange={setSelectedTeam}
-                                isClearable
-                                className="basic-single"
-                                classNamePrefix="select"
                             />
                         </div>
                     </div>
