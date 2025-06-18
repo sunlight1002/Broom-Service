@@ -85,7 +85,7 @@ class JobController extends Controller
 
         $supervisor = Admin::where('role', 'supervisor')->first();
         $timeLogs = null;
-        if($supervisor) {
+        if ($supervisor) {
             $timeLogs = $supervisor->timeLogs()->latest()->first();
         }
 
@@ -358,7 +358,7 @@ class JobController extends Controller
             ->whereHas('availabilities', function ($query) use ($date) {
                 $query->where('date', '=', $date);
             })
-            ->where('status', '!=' , 0)
+            ->where('status', '!=', 0)
             ->get();
 
         return response()->json([
@@ -378,7 +378,7 @@ class JobController extends Controller
             ->whereHas('availabilities', function ($query) use ($job) {
                 $query->where('date', '=', $job->start_date);
             })
-            ->where('status', '!=' , 0)
+            ->where('status', '!=', 0)
             ->get()
             ->toArray();
 
@@ -427,6 +427,34 @@ class JobController extends Controller
                 'hours'
             ])
             ->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'job' => $job,
+        ]);
+    }
+
+    public function getJobByUuid($uuid)
+    {
+        $job = Job::query()
+            ->with([
+                'client',
+                'worker',
+                'service',
+                'offer',
+                'jobservice',
+                'order',
+                'invoice',
+                'propertyAddress',
+                'hours'
+            ])
+            ->where('uuid', $uuid)
+            ->first();
 
         if (!$job) {
             return response()->json([
@@ -2725,7 +2753,7 @@ class JobController extends Controller
             ], 403);
         }
 
-        $worker = User::where('status', '!=' , 0)
+        $worker = User::where('status', '!=', 0)
             ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . trim($request->worker) . '%'])
             ->first();
 
@@ -3426,7 +3454,7 @@ class JobController extends Controller
                     ->where('status', ContractStatusEnum::VERIFIED)
                     ->first();
 
-                $worker = User::where('status', '!=' , 0)
+                $worker = User::where('status', '!=', 0)
                     ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . trim($selectedWorker) . '%'])
                     ->first();
 
@@ -3865,7 +3893,7 @@ class JobController extends Controller
                 ->where('offer_id', $offerId)
                 ->where('status', ContractStatusEnum::VERIFIED)
                 ->first();
-            $worker = User::where('status', '!=' , 0)
+            $worker = User::where('status', '!=', 0)
                 ->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . trim($selectedWorker) . '%'])
                 ->first();
             $selectedService = Services::where('heb_name', $ServiceName)

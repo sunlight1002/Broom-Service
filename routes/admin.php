@@ -532,6 +532,7 @@ Route::post('/hearing', [WorkerHearingController::class, 'getHearingDetails']);
 Route::post('/accept-hearing', [WorkerHearingController::class, 'acceptHearing']);
 Route::post('/reject-hearing', [WorkerHearingController::class, 'rejectHearing']);
 Route::post('/hearing/{id}/reschedule', [WorkerHearingController::class, 'rescheduleHearing']);
+Route::get('jobs/{uuid}', [JobController::class, 'getJobByUuid']);
 
 // Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 

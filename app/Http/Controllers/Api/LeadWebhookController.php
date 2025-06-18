@@ -905,7 +905,7 @@ Broom Service Team 🌹",
                 $responseClientState->final = 0;
                 $responseClientState->save();
 
-                $sid = $responseClientState->lng == "heb" ? "HX46b1587bfcaa3e6b29869edb538f45e0" : "HXccd789be06e2fd60dd0708266ae7007f";
+                $sid = $client->lng == "he" ? "HX46b1587bfcaa3e6b29869edb538f45e0" : "HXccd789be06e2fd60dd0708266ae7007f";
 
                 $message = $this->twilio->messages->create(
                     "whatsapp:+$from",
@@ -989,6 +989,26 @@ Broom Service Team 🌹",
                         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                     ]);
                 }
+            } else if (
+                $responseClientState && $responseClientState->menu_option == 'since_april' &&
+                in_array($client->lead_status->lead_status, ['unanswered', 'unanswered final', 'uninterested', 'irrelevant']) &&
+                !in_array(strtolower($message), ['stop', 'הפסק', 'לְהַפְסִיק'])
+            ) {
+                $client->lead_status->lead_status = "pending";
+                $client->lead_status->updated_at = now();
+                $client->lead_status->save();
+                $client->created_at = now();
+                $client->updated_at = now();
+                $client->status = 0;
+                $client->save();
+
+                LeadActivity::create([
+                    'client_id' => $client->id,
+                    'created_date' => now(),
+                    'status_changed_date' => now(),
+                    'changes_status' => LeadStatusEnum::PENDING,
+                    'reason' => "Changed by Bot",
+                ]);
             }
 
             if ($client) {
@@ -1039,31 +1059,8 @@ Broom Service Team 🌹",
                     die("STOPPED");
                 }
 
-                if (strtolower($message) === 'stop' || $message === 'הפסק') {
-                    if (!$client) {
-                        return response()->json([
-                            'message' => 'User not found'
-                        ]);
-                    };
-
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::STOP,
-                        "notificationData" => [
-                            'client' => $client->toArray()
-                        ]
-                    ]));
-
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
-                        "notificationData" => [
-                            'client' => $client->toArray()
-                        ]
-                    ]));
-
-                    $client->disable_notification = 1;
-                    $client->save();
-
-                    die("STOPPED");
+                if (in_array(strtolower($message), ['stop', 'הפסק', 'לְהַפְסִיק'])) {
+                    $this->sendStopMessage($client);
                 }
 
                 // Send main menu is last menu state not found
@@ -4676,6 +4673,34 @@ Broom Service Team 🌹",
         } else {
             return 'en';
         }
+    }
+
+    public function sendStopMessage($client)
+    {
+        if (!$client) {
+            return response()->json([
+                'message' => 'User not found'
+            ]);
+        };
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::STOP,
+            "notificationData" => [
+                'client' => $client->toArray()
+            ]
+        ]));
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
+            "notificationData" => [
+                'client' => $client->toArray()
+            ]
+        ]));
+
+        $client->disable_notification = 1;
+        $client->save();
+
+        die("STOPPED");
     }
 
     public function sendMainMenu($client, $from, $input = null)

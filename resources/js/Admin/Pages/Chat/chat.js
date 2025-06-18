@@ -492,8 +492,6 @@ export default function chat({
     const clientsCard = data
         .map((d, i) => {
             let cd = clients?.find(({ num }) => num == d.number);
-            console.log(d);
-            
             return (
                 <div
                     className={"card p-3 cardList cl_" + d.number}
