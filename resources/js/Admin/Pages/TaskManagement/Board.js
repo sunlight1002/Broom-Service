@@ -161,9 +161,11 @@ const App = () => {
                 headers,
                 params: {
                     status: statusFilter !== 'All' ? statusFilter : '',
+                    worker_id: selectedWorker?.value,
+                    user_id: selectedTeam?.value,
+                    search: search,
                     due_date_start: dateRange.start,
                     due_date_end: dateRange.end,
-                    // add other filters as needed
                     ...params
                 }
             });
@@ -200,7 +202,7 @@ const App = () => {
     useEffect(() => {
         getTasks();
         // eslint-disable-next-line
-    }, [statusFilter, datePeriod, dateRange.start, dateRange.end, sortCol, order, page]);
+    }, [statusFilter, datePeriod, dateRange.start, dateRange.end, selectedWorker, selectedTeam, search, sortCol, order, page]);
 
     const handleSort = async (sortedTaskIds) => {
         try {
@@ -535,26 +537,70 @@ const App = () => {
                     </div>
                 </div>
 
-                <div className="mb-3">
-                    <div className="d-flex align-items-center mb-2">
-                        <span style={{ fontWeight: 'bold', marginRight: 10 }}>Filter</span>
-                        <FilterButtons text="All" name="All" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
-                        <FilterButtons text="Pending" name="Pending" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
-                        <FilterButtons text="In Progress" name="In Progress" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
-                        <FilterButtons text="Completed" name="Completed" className="px-3 mr-1" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                <div className="card mb-4 p-3" style={{ background: '#f8f9fa', border: '1px solid #e9ecef' }}>
+                    {/* Top filter row */}
+                    <div className="d-flex flex-wrap align-items-center mb-3">
+                        <div className="mr-4 mb-2">
+                            <div style={{ fontWeight: 'bold', marginBottom: 4 }}>Status</div>
+                            <div className="d-flex flex-wrap">
+                                <FilterButtons text="All" name="All" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                                <FilterButtons text="Pending" name="Pending" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                                <FilterButtons text="In Progress" name="In Progress" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                                <FilterButtons text="Completed" name="Completed" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                            </div>
+                        </div>
+                        <div className="mr-4 mb-2">
+                            <div style={{ fontWeight: 'bold', marginBottom: 4 }}>Date Period</div>
+                            <div className="d-flex flex-wrap">
+                                <FilterButtons text="Day" name="Day" className="px-3 mr-2 mb-2" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Day')); }} />
+                                <FilterButtons text="Week" name="Week" className="px-3 mr-2 mb-2" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Week')); }} />
+                                <FilterButtons text="Month" name="Month" className="px-3 mr-2 mb-2" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Month')); }} />
+                            </div>
+                        </div>
+                        <div className="mb-2">
+                            <div style={{ fontWeight: 500, marginBottom: 4 }}>Date Range</div>
+                            <div className="d-flex align-items-center flex-wrap">
+                                <input type="date" className="form-control mr-2 mb-2" style={{ width: 130 }} value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} />
+                                <span className="mx-1 mb-2">-</span>
+                                <input type="date" className="form-control mr-2 mb-2" style={{ width: 130 }} value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} />
+                                <button className="btn btn-dark ml-2 mb-2" style={{ minWidth: 70 }} onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); setSelectedWorker(null); setSelectedTeam(null); setSearch(''); }}>Reset</button>
+                            </div>
+                        </div>
                     </div>
-                    <div className="d-flex align-items-center mb-2">
-                        <span style={{ fontWeight: 'bold', marginRight: 10 }}>Date Period</span>
-                        <FilterButtons text="Day" name="Day" className="px-3 mr-1" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Day')); }} />
-                        <FilterButtons text="Week" name="Week" className="px-3 mr-1" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Week')); }} />
-                        <FilterButtons text="Month" name="Month" className="px-3 mr-1" selectedFilter={datePeriod} setselectedFilter={val => { setDatePeriod(val); setDateRange(getDateRangeForPeriod('Month')); }} />
-                    </div>
-                    <div className="d-flex align-items-center">
-                        <span style={{ fontWeight: 'bold', marginRight: 10 }}>Date</span>
-                        <input type="date" className="form-control mr-2" style={{ width: 170 }} value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} />
-                        <span className="mx-2">-</span>
-                        <input type="date" className="form-control mr-2" style={{ width: 170 }} value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} />
-                        <button className="btn btn-dark ml-2" onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); }}>Reset</button>
+                    {/* Second row: Search, Worker, Team Member */}
+                    <div className="row align-items-end">
+                        <div className="col-md-4 mb-2">
+                            <label style={{ fontWeight: 500 }}>Search</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Search by name or description"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                        </div>
+                        <div className="col-md-4 mb-2">
+                            <label style={{ fontWeight: 500 }}>Worker</label>
+                            <Select
+                                options={workerOptions}
+                                value={selectedWorker}
+                                onChange={setSelectedWorker}
+                                isClearable
+                                className="basic-single"
+                                classNamePrefix="select"
+                            />
+                        </div>
+                        <div className="col-md-4 mb-2">
+                            <label style={{ fontWeight: 500 }}>Team Member</label>
+                            <Select
+                                options={teamOptions}
+                                value={selectedTeam}
+                                onChange={setSelectedTeam}
+                                isClearable
+                                className="basic-single"
+                                classNamePrefix="select"
+                            />
+                        </div>
                     </div>
                 </div>
 
