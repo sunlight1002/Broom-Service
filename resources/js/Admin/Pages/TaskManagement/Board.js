@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Modal } from "react-bootstrap";
 import './Board.css';
 import Sidebar from '../../Layouts/Sidebar';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
-import { GrUpgrade } from "react-icons/gr";
-import { ReactSortable, Sortable, MultiDrag, Swap } from "react-sortablejs";
-import { v4 as uuidv4 } from 'uuid';
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Select from "react-select";
 import Moment from "moment";
@@ -14,21 +10,16 @@ import Moment from "moment";
 import { useAlert } from "react-alert";
 import CommentModal from './CommentModal';
 import TaskModal from './TaskModal';
-import debounce from "lodash.debounce";
 import FilterButtons from '../../../Components/common/FilterButton';
 
 const App = () => {
     const { t } = useTranslation();
     const [team, setTeam] = useState([]);
     const [tasks, setTasks] = useState([])
-    const [filteredTasks, setFilteredTasks] = useState([]);
-    const [statusOptions, setStatusOptions] = useState([]);
     const [workerOptions, setWorkerOptions] = useState([]);
     const [teamOptions, setTeamOptions] = useState([]);
-    const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedWorker, setSelectedWorker] = useState(null);
     const [selectedTeam, setSelectedTeam] = useState(null);
-    const [selectedDueDate, setSelectedDueDate] = useState("");
     const [search, setSearch] = useState("");
     const [order, setOrder] = useState("ASC");
     const [sortCol, setSortCol] = useState("due_date");
@@ -55,13 +46,9 @@ const App = () => {
     const [pageCount, setPageCount] = useState(1);
     const [loading, setLoading] = useState("Loading...");
     const pageSize = 10;
-    const tableRef = useRef();
-    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState('All');
     const [datePeriod, setDatePeriod] = useState('');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
-
-    const admin_id = localStorage.getItem("admin-id");
 
     const handleSelectChange = (selectedOptions) => {
         setSelectedOptions(selectedOptions);
@@ -75,23 +62,6 @@ const App = () => {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
-    };
-
-    const handleMoveTask = async (taskId, phaseId) => {
-        try {
-            const res = await axios.post(`/api/admin/tasks/${taskId}/move`, { phase_id: phaseId }, { headers });
-            getTasks();
-            if (res?.data?.message) {
-                alert.success(res.data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            if (error.response && error.response.data && error.response.data.message) {
-                alert.error(error.response.data.message);
-            } else {
-                alert.error('Failed to move task. Please try again.');
-            }
-        }
     };
 
     const getTeamMembers = async () => {
@@ -183,43 +153,11 @@ const App = () => {
         getWorkers();
         getTeams();
         getTasks();
-        setStatusOptions([
-            { value: "Pending", label: "Pending" },
-            { value: "In Progress", label: "In Progress" },
-            { value: "Completed", label: "Completed" },
-        ]);
     }, []);
 
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearch(search);
-        }, 300);
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [search]);
-
-    useEffect(() => {
         getTasks();
-        // eslint-disable-next-line
     }, [statusFilter, datePeriod, dateRange.start, dateRange.end, selectedWorker, selectedTeam, search, sortCol, order, page]);
-
-    const handleSort = async (sortedTaskIds) => {
-        try {
-            const res = await axios.post('/api/admin/tasks/sort', { ids: sortedTaskIds }, { headers });
-            getTasks();
-            if (res?.data?.message) {
-                alert.success(res.data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            if (error.response && error.response.data && error.response.data.message) {
-                alert.error(error.response.data.message);
-            } else {
-                alert.error('Failed to reorder tasks. Please try again.');
-            }
-        }
-    };
 
     const handleAddCard = async () => {
 
@@ -323,17 +261,6 @@ const App = () => {
         handleEditTask(task.id);
         setIsComModal(true)
     }
-
-    const getInitials = (name) => {
-        return name.split(' ').map(part => part[0]).join('');
-    };
-
-    const handleOpenAddTaskModal = (phaseId) => {
-        setSelectedPhaseId(phaseId);
-        clearModalFields();
-        setIsEditing(false);
-        setIsOpen(true);
-    };
 
     const handleOpenEditTaskModal = (task) => {
         setSelectedTaskId(task.id);
@@ -467,36 +394,6 @@ const App = () => {
     // Pagination controls
     const handlePageClick = (newPage) => {
         setPage(newPage);
-    };
-
-    // Assignment
-    const handleAssignWorker = async (taskId, worker) => {
-        try {
-            const res = await axios.put(`/api/admin/tasks/${taskId}`, { worker_ids: [worker.value] }, { headers });
-            getTasks();
-            alert.success(res?.data?.message || "Worker assigned successfully");
-        } catch (error) {
-            console.error(error);
-            if (error.response && error.response.data && error.response.data.message) {
-                alert.error(error.response.data.message);
-            } else {
-                alert.error("Failed to assign worker. Please try again.");
-            }
-        }
-    };
-    const handleAssignTeam = async (taskId, team) => {
-        try {
-            const res = await axios.put(`/api/admin/tasks/${taskId}`, { user_ids: [team.value] }, { headers });
-            getTasks();
-            alert.success(res?.data?.message || "Team member assigned successfully");
-        } catch (error) {
-            console.error(error);
-            if (error.response && error.response.data && error.response.data.message) {
-                alert.error(error.response.data.message);
-            } else {
-                alert.error("Failed to assign team member. Please try again.");
-            }
-        }
     };
 
     const taskStatusColor = (status) => {
