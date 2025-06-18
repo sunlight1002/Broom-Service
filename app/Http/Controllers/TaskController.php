@@ -188,7 +188,6 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phase_id' => 'required|exists:phase,id',
             'task_name' => 'required|string',
             'status' => 'required|string',
             'priority' => 'required|string|in:high,medium,low',

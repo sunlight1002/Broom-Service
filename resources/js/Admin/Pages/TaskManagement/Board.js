@@ -19,7 +19,6 @@ import debounce from "lodash.debounce";
 const App = () => {
     const { t } = useTranslation();
     const [team, setTeam] = useState([]);
-    const [worker, setWorker] = useState([])
     const [tasks, setTasks] = useState([])
     const [filteredTasks, setFilteredTasks] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
@@ -44,7 +43,7 @@ const App = () => {
     const alert = useAlert();
     const [isEditing, setIsEditing] = useState(false);
     const [isEditable, setIsEditable] = useState(false)
-    const [selectedPhaseId, setSelectedPhaseId] = useState(null);
+    const [selectedPhaseId, setSelectedPhaseId] = useState(1);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [selectedWorkers, setSelectedWorkers] = useState([]);
@@ -320,7 +319,7 @@ const App = () => {
     };
 
     const handleUpdateTask = async () => {
-        if (!taskName || !status || !priority || !dueDate || !selectedPhaseId) {
+        if (!taskName || !status || !priority || !dueDate) {
             alert.error('Please fill all required fields.');
             return;
         }
@@ -594,7 +593,7 @@ const App = () => {
                 handleUpdateTask={handleUpdateTask}
                 handleAddCard={handleAddCard}
                 team={team}
-                worker={worker}
+                worker={workerOptions}
                 description={description}
                 setDescription={setDescription}
                 setSelectedFrequency={setSelectedFrequency}
