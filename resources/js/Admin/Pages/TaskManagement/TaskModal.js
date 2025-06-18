@@ -3,6 +3,7 @@ import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
 import { useTranslation } from 'react-i18next';
 import Editor from 'react-simple-wysiwyg';
+import axios from 'axios';
 // import Select from "react-select";
 
 function TaskModal({
@@ -34,6 +35,7 @@ function TaskModal({
     repeatancy,
     setUntilDate,
     untilDate,
+    modalType = 'add', // 'add', 'edit', or 'detail'
 }) {
     const { t } = useTranslation();
     const [frequencies, setFrequencies] = useState([]);
@@ -60,6 +62,31 @@ function TaskModal({
         getFrequency();
     }, [])
 
+    // Get modal title based on modalType
+    const getModalTitle = () => {
+        if (modalType === 'detail') {
+            return "Task Details";
+        } else if (isEditing) {
+            return t("admin.global.edit_task");
+        } else {
+            return t("admin.global.add_task");
+        }
+    };
+
+    // Get button text based on modalType
+    const getButtonText = () => {
+        if (modalType === 'detail') {
+            return "Update Status";
+        } else if (isEditing) {
+            return t("admin.global.update_task");
+        } else {
+            return t("admin.global.add_task");
+        }
+    };
+
+    // Check if fields should be disabled
+    const isDetailMode = modalType === 'detail';
+    const isDisabled = type === 'worker' || isDetailMode;
 
     return (
         <div>
@@ -73,7 +100,7 @@ function TaskModal({
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {isEditing ? t("admin.global.edit_task") : t("admin.global.add_task")}
+                        {getModalTitle()}
                     </Modal.Title>
                 </Modal.Header>
 
@@ -86,7 +113,7 @@ function TaskModal({
                                     type="text"
                                     className="form-control"
                                     value={taskName}
-                                    disabled={type === 'worker'}
+                                    disabled={isDisabled}
                                     onChange={(e) => setTaskName(e.target.value)}
                                     required
                                     placeholder={'Enter task name'}
@@ -95,10 +122,10 @@ function TaskModal({
                         </div>
                         <div className='d-flex flex-column'>
                             <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>{t("admin.global.description")}</p>
-                            <Editor value={description} onChange={onChange} disabled={type === 'worker'} />
+                            <Editor value={description} onChange={onChange} disabled={isDisabled} />
                         </div>
                         {
-                            type === "admin" && (
+                            type === "admin" && !isDetailMode && (
                                 <div className="row form-group mt-3">
                                     <div className="col-md-6">
                                         <label className="control-label">{t("admin.global.team_members")}</label>
@@ -132,7 +159,7 @@ function TaskModal({
                             )
                         }
                         {
-                            type === "admin" && (
+                            type === "admin" && !isDetailMode && (
                                 <div className="row form-group mt-3">
                                     {/* Frequency Input */}
                                     <div className="col-sm">
@@ -215,7 +242,7 @@ function TaskModal({
                                         className="form-control"
                                         name="priority"
                                         value={priority || ""}
-                                        disabled={type === 'worker'}
+                                        disabled={isDisabled}
                                         onChange={(e) => setPriority(e.target.value)}
                                     >
                                         <option value="">{t("admin.global.select_priority")}</option>
@@ -232,7 +259,7 @@ function TaskModal({
                                         type="date"
                                         className="form-control"
                                         value={dueDate}
-                                        disabled={type === 'worker'}
+                                        disabled={isDisabled}
                                         onChange={(e) => setDueDate(e.target.value)}
                                         required
                                     />
@@ -271,9 +298,17 @@ function TaskModal({
                     <Button
                         type="button"
                         className="btn btn-primary"
-                        onClick={isEditing ? handleUpdateTask : handleAddCard}
+                        onClick={() => {
+                            if (modalType === 'detail') {
+                                handleUpdateTask(); // This will be the status update function
+                            } else if (isEditing) {
+                                handleUpdateTask(); // Full task update
+                            } else {
+                                handleAddCard(); // Add new task
+                            }
+                        }}
                     >
-                        {isEditing ? t("admin.global.update_task") : t("admin.global.add_task")}
+                        {getButtonText()}
                     </Button>
                 </Modal.Footer>
             </Modal>

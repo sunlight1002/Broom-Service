@@ -71,19 +71,42 @@ class TaskController extends Controller
         return response()->json($tasks);
     }
 
-    public function showWorkerTasks($workerId)
+    public function showWorkerTasks($workerId, Request $request)
     {
-        // Fetch tasks assigned to the specific worker
-        $tasks = TaskManagement::with('phase')->whereHas('taskWorker', function($query) use ($workerId) {
-            $query->where('assignable_id', $workerId)
-                  ->where('assignable_type', User::class); // Adjust User::class if it's Admin or another class
-        })
-        ->with([
-            'comments',
-        ])
-        ->orderBy('sort_order')
-        ->get();
-        
+        // Build query for tasks assigned to the specific worker
+        $query = TaskManagement::with(['phase', 'comments.commentable', 'workers:id,firstname,lastname', 'users:id,name'])->where('user_id', $workerId);
+
+        // Apply status filter
+        if ($request->has('status') && $request->status !== '' && $request->status !== null) {
+            $query->where('status', $request->status);
+        }
+
+        // Apply search filter
+        if ($request->has('search') && $request->search !== '' && $request->search !== null) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('task_name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply date range filter
+        if ($request->has('due_date_start') && $request->due_date_start !== '' && $request->due_date_start !== null) {
+            $query->where('due_date', '>=', $request->due_date_start);
+        }
+        if ($request->has('due_date_end') && $request->due_date_end !== '' && $request->due_date_end !== null) {
+            $query->where('due_date', '<=', $request->due_date_end);
+        }
+
+        // Apply sorting
+        $sortBy = $request->get('sort_by', 'due_date');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Apply pagination
+        $perPage = $request->get('per_page', 10);
+        $tasks = $query->paginate($perPage);
+
         return response()->json($tasks);
     }
     
