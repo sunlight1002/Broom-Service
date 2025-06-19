@@ -311,6 +311,12 @@ class DashboardController extends Controller
               NotificationTypeEnum::INSURANCE_SIGNED,
               NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
               NotificationTypeEnum::SAFETY_GEAR_SIGNED,
+              NotificationTypeEnum::WORKER_BIRTHDAY,
+            ]);
+          })
+          ->when($groupType == 'birthday-notifications', function ($q) {
+            return $q->whereIn('type', [
+              NotificationTypeEnum::WORKER_BIRTHDAY,
             ]);
           })
           ->when($groupType == 'reviews-of-clients', function ($q) {
@@ -620,6 +626,13 @@ class DashboardController extends Controller
             if (isset($client)) {
               $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
                 "</a> has signed the contract and is ready to be booked.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_BIRTHDAY) {
+            $worker = User::find($notice->user_id);
+
+            if (isset($worker)) {
+              $noticeAll[$k]->data = "🎉 <a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+                "</a> is celebrating their birthday today! 🎂";
             }
           }
         }

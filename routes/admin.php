@@ -181,6 +181,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::post('form/send', [WorkerController::class, 'formSend']);
     Route::post('workers/import', [WorkerController::class, 'import']);
     Route::post('workers/change-status', [WorkerController::class, 'changeStatus']);
+    
+    // Worker Birthday Routes
+    Route::put('workers/{id}/birth-date', [WorkerController::class, 'updateBirthDate']);
+    Route::get('workers/upcoming-birthdays', [WorkerController::class, 'getUpcomingBirthdays']);
 
     //worker-leads api
     Route::get('worker-leads', [WorkerLeadsController::class, 'index'])->name('worker-leads.index');

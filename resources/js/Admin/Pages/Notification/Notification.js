@@ -170,6 +170,16 @@ export default function Notification() {
                                         setNotificationGrpTypeFilter
                                     }
                                 />
+
+                                <FilterButtons
+                                    text="Birthday Notifications"
+                                    name="birthday-notifications"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
                             </div>
                         </div>
                     </div>
@@ -178,10 +188,17 @@ export default function Notification() {
                             {notices.length > 0 ? (
                                 notices &&
                                 notices.map((n, i) => {
+                                    // Check if this is a birthday notification
+                                    const isBirthdayNotification = n.data && n.data.includes('🎉') && n.data.includes('🎂');
+                                    
                                     return (
                                         <div className="agg-list" key={i}>
                                             <div className="icons">
-                                                <i className="fas fa-check-circle"></i>
+                                                {isBirthdayNotification ? (
+                                                    <i className="fas fa-birthday-cake" style={{ color: '#ff6b6b' }}></i>
+                                                ) : (
+                                                    <i className="fas fa-check-circle"></i>
+                                                )}
                                             </div>
                                             <div className="agg-text">
                                                 <h6

@@ -1494,4 +1494,50 @@ class WorkerController extends Controller
             'workers' => $workerResults
         ]);
     }
+
+    public function updateBirthDate(Request $request, $id)
+    {
+        $request->validate([
+            'birth_date' => 'required|date|before:today',
+        ]);
+
+        $worker = User::findOrFail($id);
+        $worker->update([
+            'birth_date' => $request->birth_date,
+        ]);
+
+        return response()->json([
+            'message' => 'Worker birth date updated successfully',
+            'worker' => $worker
+        ]);
+    }
+
+    public function getUpcomingBirthdays()
+    {
+        $today = now();
+        $nextMonth = $today->copy()->addMonth();
+        
+        $upcomingBirthdays = User::whereNotNull('birth_date')
+            ->whereBetween('birth_date', [
+                $today->format('Y-m-d'),
+                $nextMonth->format('Y-m-d')
+            ])
+            ->orderBy('birth_date')
+            ->get()
+            ->map(function ($worker) use ($today) {
+                return [
+                    'id' => $worker->id,
+                    'name' => $worker->firstname . ' ' . $worker->lastname,
+                    'phone' => $worker->phone,
+                    'birth_date' => $worker->birth_date->format('Y-m-d'),
+                    'upcoming_birthday' => $worker->birth_date->format('Y-m-d'),
+                    'days_until_birthday' => $today->diffInDays($worker->birth_date, false),
+                    'is_today' => $worker->birth_date->isToday(),
+                ];
+            });
+
+        return response()->json([
+            'upcoming_birthdays' => $upcomingBirthdays
+        ]);
+    }
 }

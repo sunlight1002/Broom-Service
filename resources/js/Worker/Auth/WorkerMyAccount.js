@@ -35,8 +35,9 @@ export default function WorkerMyAccount() {
         Math.random().toString().concat("0".repeat(3)).substr(2, 5)
     );
     const [password, setPassword] = useState("");
-    const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
+    const [birthDate, setBirthDate] = useState("1990-01-01");
+    const [lng, setLng] = useState(0);
     const [country, setCountry] = useState("Israel");
     const [loading, setLoading] = useState(false)
 
@@ -78,6 +79,7 @@ export default function WorkerMyAccount() {
             lastname: lastname,
             phone: phone,
             address: address,
+            birth_date: birthDate,
             renewal_visa: renewal_date,
             gender: gender,
             // payment_hour: payment_hour,
@@ -115,11 +117,17 @@ export default function WorkerMyAccount() {
     const getWorker = () => {
         axios.get(`/api/details`, { headers }).then((response) => {
             let w = response.data.success;
+            
+            console.log('Worker data received:', w);
+            console.log('Birth date from API:', w.birth_date);
 
             setFirstName(w.firstname);
             setLastName(w.lastname);
             setEmail(w.email);
             setPhone(w.phone);
+            const formattedBirthDate = w.birth_date ? new Date(w.birth_date).toISOString().split('T')[0] : "1990-01-01";
+            console.log('Formatted birth date:', formattedBirthDate);
+            setBirthDate(formattedBirthDate);
             setRenewalDate(w.renewal_visa);
             setGender(w.gender);
             setWorkerId(w.worker_id);
@@ -236,24 +244,44 @@ export default function WorkerMyAccount() {
                             <div className="col-sm-6">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        {t("worker.settings.phone")}
+                                        {t("worker.settings.phone")} *
                                     </label>
-                                    <StyledPhoneInput
-                                        country={'il'}
+                                    <input
+                                        type="text"
                                         value={phone}
-                                        onChange={(phone) => {
-                                            setPhone(phone);
-                                        }}
-                                        inputClass="form-control"
-                                        inputProps={{
-                                            name: 'phone',
-                                            required: true,
-                                            placeholder: t("worker.settings.phone"),
-                                        }}
+                                        onChange={(e) =>
+                                            setPhone(e.target.value)
+                                        }
+                                        className="form-control"
+                                        required
+                                        placeholder={t("worker.settings.phone")}
                                     />
                                     {errors.phone ? (
                                         <small className="text-danger mb-1">
                                             {errors.phone}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
+                            </div>
+                            <div className="col-sm-6">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Birthday
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={birthDate}
+                                        onChange={(e) =>
+                                            setBirthDate(e.target.value)
+                                        }
+                                        className="form-control"
+                                        placeholder="Select your birthday"
+                                    />
+                                    {errors.birth_date ? (
+                                        <small className="text-danger mb-1">
+                                            {errors.birth_date}
                                         </small>
                                     ) : (
                                         ""
