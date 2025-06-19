@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import i18next from "i18next";
-import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
+import Swal from "sweetalert2";
+import { Tooltip } from "react-tooltip";
+import { useAlert } from "react-alert";
 import Moment from "moment";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
@@ -95,7 +96,7 @@ export default function Lead() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            const table = $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -253,7 +254,21 @@ export default function Lead() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.LEADS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Leads table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Leads table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();
@@ -561,7 +576,7 @@ export default function Lead() {
                                         {t("admin.client.Export")}
                                     </button>
                                 </div>
-                                <div className="action-dropdown dropdown mt-md-4 mx-2 d-lg-none">
+                                <div className="action-dropdown dropdown mt-md-4 mx-2 d-lg-block">
                                     <button
                                         type="button"
                                         className="btn btn-default navyblue dropdown-toggle"

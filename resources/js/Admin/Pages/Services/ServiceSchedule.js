@@ -9,6 +9,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/Sidebar";
 
@@ -27,7 +28,7 @@ export default function ServiceSchedule() {
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -95,7 +96,21 @@ export default function ServiceSchedule() {
                     $(row).addClass("dt-row");
                     $(row).attr("data-id", data.id);
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.SERVICE_SCHEDULE, {
+                onStateLoad: (settings, data) => {
+                    console.log('Service schedule table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Service schedule table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         }
     };
 

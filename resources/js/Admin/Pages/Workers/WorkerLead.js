@@ -16,6 +16,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import { leadStatusColor } from "../../../Utils/client.utils";
 import { CSVLink } from "react-csv";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 export default function WorkerLead() {
     const { t, i18n } = useTranslation();
@@ -178,7 +179,7 @@ export default function WorkerLead() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            const table = $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -324,7 +325,21 @@ export default function WorkerLead() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.WORKER_LEADS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Worker leads table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Worker leads table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();

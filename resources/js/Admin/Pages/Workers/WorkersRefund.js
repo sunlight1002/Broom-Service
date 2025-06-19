@@ -11,6 +11,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 import { leadStatusColor } from "../../../Utils/client.utils";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 export default function WorkersRefund() {
     const { t } = useTranslation();
@@ -30,11 +31,10 @@ export default function WorkersRefund() {
 
     const initializeDataTable = (initialPage = 0) => {
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-                stateSave: false,
                 ajax: {
                     url: "/api/admin/refund-claims/list",
                     type: "GET",
@@ -120,7 +120,21 @@ export default function WorkersRefund() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.WORKER_REFUNDS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Worker refunds table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Worker refunds table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();

@@ -10,6 +10,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/Sidebar";
 
@@ -30,7 +31,7 @@ export default function ManageHolidays() {
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 autoWidth: true, // Prevent automatic column width adjustments
@@ -133,7 +134,21 @@ export default function ManageHolidays() {
                     // Reinitialize actions after the table is redrawn
                     initializeTableActions();
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.HOLIDAYS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Holidays table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Holidays table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
 
             $(tableRef.current).css('table-layout', 'fixed');
         }

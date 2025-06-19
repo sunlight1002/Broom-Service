@@ -12,6 +12,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
@@ -95,7 +96,7 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -224,7 +225,21 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                         },
                     },
                 ],
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.WORKERS_HEARING, {
+                onStateLoad: (settings, data) => {
+                    console.log('Workers hearing table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Workers hearing table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         }
     };
 

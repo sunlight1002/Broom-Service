@@ -6,6 +6,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 import Sidebar from '../../Layouts/Sidebar';
 
 const AdminTimerLogs = () => {
@@ -22,7 +23,7 @@ const AdminTimerLogs = () => {
 
     const initializeDataTable = (initialPage = 0) => {
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -106,7 +107,21 @@ const AdminTimerLogs = () => {
 
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.ADMIN_TIMER_LOGS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Admin timer logs table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Admin timer logs table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             const table = $(tableRef.current).DataTable();
             table.page(initialPage).draw("page");

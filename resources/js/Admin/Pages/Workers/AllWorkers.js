@@ -14,6 +14,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 import { CSVLink } from "react-csv";
 import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
@@ -59,7 +60,7 @@ export default function AllWorkers() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            const table = $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -208,25 +209,33 @@ export default function AllWorkers() {
                 columnDefs: [
                     {
                         targets: "_all",
-                        createdCell: function (
-                            td,
-                            cellData,
-                            rowData,
-                            row,
-                            col
-                        ) {
-                            $(td).addClass("custom-cell-class ");
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass("custom-cell-class");
                         },
                     },
                 ],
                 initComplete: function () {
-                    // Explicitly set the initial page after table initialization
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.ALL_WORKERS, {
+                onStateLoad: (settings, data) => {
+                    console.log('All workers table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('All workers table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            const table = $(tableRef.current).DataTable(fullConfig);
+
+            $(tableRef.current).css('table-layout', 'fixed');
         } else {
-            // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();
             table.page(initialPage).draw("page");
         }

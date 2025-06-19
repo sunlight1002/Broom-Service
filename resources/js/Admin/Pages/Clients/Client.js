@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -14,12 +13,14 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 import { leadStatusColor } from '../../../Utils/client.utils';
 import FilterButtons from "../../../Components/common/FilterButton";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Clients() {
     const location = useLocation();
@@ -72,7 +73,7 @@ export default function Clients() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -211,7 +212,21 @@ export default function Clients() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.CLIENTS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Clients table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Clients table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();

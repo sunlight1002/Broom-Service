@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Button, Modal } from "react-bootstrap";
 import Moment from "moment";
 import { Tooltip } from "react-tooltip";
+import i18next from "i18next";
+import { useAlert } from "react-alert";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import $ from "jquery";
 import "datatables.net";
@@ -129,11 +132,10 @@ function ScheduleChange() {
     };
     const initializeDataTable = (initialPage = 0) => {
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 // autoWidth: false,
-                // stateSave: true,
                 ajax: {
                     url: "/api/admin/schedule-changes",
                     type: "GET",
@@ -290,7 +292,21 @@ function ScheduleChange() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.SCHEDULE_CHANGES, {
+                onStateLoad: (settings, data) => {
+                    console.log('Schedule changes table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Schedule changes table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();

@@ -4,12 +4,12 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
-
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/WorkerSidebar";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
@@ -29,7 +29,7 @@ export default function ManageSickLeaves() {
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 autoWidth: false, // Prevent automatic column width adjustments
@@ -104,7 +104,21 @@ export default function ManageSickLeaves() {
                 drawCallback: function () {
                     initializeTableActions();
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.WORKER_SICK_LEAVES, {
+                onStateLoad: (settings, data) => {
+                    console.log('Worker sick leaves table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Worker sick leaves table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
 
             $(tableRef.current).css('table-layout', 'fixed');
         }

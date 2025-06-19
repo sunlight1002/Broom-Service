@@ -8,6 +8,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
@@ -18,7 +19,7 @@ export default function ClientOfferPrice() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const table = $(tableRef.current).DataTable({
+        const baseConfig = {
             processing: true,
             serverSide: true,
             ajax: {
@@ -99,7 +100,21 @@ export default function ClientOfferPrice() {
                     }
                 }
             ]
+        };
+
+        // Add state management configuration
+        const stateConfig = getDataTableStateConfig(TABLE_IDS.CLIENT_OFFERED_PRICE, {
+            onStateLoad: (settings, data) => {
+                console.log('Client offered price table state loaded:', data);
+            },
+            onStateSave: (settings, data) => {
+                console.log('Client offered price table state saved:', data);
+            }
         });
+
+        const fullConfig = { ...baseConfig, ...stateConfig };
+
+        const table = $(tableRef.current).DataTable(fullConfig);
 
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
         $("div.dt-search").append(searchInputWrapper);
