@@ -6,7 +6,7 @@ import { useAlert } from "react-alert";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import PhoneInput from 'react-phone-input-2';
-
+import { Link } from "react-router-dom";
 
 import Map from "../Map/map";
 import { useTranslation } from "react-i18next";
@@ -969,9 +969,21 @@ const PropertyAddress = memo(function PropertyAddress({
                                                     </Td>
                                                     <Td className="my-3">
                                                         {"  "}
-                                                        {item.geo_address
-                                                            ? item.geo_address
-                                                            : "NA"}{" "}
+                                                        {item.geo_address ? (
+                                                            <Link
+                                                                to={
+                                                                    item.latitude && item.longitude
+                                                                        ? `https://maps.google.com/?q=${item.latitude},${item.longitude}`
+                                                                        : `https://maps.google.com?q=${item.geo_address}`
+                                                                }
+                                                                target="_blank"
+                                                                style={{ color: "black", textDecoration: "underline" }}
+                                                            >
+                                                                {item.geo_address}
+                                                            </Link>
+                                                        ) : (
+                                                            "NA"
+                                                        )}{" "}
                                                     </Td>
                                                     <Td className="my-3">
                                                         {"  "}

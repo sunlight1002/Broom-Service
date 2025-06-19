@@ -383,19 +383,24 @@ export default function ProfileDetails({
                                                 <p>{joined}</p>
                                             </div>
                                         </div>
-                                        {/* <div className="col-sm-4">
-                                            <div className="form-group">
-                                                <label>Google address</label>
+                                        <div className="col-sm-4">
+                                            <div className="form-group navyblueColor">
+                                                <label>{t("admin.client.Google_address")}</label>
                                                 <p>
-                                                    <a
-                                                        href={`https://maps.google.com?q=${cords}`}
+                                                    <Link
+                                                        to={
+                                                            client.latitude && client.longitude
+                                                                ? `https://maps.google.com/?q=${client.latitude},${client.longitude}`
+                                                                : `https://maps.google.com?q=${client.geo_address}`
+                                                        }
                                                         target="_blank"
+                                                        style={{ color: "black", textDecoration: "underline" }}
                                                     >
                                                         {geo_address}
-                                                    </a>
+                                                    </Link>
                                                 </p>
                                             </div>
-                                        </div> */}
+                                        </div>
                                         {/* <div className="col-sm-4">
                                             <div className="form-group">
                                                 <label>Floor</label>
