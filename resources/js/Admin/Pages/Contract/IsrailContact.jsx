@@ -193,100 +193,206 @@ export function IsrailContact({
                                 >
                                     <li>
                                         <strong>{t("israilContract.is1")}</strong>
-                                        <div className="row gap-3">
+                                        <div className="row ">
                                             <div className="col-sm">
-
-                                                <TextField
-                                                    name={"fullName"}
-                                                    onBlur={handleBlur}
-                                                    onChange={handleChange}
-                                                    label={t("israilContract.name")}
-                                                    value={values.fullName}
-                                                    required={true}
-                                                    readonly={true}
-                                                    error={
-                                                        touched.fullName &&
-                                                        errors.fullName
-                                                    }
-                                                />
+                                                {
+                                                    isGeneratingPDF ? (
+                                                        <div className="form-group mb-4">
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "israilContract.name"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                name="startDate"
+                                                                value={values.fullName}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <TextField
+                                                            name={"fullName"}
+                                                            onBlur={handleBlur}
+                                                            onChange={handleChange}
+                                                            label={t("israilContract.name")}
+                                                            value={values.fullName}
+                                                            required={true}
+                                                            readonly={true}
+                                                            error={
+                                                                touched.fullName &&
+                                                                errors.fullName
+                                                            }
+                                                        />
+                                                    )
+                                                }
                                             </div>
                                             <div className="col-sm">
-
-                                                <TextField
-                                                    name={"IdNumber"}
-                                                    onBlur={handleBlur}
-                                                    onChange={handleChange}
-                                                    label={t(
-                                                        "israilContract.IDNumber"
-                                                    )}
-                                                    value={values.IdNumber}
-                                                    // readonly={true}
-                                                    error={
-                                                        touched.IdNumber &&
-                                                        errors.IdNumber
-                                                    }
-                                                />
+                                                {
+                                                    isGeneratingPDF ? (
+                                                        <div className="form-group mb-4">
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "israilContract.IdNumber"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                name="startDate"
+                                                                value={values.IdNumber}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <TextField
+                                                            name={"IdNumber"}
+                                                            onBlur={handleBlur}
+                                                            onChange={handleChange}
+                                                            label={t(
+                                                                "israilContract.IDNumber"
+                                                            )}
+                                                            value={values.IdNumber}
+                                                            // readonly={true}
+                                                            error={
+                                                                touched.IdNumber &&
+                                                                errors.IdNumber
+                                                            }
+                                                        />
+                                                    )
+                                                }
                                             </div>
                                         </div>
-                                        <TextField
-                                            name={"Address"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={t("israilContract.Address")}
-                                            value={values.Address}
-                                            readonly={true}
-                                            error={
-                                                touched.Address && errors.Address
-                                            }
-                                        />
+                                        {
+                                            isGeneratingPDF ? (
+                                                <div className="form-group mb-4">
+                                                    <label className="control-label">
+                                                        {t(
+                                                            "israilContract.Address"
+                                                        )}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="startDate"
+                                                        value={values.Address}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <TextField
+                                                    name={"Address"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t("israilContract.Address")}
+                                                    value={values.Address}
+                                                    readonly={true}
+                                                    error={
+                                                        touched.Address && errors.Address
+                                                    }
+                                                />
+                                            )
+                                        }
                                     </li>
                                     <li>
-                                        <DateField
-                                            name={"startDate"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={t(
-                                                "israilContract.StartDateOfJob"
-                                            )}
-                                            value={values.startDate}
-                                            error={
-                                                touched.startDate &&
-                                                errors.startDate
-                                            }
-                                            required={true}
-                                        />
+                                        {
+                                            isGeneratingPDF ? (
+                                                <div className="form-group mb-4">
+                                                    <label className="control-label">
+                                                        {t(
+                                                            "israilContract.StartDateOfJob"
+                                                        )}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="startDate"
+                                                        value={values.startDate}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <DateField
+                                                    name={"startDate"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t(
+                                                        "israilContract.StartDateOfJob"
+                                                    )}
+                                                    value={values.startDate}
+                                                    error={
+                                                        touched.startDate &&
+                                                        errors.startDate
+                                                    }
+                                                    required={true}
+                                                />
+                                            )
+                                        }
+
                                         <div className="row">
                                             <div className="col-sm">
-                                                <TextField
-                                                    name={"MobileNo"}
-                                                    type="number"
-                                                    onBlur={handleBlur}
-                                                    onChange={handleChange}
-                                                    label={t(
-                                                        "israilContract.mobileNumber"
-                                                    )}
-                                                    value={values.MobileNo}
-                                                    readonly={true}
-                                                    required={true}
-                                                    error={
-                                                        touched.MobileNo &&
-                                                        errors.MobileNo
-                                                    }
+                                                {
+                                                    isGeneratingPDF ? (
+                                                        <div className="form-group mb-4">
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "israilContract.mobileNumber"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                name="MobileNo"
+                                                                value={values.MobileNo}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <TextField
+                                                            name={"MobileNo"}
+                                                            type="number"
+                                                            onBlur={handleBlur}
+                                                            onChange={handleChange}
+                                                            label={t(
+                                                                "israilContract.mobileNumber"
+                                                            )}
+                                                            value={values.MobileNo}
+                                                            readonly={true}
+                                                            required={true}
+                                                            error={
+                                                                touched.MobileNo &&
+                                                                errors.MobileNo
+                                                            }
 
-                                                />
+                                                        />
+                                                    )
+                                                }
                                             </div>
                                             <div className="col-sm">
-
-                                                <TextField
-                                                    name={"PhoneNo"}
-                                                    onBlur={handleBlur}
-                                                    type="number"
-                                                    onChange={handleChange}
-                                                    label={t(
-                                                        "israilContract.HomePhone"
-                                                    )}
-                                                    value={values.PhoneNo}
-                                                />
+                                                {
+                                                    isGeneratingPDF ? (
+                                                        <div className="form-group mb-4">
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "israilContract.HomePhone"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                name="PhoneNo"
+                                                                value={values.PhoneNo}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <TextField
+                                                            name={"PhoneNo"}
+                                                            onBlur={handleBlur}
+                                                            type="number"
+                                                            onChange={handleChange}
+                                                            label={t(
+                                                                "israilContract.HomePhone"
+                                                            )}
+                                                            value={values.PhoneNo}
+                                                        />
+                                                    )
+                                                }
                                             </div>
                                         </div>
                                         <p className="mb-2">
@@ -747,27 +853,34 @@ export function IsrailContact({
                                             </strong>
 
                                         </p>
-                                        {formValues && formValues.signature ? (
-                                            <img src={formValues.signature} />
-                                        ) : (
-                                            <div className="d-flex flex-column">
-                                                <SignatureCanvas
-                                                    penColor="black"
-                                                    canvasProps={{
-                                                        width: 250,
-                                                        height: 100,
-                                                        className:
-                                                            "sign101 border mt-1",
-                                                    }}
-                                                    ref={sigRef}
-                                                    onEnd={handleSignatureEnd}
-                                                />
-                                                <span className="text-danger">
-                                                    {touched.signature &&
-                                                        errors.signature}
-                                                </span>
-                                            </div>
-                                        )}
+                                        {
+                                            isGeneratingPDF ? (
+                                                sigRef ? (
+                                                    <img src={sigRef.current.toDataURL()} alt="Signature" />
+                                                ) : null
+                                            ) : (
+                                                formValues?.signature ? (
+                                                    <img src={formValues.signature} alt="Signature" />
+                                                ) : (
+                                                    <div className="d-flex flex-column">
+                                                        <SignatureCanvas
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
+                                                                className: "sign101 border mt-1",
+                                                            }}
+                                                            ref={sigRef}
+                                                            onEnd={handleSignatureEnd}
+                                                        />
+                                                        <span className="text-danger">
+                                                            {touched.signature && errors.signature}
+                                                        </span>
+                                                    </div>
+                                                )
+                                            )
+                                        }
+
                                     </div>
                                     {!isGeneratingPDF && (
                                         <div className="d-block">

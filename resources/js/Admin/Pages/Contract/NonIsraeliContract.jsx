@@ -171,8 +171,8 @@ export function NonIsraeliContract({
     // Clear the signature canvas
     const clearSignature1 = () => {
         // if (sigRef1.current) {
-            setTempSig1(null);
-            sigRef1?.current?.clear();
+        setTempSig1(null);
+        sigRef1?.current?.clear();
         // }
     };
     const handleSignatureEnd2 = () => {
@@ -306,18 +306,36 @@ export function NonIsraeliContract({
                                         />
                                     </li>
                                     <li>
-                                        <DateField
-                                            name={"startDate"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={t("nonIsrailContract.dateStart")}
-                                            value={values.startDate}
-                                            required={true}
-                                            error={
-                                                touched.startDate &&
-                                                errors.startDate
-                                            }
-                                        />
+                                        {
+                                            isGeneratingPDF ? (
+                                                <div className="form-group mb-4">
+                                                    <label className="control-label">
+                                                        {t(
+                                                            "nonIsrailContract.dateStart"
+                                                        )}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="startDate"
+                                                        value={values.startDate}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <DateField
+                                                    name={"startDate"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t("nonIsrailContract.dateStart")}
+                                                    value={values.startDate}
+                                                    required={true}
+                                                    error={
+                                                        touched.startDate &&
+                                                        errors.startDate
+                                                    }
+                                                />
+                                            )
+                                        }
                                         <p className="mb-2">
                                             {t("nonIsrailContract.nic2")}
                                         </p>
@@ -382,23 +400,41 @@ export function NonIsraeliContract({
                                                             : "")
                                                     }
                                                 >
-                                                    <DateField
-                                                        name={"signatureDate1"}
-                                                        onBlur={handleBlur}
-                                                        onChange={handleChange}
-                                                        label={t(
-                                                            "nonIsrailContract.nic5_sub.Date"
-                                                        )}
-                                                        value={
-                                                            values.signatureDate1
-                                                        }
-                                                        required={true}
-                                                        readOnly
-                                                        error={
-                                                            touched.signatureDate1 &&
-                                                            errors.signatureDate1
-                                                        }
-                                                    />
+                                                    {
+                                                        isGeneratingPDF ? (
+                                                            <div className="form-group mb-4">
+                                                                <label className="control-label">
+                                                                    {t(
+                                                                        "nonIsrailContract.nic5_sub.Date"
+                                                                    )}
+                                                                </label>
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control"
+                                                                    name="signatureDate1"
+                                                                    value={values.signatureDate1}
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <DateField
+                                                                name={"signatureDate1"}
+                                                                onBlur={handleBlur}
+                                                                onChange={handleChange}
+                                                                label={t(
+                                                                    "nonIsrailContract.nic5_sub.Date"
+                                                                )}
+                                                                value={
+                                                                    values.signatureDate1
+                                                                }
+                                                                required={true}
+                                                                readOnly
+                                                                error={
+                                                                    touched.signatureDate1 &&
+                                                                    errors.signatureDate1
+                                                                }
+                                                            />
+                                                        )
+                                                    }
                                                 </div>
                                                 <div
                                                     className={
@@ -451,9 +487,9 @@ export function NonIsraeliContract({
                                                                         </p>
                                                                     )}
                                                             </div>
-
                                                         </div>
                                                     )}
+
                                                     {tempSig1 && !isGeneratingPDF && (
                                                         <div className="d-block align-content-end">
                                                             <button
@@ -629,21 +665,39 @@ export function NonIsraeliContract({
                                             (isGeneratingPDF ? "col-3" : "")
                                         }
                                     >
-                                        <DateField
-                                            name={"signatureDate2"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={t(
-                                                "nonIsrailContract.date"
-                                            )}
-                                            value={values.signatureDate2}
-                                            required={true}
-                                            readOnly
-                                            error={
-                                                touched.signatureDate2 &&
-                                                errors.signatureDate2
-                                            }
-                                        />
+                                        {
+                                            isGeneratingPDF ? (
+                                                <div className="form-group mb-4">
+                                                    <label className="control-label">
+                                                        {t(
+                                                            "nonIsrailContract.date"
+                                                        )}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="signatureDate2"
+                                                        value={values.signatureDate2}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <DateField
+                                                    name={"signatureDate2"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t(
+                                                        "nonIsrailContract.date"
+                                                    )}
+                                                    value={values.signatureDate2}
+                                                    required={true}
+                                                    readOnly
+                                                    error={
+                                                        touched.signatureDate2 &&
+                                                        errors.signatureDate2
+                                                    }
+                                                />
+                                            )
+                                        }
                                     </div>
                                     <div
                                         className={
@@ -658,7 +712,7 @@ export function NonIsraeliContract({
                                                 )}
                                             </strong>
                                         </p>
-                                        {formValues &&
+                                        {/* {formValues &&
                                             formValues.signature2 ? (
                                             <img
                                                 src={formValues.signature2}
@@ -702,7 +756,60 @@ export function NonIsraeliContract({
                                                     </div>
                                                 )}
                                             </div>
-                                        )}
+                                        )} */}
+
+                                        {
+                                            isGeneratingPDF ? (
+                                                sigRef2 ? (
+                                                    <img src={sigRef2?.current?.toDataURL()} alt="Signature" />
+                                                ) : null
+                                            ) : (
+                                                formValues?.signature2 ? (
+                                                    <img
+                                                        src={formValues.signature2}
+                                                    />
+                                                ) : (
+                                                    <div id="signature2">
+                                                        <SignatureCanvas
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
+                                                                className:
+                                                                    "sign101 border mt-1",
+                                                            }}
+                                                            ref={sigRef2}
+                                                            onEnd={
+                                                                handleSignatureEnd2
+                                                            }
+                                                        />
+                                                        {touched.signature2 &&
+                                                            errors.signature2 && (
+                                                                <p className="text-danger">
+                                                                    {touched.signature2 &&
+                                                                        errors.signature2}
+                                                                </p>
+                                                            )}
+
+                                                        {!isGeneratingPDF && (
+                                                            <div className="d-block">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn navyblue px-3 py-1 my-2"
+                                                                    onClick={
+                                                                        clearSignature2
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "nonIsrailContract.clear"
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            )
+                                        }
                                     </div>
                                 </div>
                                 <ol start={6} className="lh-lg text-justify pl-0" style={{ fontSize: "16px" }}>
@@ -712,13 +819,7 @@ export function NonIsraeliContract({
                                         </p>
                                     </li>
                                     <li>
-                                        <p
-                                            style={{
-                                                marginBottom: isGeneratingPDF
-                                                    ? "370px"
-                                                    : "16px",
-                                            }}
-                                        >
+                                        <p className="mb-2">
                                             {t("nonIsrailContract.nic7")}
                                         </p>
                                     </li>
@@ -859,7 +960,7 @@ export function NonIsraeliContract({
                                                 )}
                                             </strong>
                                         </p>
-                                        {initialValues.companySignature2 &&
+                                        {/* {initialValues.companySignature2 &&
                                             initialValues.companySignature2 ? (
                                             <img
                                                 src={initialValues.companySignature1}
@@ -905,7 +1006,64 @@ export function NonIsraeliContract({
                                                     </div>
                                                 )}
                                             </>
-                                        )}
+                                        )} */}
+
+                                        {
+                                            isGeneratingPDF ? (
+                                                initialValues.companySignature2 &&
+                                                    initialValues.companySignature2 ? (
+                                                    <img className="company-sign" src={initialValues.companySignature1} alt="Signature" />
+                                                ) : null
+                                            ) : (
+                                                initialValues.companySignature2 &&
+                                                    initialValues.companySignature2 ? (
+                                                    <img
+                                                        src={initialValues.companySignature1}
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <SignatureCanvas
+                                                            id="signature3"
+
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
+                                                                className:
+                                                                    "sign101 border mt-1",
+                                                            }}
+                                                            ref={companySigRef1}
+                                                            onEnd={
+                                                                handleCompanySignatureEnd1
+                                                            }
+                                                        />
+                                                        {touched.companySignature1 &&
+                                                            errors.companySignature1 && (
+                                                                <p className="text-danger">
+                                                                    {touched.companySignature1 &&
+                                                                        errors.companySignature1}
+                                                                </p>
+                                                            )}
+
+                                                        {!isGeneratingPDF && (
+                                                            <div className="d-block">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn navyblue px-3 py-1 mb-2"
+                                                                    onClick={
+                                                                        clearCompanySignature1
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "nonIsrailContract.clear"
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )
+                                            )
+                                        }
                                     </div>
                                     <div
                                         className={
@@ -920,7 +1078,7 @@ export function NonIsraeliContract({
                                                 )}
                                             </strong>
                                         </p>
-                                        {formValues &&
+                                        {/* {formValues &&
                                             formValues.signature3 ? (
                                             <img
                                                 src={formValues.signature3}
@@ -966,7 +1124,63 @@ export function NonIsraeliContract({
                                                     </div>
                                                 )}
                                             </>
-                                        )}
+                                        )} */}
+
+                                        {
+                                            isGeneratingPDF ? (
+                                                sigRef3 ? (
+                                                    <img src={sigRef3?.current?.toDataURL()} alt="Signature" />
+                                                ) : null
+                                            ) : (
+                                                formValues &&
+                                                    formValues.signature3 ? (
+                                                    <img
+                                                        src={formValues.signature3}
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <SignatureCanvas
+                                                            id="signature3"
+
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
+                                                                className:
+                                                                    "sign101 border mt-1",
+                                                            }}
+                                                            ref={sigRef3}
+                                                            onEnd={
+                                                                handleSignatureEnd3
+                                                            }
+                                                        />
+                                                        {touched.signature3 &&
+                                                            errors.signature3 && (
+                                                                <p className="text-danger">
+                                                                    {touched.signature3 &&
+                                                                        errors.signature3}
+                                                                </p>
+                                                            )}
+
+                                                        {!isGeneratingPDF && (
+                                                            <div className="d-flex justify-content-end">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn navyblue px-3 py-1 my-2"
+                                                                    onClick={
+                                                                        clearSignature3
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "nonIsrailContract.nic8Sub.nic8Sub_5"
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )
+                                            )
+                                        }
                                     </div>
                                 </div>
                                 <div
@@ -978,21 +1192,39 @@ export function NonIsraeliContract({
                                     }}
                                 >
                                     <div className="col-12">
-                                        <DateField
-                                            name={"signatureDate3"}
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            label={t(
-                                                "nonIsrailContract.date"
-                                            )}
-                                            value={values.signatureDate3}
-                                            required={true}
-                                            readOnly
-                                            error={
-                                                touched.signatureDate3 &&
-                                                errors.signatureDate3
-                                            }
-                                        />
+                                        {
+                                            isGeneratingPDF ? (
+                                                <div className="form-group mb-4">
+                                                    <label className="control-label">
+                                                        {t(
+                                                            "nonIsrailContract.date"
+                                                        )}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="signatureDate3"
+                                                        value={values.signatureDate3}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <DateField
+                                                    name={"signatureDate3"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t(
+                                                        "nonIsrailContract.date"
+                                                    )}
+                                                    value={values.signatureDate3}
+                                                    required={true}
+                                                    readOnly
+                                                    error={
+                                                        touched.signatureDate3 &&
+                                                        errors.signatureDate3
+                                                    }
+                                                />
+                                            )
+                                        }
                                     </div>
                                 </div>
                             </section>
@@ -1048,7 +1280,7 @@ export function NonIsraeliContract({
                                                         {t("nonIsrailContract.companySign")}
                                                     </strong>
                                                 </p>
-                                                {initialValues.companySignature2 &&
+                                                {/* {initialValues.companySignature2 &&
                                                     initialValues.companySignature2 ? (
                                                     <img
                                                         src={initialValues.companySignature2}
@@ -1092,7 +1324,62 @@ export function NonIsraeliContract({
                                                             </div>
                                                         )}
                                                     </>
-                                                )}
+                                                )} */}
+
+                                                {
+                                                    isGeneratingPDF ? (
+                                                        initialValues.companySignature2 &&
+                                                            initialValues.companySignature2 ? (
+                                                            <img className="company-sign" src={initialValues.companySignature2} alt="Signature" />
+                                                        ) : null
+                                                    ) : (
+                                                        initialValues.companySignature2 &&
+                                                            initialValues.companySignature2 ? (
+                                                            <img
+                                                                src={initialValues.companySignature2}
+                                                            />
+                                                        ) : (
+                                                            <>
+                                                                <SignatureCanvas
+                                                                    penColor="black"
+                                                                    canvasProps={{
+                                                                        width: 250,
+                                                                        height: 100,
+                                                                        className:
+                                                                            "sign101 border mt-1",
+                                                                    }}
+                                                                    ref={companySigRef2}
+                                                                    onEnd={
+                                                                        handleCompanySignatureEnd2
+                                                                    }
+                                                                />
+                                                                {touched.companySignature2 &&
+                                                                    errors.companySignature2 && (
+                                                                        <p className="text-danger">
+                                                                            {touched.companySignature2 &&
+                                                                                errors.companySignature2}
+                                                                        </p>
+                                                                    )}
+
+                                                                {!isGeneratingPDF && (
+                                                                    <div className="d-block">
+                                                                        <button
+                                                                            className="btn navyblue px-3 py-1 mt-2 mb-2"
+                                                                            type="button"
+                                                                            onClick={
+                                                                                clearCompanySignature2
+                                                                            }
+                                                                        >
+                                                                            {t(
+                                                                                "nonIsrailContract.clear"
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )
+                                                    )
+                                                }
                                             </div>
                                             <div
                                                 className={
@@ -1105,7 +1392,7 @@ export function NonIsraeliContract({
                                                         {t("nonIsrailContract.workerSign")}
                                                     </strong>
                                                 </p>
-                                                {formValues && formValues.signature4 ? (
+                                                {/* {formValues && formValues.signature4 ? (
                                                     <img src={formValues.signature4} />
                                                 ) : (
                                                     <>
@@ -1144,29 +1431,95 @@ export function NonIsraeliContract({
                                                             </div>
                                                         )}
                                                     </>
-                                                )}
+                                                )} */}
+
+                                                {
+                                                    isGeneratingPDF ? (
+                                                        sigRef4 ? (
+                                                            <img src={sigRef4?.current?.toDataURL()} alt="Signature" />
+                                                        ) : null
+                                                    ) : (
+                                                        formValues && formValues.signature4 ? (
+                                                            <img src={formValues.signature4} />
+                                                        ) : (
+                                                            <>
+                                                                <SignatureCanvas
+                                                                    penColor="black"
+                                                                    canvasProps={{
+                                                                        width: 250,
+                                                                        height: 100,
+                                                                        className:
+                                                                            "sign101 border mt-1",
+                                                                    }}
+                                                                    ref={sigRef4}
+                                                                    onEnd={handleSignatureEnd4}
+                                                                />
+                                                                {touched.signature4 &&
+                                                                    errors.signature4 && (
+                                                                        <p className="text-danger">
+                                                                            {touched.signature4 &&
+                                                                                errors.signature4}
+                                                                        </p>
+                                                                    )}
+
+                                                                {!isGeneratingPDF && (
+                                                                    <div className="d-block">
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn navyblue px-3 py-1 mt-2 mb-2"
+                                                                            onClick={
+                                                                                clearSignature4
+                                                                            }
+                                                                        >
+                                                                            {t(
+                                                                                "nonIsrailContract.clear"
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )
+                                                    )
+                                                }
                                             </div>
                                         </div>
 
                                         <div className="">
-                                            <DateField
-                                                name={"signatureDate4"}
-                                                onBlur={handleBlur}
-                                                onChange={handleChange}
-                                                label={t("nonIsrailContract.date")}
-                                                value={values.signatureDate4}
-                                                required={true}
-                                                readOnly
-                                                error={
-                                                    touched.signatureDate4 &&
-                                                    errors.signatureDate4
-                                                }
-                                            />
+
+                                            {
+                                                isGeneratingPDF ? (
+                                                    <div className="form-group mb-4">
+                                                        <label className="control-label">
+                                                            {t(
+                                                                "nonIsrailContract.date"
+                                                            )}
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            name="signatureDate4"
+                                                            value={values.signatureDate4}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <DateField
+                                                        name={"signatureDate4"}
+                                                        onBlur={handleBlur}
+                                                        onChange={handleChange}
+                                                        label={t("nonIsrailContract.date")}
+                                                        value={values.signatureDate4}
+                                                        required={true}
+                                                        readOnly
+                                                        error={
+                                                            touched.signatureDate4 &&
+                                                            errors.signatureDate4
+                                                        }
+                                                    />
+                                                )
+                                            }
                                         </div>
                                     </li>
                                 </ol>
-
-
                             </section>
                         </div>
                     )

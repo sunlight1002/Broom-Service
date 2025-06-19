@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use App\Helpers\PDF as TCPPDF;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
+use PDF;
+
 
 class WorkerFormService
 {
@@ -1412,14 +1413,14 @@ class WorkerFormService
             } elseif (Storage::disk('public')->exists('uploads/documents/' . $formData['employeepassportCopy'])) {
                 $passportPath = Storage::disk('public')->path('uploads/documents/' . $formData['employeepassportCopy']);
             }
-        
+
             if ($passportPath) {
                 $pdf->AddPage();
                 $text = 'B. Employee details | Photocopy of passport';
                 $this->addTextContent($pdf, $text, 20, 500, 100, 85, 20);
                 $pdf->Image($passportPath, ($lng == "heb" ? 560 : 30), 60, 530, 300, '', '', '', true);
             }
-        
+
             // Check if residence permit exists
             $residencePath = null;
             if (Storage::disk('public')->exists('uploads/form101/documents/' . $formData['employeeResidencePermit'])) {
@@ -1427,7 +1428,7 @@ class WorkerFormService
             } elseif (Storage::disk('public')->exists('uploads/documents/' . $formData['employeeResidencePermit'])) {
                 $residencePath = Storage::disk('public')->path('uploads/documents/' . $formData['employeeResidencePermit']);
             }
-        
+
             if ($residencePath) {
                 $pdf->AddPage();
                 $text = 'B. Employee details | Photocopy of residence permit in Israel for a foreign employee';
@@ -1435,7 +1436,7 @@ class WorkerFormService
                 $pdf->Image($residencePath, ($lng == "heb" ? 560 : 30), 50, 530, 300, '', '', '', true);
             }
         }
-        
+
         // Employee ID card copy
         if (
             isset($formData['employeeIdentityType'], $formData['employeeIdCardCopy']) &&
@@ -1455,7 +1456,7 @@ class WorkerFormService
                 $pdf->Image($idCardPath, ($lng == "heb" ? 560 : 30), 60, 530, 300, '', '', '', true);
             }
         }
-        
+
         if (
             isset($formData['TaxExemption']['disabled']) &&
             $formData['TaxExemption']['disabled'] === true
@@ -1906,5 +1907,184 @@ class WorkerFormService
         } else {
             return "P";
         }
+    }
+
+    public static function generateWorkerContract($htmlContent, $fileName)
+    {
+
+        // Load image and convert to base64
+        $imagePath = public_path('images/company-sign.png');
+        $imageData = base64_encode(file_get_contents($imagePath));
+        $src = 'data:image/png;base64,' . $imageData;
+
+        // ✅ Replace the <img class="company-sign" /> placeholder with actual signature image
+        $htmlContent = preg_replace(
+            '/<img[^>]*class="company-sign"[^>]*>/i',
+            self::buildSignatureTag($src),
+            $htmlContent
+        );
+
+
+        $styledHtml = '
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {
+                font-family: "Rubik", sans-serif;
+                font-size: 11pt;
+                line-height: 1.6;
+                color: #333;
+                padding: 15px;
+            }
+
+            h1, h2, h3 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #007BFF;
+            }
+
+            .section-title {
+                font-weight: bold;
+                font-size: 13pt;
+                margin-top: 25px;
+                margin-bottom: 10px;
+                border-bottom: 2px solid #007BFF;
+                padding-bottom: 3px;
+            }
+
+            .field {
+                margin-bottom: 10px;
+            }
+
+            .field-label {
+                font-weight: bold;
+                display: inline-block;
+                width: 200px;
+                color: #555;
+            }
+
+            .field-value {
+                display: inline-block;
+            }
+
+            .signature-block {
+                margin-top: 40px;
+            }
+
+            .signature-label {
+                font-weight: bold;
+            }
+
+            .signature-line {
+                margin-top: 20px;
+                border-bottom: 2px solid #007BFF;
+                width: 300px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 11px;
+                page-break-inside: avoid;
+                border: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+                text-align: left;
+                padding: 12px 15px;
+                border-bottom: 2px solid #ddd;
+            }
+
+            td {
+                border-bottom: 1px solid #ddd;
+                padding: 10px 15px;
+                text-align: left;
+            }
+
+            td:hover {
+                background-color: #f9f9f9;
+            }
+
+            th, td {
+                border-right: 1px solid #ddd;
+            }
+
+            th:last-child, td:last-child {
+                border-right: none;
+            }
+
+            .right {
+                text-align: right;
+            }
+
+            .center {
+                text-align: center;
+            }
+
+            .footer {
+                margin-top: 30px;
+                font-size: 10px;
+                text-align: center;
+                color: #666;
+                border-top: 1px solid #eee;
+                padding-top: 10px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            textarea {
+                width: 100%;
+                padding: 8px;
+                font-size: 10pt;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 4px;
+            }
+
+            input[type="text"]:focus,
+            input[type="number"]:focus,
+            textarea:focus {
+                border-color: #007BFF;
+                outline: none;
+            }
+
+            input[type="submit"] {
+                display: none;
+            }
+
+            button {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        ' . $htmlContent . '
+    </body>
+    </html>
+    ';
+
+        // Generate and save PDF
+        $pdf = PDF::loadHTML($styledHtml)
+            ->setPaper('A4')
+            ->setOptions([
+                'defaultFont' => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+            ])
+            ->save(storage_path("app/public/signed-docs/{$fileName}"));
+
+
+        return true;
+    }
+
+    public static function buildSignatureTag($url, $width = 250, $height = 150)
+    {
+        if (!$url) return '';
+
+        return '<img src="' . $url . '" width="' . $width . '" height="' . $height . '" style="object-fit: contain;" />';
     }
 }

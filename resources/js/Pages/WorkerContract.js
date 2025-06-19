@@ -1,6 +1,5 @@
 //WorkerContract
 
-import html2pdf from "html2pdf.js";
 import i18next from "i18next";
 import { Base64 } from "js-base64";
 import React, { useEffect, useRef, useState } from "react";
@@ -53,33 +52,14 @@ export default function WorkerContract({
                 return;
             }
     
-            const options = {
-                filename: "my-document.pdf",
-                margin: [2, 5, 0, 5],  // [TOP, LEFT, BOTTOM, RIGHT]
-                image: { type: "jpeg", quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: {
-                    unit: "mm",
-                    format: "a4",
-                    orientation: "portrait",
-                },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-    
             try {
                 const content = contentRef.current;
     
-                // Debugging: Check if contentRef exists
-                console.log("Generating PDF from:", content);
-    
-                const _pdf = await html2pdf().set(options).from(content).outputPdf("blob");
-    
-                const pdfFile = new File([_pdf], "Contract.pdf", { type: "application/pdf" });
-    
                 // Convert JSON object to FormData
                 let formData = objectToFormData(values);
-                formData.append("pdf_file", pdfFile);
+                // formData.append("pdf_file", pdfFile);
                 formData.append("step", nextStep);
+                formData.append("content", content.innerHTML);
                 formData.append("savingType", savingType);
                 formData.append("type", type === "lead" ? "lead" : "worker");
     

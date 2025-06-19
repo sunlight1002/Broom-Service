@@ -810,9 +810,6 @@ class AuthController extends Controller
     {
         $data = $request->all();
         $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
-        $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
-
-        unset($data['pdf_file']);
 
         // Find worker based on type (lead or user)
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('id', $id)->where('status', '!=', 0)->first();
@@ -843,18 +840,13 @@ class AuthController extends Controller
         // Prepare form data
         $formData = [
             'type' => WorkerFormTypeEnum::CONTRACT,
-            'data' => $data,
+            'data' => collect($data)->except('content')->toArray(),
             'submitted_at' => $savingType === 'submit' ? now()->toDateTimeString() : null,
             'pdf_name' => null
         ];
 
         // Handle PDF saving only when submitting
         if ($savingType === 'submit') {
-            if (!$pdfFile) {
-                return response()->json([
-                    'message' => "PDF file is required to submit the contract."
-                ], 400);
-            }
 
             if (!Storage::drive('public')->exists('signed-docs')) {
                 Storage::drive('public')->makeDirectory('signed-docs');
@@ -862,14 +854,17 @@ class AuthController extends Controller
 
             $file_name = Str::uuid()->toString() . '.pdf';
 
-            if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            // Generate PDF and get success flag
+            $success = $this->workerFormService->generateWorkerContract($data['content'], $file_name);
+
+            if ($success) {
+                $formData['pdf_name'] = $file_name;
+                $worker->save(); // Save after PDF generation
+            } else {
                 return response()->json([
-                    'message' => "Can't save PDF"
+                    'message' => "Failed to generate contract PDF."
                 ], 500);
             }
-
-            // Update contract status and assign PDF
-            $formData['pdf_name'] = $file_name;
             // $worker->contract = 1;
             $worker->save();
         }
@@ -892,7 +887,7 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
 
-            if($worker->country == "Israel") {
+            if ($worker->country == "Israel") {
                 $worker->status = 1;
                 $worker->save();
             }
