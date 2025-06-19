@@ -244,6 +244,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 $client = Client::create([
                                     'email' => $email,
                                     'invoicename' => trim($row[0]),
+                                    'source' => 'Google Sheet',
                                 ]);
                             }
                             // $IcountData = $this->getIcountClientInfo($client);

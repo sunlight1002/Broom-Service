@@ -41,7 +41,7 @@ class WhatsappNotification
         $this->twilioAccountSid = config('services.twilio.twilio_id');
         $this->twilioAuthToken = config('services.twilio.twilio_token');
         $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
-        $this->twilioWorkerLeadWhatsappNumber = config('services.twilio.worker_lead_whatsapp_number');
+        $this->twilioWorkerLeadWhatsappNumber = config('services.whapi.whapi_worker_lead_number_1');
 
 
         $this->translateClient = new TranslateClient([
@@ -89,7 +89,7 @@ class WhatsappNotification
 
 
             $ClientNametranslation = $this->translateClient->translate($clientName, [
-                'target' => $lng,
+                'target' => $lng == "heb" ? 'he' : 'en',
             ]);
 
             // Replaceable values
@@ -534,6 +534,7 @@ class WhatsappNotification
                 ':pending_contracts_count' => $eventData['pending_contracts_count'] ?? '',
                 ':worker_lead_count' => $eventData['worker_lead_count'] ?? '',
                 ':time_interval' => $eventData['time_interval'] ?? '',
+                ':job_full_addresses' => $eventData['job_full_addresses'] ?? '',
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];
@@ -583,35 +584,35 @@ class WhatsappNotification
                         $lng = $workerData['lng'] ?? 'heb';
 
                         // if ($lng == "heb") {
-                        //     $title1 = "אשר כתובת";
-                        //     $title2 = "מנהל אנשי קשר";
+                        //     $title1 = "ראיתי";
+                        //     $title2 = "דבר עם מנהל";
                         //     // $sid = "HX284d159218aad8b3b04de5ff06238f18";
                         // } elseif ($lng == "spa") {
-                        //     $title1 = "Aceptar Dirección";
+                        //     $title1 = "He visto el horario";
                         //     $title2 = "Administrador de contactos";
                         //     // $sid = "HX38c7043fb5eea7a16534866075c64c90";
                         // } elseif ($lng == "ru") {
-                        //     $title1 = "Подтвердить адрес";
-                        //     $title2 = "Менеджер контактов";
+                        //     $title1 = "Я видел расписание";
+                        //     $title2 = "Связаться с менеджером";
                         //     // $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
                         // } else {
-                        //     $title1 = "Accept address";
+                        //     $title1 = "I’ve seen the schedule";
                         //     $title2 = "Contact manager";
                         //     // $sid = "HX517f18e3ae6de354515fcdc52becfb28";
                         // }
 
                         // $buttons = [
                         //     [
-                        //         'type' => 'url',
+                        //         'type' => 'quick_reply',
                         //         'title' => $title1,
-                        //         'id' => '1',
-                        //         'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
+                        //         'id' => 'seen_schedule',
+                        //         // 'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
                         //     ],
                         //     [
-                        //         'type' => 'url',
+                        //         'type' => 'quick_reply',
                         //         'title' => $title2,
-                        //         'id' => '2',
-                        //         'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                        //         'id' => 'contact_manager',
+                        //         // 'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
                         //     ]
                         // ];
 
@@ -1793,35 +1794,35 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        if ($lng == "heb") {
-                            $sid = "HX3e4c5c7160088e38eb064cbd6752ec47";
-                        } elseif ($lng == "spa") {
-                            $sid = "HX4efa1d9982eb2f54a0bb3422b0c9a36e";
-                        } elseif ($lng == "ru") {
-                            $sid = "HX960ec603e30b1bc3cd4314b90b637713";
-                        } else {
-                            $sid = "HX9a3675e53007de5cd1c70bca2bdcdbfc";
-                        }
+                        // if ($lng == "heb") {
+                        //     $sid = "HX3e4c5c7160088e38eb064cbd6752ec47";
+                        // } elseif ($lng == "spa") {
+                        //     $sid = "HX4efa1d9982eb2f54a0bb3422b0c9a36e";
+                        // } elseif ($lng == "ru") {
+                        //     $sid = "HX960ec603e30b1bc3cd4314b90b637713";
+                        // } else {
+                        //     $sid = "HX9a3675e53007de5cd1c70bca2bdcdbfc";
+                        // }
 
-                        $variables = [
-                            "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
-                            "2" => "worker-forms/" . base64_encode($workerData['id'])
-                        ];
+                        // $variables = [
+                        //     "1" => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                        //     "2" => "worker-forms/" . base64_encode($workerData['id'])
+                        // ];
 
 
 
-                        $twi = $this->twilio->messages->create(
-                            "whatsapp:+" . $receiverNumber,
-                            [
-                                "from" => $this->twilioWhatsappNumber,
-                                "contentSid" => $sid,
-                                "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        // $twi = $this->twilio->messages->create(
+                        //     "whatsapp:+" . $receiverNumber,
+                        //     [
+                        //         "from" => $this->twilioWhatsappNumber,
+                        //         "contentSid" => $sid,
+                        //         "contentVariables" => json_encode($variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
 
-                            ]
-                        );
+                        //     ]
+                        // );
 
-                        $data = $twi->toArray();
-                        $isTwilio = true;
+                        // $data = $twi->toArray();
+                        // $isTwilio = true;
 
                         break;
 
@@ -3515,7 +3516,7 @@ class WhatsappNotification
                         );
                     }
 
-                    Log::info($response->json());
+                    \Log::info($response->json());
                 } else {
                     if (in_array($eventType, [
                         WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,

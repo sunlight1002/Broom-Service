@@ -746,7 +746,7 @@ Broom Service Team 🌹",
             // }
 
             if (!$client && !$user && !$workerLead) {
-                $this->sendNewLeadMainMenu($lng, $from);
+                $this->sendNewLeadMainMenu($lng, $from, 'whapi-lead-bot');
             } else if ($client && $client->lead_status && in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])) {
                 \Log::info('client already exist from whapi');
                 $this->WhapifbActiveClientsWebhookCurrentLive($request);
@@ -864,7 +864,7 @@ Broom Service Team 🌹",
                 $menuParts = explode('->', $responseActiveClientState->menu_option);
                 $flag = end($menuParts);
             } else if (!$client && !$user && !$workerLead) {
-                $this->sendNewLeadMainMenu($lng, $from);
+                $this->sendNewLeadMainMenu($lng, $from, 'meta-lead-bot');
             }
 
             if ($client && $client->disable_notification == 1) {
@@ -4870,7 +4870,7 @@ Broom Service Team 🌹",
         return response()->json(['status' => 'success'], 200);
     }
 
-    public function sendNewLeadMainMenu($lng, $from)
+    public function sendNewLeadMainMenu($lng, $from, $source)
     {
         $sid = $lng == "heb" ? "HX3d7a626548e2c058c1fd609219588318" : "HX224fe723aaf81c50ee85b90a2ffbf859";
 
@@ -4904,6 +4904,7 @@ Broom Service Team 🌹",
         $lead->password      = Hash::make(Str::random(20));
         $lead->passcode      = $from;
         $lead->geo_address   = '';
+        $lead->source       = $source;
         $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
         $lead->save();
 
