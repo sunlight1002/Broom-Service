@@ -3289,7 +3289,7 @@ class WhatsappNotification
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')),
-                                    "2" => "?fname=" . urlencode($clientData['firstname']) .
+                                    "2" => "?lng=" . ($clientData['lng'] == "heb" ? "he" : "en") . "&fname=" . urlencode($clientData['firstname']) .
                                         "&lname=" . urlencode($clientData['lastname']) .
                                         "&phone=" . urlencode($clientData['phone']) .
                                         "&email=" . urlencode($clientData['email']) .
