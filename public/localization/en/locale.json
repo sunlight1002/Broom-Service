@@ -154,6 +154,7 @@
         "clientFeedback": "Client Feedback",
         "teleService": "Teleservice",
         "alltime": "All time",
+        "all_time": "All Time",
         "problems": "Problems",
         "resetFilters": "Reset Filters",
         "showAllWorkers": "Show all workers",

@@ -43,6 +43,9 @@ export default function PendingRequest({ clientId }) {
     const [startTimeFilter, setStartTimeFilter] = useState("");
     const [selectedDateRange, setSelectedDateRange] = useState("");
     const [selectedDateStep, setSelectedDateStep] = useState("");
+    const [dateFilter, setDateFilter] = useState("all_time");
+    const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+    const [scheduledDate, setScheduledDate] = useState("");
 
     const [dateRange, setDateRange] = useState({
         start_date: "",
@@ -55,6 +58,7 @@ export default function PendingRequest({ clientId }) {
     const endDateRef = useRef(null);
     const reasonRef = useRef(null);
     const clientIdRef = useRef(clientId);
+    const dateFilterRef = useRef(dateFilter);
     const [searchParams] = useSearchParams();
     const queryId = searchParams.get("id");
 
@@ -135,6 +139,44 @@ export default function PendingRequest({ clientId }) {
             console.error(error);
         }
     };
+
+    const handleScheduleForFuture = async () => {
+        if (!scheduledDate) {
+            alert('Please select a date');
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                `/api/admin/schedule-changes/${userId}/schedule-future`,
+                { scheduled_date: scheduledDate },
+                { headers }
+            );
+            
+            setScheduleModalOpen(false);
+            setScheduledDate("");
+            $(tableRef.current).DataTable().ajax.reload();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Request scheduled for future date successfully.',
+            });
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: error.response?.data?.message || 'Failed to schedule request.',
+            });
+        }
+    };
+
+    const openScheduleModal = (id) => {
+        setUserId(id);
+        setScheduleModalOpen(true);
+    };
+
     const initializeDataTable = (initialPage = 0) => {
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             const baseConfig = {
@@ -158,6 +200,7 @@ export default function PendingRequest({ clientId }) {
                         d.end_date = endDateRef.current.value;
                         d.reason = reasonRef.current.value;
                         d.client_id = clientIdRef.current;
+                        d.date_filter = dateFilterRef.current; // Add date filter parameter
                     },
                 },
                 order: [[0, "desc"]],
@@ -238,19 +281,19 @@ export default function PendingRequest({ clientId }) {
                         },
                     },
                     {
-                        title: t("modal.date"),
+                        title: t("admin.global.created_at"),
                         data: "created_at",
-                        className: "text-center",
-                        width: "5%",
-                        render: function (data) {
-                            return `<p 
-                                        class="badge dt-date-btn" 
-                                        data-tooltip-id="comment" 
-                                        data-tooltip-html="${Moment(
-                                            data
-                                        ).format("DD-MM-YYYY HH:mm")}">
-                                        ${Moment(data).format("DD-MM")}
-                                    </p>`;
+                        width: "10%",
+                        render: function (data, type, row, meta) {
+                            return Moment(data).format("DD/MM/YYYY");
+                        },
+                    },
+                    {
+                        title: "Scheduled Date",
+                        data: "scheduled_date",
+                        width: "10%",
+                        render: function (data, type, row, meta) {
+                            return data ? Moment(data).format("DD/MM/YYYY") : "-";
                         },
                     },
                     {
@@ -268,7 +311,9 @@ export default function PendingRequest({ clientId }) {
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${
                                             row.id
                                         }">${t("admin.leads.view")}</button>
-                                        
+                                        <button type="button" class="dropdown-item dt-schedule-btn" data-id="${
+                                            row.id
+                                        }">${t("admin.global.schedule")}</button>
                                     </div> 
                                 </div>`;
                         },
@@ -352,20 +397,15 @@ export default function PendingRequest({ clientId }) {
             navigate(`/admin/schedule-requests/${_id}`);
         });
 
+        $(tableRef.current).on("click", ".dt-schedule-btn", function () {
+            const _id = $(this).data("id");
+            openScheduleModal(_id);
+        });
+
         $(tableRef.current).on("click", ".dt-date-wabtn", function () {
             const _id = $(this).data("id");
             toggleChangeStatusModal(_id);
         });
-
-        $(tableRef.current).on(
-            "change",
-            ".dt-if-completed-checkbox",
-            function () {
-                const _id = $(this).data("id");
-
-                handleChangeStatus(_id, this.checked);
-            }
-        );
 
         // $(tableRef.current).on("click", ".dt-change-status-btn", function () {
         //     const _id = $(this).data("id");
@@ -389,13 +429,14 @@ export default function PendingRequest({ clientId }) {
     }, []);
 
     useEffect(() => {
-        filterRef.current = filter; // Update the ref with the latest filter
-        typeRef.current = type; // Update the ref with the latest type
+        filterRef.current = filter;
+        typeRef.current = type;
+        dateFilterRef.current = dateFilter;
 
         const table = $(tableRef.current).DataTable();
         table.ajax.reload(null, false); // Reload the table without resetting pagination
         table.columns.adjust().draw(); // This forces a redraw to fix the column shifting issue
-    }, [filter, type, selectedDateRange, selectedDateStep, dateRange, reason]);
+    }, [filter, type, selectedDateRange, selectedDateStep, dateRange, reason, dateFilter]);
 
     useEffect(() => {
         let _startMoment = Moment();
@@ -627,40 +668,49 @@ export default function PendingRequest({ clientId }) {
                                 <FilterButtons
                                     text={t("global.day")}
                                     className="px-4 mr-1"
-                                    selectedFilter={selectedDateRange}
-                                    setselectedFilter={setSelectedDateRange}
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
                                 />
                                 <FilterButtons
                                     text={t("global.week")}
                                     className="px-4 mr-1"
-                                    selectedFilter={selectedDateRange}
-                                    setselectedFilter={setSelectedDateRange}
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
                                 />
 
                                 <FilterButtons
                                     text={t("global.month")}
-                                    className="px-4 mr-3"
-                                    selectedFilter={selectedDateRange}
-                                    setselectedFilter={setSelectedDateRange}
+                                    className="px-4 mr-1"
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
+                                />
+
+                                <FilterButtons
+                                    text={t("global.current")}
+                                    className="px-3 mr-1"
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
+                                />
+
+                                <FilterButtons
+                                    text={t("global.next")}
+                                    className="px-3 mr-1"
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
                                 />
 
                                 <FilterButtons
                                     text={t("client.previous")}
                                     className="px-3 mr-1"
-                                    selectedFilter={selectedDateStep}
-                                    setselectedFilter={setSelectedDateStep}
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
                                 />
+
                                 <FilterButtons
-                                    text={t("global.current")}
-                                    className="px-3 mr-1"
-                                    selectedFilter={selectedDateStep}
-                                    setselectedFilter={setSelectedDateStep}
-                                />
-                                <FilterButtons
-                                    text={t("global.next")}
+                                    text={t("global.all_time")}
                                     className="px-3"
-                                    selectedFilter={selectedDateStep}
-                                    setselectedFilter={setSelectedDateStep}
+                                    selectedFilter={dateFilter}
+                                    setselectedFilter={setDateFilter}
                                 />
                             </div>
                         </div>
@@ -977,6 +1027,43 @@ export default function PendingRequest({ clientId }) {
                         className="btn btn-primary"
                     >
                         {t("global.send")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal
+                size="md"
+                className="modal-container"
+                show={scheduleModalOpen}
+                onHide={() => setScheduleModalOpen(false)}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Schedule for Future Date</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">Scheduled Date</label>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    value={scheduledDate}
+                                    onChange={(e) => setScheduledDate(e.target.value)}
+                                    min={new Date().toISOString().split('T')[0]}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setScheduleModalOpen(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleScheduleForFuture}>
+                        Schedule
                     </Button>
                 </Modal.Footer>
             </Modal>
