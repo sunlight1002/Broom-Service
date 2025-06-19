@@ -70,7 +70,7 @@ export default function ContractHeb() {
             .post(`/api/admin/verify-contract`, { id: param.id }, { headers })
             .then((res) => {
                 swal(res.data.message, "", "success");
-                 setTimeout(() => {
+                setTimeout(() => {
                     window.location.href = "https://app.icount.co.il/m/dc768/c105acpbu6825c2b73b?fname=" + client?.firstname + "&lname=" + client?.lastname + "&phone=" + client?.phone + "&email=" + client?.email + "&name_on_invoice=" + (client.invoicename ? client.invoicename : client.firstname + " " + client.lastname);
                     // window.location.reload(true);
                 }, 200);
@@ -99,33 +99,30 @@ export default function ContractHeb() {
                     {/* <Sidebar /> */}
                     <div className="send-offer client-contract">
                         <div className="maxWidthControl dashBox mb-4">
-                            <div className="row">
-                                {contract &&
-                                    (contract.status === "un-verified" ? (
-                                        <>
-                                            <div className="col-sm-6">
+                            <div className="row mb-4">
+                                <div className="col-sm-6">
+                                    {contract &&
+                                        (contract.status === "un-verified" ? (
+                                            <>
+                                                {/* <div className="col-sm-6"> */}
                                                 <div className="mt-2 float-right">
                                                     <input
+                                                        type="button"
                                                         className="btn btn-warning"
                                                         onClick={handleVerify}
                                                         value="לְאַמֵת"
                                                     />
                                                 </div>
-                                            </div>
-                                        </>
-                                    ) : contract.status === "verified" ? (
-                                        <>
-                                            <div className="col-sm-6">
-                                                <div className="mt-2 float-right">
+                                                {/* </div> */}
+                                            </>
+                                        ) : contract.status === "verified" ? (
+                                            <>
+                                                <div className="mt-2 d-flex gap-2 justify-content-start">
                                                     <input
-                                                        className="btn btn-success"
+                                                        type="button"
+                                                        className="btn btn-success mx-1"
                                                         value="מְאוּמָת"
                                                     />
-                                                </div>
-                                            </div>
-
-                                            <div className="col-sm-6">
-                                                <div className="mt-2 float-left">
                                                     <Link
                                                         to={`/admin/create-job/${contract.id}`}
                                                         className="btn btn-pink"
@@ -133,10 +130,9 @@ export default function ContractHeb() {
                                                         צור עבודה
                                                     </Link>
                                                 </div>
-                                            </div>
-                                        </>
-                                    ) : null)}
-
+                                            </>
+                                        ) : null)}
+                                </div>
                                 <div className="col-sm-6">
                                     <div className="float-right">
                                         <svg
@@ -161,12 +157,12 @@ export default function ContractHeb() {
                                 <p>
                                     {t("work-contract.signed")}
                                     {
-                                            [...new Set(services?.map(service => service?.address?.city)
-                                                .filter(address => address && address !== "undefined"))]
-                                                .map((uniqueAddress, i) => (
-                                                    <span className='mr-1' key={i}>{uniqueAddress}</span>
-                                                ))
-                                        }
+                                        [...new Set(services?.map(service => service?.address?.city)
+                                            .filter(address => address && address !== "undefined"))]
+                                            .map((uniqueAddress, i) => (
+                                                <span className='mr-1' key={i}>{uniqueAddress}</span>
+                                            ))
+                                    }
                                     on{" "}
                                     <span>
                                         {Moment(contract.created_at).format(

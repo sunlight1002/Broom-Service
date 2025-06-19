@@ -222,14 +222,6 @@ class ContractController extends Controller
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
         }
 
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT,
-            "notificationData" => [
-                'client' => $client->toArray(),
-                'contract' => $contract->toArray(),
-            ]
-        ]));
-
         WhatsAppBotActiveClientState::updateOrCreate(
             ["from" => $client->phone],
             [
@@ -238,6 +230,22 @@ class ContractController extends Controller
                 "from" => $client->phone,
             ]
         );
+        
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'contract' => $contract->toArray(),
+            ]
+        ]));
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'contract' => $contract->toArray(),
+            ],
+        ]));
 
         // // Create user in iCount
         // $iCountResponse = $this->createOrUpdateUser($client, $address);

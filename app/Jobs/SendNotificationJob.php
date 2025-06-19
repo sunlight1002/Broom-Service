@@ -41,7 +41,7 @@ class SendNotificationJob implements ShouldQueue
         $offer = $this->contract->offer;
         $offerArr = $offer->toArray();
         $services = json_decode($offerArr['services']);
-        
+
         if (isset($services)) {
             $s_names = '';
             $s_templates_names = '';
@@ -76,22 +76,30 @@ class SendNotificationJob implements ShouldQueue
                 $property = $address;
             }
         }
-        // Trigger contract verification notifications
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,
-            "notificationData" => [
-                'client' => $this->client->toArray(),
-                'offer' => $offerArr,
-                'property' => $property,
-            ],
-        ]));
+        // // Trigger contract verification notifications
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,
+        //     "notificationData" => [
+        //         'client' => $this->client->toArray(),
+        //         'offer' => $offerArr,
+        //         'property' => $property,
+        //     ],
+        // ]));
 
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
-            "notificationData" => [
-                'client' => $this->client->toArray(),
-                'contract' => $this->contract->toArray(),
-            ],
-        ]));
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT,
+        //     "notificationData" => [
+        //         'client' => $this->client->toArray(),
+        //         'contract' => $this->contract->toArray(),
+        //     ]
+        // ]));
+
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
+        //     "notificationData" => [
+        //         'client' => $this->client->toArray(),
+        //         'contract' => $this->contract->toArray(),
+        //     ],
+        // ]));
     }
 }

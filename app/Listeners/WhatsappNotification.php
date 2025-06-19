@@ -3339,6 +3339,8 @@ class WhatsappNotification
 
                         $sid = $lng == "heb" ? "HXf7367faa67d6b59479b35a5720d9f08b" : "HX70a33ef64b717cde74a757f5c1716b83";
 
+                        $pdfLink = generateShortUrl("https://crm.broomservice.co.il/" . $lng == "heb" ? "pdfs/BroomServiceHebrew.pdf" : "pdfs/BroomServiceEnglish.pdf", 'client');
+
                         $twi = $this->twilio->messages->create(
                             "whatsapp:+" . $receiverNumber,
                             [
@@ -3346,7 +3348,7 @@ class WhatsappNotification
                                 "contentSid" => $sid,
                                 "contentVariables" => json_encode([
                                     "1" => trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')),
-                                    "2" => "crm.broomservice.co.il/" . $lng == "heb" ? "pdfs/BroomServiceHebrew.pdf" : "pdfs/BroomServiceEnglish.pdf"
+                                    "2" => $pdfLink
                                 ]),
                                 "statusCallback" => "https://db30-2405-201-2022-10c3-4427-3383-232a-3697.ngrok-free.app/twilio/status-callback"
                             ]
