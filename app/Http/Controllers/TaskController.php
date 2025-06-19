@@ -35,22 +35,50 @@ class TaskController extends Controller
         ]);
 
         // Filtering
-        if ($request->has('status') && $request->status) {
+        if ($request->has('status') && $request->status && $request->status !== 'All') {
             $query->whereRaw('LOWER(TRIM(status)) = ?', [strtolower(trim($request->status))]);
         }
-        if ($request->has('worker_id') && $request->worker_id) {
-            $query->whereHas('workers', function ($q) use ($request) {
-                $q->where('users.id', $request->worker_id);
-            });
+        
+        // Handle worker_id filtering
+        if ($request->has('worker_id')) {
+            $workerIds = $request->input('worker_id');
+            if (is_string($workerIds)) {
+                $workerIds = [$workerIds];
+            }
+            if (is_array($workerIds)) {
+                $workerIds = array_filter($workerIds);
+                if (!empty($workerIds)) {
+                    $query->whereHas('workers', function ($q) use ($workerIds) {
+                        $q->whereIn('users.id', $workerIds);
+                    });
+                }
+            }
         }
-        if ($request->has('user_id') && $request->user_id) {
-            $query->whereHas('users', function ($q) use ($request) {
-                $q->where('admins.id', $request->user_id);
-            });
+        
+        // Handle user_id filtering
+        if ($request->has('user_id')) {
+            $userIds = $request->input('user_id');
+            if (is_string($userIds)) {
+                $userIds = [$userIds];
+            }
+            if (is_array($userIds)) {
+                $userIds = array_filter($userIds);
+                if (!empty($userIds)) {
+                    $query->whereHas('users', function ($q) use ($userIds) {
+                        $q->whereIn('admins.id', $userIds);
+                    });
+                }
+            }
         }
-        if ($request->has('due_date') && $request->due_date) {
-            $query->whereDate('due_date', $request->due_date);
+        
+        if ($request->has('due_date_start') && $request->due_date_start) {
+            $query->where('due_date', '>=', $request->due_date_start);
         }
+        
+        if ($request->has('due_date_end') && $request->due_date_end) {
+            $query->where('due_date', '<=', $request->due_date_end);
+        }
+        
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

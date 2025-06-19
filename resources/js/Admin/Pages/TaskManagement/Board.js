@@ -18,8 +18,8 @@ const App = () => {
     const [tasks, setTasks] = useState([])
     const [workerOptions, setWorkerOptions] = useState([]);
     const [teamOptions, setTeamOptions] = useState([]);
-    const [selectedWorker, setSelectedWorker] = useState(null);
-    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedWorker, setSelectedWorker] = useState([]);
+    const [selectedTeam, setSelectedTeam] = useState([]);
     const [search, setSearch] = useState("");
     const [order, setOrder] = useState("ASC");
     const [sortCol, setSortCol] = useState("due_date");
@@ -129,14 +129,17 @@ const App = () => {
         try {
             const response = await axios.get(`/api/admin/tasks`, {
                 headers,
-                params: {
-                    status: statusFilter !== 'All' ? statusFilter : '',
-                    worker_id: selectedWorker?.value,
-                    user_id: selectedTeam?.value,
-                    search: search,
-                    due_date_start: dateRange.start,
-                    due_date_end: dateRange.end,
-                    ...params
+                params: requestParams,
+                paramsSerializer: params => {
+                    return Object.keys(params)
+                        .map(key => {
+                            const value = params[key];
+                            if (Array.isArray(value)) {
+                                return value.map(v => `${key}[]=${encodeURIComponent(v)}`).join('&');
+                            }
+                            return `${key}=${encodeURIComponent(value)}`;
+                        })
+                        .join('&');
                 }
             });
             setTasks(response.data.data);
@@ -145,6 +148,7 @@ const App = () => {
         } catch (error) {
             setLoading("No tasks found");
             setTasks([]);
+            console.error('Error fetching tasks:', error);
         }
     };
 
@@ -460,7 +464,7 @@ const App = () => {
                                 <input type="date" className="form-control mr-2 mb-2" style={{ width: 130 }} value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} />
                                 <span className="mx-1 mb-2">-</span>
                                 <input type="date" className="form-control mr-2 mb-2" style={{ width: 130 }} value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} />
-                                <button className="btn btn-dark ml-2 mb-2" style={{ minWidth: 70 }} onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); setSelectedWorker(null); setSelectedTeam(null); setSearch(''); }}>Reset</button>
+                                <button className="btn btn-dark ml-2 mb-2" style={{ minWidth: 70 }} onClick={() => { setStatusFilter('All'); setDatePeriod(''); setDateRange({ start: '', end: '' }); setSelectedWorker([]); setSelectedTeam([]); setSearch(''); }}>Reset</button>
                             </div>
                         </div>
                     </div>
@@ -482,9 +486,11 @@ const App = () => {
                                 options={workerOptions}
                                 value={selectedWorker}
                                 onChange={setSelectedWorker}
+                                isMulti
                                 isClearable
-                                className="basic-single"
+                                className="basic-multi-select"
                                 classNamePrefix="select"
+                                placeholder="Select workers..."
                             />
                         </div>
                         <div className="col-md-4 mb-2">
@@ -493,9 +499,11 @@ const App = () => {
                                 options={teamOptions}
                                 value={selectedTeam}
                                 onChange={setSelectedTeam}
+                                isMulti
                                 isClearable
-                                className="basic-single"
+                                className="basic-multi-select"
                                 classNamePrefix="select"
+                                placeholder="Select team members..."
                             />
                         </div>
                     </div>
