@@ -511,7 +511,14 @@ class TaskController extends Controller
         $user = Auth::user();
 
         // Check if the user is allowed to update the comment
-        if ($comment->commentable_id !== $user->id || $comment->commentable_type !== get_class($user)) {
+        // For workers, comments are saved with commentable_type as "App\Models\User"
+        // For admins, comments are saved with commentable_type as "App\Models\Admin"
+        $isWorkerComment = $comment->commentable_type === "App\\Models\\User";
+        $isAdminComment = $comment->commentable_type === "App\\Models\\Admin";
+        
+        if ($comment->commentable_id !== $user->id || 
+            ($isWorkerComment && get_class($user) !== "App\\Models\\User") ||
+            ($isAdminComment && get_class($user) !== "App\\Models\\Admin")) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

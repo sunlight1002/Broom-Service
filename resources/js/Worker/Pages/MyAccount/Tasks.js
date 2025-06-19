@@ -38,6 +38,7 @@ function Tasks() {
     const [isDetailModal, setIsDetailModal] = useState(false);
     const [detailTask, setDetailTask] = useState(null);
     const [detailStatus, setDetailStatus] = useState('');
+    const [isEditable, setIsEditable] = useState(false);
 
     const worker_id = localStorage.getItem("worker-id");
 
@@ -417,6 +418,8 @@ function Tasks() {
                 handleDeleteComment={handleDeleteComment}
                 taskName={taskName}
                 setComments={setComments}
+                isEditable={isEditable}
+                setIsEditable={setIsEditable}
                 userType="worker"
             />
             {/* Task Detail Modal (view only) */}

@@ -472,6 +472,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::apiResource('/phase', PhaseController::class);
     Route::post('tasks/sort', [TaskController::class, 'sort']);
     Route::post('/tasks/{taskId}/comments', [TaskController::class, 'addComment']);
+    Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
     Route::delete('/comments/{commentId}', [TaskController::class, 'deleteComment']);
     Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
     Route::post('/tasks/{task}/move', [TaskController::class, 'moveTaskToPhase']);
