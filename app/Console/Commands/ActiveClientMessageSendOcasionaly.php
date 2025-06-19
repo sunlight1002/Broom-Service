@@ -55,18 +55,18 @@ class ActiveClientMessageSendOcasionaly extends Command
 
         foreach ($clients as $client) {
 
-            if ($client->monday_notification == 1 || $client->disable_notification == 1) {
+            if ($client->disable_notification == 1) {
                 \Log::info('monday notification already sent: ' . $client->id);
                 continue;
             }
 
-            $sid = $client->lng == "heb" ? "HX9a0295f9e43f2a5903d3a87a8a708b8b" : "HXf9769a88d05e82ca7037aae128ea5b76";
+            // $sid = $client->lng == "heb" ? "HX9a0295f9e43f2a5903d3a87a8a708b8b" : "HXf9769a88d05e82ca7037aae128ea5b76";
 
             $twi = $this->twilio->messages->create(
                 "whatsapp:+" . $client->phone,
                 [
                     "from" => $this->twilioWhatsappNumber,
-                    "contentSid" => $sid,
+                    "contentSid" => "HX9e21e0fae3a59fc26a28972193c6acab",
                 ]
             );
 
