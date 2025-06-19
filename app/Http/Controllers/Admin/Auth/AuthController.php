@@ -372,7 +372,7 @@ class AuthController extends Controller
     }
 
 
-    public function gettimerLogs(Request $request)
+    public function gettimerLogs(Request $request, $id)
     {
         $columns = [
             'admin_time_logs.id',
@@ -396,13 +396,12 @@ class AuthController extends Controller
         $columnIndex = $order[0]['column'] ?? 0;
         $dir = $order[0]['dir'] ?? 'desc';
         $search = $request->get('search')['value'] ?? null;
-        $adminId = $request->get('id'); 
 
         $query = AdminTimeLog::query()
             ->join('admins', 'admin_time_logs.admins_id', '=', 'admins.id');
 
-        if ($adminId) {
-            $query->where('admin_time_logs.admins_id', $adminId);
+        if ($id) {
+            $query->where('admin_time_logs.admins_id', $id);
         }
 
         if ($search) {
