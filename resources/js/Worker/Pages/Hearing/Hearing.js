@@ -12,6 +12,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/WorkerSidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function Hearing() {
     const navigate = useNavigate();
@@ -37,6 +38,10 @@ export default function Hearing() {
                 {
                     title: t("worker.hearing.meeting.attender"),
                     data: "attender_name",
+                    render: function (data, type, row) {
+                        const badge = getMobileStatusBadgeHtml(row.booking_status);
+                        return `${data ? data : ''} ${badge}`;
+                    },
                 },
                 {
                     title: t("worker.hearing.meeting.address"),

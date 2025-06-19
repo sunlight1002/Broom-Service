@@ -10,6 +10,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import ClientSidebar from "../../Layouts/ClientSidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function ClientOfferPrice() {
     const { t } = useTranslation();
@@ -57,6 +58,10 @@ export default function ClientOfferPrice() {
                 {
                     title: t("client.offer.status"),
                     data: "status",
+                    render: function (data, type, row, meta) {
+                        const badge = getMobileStatusBadgeHtml(row.status);
+                        return `${data ? data : ''} ${badge}`;
+                    },
                 },
                 {
                     title: t("client.offer.action"),

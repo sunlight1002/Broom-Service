@@ -15,6 +15,8 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
 import { leadStatusColor } from "../../../Utils/client.utils";
 import { CSVLink } from "react-csv";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
+
 export default function WorkerLead() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
@@ -217,8 +219,9 @@ export default function WorkerLead() {
                     {
                         title: t("admin.global.Name"),
                         data: "name",
-                        render: function (data) {
-                            return `${data ? data : null}`;
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.status);
+                            return `${data ? data : ''} ${badge}`;
                         },
                     },
                     {

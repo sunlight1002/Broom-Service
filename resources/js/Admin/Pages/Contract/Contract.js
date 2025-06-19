@@ -16,6 +16,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function Contract() {
     const { t, i18n } = useTranslation();
@@ -116,12 +117,17 @@ export default function Contract() {
                         title: t("client.dashboard.client"),
                         data: "client_name",
                         render: function (data, type, row, meta) {
-                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+                            const badge = getMobileStatusBadgeHtml(row.status);
+                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name"> ${data} ${badge}</a>`;
                         },
                     },
                     {
                         title: t("admin.global.Email"),
                         data: "email",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.status);
+                            return `${data ? data : ''} ${badge}`;
+                        },
                     },
                     {
                         title: t("admin.global.Phone"),
@@ -166,11 +172,9 @@ export default function Contract() {
                             } else {
                                 color = "red";
                             }
-
-                            // return `<span style="color: ${color};">${data}</span>`;
-
+                            const badge = getMobileStatusBadgeHtml(data);
                             return `<p class="dt-job-status" data-id="${row.id}" data-status="${data}" style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        ${data}
+                                        ${data} ${badge}
                                     </p>`;
                         },
                     },

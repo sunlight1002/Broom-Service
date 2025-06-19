@@ -10,6 +10,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import Sidebar from "../../Layouts/WorkerSidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function WorkerAdvance() {
 
@@ -89,7 +90,8 @@ export default function WorkerAdvance() {
                         data: "status",
                         render: function (data, type, row, meta) {
                             const style = getStatusStyle(data);
-                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data}</span>`;
+                            const badge = getMobileStatusBadgeHtml(data);
+                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data} ${badge}</span>`;
                         }
                     },
                 ],

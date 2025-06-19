@@ -17,7 +17,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
-import { leadStatusColor } from "../../../Utils/client.utils";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Clients() {
@@ -103,10 +103,18 @@ export default function Clients() {
                     {
                         title: t("admin.global.Name"),
                         data: "name",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.lead_status);
+                            return `${data ? data : ''} ${badge}`;
+                        },
                     },
                     {
                         title: t("admin.global.Email"),
                         data: "email",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.lead_status);
+                            return `${data ? data : ''} ${badge}`;
+                        },
                     },
                     {
                         title: t("admin.global.Phone"),

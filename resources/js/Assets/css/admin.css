@@ -899,7 +899,7 @@ table tr td .dropdown-item {
   max-width: 600px;
   /* Ensure speech box is on top */
   z-index: 10; 
-  /* Ensure that it doesn’t affect the layout */
+  /* Ensure that it doesn't affect the layout */
   position: absolute;
   box-shadow: 0px 9px 20px rgb(46 35 94 / 7%);
 
@@ -921,7 +921,7 @@ table tr td .dropdown-item {
 
 /* (D) POSITION THE CALLOUT */
 .speech {
-  position: absolute; /* Ensure that it doesn’t push other content */
+  position: absolute; /* Ensure that it doesn't push other content */
 }
 .speech.up::after {
   position: absolute;
@@ -4711,4 +4711,24 @@ video::-webkit-media-controls-panel {
   position: absolute;
   top: -10px; 
   right: 20px;
+}
+.mobile-status-badge {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  line-height: 20px;
+  margin-left: 6px;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .mobile-status-badge {
+    display: inline-block;
+  }
 }
