@@ -44,6 +44,58 @@ class AuthController extends Controller
     }
 
     /**
+     * Generate a meaningful PDF filename for worker forms
+     * 
+     * @param \App\Models\User|\App\Models\WorkerLeads $worker
+     * @param string $formType
+     * @param string|null $signatureDate
+     * @return string
+     */
+    private function generateFormPdfName($worker, $formType, $signatureDate = null)
+    {
+        // Get worker name
+        $workerName = trim($worker->firstname . ' ' . $worker->lastname);
+        if (empty($workerName)) {
+            $workerName = 'Unknown_Worker';
+        }
+        
+        // Get worker ID or passport
+        $workerId = $worker->passport ?: $worker->id_number ?: $worker->worker_id ?: $worker->id;
+        if (empty($workerId)) {
+            $workerId = 'Unknown_ID';
+        }
+        
+        // Get document name based on form type
+        $documentName = match ($formType) {
+            WorkerFormTypeEnum::CONTRACT => 'Contract',
+            WorkerFormTypeEnum::FORM101 => 'Form101',
+            WorkerFormTypeEnum::SAFTEY_AND_GEAR => 'SafetyAndGear',
+            WorkerFormTypeEnum::INSURANCE => 'Insurance',
+            WorkerFormTypeEnum::MANPOWER_SAFTEY => 'ManpowerSafety',
+            default => 'Document'
+        };
+        
+        // Get signature date or current date
+        $date = $signatureDate ?: now()->format('Y-m-d');
+        
+        // Clean the name for filename (remove special characters, replace spaces with underscores)
+        $cleanWorkerName = preg_replace('/[^a-zA-Z0-9\s]/', '', $workerName);
+        $cleanWorkerName = str_replace(' ', '_', trim($cleanWorkerName));
+        
+        // Ensure the filename is not too long (max 255 characters for most filesystems)
+        $filename = "{$cleanWorkerName}_{$documentName}_{$workerId}_{$date}.pdf";
+        
+        // If filename is too long, truncate it
+        if (strlen($filename) > 200) {
+            $maxNameLength = 200 - strlen("_{$documentName}_{$workerId}_{$date}.pdf");
+            $cleanWorkerName = substr($cleanWorkerName, 0, $maxNameLength);
+            $filename = "{$cleanWorkerName}_{$documentName}_{$workerId}_{$date}.pdf";
+        }
+        
+        return $filename;
+    }
+
+    /**
      * Login api
      *
      * @return \Illuminate\Http\Response
@@ -856,7 +908,10 @@ class AuthController extends Controller
                 Storage::drive('public')->makeDirectory('signed-docs');
             }
 
-            $file_name = Str::uuid()->toString() . '.pdf';
+            // Extract signature date from form data (use the first signature date available)
+            $signatureDate = $data['signatureDate1'] ?? $data['signatureDate2'] ?? $data['signatureDate3'] ?? $data['signatureDate4'] ?? null;
+            
+            $file_name = $this->generateFormPdfName($worker, WorkerFormTypeEnum::CONTRACT, $signatureDate);
 
             // Generate PDF and get success flag
             $success = $this->workerFormService->generateWorkerFormsPdf($data['content'], $file_name);
@@ -1025,7 +1080,10 @@ class AuthController extends Controller
 
         // // Generate PDF if the form has been submitted
         if ($form->submitted_at) {
-            $file_name = Str::uuid()->toString() . '.pdf';
+            // Extract signature date from form data
+            $signatureDate = $data['date'] ?? null;
+            
+            $file_name = $this->generateFormPdfName($worker, WorkerFormTypeEnum::FORM101, $signatureDate);
             $worker->form101 = 1;
             // $worker->form_101 = $file_name;
             $worker->save();
@@ -1136,12 +1194,13 @@ class AuthController extends Controller
 
             // If it's a submission, handle the PDF file saving
             if ($savingType === 'submit') {
-                // Ensure the directory exists and store the PDF only on submission
+                // Ensure the directory exists and store the PDF file
                 if (!Storage::disk('public')->exists('signed-docs')) {
                     Storage::disk('public')->makeDirectory('signed-docs');
                 }
 
-                $file_name = Str::uuid()->toString() . '.pdf';
+                // Use current date for safety and gear form since it doesn't have a specific signature date
+                $file_name = $this->generateFormPdfName($worker, WorkerFormTypeEnum::SAFTEY_AND_GEAR, now()->format('Y-m-d'));
 
                 // Generate PDF and get success flag
                 $success = $this->workerFormService->generateWorkerFormsPdf($data['content'], $file_name);
@@ -1162,12 +1221,13 @@ class AuthController extends Controller
         } else {
             // Form doesn't exist, create a new one
             if ($savingType === 'submit') {
-                // Ensure the directory exists and store the PDF only on submission
+                // Ensure the directory exists and store the PDF file
                 if (!Storage::disk('public')->exists('signed-docs')) {
                     Storage::disk('public')->makeDirectory('signed-docs');
                 }
 
-                $file_name = Str::uuid()->toString() . '.pdf';
+                // Use current date for safety and gear form since it doesn't have a specific signature date
+                $file_name = $this->generateFormPdfName($worker, WorkerFormTypeEnum::SAFTEY_AND_GEAR, now()->format('Y-m-d'));
                 $success = $this->workerFormService->generateWorkerFormsPdf($data['content'], $file_name);
             }
 
@@ -1417,7 +1477,8 @@ class AuthController extends Controller
             Storage::drive('public')->makeDirectory('signed-docs');
         }
 
-        $file_name = Str::uuid()->toString() . '.pdf';
+        // Use current date for insurance form since it doesn't have a specific signature date
+        $file_name = $this->generateFormPdfName($worker, WorkerFormTypeEnum::INSURANCE, now()->format('Y-m-d'));
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
                 'message' => "Can't save PDF"
@@ -1497,7 +1558,10 @@ class AuthController extends Controller
             Storage::drive('public')->makeDirectory('signed-docs');
         }
 
-        $file_name = Str::uuid()->toString() . '.pdf';
+        // Extract date from form data
+        $signatureDate = $data['date'] ?? null;
+        
+        $file_name = $this->generateFormPdfName($worker, WorkerFormTypeEnum::MANPOWER_SAFTEY, $signatureDate);
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
                 'message' => "Can't save PDF"
