@@ -1909,7 +1909,7 @@ class WorkerFormService
         }
     }
 
-    public static function generateWorkerContract($htmlContent, $fileName)
+    public static function generateWorkerFormsPdf($htmlContent, $fileName)
     {
 
         // Load image and convert to base64
@@ -1924,6 +1924,8 @@ class WorkerFormService
             $htmlContent
         );
 
+        \Log::info($htmlContent);
+
 
         $styledHtml = '
     <html>
@@ -1935,7 +1937,8 @@ class WorkerFormService
                 font-size: 11pt;
                 line-height: 1.6;
                 color: #333;
-                padding: 15px;
+                padding: 10px;
+                margin: 0;
             }
 
             h1, h2, h3 {
@@ -2059,6 +2062,26 @@ class WorkerFormService
             button {
                 display: none;
             }
+
+            .pdf-safegear-title {
+                font-weight: bold;
+                font-size: 25pt;
+            }
+
+            .pdf-safegear-title2 {
+                font-weight: bold;
+                font-size: 20pt;
+            }
+
+            .pdf-safegear-section2-list{
+                margin-top: 0px;
+                margin-bottom: 5px;
+            }
+            
+            .hide-in-pdf {
+                display: none;
+            }
+
         </style>
     </head>
     <body>

@@ -855,7 +855,7 @@ class AuthController extends Controller
             $file_name = Str::uuid()->toString() . '.pdf';
 
             // Generate PDF and get success flag
-            $success = $this->workerFormService->generateWorkerContract($data['content'], $file_name);
+            $success = $this->workerFormService->generateWorkerFormsPdf($data['content'], $file_name);
 
             if ($success) {
                 $formData['pdf_name'] = $file_name;
@@ -1095,6 +1095,7 @@ class AuthController extends Controller
     public function safegear(Request $request, $id)
     {
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('status', '!=', 0)->find($id);
+        $success = false;
 
         if (!$worker) {
             return response()->json([
@@ -1104,9 +1105,8 @@ class AuthController extends Controller
 
         $data = $request->all();
         $savingType = $data['savingType'] ?? 'submit';
-        $pdfFile = $data['pdf_file'] ?? null;
+
         $step = $data['step'] ?? 1;
-        unset($data['pdf_file'], $data['savingType']);
 
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
@@ -1127,56 +1127,66 @@ class AuthController extends Controller
         // If form exists, update it; otherwise, create a new form
         if ($form) {
             // Form exists, let's update it
-            $form->data = $data;
+            $form->data = collect($data)->except('content')->toArray();
             $form->submitted_at = $savingType === 'submit' ? now()->toDateTimeString() : null;
 
             // If it's a submission, handle the PDF file saving
-            if ($savingType === 'submit' && $pdfFile) {
+            if ($savingType === 'submit') {
                 // Ensure the directory exists and store the PDF only on submission
                 if (!Storage::disk('public')->exists('signed-docs')) {
                     Storage::disk('public')->makeDirectory('signed-docs');
                 }
 
                 $file_name = Str::uuid()->toString() . '.pdf';
-                if (!Storage::disk('public')->putFileAs('signed-docs', $pdfFile, $file_name)) {
-                    return response()->json([
-                        'message' => "Can't save PDF"
-                    ], 403);
-                }
 
-                // Update the form with the PDF file name
-                $form->pdf_name = $file_name;
+                // Generate PDF and get success flag
+                $success = $this->workerFormService->generateWorkerFormsPdf($data['content'], $file_name);
+
+                if ($success) {
+                    // Update the form with the PDF file name
+                    $form->pdf_name = $file_name;
+                    $worker->save(); // Save after PDF generation
+                } else {
+                    return response()->json([
+                        'message' => "Failed to generate contract PDF."
+                    ], 500);
+                }
             }
 
             $form->save();
             $message = 'Form updated successfully.';
         } else {
             // Form doesn't exist, create a new one
-            if ($savingType === 'submit' && $pdfFile) {
+            if ($savingType === 'submit') {
                 // Ensure the directory exists and store the PDF only on submission
                 if (!Storage::disk('public')->exists('signed-docs')) {
                     Storage::disk('public')->makeDirectory('signed-docs');
                 }
 
                 $file_name = Str::uuid()->toString() . '.pdf';
-                if (!Storage::disk('public')->putFileAs('signed-docs', $pdfFile, $file_name)) {
-                    return response()->json([
-                        'message' => "Can't save PDF"
-                    ], 403);
-                }
+                $success = $this->workerFormService->generateWorkerFormsPdf($data['content'], $file_name);
             }
 
             // $worker->saftey_and_gear = $savingType === 'submit' ? 1 : 0;
             // $worker->safety_and_gear_form = $savingType === 'submit' ? $file_name : null;
             $worker->save();
 
-            // Create the form
-            $form = $worker->forms()->create([
-                'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
-                'data' => $data,
-                'submitted_at' => $savingType === 'submit' ? now()->toDateTimeString() : null,
-                'pdf_name' => $savingType === 'submit' ? $file_name : null,
-            ]);
+            \Log::info($success);
+
+            if ($success) {
+                // Create the form
+                $form = $worker->forms()->create([
+                    'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+                    'data' => collect($data)->except('content')->toArray(),
+                    'submitted_at' => $savingType === 'submit' ? now()->toDateTimeString() : null,
+                    'pdf_name' => $savingType === 'submit' ? $file_name : null,
+                ]);
+            } else {
+                return response()->json([
+                    'message' => "Failed to generate contract PDF."
+                ], 500);
+            }
+
 
             $message = 'Safety and gear form created successfully.';
         }

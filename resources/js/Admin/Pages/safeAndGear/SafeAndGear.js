@@ -1,7 +1,6 @@
 // safeAndGear
 
 import { useFormik } from "formik";
-import html2pdf from "html2pdf.js";
 import i18next from "i18next";
 import { Base64 } from "js-base64";
 import React, { useEffect, useRef, useState } from "react";
@@ -68,34 +67,17 @@ const SafeAndGear = ({
         onSubmit: async (values) => {
             if (!isSubmitted) {
                 setIsGeneratingPDF(true);
-                const options = {
-                    filename: "my-document.pdf",
-                    margin: [5, 5, 0, 5],
-                    image: { type: "jpeg", quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: {
-                        unit: "mm",
-                        format: "a4",
-                        orientation: "portrait",
-                    },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                };
 
                 const content = contentRef.current;
 
-                const _pdf = await html2pdf()
-                    .set(options)
-                    .from(content)
-                    .outputPdf("blob", "Safety-And-Gear.pdf");
-
-                setIsGeneratingPDF(false); // Reset PDF mode
 
                 // Convert JSON object to FormData
                 let formData = objectToFormData(values);
-                formData.append("pdf_file", _pdf);
+                formData.append("content", content.innerHTML);
                 formData.append("savingType", savingType);
                 formData.append("step", nextStep);
                 formData.append("type", type == "lead" ? "lead" : "worker");
+                setIsGeneratingPDF(false); // Reset PDF mode
 
                 setLoading(true);
 
@@ -147,49 +129,49 @@ const SafeAndGear = ({
 
     useEffect(() => {
         axios
-    .get(`/api/getSafegear/${id}/${type}`, {
-        headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
-        },
-    })
-    .then((res) => {
-        i18next.changeLanguage(res.data.lng);
+            .get(`/api/getSafegear/${id}/${type}`, {
+                headers: {
+                    Accept: "application/json, text/plain, */*",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
+                },
+            })
+            .then((res) => {
+                i18next.changeLanguage(res.data.lng);
 
-        if (res.data.lng === "heb") {
-            import("../../../Assets/css/rtl.css");
-            document.querySelector("html").setAttribute("dir", "rtl");
-        } else {
-            document.querySelector("html").removeAttribute("dir");
-            const rtlLink = document.querySelector('link[href*="rtl.css"]');
-            if (rtlLink) {
-                rtlLink.remove();
-            }
-        }
+                if (res.data.lng === "heb") {
+                    import("../../../Assets/css/rtl.css");
+                    document.querySelector("html").setAttribute("dir", "rtl");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
+                }
 
-        if (res.data.worker) {
-            setFieldValue("workerName", res.data.worker.firstname);
-            setFieldValue("workerName2", res.data.worker.lastname);
-            setIs_existing_worker(res.data.worker.is_existing_worker);
-            setCountry(res.data.worker.country);
-        }
+                if (res.data.worker) {
+                    setFieldValue("workerName", res.data.worker.firstname);
+                    setFieldValue("workerName2", res.data.worker.lastname);
+                    setIs_existing_worker(res.data.worker.is_existing_worker);
+                    setCountry(res.data.worker.country);
+                }
 
-        if (res.data.form) {
-            setFormValues(res.data.form.data);
-            setFieldValue("workerName", res.data.form.data.workerName);
-            setFieldValue("workerName2", res.data.form.data.workerName2);
-            setFieldValue("signature", res.data.form.data.signature);
+                if (res.data.form) {
+                    setFormValues(res.data.form.data);
+                    setFieldValue("workerName", res.data.form.data.workerName);
+                    setFieldValue("workerName2", res.data.form.data.workerName2);
+                    setFieldValue("signature", res.data.form.data.signature);
 
-            if (res.data.form.submitted_at) {
-                disableInputs();
-                setIsSubmitted(true);
-            }
-        }
-    })
-    .catch((error) => {
-        console.error("Error fetching Safegear data:", error);
-    });
+                    if (res.data.form.submitted_at) {
+                        disableInputs();
+                        setIsSubmitted(true);
+                    }
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching Safegear data:", error);
+            });
 
     }, []);
 
@@ -210,55 +192,55 @@ const SafeAndGear = ({
 
     return (
         <div id="container" className={`pdf-wrapper targetDiv rtlcon ${isGeneratingPDF ? "pdf-layout" : ""}`} ref={contentRef}>
-            <p className="navyblueColor font-34 mt-4 font-w-500">{t("safeAndGear.title")}</p>
+            <h4 className={`navyblueColor font-34 ${isGeneratingPDF ? 'mt-0' : 'mt-4'} font-w-500 pdf-safegear-title`}>{t("safeAndGear.title")}</h4>
             <form onSubmit={handleSaveAsDraft}>
                 <div className={`${isGeneratingPDF ? "" : "row"}`}>
                     <section className="col-xl">
-                        <div className="">
-                            <p className="mb-4 mt-2" style={{ fontSize: "17px" }}>
-                                {t("safeAndGear.broomIntro")}
-                            </p>
-                        </div>
+                        <p className={`mb-4 ${isGeneratingPDF ? 'mt-0' : 'mt-2'}`} style={{ fontSize: "17px" }}>
+                            {t("safeAndGear.broomIntro")}
+                        </p>
                         <div className="mt-3 lh-lg " style={{ fontSize: "16px" }}>
-                            <div className="d-flex mt-2 navublueColor"><span>1.&nbsp;</span><p>{t("safeAndGear.sfg1")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>2.&nbsp;</span><p>{t("safeAndGear.sfg2")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>3.&nbsp;</span><p>{t("safeAndGear.sfg3")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>4.&nbsp;</span><p>{t("safeAndGear.sfg4")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>5.&nbsp;</span><p>{t("safeAndGear.sfg5")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>6.&nbsp;</span><p>{t("safeAndGear.sfg6")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>7.&nbsp;</span><p>{t("safeAndGear.sfg7")}</p></div>
-                            <div className="d-flex mt-2 navublueColor"><span>8.&nbsp;</span><p>{t("safeAndGear.sfg8")}</p></div>
-
+                            <ol className="custom-ol">
+                                <li>{t("safeAndGear.sfg1")}</li>
+                                <li>{t("safeAndGear.sfg2")}</li>
+                                <li>{t("safeAndGear.sfg3")}</li>
+                                <li>{t("safeAndGear.sfg4")}</li>
+                                <li>{t("safeAndGear.sfg5")}</li>
+                                <li>{t("safeAndGear.sfg6")}</li>
+                                <li>{t("safeAndGear.sfg7")}</li>
+                                <li>{t("safeAndGear.sfg8")}</li>
+                            </ol>
                         </div>
-                        <div className="mt-5" style={{ marginBottom: "130px" }}>
+                        <div className="mt-5" style={isGeneratingPDF ? { marginBottom: "0" } : { marginBottom: "130px" }}>
                             <div className="">
-                                <h5>
+                                <h5 className="pdf-safegear-title2">
                                     <strong>
                                         {t("safeAndGear.safeAndGearProcedure")}
                                     </strong>
                                 </h5>
                             </div>
                             <div
-                                className="mt-4 lh-lg "
+                                className="mt-4 pdf-safegear-section2-list lh-lg "
                                 style={{ fontSize: "16px" }}
                             >
-                                <div className="d-flex mt-2 navublueColor"><span>1.&nbsp;</span><p>{t("safeAndGear.sp1")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>2.&nbsp;</span><p>{t("safeAndGear.sp2")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>3.&nbsp;</span><p>{t("safeAndGear.sp3")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>4.&nbsp;</span><p>{t("safeAndGear.sp4")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>5.&nbsp;</span><p>{t("safeAndGear.sp5")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>6.&nbsp;</span><p>{t("safeAndGear.sp6")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>7.&nbsp;</span><p>{t("safeAndGear.sp7")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>8.&nbsp;</span><p>{t("safeAndGear.sp8")}</p></div>
-                                <div className="d-flex mt-2 navublueColor"><span>9.&nbsp;</span><p>{t("safeAndGear.sp9")}</p></div>
-
+                                <ol className="custom-ol">
+                                    <li>{t("safeAndGear.sp1")}</li>
+                                    <li>{t("safeAndGear.sp2")}</li>
+                                    <li>{t("safeAndGear.sp3")}</li>
+                                    <li>{t("safeAndGear.sp4")}</li>
+                                    <li>{t("safeAndGear.sp5")}</li>
+                                    <li>{t("safeAndGear.sp6")}</li>
+                                    <li>{t("safeAndGear.sp7")}</li>
+                                    <li>{t("safeAndGear.sp8")}</li>
+                                    <li>{t("safeAndGear.sp9")}</li>
+                                </ol>
                             </div>
                         </div>
                     </section>
-                    <section className="col-xl">
-                        <div className="" style={{ border: "1px solid #d2d7dd", background: "#eaecef", padding: "35px 25px", borderRadius: "10px" }}>
+                    <section className={`col-xl ${isGeneratingPDF ? "page-break pt-0 mt-0" : ""}`}>
+                        <div className="" style={isGeneratingPDF ? { border: "1px solid #d2d7dd", background: "#eaecef", padding: "35px 25px 0px", borderRadius: "10px" } : { border: "1px solid #d2d7dd", background: "#eaecef", padding: "35px 25px", borderRadius: "10px" }}>
                             <div className="d-flex">
-                                <p className="navyblueColor font-24  font-w-500">{t("safeAndGear.eqList")}</p>
+                                <h5 className="navyblueColor font-24 font-w-500">{t("safeAndGear.eqList")}</h5>
                                 <span
                                     className="navyblueColor font-24  font-w-500 ml-3"
                                 >
@@ -269,35 +251,14 @@ const SafeAndGear = ({
                             </div>
                             <div className="mt-4" style={{ fontSize: "16px" }}>
                                 <div className="d-flex mt-2 navublueColor">
-                                    <span>1.&nbsp;</span>
-                                    <p>
-                                        {t("safeAndGear.eq1", {
-                                            fullname:
-                                                values.workerName +
-                                                " " +
-                                                values.workerName2,
-                                        })}
-                                    </p>
-                                </div>
-                                <div className="d-flex mt-2 navublueColor">
-                                    <span>2.&nbsp;</span>
-                                    <p>{t("safeAndGear.eq2")}</p>
-                                </div>
-                                <div className="d-flex mt-2 navublueColor">
-                                    <span>3.&nbsp;</span>
-                                    <p>{t("safeAndGear.eq3")}</p>
-                                </div>
-                                <div className="d-flex mt-2 navublueColor">
-                                    <span>4.&nbsp;</span>
-                                    <p>{t("safeAndGear.eq4")}</p>
-                                </div>
-                                <div className="d-flex mt-2 navublueColor">
-                                    <span>5.&nbsp;</span>
-                                    <p>{t("safeAndGear.eq5")}</p>
-                                </div>
-                                <div className="d-flex mt-2 navublueColor">
-                                    <span>6.&nbsp;</span>
-                                    <p>{t("safeAndGear.eq6")}</p>
+                                    <ol className={`custom-ol pdf-safegear-section2-list ${isGeneratingPDF ? 'mt-0' : 'mt-4'}`}>
+                                        <li>{t("safeAndGear.eq1", { fullname: values.workerName + " " + values.workerName2 })}</li>
+                                        <li>{t("safeAndGear.eq2")}</li>
+                                        <li>{t("safeAndGear.eq3")}</li>
+                                        <li>{t("safeAndGear.eq4")}</li>
+                                        <li>{t("safeAndGear.eq5")}</li>
+                                        <li>{t("safeAndGear.eq6")}</li>
+                                    </ol>
                                 </div>
                                 <div className="row">
                                     {/* Worker Name Section */}
@@ -312,27 +273,35 @@ const SafeAndGear = ({
                                         <p className="text-center mb-2">
                                             <strong>{t("safeAndGear.sign")}</strong>
                                         </p>
-                                        {formValues && formValues.signature != null ? (
-                                            <img
-                                                src={formValues.signature}
-                                                alt="Signature"
-                                                style={{ maxWidth: "100%", height: "auto" }}
-                                            />
-                                        ) : (
-                                            <div className="w-100 d-flex justify-content-center">
-                                                <SignatureCanvas
-                                                    penColor="black"
-                                                    canvasProps={{
-                                                        width: 300,
-                                                        height: 150,
-                                                        className: `sign101 mt-1 form-control ${touched.signature && errors.signature && 'is-invalid'}`,
-                                                        style: { background: "#f1f1f1", width: "310px" }
-                                                    }}
-                                                    ref={sigRef}
-                                                    onEnd={handleSignatureEnd}
-                                                />
-                                            </div>
-                                        )}
+                                        {
+                                            isGeneratingPDF ? (
+                                                sigRef ? (
+                                                    <img src={sigRef?.current?.toDataURL()} alt="Signature" />
+                                                ) : null
+                                            ) : (
+                                                formValues && formValues.signature != null ? (
+                                                    <img
+                                                        src={formValues.signature}
+                                                        alt="Signature"
+                                                        style={{ maxWidth: "100%", height: "auto" }}
+                                                    />
+                                                ) : (
+                                                    <div className="w-100 d-flex justify-content-center">
+                                                        <SignatureCanvas
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 300,
+                                                                height: 150,
+                                                                className: `sign101 mt-1 form-control ${touched.signature && errors.signature && 'is-invalid'}`,
+                                                                style: { background: "#f1f1f1", width: "310px" }
+                                                            }}
+                                                            ref={sigRef}
+                                                            onEnd={handleSignatureEnd}
+                                                        />
+                                                    </div>
+                                                )
+                                            )
+                                        }
                                         <span className="text-danger mt-2">
                                             {touched.signature && errors.signature}
                                         </span>
@@ -354,7 +323,13 @@ const SafeAndGear = ({
 
                             </div>
                         </div>
-                        <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`} style={{ margin: "20px 10px" }}>
+                        <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`}
+                            style={
+                                isGeneratingPDF
+                                    ? { } // example styles for PDF
+                                    : { margin: "20px 10px" } // regular styles
+                            }
+                        >
                             {nextStep !== 1 && (
                                 <button
                                     type="button"

@@ -4264,6 +4264,12 @@ tbody tr:hover {
   page-break-inside: avoid;
 }
 
+.page-break {
+    page-break-before: always;
+    break-before: page;
+}
+
+
 
 .no-break {
   page-break-inside: avoid;
@@ -4642,3 +4648,17 @@ video::-webkit-media-controls-panel {
       display: none;
   }
 } */
+
+
+.custom-ol {
+    padding-left: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #0b2540; /* or your .navublueColor */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.custom-ol li {
+    margin-bottom: 8px;
+}
