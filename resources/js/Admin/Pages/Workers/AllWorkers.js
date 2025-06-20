@@ -63,6 +63,7 @@ export default function AllWorkers() {
             const baseConfig = {
                 processing: true,
                 serverSide: true,
+                pageLength: 100,
                 ajax: {
                     url: "/api/admin/workers?role=" + role,
                     type: "GET",
