@@ -132,12 +132,12 @@ export default function WorkerLead() {
                 { headers }
             );
             setLoading(false);
-            setErrors(response.data.errors);
-            if (!response.data.errors) {
+            setErrors(response.data?.errors);
+            if (!response.data?.errors) {
                 setIsOpen(false);
+                $(tableRef.current).DataTable().ajax.reload();
             }
 
-            $(tableRef.current).DataTable().ajax.reload();
         } catch (error) {
             console.error(error);
         }
