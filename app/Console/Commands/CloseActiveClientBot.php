@@ -75,9 +75,6 @@ class CloseActiveClientBot extends Command
                         );
 
                         StoreWebhookResponse($twi->body ?? "", $client->from, $twi->toArray());
-                    } else if($client->type == "whapi") {
-                        $result = sendWhatsappMessage($client->from, array('name' => '', 'message' => $nextMessage, 'list' => [], 'buttons' => []));
-                        StoreWebhookResponse($nextMessage, $client->from, $result, true);
                     }
 
                     // sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);

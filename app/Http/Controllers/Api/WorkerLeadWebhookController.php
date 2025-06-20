@@ -69,16 +69,17 @@ class WorkerLeadWebhookController extends Controller
 
     protected $activeWorkersbotMessages = [
         'main_menu' => [
-            'en' => "Hi, :worker_name!\nWelcome to Gali, the Broom Service digital assistant bot.\nHow can I assist you today? 🌟",
-            'heb' => "היי, :worker_name!\nברוך הבא לגלי, הבוט הדיגיטלי של ברום סרוויס.\nאיך אפשר לעזור לך היום? 🌟",
-            'ru' => "Привет, :worker_name!\nДобро пожаловать в Гали, цифровой бот Broom Service.\nЧем могу помочь вам сегодня? 🌟",
-            'spa' => "Hola, :worker_name!\nBienvenido a Gali, el bot asistente digital de Broom Service.\n¿Cómo puedo ayudarte hoy? 🌟",
+            'en' => "Hi, :worker_name!\nWelcome to Gali, the Broom Service digital assistant bot.\nHow can I assist you today? 🌟\n\n1️⃣ Talk to a manager urgently.\n2️⃣ Change my work schedule.\n3️⃣ What's my schedule for today and tomorrow?\n4️⃣ Access the employee portal.\n\nAt any time, you can return to the main menu by typing 'Menu'.\nPlease reply with the number of your choice.",
+            'heb' => "היי, :worker_name!\nברוך הבא לגלי, הבוט הדיגיטלי של ברום סרוויס.\nאיך אפשר לעזור לך היום? 🌟\n\n1️⃣ לדבר עם מנהל בדחיפות.\n2️⃣ שינוי סידור העבודה שלי.\n3️⃣ מה הלוז שלי להיום ולמחר?\n4️⃣ גישה לפורטל העובדים שלנו.\n\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.\nנא להשיב עם המספר המתאים.",
+            'ru' => "Привет, :worker_name!\nДобро пожаловать в Гали, цифровой бот Broom Service.\nЧем могу помочь вам сегодня? 🌟\n\n1️⃣ Срочно связаться с менеджером.\n2️⃣ Изменить мой график работы.\n3️⃣ Какое у меня расписание на сегодня и завтра?\n4️⃣ Доступ к порталу сотрудников.\n\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.\nПожалуйста, ответьте номером вашего выбора.",
+            'spa' => "Hola, :worker_name!\nBienvenido a Gali, el bot asistente digital de Broom Service.\n¿Cómo puedo ayudarte hoy? 🌟\n\n1️⃣ Habla con un gerente urgentemente.\n2️⃣ Cambia mi horario de trabajo.\n3️⃣ ¿Cuál es mi horario para hoy y mañana?\n4️⃣ Accede al portal de empleados.\n\nEn cualquier momento, puedes regresar al menú principal escribiendo 'Menú'.\nResponde con el número de tu elección.",
         ],
         'talk_to_manager' => [
-            'en' => "Please tell us the reason for contacting a manager. Your request will be forwarded to the relevant team.\nAt any time, you can return to the main menu by clicking 'Menu'.",
-            'heb' => "אנא ציינו את הסיבה שבגללה תרצו לדבר עם מנהל. בקשתכם תועבר לצוות הרלוונטי.\nבכל שלב תוכלו לחזור לתפריט הראשי על ידי לחיצה על 'תפריט'.",
-            'ru' => "Укажите причину, по которой вы хотите связаться с менеджером. Ваш запрос будет передан соответствующей команде.\nНа любом этапе вы можете вернуться в главное меню, нажав «меню».",
-            'spa' => "Por favor, indique el motivo de la llamada. Su solicitud será remitida al equipo correspondiente.\nEn cualquier momento, puede volver al menú principal haciendo clic en 'Menú'."
+
+            'en' => "Please tell us the reason for contacting a manager. Your request will be forwarded to the relevant team.\nAt any time, you can return to the main menu by typing 'Menu'.",
+            'heb' => "אנא פרט את הסיבה שבגללה תרצה לדבר עם מנהל. הבקשה שלך תועבר לצוות הרלוונטי.\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
+            'ru' => "Пожалуйста, укажите причину, по которой вы хотите связаться с менеджером. Ваш запрос будет передан соответствующей команде.\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
+            'spa' => "Por favor, indica la razón de la llamada. Tu solicitud se enviará a la equipo relevante.\nEn cualquier momento, puedes regresar al menú principal escribiendo 'Menú'.",
         ],
         'comment' => [
             'en' => "Hello :worker_name,\nWe received your message:\n\n':message'\n\nYour request has been forwarded to the relevant manager for further handling.",
@@ -90,10 +91,10 @@ class WorkerLeadWebhookController extends Controller
             'en' => "🚨 :worker_name requested to speak to a manager urgently. \nReason: :message. \nPlease contact them immediately.",
         ],
         'change_schedule' => [
-            'en' => "Please share the changes you'd like to make to your schedule. We will review your request and get back to you.\nAt any time, you can return to the main menu by clicking 'Menu'.",
-            'heb' => "אנא הודע לנו על השינויים שברצונך לבצע בסידור העבודה שלך. נבחן את הבקשה ונחזור אליך.\nבכל שלב תוכל לחזור לתפריט הראשי על ידי לחיצה על 'תפריט'.",
-            'ru' => "Пожалуйста, сообщите нам о любых изменениях, которые вы хотели бы внести в свой рабочий график. Мы рассмотрим ваш запрос и свяжемся с вами.\nНа любом этапе вы можете вернуться в главное меню, нажав «меню».",
-            'spa' => "Por favor, indique cualquier cambio que desee realizar en su horario. Revisaremos su solicitud y nos pondremos en contacto con usted. Puede volver al menú principal en cualquier momento haciendo clic en 'Menú'."
+            'en' => "Please share the changes you'd like to make to your schedule. We will review your request and get back to you.\nAt any time, you can return to the main menu by typing 'Menu'.",
+            'heb' => "אנא עדכן אותנו על השינויים שתרצה לבצע בסידור העבודה שלך. נבדוק את הבקשה ונחזור אליך.\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
+            'ru' => "Пожалуйста, сообщите нам об изменениях, которые вы хотите внести в свой график работы. Мы проверим ваш запрос и свяжемся с вами.\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
+            'spa' => "Indique los cambios que desea realizar en su agenda. Revisaremos su solicitud y nos comunicaremos con usted. En cualquier momento, puede regresar al menú principal escribiendo 'Menú'."
         ],
         'team_schedule_change' => [
             'en' => ":worker_name requested a schedule change: :message. \nPlease review and handle accordingly..",
@@ -111,16 +112,16 @@ class WorkerLeadWebhookController extends Controller
             'spa' => "Lo siento, no entendí tu respuesta.\n• Responde con un número de las opciones del menú.\n• Escribe 'menú' para volver al menú principal.",
         ],
         'access_employee_portal' => [
-            'en' => "Here is the link to the employee portal: 🌐\n:link\nLog in with your credentials to access your account and details.\nAt any time, you can return to the main menu by clicking 'Menu'.",
-            'heb' => "הנה הקישור לפורטל העובדים: 🌐\n:link\nהתחבר עם הפרטים שלך כדי לגשת לחשבונך.\nבכל שלב תוכל לחזור לתפריט הראשי על ידי לחיצה על 'תפריט'.",
-            'ru' => "Вот ссылка на портал для сотрудников: 🌐\n:ссылка\nВойдите в систему, используя свои учетные данные, чтобы получить доступ к своей учетной записи и данным.\nНа любом этапе вы можете вернуться в главное меню, нажав «меню».",
-            'spa' => "Aquí está el enlace al portal del empleado: 🌐\n:link\nInicia sesión con tus credenciales para acceder a tu cuenta y tus datos.\nEn cualquier momento, puedes volver al menú principal haciendo clic en 'Menú'.",
+            'en' => "Here is the link to the employee portal: 🌐\n:link\nLog in with your credentials to access your account and details.\nAt any time, you can return to the main menu by typing 'Menu'.",
+            'heb' => "הנה הקישור לפורטל העובדים: 🌐\n:link\nהיכנס עם הפרטים שלך כדי לגשת לחשבונך.\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
+            'ru' => "Вот ссылка на портал сотрудников: 🌐\n:link\nВойдите с помощью своих учетных данных, чтобы получить доступ к своему аккаунту и деталям.\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
+            'spa' => "Aquí está el enlace al portal de empleados: 🌐\n:link\nInicia sesión con tus credenciales para acceder a tu cuenta y detalles.\nEn cualquier momento, puedes volver al menú principal escribiendo 'Menú'.",
         ],
         'today_and_tomorrow_schedule' => [
-            'en' => "Your schedule is as follows:\nToday: :today_schedule\nTomorrow: :tomorrow_schedule\n\nAt any time, you can return to the main menu by clicking 'Menu'.",
-            'heb' => "לוח הזמנים של העבודה שלך הוא:\nהיום: :today_schedule\nמחר: :tomorrow_schedule\n\nבכל שלב ניתן לחזור לתפריט הראשי על ידי לחיצה על 'תפריט'.",
-            'ru' => "Ваше расписание выглядит следующим образом:\nСегодня: :today_schedule\nЗавтра: :tomorrow_schedule\n\nНа любом этапе вы можете вернуться в главное меню, нажав «меню».",
-            'spa' => "Su horario es el siguiente:\nHoy: :today_schedule\nMañana: :tomorrow_schedule\n\nEn cualquier momento, puede volver al menú principal haciendo clic en 'Menú'.",
+            'en' => "Your schedule is as follows:\nToday: :today_schedule\nTomorrow: :tomorrow_schedule\n\nAt any time, you can return to the main menu by typing 'Menu'.",
+            'heb' => "סידור העבודה שלך הוא:\nהיום: :today_schedule\nמחר: :tomorrow_schedule\n\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
+            'ru' => "Ваш график следующий:\nСегодня: :today_schedule\nЗавтра: :tomorrow_schedule\n\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
+            'spa' => "Tu horario es el siguiente:\nHoy: :today_schedule\nMañana: :tomorrow_schedule\n\nEn cualquier momento, puedes volver al menú principal escribiendo 'Menú'.",
         ],
         'attempts' => [
             "en" => "We couldn’t verify your request. Please contact the team directly for assistance.",
@@ -739,17 +740,17 @@ class WorkerLeadWebhookController extends Controller
 
                 if (empty($last_menu) || in_array(strtolower($ButtonPayload), ["menu", "меню", "תפריט", "menú"])) {
                     $send_menu = 'main_menu';
-                } else if ($last_menu == 'main_menu' && $listId == '1') {
+                } else if ($last_menu == 'main_menu' && $input == '1') {
                     $send_menu = 'talk_to_manager';
                 } else if ($last_menu == 'talk_to_manager' && !empty($input)) {
                     $send_menu = 'comment';
-                } else if ($last_menu == 'main_menu' && $listId == '2') {
+                } else if ($last_menu == 'main_menu' && $input == '2') {
                     $send_menu = 'change_schedule';
                 } else if ($last_menu == 'change_schedule' && !empty($input)) {
                     $send_menu = 'change_schedule_comment';
-                } else if ($last_menu == 'main_menu' && $listId == '3') {
+                } else if ($last_menu == 'main_menu' && $input == '3') {
                     $send_menu = 'today_and_tomorrow_schedule';
-                } else if ($last_menu == 'main_menu' && $listId == '4') {
+                } else if ($last_menu == 'main_menu' && $input == '4') {
                     $send_menu = 'access_employee_portal';
                 } else {
                     // Handle 'sorry' case
@@ -832,7 +833,7 @@ class WorkerLeadWebhookController extends Controller
                             'label' => $lng == 'heb' ? 'בחר תפריט' : 'Select Option'
                         ];
 
-                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => $list, 'buttons' => []));
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => [], 'buttons' => []));
                         StoreWebhookResponse($personalizedMessage, $from, $result, true);
 
                         break;
@@ -841,13 +842,13 @@ class WorkerLeadWebhookController extends Controller
                         $nextMessage = $this->activeWorkersbotMessages['talk_to_manager'][$lng];
 
                         $title = $lng == "en" ? "Menu" : "תפריט";
-                        $buttons = [
-                            [
-                                'type' => 'quick_reply',
-                                'title' => $title,
-                                'id' => 'menu',
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'quick_reply',
+                        //         'title' => $title,
+                        //         'id' => 'menu',
+                        //     ]
+                        // ];
 
                         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'list' => $list, 'buttons' => $buttons));
                         StoreWebhookResponse($nextMessage, $from, $result, true);
@@ -922,13 +923,13 @@ class WorkerLeadWebhookController extends Controller
                     case 'change_schedule':
                         $nextMessage = $this->activeWorkersbotMessages['change_schedule'][$lng];
                         $title = $lng == "en" ? "Menu" : "תפריט";
-                        $buttons = [
-                            [
-                                'type' => 'quick_reply',
-                                'title' => $title,
-                                'id' => 'menu',
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'quick_reply',
+                        //         'title' => $title,
+                        //         'id' => 'menu',
+                        //     ]
+                        // ];
 
                         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'list' => $list, 'buttons' => $buttons));
                         StoreWebhookResponse($nextMessage, $from, $result, true);
@@ -1004,13 +1005,13 @@ class WorkerLeadWebhookController extends Controller
                         $personalizedMessage = str_replace(':link', generateShortUrl(url("worker/login"), 'worker'), $nextMessage);
 
                         $title = $lng == "en" ? "Menu" : "תפריט";
-                        $buttons = [
-                            [
-                                'type' => 'quick_reply',
-                                'title' => $title,
-                                'id' => 'menu',
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'quick_reply',
+                        //         'title' => $title,
+                        //         'id' => 'menu',
+                        //     ]
+                        // ];
 
                         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => $list, 'buttons' => $buttons));
                         StoreWebhookResponse($personalizedMessage, $from, $result, true);
@@ -1043,13 +1044,13 @@ class WorkerLeadWebhookController extends Controller
                         $message = $this->activeWorkersbotMessages['sorry'][$lng];
 
                         $title = $lng == "en" ? "Menu" : "תפריט";
-                        $buttons = [
-                            [
-                                'type' => 'quick_reply',
-                                'title' => $title,
-                                'id' => 'menu',
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'quick_reply',
+                        //         'title' => $title,
+                        //         'id' => 'menu',
+                        //     ]
+                        // ];
                         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $message, 'list' => $list, 'buttons' => $buttons));
                         StoreWebhookResponse($message, $from, $result, true);
 
@@ -1153,15 +1154,15 @@ class WorkerLeadWebhookController extends Controller
                         $nextMessage = str_replace(':tomorrow_schedule', $tomorrowSchedule, $nextMessage);
 
                         $title = $lng == "en" ? "Menu" : "תפריט";
-                        $buttons = [
-                            [
-                                'type' => 'quick_reply',
-                                'title' => $title,
-                                'id' => 'menu',
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'quick_reply',
+                        //         'title' => $title,
+                        //         'id' => 'menu',
+                        //     ]
+                        // ];
                         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'list' => $list, 'buttons' => $buttons));
-                        StoreWebhookResponse($nextMessage, $from, $resul, true);
+                        StoreWebhookResponse($nextMessage, $from, $result, true);
 
                         // if ($user->lng == 'heb') {
                         //     $sid = 'HX6b127de82fb4e7aae3432d4431e2306f';

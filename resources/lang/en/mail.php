@@ -971,6 +971,293 @@ return [
         'accpet_reject' => "Accept/Reject",
         'regards' => "Best Regards,",
         'signature' => "Broom Service Team"
-    ]
+    ],
+    "safeAndGear" => [
+        "title" => "Safety And Gear Form",
+        "welcomeToBroom" => "Welcome to Broom Service:",
+        "broomIntro" => "We are happy that you chose to work with our company. We will do everything to ensure you are satisfied with your work, and of course, we will take care of everything you need like family.",
+        "broomIntro2" => "The job is full-time, approximately 8 hours a day, and Fridays are optional (of course, payment is based on the schedule for that day and the actual hours worked).",
+        "sfg1" => "Ensure that all required forms are signed and completed: signed contract, Form 101, ID or visa, and if necessary, a health declaration.",
+        "sfg2" => "You will receive your work address via WhatsApp or the Broom Service app, along with the estimated time needed for each job.",
+        "sfg3" => "Make sure to arrive on time to the client. If there’s a delay or any issue, please inform us.",
+        "sfg4" => "Do not discuss with clients or in their presence the hours worked or the salary we receive, etc. Do not communicate directly with the client; always go through your manager.",
+        "sfg5" => "Be aware that clients may have cameras/microphones in their homes. By working with us, you agree to this condition and acknowledge that these are the clients' properties and they may monitor us.",
+        "sfg6" => "If any damage occurs by accident during work, inform us immediately so we can notify the client.",
+        "sfg7" => "If you have any changes to your schedule for the next week, notify us of the changes by Monday of the previous week.",
+        "sfg8" => "At the end of each workday, ensure all equipment is returned to the bag and that nothing is missing.",
+        "safeAndGearProcedure" => "Safety Procedures:",
+        "sp1" => "Employees must wear closed shoes at all times.",
+        "sp2" => "Working with chemicals such as bleach, grease removers, acid, and other strong substances requires the use of a mask and protective gloves. If you are missing equipment, inform us so we can provide it before you use these substances, and do not use them without the proper protection.",
+        "sp3" => "Do not handle cleaning agents without gloves and a standard mask.",
+        "sp4" => "Do not touch electricity such as sockets, electrical panels, or wires without closed shoes and only by a qualified person authorized to do so.",
+        "sp5" => "Do not clean windows on balconies or any other windows without instructions and, if necessary, a proper safety harness.",
+        "sp6" => "Do not pour water on walls or balconies where there is a risk of electrical hazards.",
+        "sp7" => "Do not climb on chairs or any other object that endangers you; only use a standard ladder up to 2 meters.",
+        "sp8" => "Do not mix any chemicals with each other.",
+        "sp9" => "Do not lean out of windows or balconies.",
+        "eqList" => "Equipment List:",
+        "eq1" => "I :fullname declare that I received the document with the attached equipment list and commit to taking care of it if it is in my possession and to return it intact at the end of my employment with the company.",
+        "eq2" => "Additionally, I received Broom Service work shirts and a backpack.",
+        "eq3" => "I understand that any equipment that was in my possession and was damaged or not returned in its entirety will have the cost of the item deducted from my salary on the payslip, and I give my explicit consent to this.",
+        "eq4" => "I may also receive cleaning materials from the company as needed, and I will use them according to procedures and return them after completing the work.",
+        "eq5" => "* Bleach, grease removers, acid, and other strong substances may only be used with the manager’s approval and according to safety instructions.",
+        "eq6" => "* At the end of each workday, filters must be cleaned and the vacuum cleaner emptied if used.",
+        "eq7" => "* Wet cloths and mops should be hung to dry.",
+        "sign" => "Employee signature",
+        "Clear" => "Clear",
+        "Submit" => "Submit",
+        "submitted" => "Submitted",
+        "Next" => "Next",
+        "Accept" => "Accept",
+        "errorMsg" => "Signature is required",
+        "successfullySigned" => "Successfuly signed",
+        "error" => "Error!"
+    ],
 
+    "israilContract" => [
+        "title1" => "Notice to Employee Regarding Detailed Terms of Employment",
+        "title2" => "In accordance with the Employee Notice (Terms of Employment) Law, 2002",
+        "is1" => "Employer's name => Brom Service L.M. Ltd. - private company number 515184208 Maan Hamel 11, Rosh Ha'Ein.",
+        "name" => "Employee name",
+        "IDNumber" => "ID number =>",
+        "Address" => "Address =>",
+        "StartDateOfJob" => "First date of job",
+        "HomePhone" => "Home phone number =>",
+        "mobileNumber" => "Mobile =>",
+        "is1NOte" => "Contract period => The contract period is not fixed",
+        "is3" => "The main roles of the employee are as follows => cleaning / other",
+        "role" => "role",
+        "is4" => "The name of the employee's direct supervisor or the job title of the direct supervisor => Full name => Alex Kanev",
+        "is5-1" => "The basic salary of the cleaning workers will be calculated based on the minimum wage according to law, and in addition they will be given a bonus for persistence, which will supplement their salary to a basic salary of NIS [[payment_per_hour]] per hour plus social conditions, and this as a reward for Persistence at work for 3 full months in a row at the company.",
+        "is5-2" => "If the employee decides to leave the job before the end of the full three-month period, as agreed upon in this agreement, the employer will be entitled to deduct the amount of the bonus that exceeds the minimum wage paid to the employee, and even require the employee to return the amount of the bonus already paid to him during The first three months of work, mostly by deducting the excess amount from his salary or any other payment due to him. The employee's salary is the minimum wage according to the collective agreement in the cleaning industry, which currently amounts to 32.3 new shekels per hour.",
+        "is5-3" => "The base salary of the cleaning workers will be calculated based on [[payment_per_hour]] NIS per hour, plus social benefits.",
+        "is6" => "The breakdown of all the payments that will be paid to the employee as wages are as follows =>",
+        "is6Table" => [
+            "paymentNotFixed" => "Non-Fixed Payments",
+            "RegularPayments" => "Regular Payments",
+            "PaymentDate" => "Payment Date",
+            "PaymentType" => "Payment Type",
+            "tr1" => [
+                "td1" => "Salary",
+                "td2" => "on the 9th of the month",
+                "td3" => "Leave for a family party for cleaning workers",
+                "td4" => "In accordance with the collective agreement in the cleaning industry"
+            ],
+            "tr2" => [
+                "td1" => "travel",
+                "td2" => "On the 9th of the month, except in cases where the employee will use transportation, in which case he is not entitled to travel reimbursement.",
+                "td3" => "Holiday for cleaning workers",
+                "td4" => "In accordance with the law and the collective agreement in the cleaning industry and according to the leave procedure at the employer."
+            ],
+            "tr3" => [
+                "td1" => "Recovery (hourly employee)",
+                "td2" => "on the 9th of the month",
+                "td3" => "A holiday for cleaning workers",
+                "td4" => "In the month in which the Tishrei and Sivan holidays fall (around October and April)"
+            ],
+            "tr4" => [
+                "td1" => "Recovery (monthly employee)",
+                "td2" => "once a year",
+                "td3" => "sick pay for cleaning workers",
+                "td4" => "In accordance with the law on sick pay and the collective agreement in the cleaning industry"
+            ],
+            "tr5" => [
+                "td1" => "Seniority supplement for cleaning workers",
+                "td2" => "After a year of work"
+            ],
+            "tr6" => [
+                "td1" => "Holiday fees for cleaning workers",
+                "td2" => "In accordance with the collective agreement in the cleaning industry"
+            ]
+        ],
+        "is7" => "Employee rights, including leave, recreation, illness, holidays, etc., are calculated and paid according to the actual job scope and relevant legal provisions.",
+        "is8" => "Transportation reimbursement according to the general collective agreement, and according to the cheapest cost in public transport => 13 NIS per day or a maximum of 236 NIS for a full month of work.",
+        "is9" => "I hereby authorize the deduction from my salary of participation in meals/ meal value as customary at the site where I work (circle as appropriate).",
+        "is10-1" => "The length of the regular working day for the employee is => 8 hours daily (6 days)/ 8.4 hours daily (5 days) / Beyond that, he will be paid overtime according to the law. The employee is aware that during a shift longer than 6 hours, he will take an unpaid meal break.",
+        "is10-2" => "The length of the regular working week for the employee is 42 hours, and => 5 days/ 6 days / according to the work arrangement to be determined in advance.",
+        "is11" => "The employee's weekly rest day => For a Jewish employee => Saturday/ For a non-Jewish employee if he chooses => Sunday or Friday / Another day",
+        "is12" => "As part of your work in the company, the company will be entitled to assign you to different sites at its discretion and according to the regional service manager. The service manager and the operations manager will be at your disposal at any time for any question/uncertainty on any subject.",
+        "is13-1" => "Payments for social conditions that the employee is entitled to will be paid according to the relevant extension orders and collective agreements applicable to him.",
+        "is13-2" => "Type of payment for pensions/ insurances and study fund. The receiving body and the name of the plan => According to the employee's choice and according to the extension order/ collective agreement applicable to the employee.",
+        "is13Table" => [
+            "th" => [
+                "td1" => "Payment Start Date",
+                "td2" => "% contribution of the employer",
+                "td3" => "% deductions from the employee",
+                "td4" => "Receiving body and program name",
+                "td5" => "payment type"
+            ],
+            "tr1" => [
+                "td1" => "From the actual start date of the work",
+                "td2" => "7.5% rewards + 8.33% severance pay (in accordance with the collective agreement in the cleaning industry)",
+                "td3" => "%7",
+                "td4" => "Meitav Dash cash register (unless otherwise stated on the payslip) unless the employee requested otherwise",
+                "td5" => "pension provisions"
+            ],
+            "tr2" => [
+                "td1" => "From the actual start date of the work",
+                "td2" => "7.5% rewards + 6% severance pay (in accordance with the collective agreement in the cleaning industry)",
+                "td3" => "%7",
+                "td4" => "Meitav Dash cash register (unless otherwise stated on the pay slip) unless the employee requested otherwise",
+                "td5" => "Pension allowance for working overtime/rest day"
+            ],
+            "tr3" => [
+                "td1" => "From the actual start date of the work",
+                "td2" => "% 5 (in accordance with the collective agreement in the cleaning industry)",
+                "td3" => "% 5",
+                "td4" => "Meitav Dash cash register (unless otherwise stated on the payslip) unless the employee requested otherwise",
+                "td5" => "Pension allowance for travel"
+            ],
+            "tr4" => [
+                "td1" => "From the actual start date of the work",
+                "td2" => "7.5% (in accordance with the collective agreement in the cleaning industry)",
+                "td3" => "% 2.5",
+                "td4" => "Meitav Dash cash register (unless otherwise stated on the payslip) unless the employee requested otherwise",
+                "td5" => "Provision for further education fund"
+            ]
+        ],
+        "is13-3" => "**This agreement replaces and cancels any previous agreement signed between the parties. You are required to notify your direct supervisor in writing of the name of the pension and/or study fund and/or pension fund you wish to join by the end of the first month of your employment. If you do not provide details as stated, we will join you to the default funds. I am aware that if I terminate my employment without giving the company prior notice, the company will exercise its right under the law to deduct the payment for the notice from any amount due to me, including vacation pay and various final account payments.",
+        "is14" => "If the employer or an employers' organization that the employer is a member of is a party to a collective agreement that regulates the employee's working conditions – the name of the employees' organization that is a party to that collective agreement is => None. This notice is an employer's notice regarding the main terms of employment => nothing in this notice detracts from any right granted to the employee by any law, extension order, collective agreement, or employment contract.",
+        "sign" => "Employee Signature =>",
+        "Clear" => "Clear",
+        "signNote" => "Best regards, Broom Service Ltd.",
+        "BestRegards" => "Best regards",
+        "Broom" => "Broom Service L.M. Ltd",
+        "Submit" => "Submit",
+        "Accept" => "Accept",
+        "Date" => "Date",
+        "singular_masculine" => "(What is stated in the singular and/or masculine in this document is also feminine in meaning)",
+        "errorMsg" => [
+            "FullName" => "Employee Name",
+            "Role" => "Role",
+            "invalidNumber" => "Invalid Number",
+            "idRequired" => "ID Number Required",
+            "Address" => "Address",
+            "StartDateOfJob" => "Job Start Date",
+            "Date" => "Date",
+            "Phone" => "Phone",
+            "mobile" => "Mobile",
+            "mobileRequired" => "Mobile Number Required",
+            "signRequired" => "Signature Required"
+        ]
+    ],
+    "nonIsrailContract" => [
+        "title1" => "The employment agreement as well as a notice to the employee regarding working conditions",
+        "title2" => "In accordance with Section 1 of the Law on Notification to Employees (Working Conditions), 2002",
+        "nic1" => "Employer's name Brom Service L.M. Ltd. - private company number 515184208 Maan Amal 11, Rosh Ha'Ein",
+        "empName" => "Employee's name",
+        "passport" => "Passport Number",
+        "Address" => "Address",
+        "dateStart" => "The date of the start of",
+        "nic2" => "The contract period is not limited. The employee is hired as a new employee for all intents and purposes.",
+        "nic3-1" => "The main duties of the employee are as follows =>",
+        "nic3-2" => "and any other work assigned by the company. Either party has the right to terminate the assignment and employment with prior notice to the other party according to the Early Notification of Termination and Resignation Law, 2001.",
+        "role" => "Role =>",
+        "nic4" => "The direct supervisor of the employee => Alex Kanev.",
+        "nic5" => "The base salary of cleaning workers will be calculated based on the legal minimum wage, and in addition, they will receive a retention bonus, which will supplement their salary to a base salary of [[payment_per_hour]] NIS per hour plus social conditions, as a reward for continuous work for three full months in the company.",
+        "nic5_new" => "The base salary of the cleaning workers will be calculated based on [[payment_per_hour]] NIS per hour, plus social benefits.",
+        "nic5_sub" => [
+            "nic5_sub1" => "If the employee decides to leave the job before the end of the full three-month period as agreed in this agreement, the employer shall be entitled to deduct the bonus amount exceeding the minimum wage paid to the employee, and even to demand the return of the bonus amount already paid during the first three months of work, including by deducting the excess amount from the salary or any other payment due.",
+            "nic5_sub2" => "The employee's wage is the sectoral minimum wage according to the collective agreement in the cleaning industry, which currently stands at 32.3 NIS per hour.",
+            "clear" => "Clear",
+            "Date" => "Date =>",
+            "table" => [
+                "th" => [
+                    "th1" => "Type of Payment**",
+                    "th2" => "Payment Date***",
+                    "th3" => "Fixed Payments",
+                    "th4" => "Non-fixed Payments"
+                ],
+                "tr1" => [
+                    "td1" => "Work Wage",
+                    "td2" => "9th of the month",
+                    "td3" => "Vacation",
+                    "td4" => "By law"
+                ],
+                "tr2" => [
+                    "td1" => "Travel",
+                    "td2" => "9th of the month",
+                    "td3" => "Holidays",
+                    "td4" => "By law"
+                ],
+                "tr3" => [
+                    "td1" => "Recreation",
+                    "td2" => "9th of the month in advance for the annual payment"
+                ],
+                "tr4" => [
+                    "td1" => "Seniority Increment",
+                    "td2" => "9th of the month as part of the base salary"
+                ]
+            ],
+            "nic5_sub3" => "** List types of payments such as => base salary, in-kind - food and non-alcoholic drinks for consumption on the premises and housing that is not a reimbursement, seniority increment, premiums and incentives, overtime; shift increments, recreation pay and any other payment for work wage whether fixed or non-fixed.",
+            "nic5_sub4" => "Employee signature and approval of the above ",
+            "nic5_sub5" => "* If the payment date is not fixed, or the date occurs upon a condition, specify it."
+        ],
+        "nic6" => "The employee's wage is determined according to an irrelevant ranking.",
+        "nic7" => "The length of a regular workday is 8 actual hours. The length of a regular work week is 42 hours.",
+        "nic8" => "The weekly rest day for the employee is Saturday.",
+        "nic8Sub" => [
+            "table" => [
+                "th" => [
+                    "th1" => "Type of Payment",
+                    "th2" => "Receiving Body and Program Name",
+                    "th3" => "% Employee Contributions",
+                    "th4" => "% Employer Contributions",
+                    "th5" => "Start Date of Payment"
+                ],
+                "tr1" => [
+                    "td1" => "Employer Contributions",
+                    "td2" => "Directly to the employee",
+                    "td3" => "0",
+                    "td4" => "8.33% in lieu of severance pay according to Section 14 of the Severance Pay Law and according to the extension order in the cleaning industry",
+                    "td5" => "Either on the paycheck or at the end of employment according to company decision"
+                ],
+                "tr2" => [
+                    "td1" => "Education Fund",
+                    "td2" => "Directly to the employee",
+                    "td3" => "0",
+                    "td4" => "7.5% of the work wage",
+                    "td5" => "Either on the paycheck or at the end of employment according to company decision"
+                ]
+            ],
+            "nic8Sub_1" => "**This agreement replaces and cancels the previous agreement signed between the parties.",
+            "nic8Sub_2" => "If the employer or an employers' organization of which the employer is a member, is a party to a collective agreement regulating the employee's working conditions – the name of the workers' organization that is a party to that collective agreement is =>",
+            "nic8Sub_3" => "This notification is not an employment agreement, but an employer's notification of the main working conditions; nothing in this notification derogates from any right granted to the employee by law, extension order, collective agreement, or employment contract.",
+            "nic8Sub_4" => "Employee signature and approval of the above",
+            "nic8Sub_5" => "Clear",
+            "nic8Sub_6" => "The Company's signature =>"
+        ],
+        "deduction" => [
+            "title" => "Deductions =>",
+            "deduction1" => "The employer will deduct from the employee's salary for National Insurance according to the law",
+            "deduction2" => "The employer will deduct from the employee's salary for income tax according to the law",
+            "deduction3" => "The employer will deduct from the employee's salary for foreign workers' deposits according to Section 1יא of the Foreign Workers Law, 1991"
+        ],
+        "obligations" => [
+            "title" => "Employer's Obligations =>",
+            "obligation1" => "The employer is obligated to arrange, at its expense, for the employee to have medical insurance for the entire duration of his employment, according to Section 1יא  of the Foreign Workers Law, 1991, while deducting the amounts that can be deducted by law."
+        ],
+        "supervisor" => [
+            "title" => "Supervisor of Foreign Workers =>",
+            "supervisor1" => "Details of the supervisor of foreign workers' rights =>  Advocate Iris Maayan",
+            "supervisor2" => "Contact information for the supervisor of foreign workers =>  53 Shlomo Road (Salame), Tel Aviv. Tel. 03-7347230, Fax. 03-7347269"
+        ],
+        "workerSign" => "Employee signature and approval of the above ",
+        "companySign" => "Sincerely, Broom Service L.M. Ltd.",
+        "clear" => "Clear",
+        "Submit" => "Submit",
+        "Accept" => "Accept",
+        "date" => "Date",
+        "errorMsg" => [
+            "FullName" => "Employee's name is required",
+            "Role" => "Employee's role is required",
+            "invalidId" => "Invalid ID number",
+            "idRequired" => "ID number is required",
+            "passportNumReq" => "Passport is required",
+            "address" => "Employee's address is required",
+            "startDate" => "Start date of work is required",
+            "Date" => "Date is required",
+            "sign" => "Employee's signature is required"
+        ]
+    ],
 ];

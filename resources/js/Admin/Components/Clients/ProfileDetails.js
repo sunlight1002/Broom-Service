@@ -12,6 +12,7 @@ import PropertyAddressTable from "../common/PropertyAddressTable";
 import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
 import ContactsTable from "../common/ContactsTable";
+import { IcountAddress } from "../common/IcountAddress";
 
 export default function ProfileDetails({
     client,
@@ -264,6 +265,18 @@ export default function ProfileDetails({
                                         {t("admin.client.property_address")}
                                     </a>
                                 </li>
+                                <li className="nav-item" role="presentation">
+                                    <a
+                                        id="icount-address-tab"
+                                        className="nav-link navyblueColor"
+                                        data-toggle="tab"
+                                        href="#tab-icount-address"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        {t("admin.client.icount_address")}
+                                    </a>
+                                </li>
                                 {/* <li className="nav-item" role="presentation">
                                     <a
                                         id="contacts-tab"
@@ -418,12 +431,12 @@ export default function ProfileDetails({
                                                 )}
                                             </div>
                                         </div>
-                                        { campaignName && (
+                                        {campaignName && (
                                             <div className="col-sm-4">
                                                 <div className="form-group navyblueColor">
                                                     <label>
                                                         {t("admin.leads.campaignName")}
-                                                        </label>
+                                                    </label>
                                                     <p>{campaignName}</p>
                                                 </div>
                                             </div>
@@ -552,6 +565,14 @@ export default function ProfileDetails({
                                     aria-labelledby="rejected-tab"
                                 >
                                     <PropertyAddressTable clientId={param.id} />
+                                </div>
+                                <div
+                                    id="tab-icount-address"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="icount-tab"
+                                >
+                                    <IcountAddress clientId={param.id} />
                                 </div>
                                 {/* <div
                                     id="tab-contacts"

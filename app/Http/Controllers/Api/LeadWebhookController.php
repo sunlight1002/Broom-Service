@@ -78,8 +78,8 @@ class LeadWebhookController extends Controller
 
     protected $activeClientBotMessages = [
         "main_menu" => [
-            "en" => "Hello :client_name 🌸, I’m Gali, the digital secretary of Broom Service!\nHow can I assist you today ? 😊\n\nIf you have a question or request not listed, type 'Menu' to return to the main menu at any time.",
-            "heb" => "שלום - :client_name -🌸, אני גלי, המזכירה הדיגיטלית של ברום סרוויס!\nבמה אוכל לעזור לך היום? 😊\n\nאם יש לך שאלה אחרת או בקשה שלא בתפריט, תוכל תמיד להחזיר אותי לתפריט הראשי על ידי כתיבת 'תפריט'."
+            "en" => "Hello :client_name 🌸, I’m Gali, the digital secretary of Broom Service!\nHow can I assist you today ? 😊\n\nHere are your options:\n1️⃣ Contact me urgently\n2️⃣ When is my next service?\n3️⃣ Request a new quote\n4️⃣ Invoice and accounting inquiry\n5️⃣ Change or update schedul\n6️⃣ Access our client portal\n\n❓ If you have a question or request not listed, type 'Menu' to return to the main menu at any time.",
+            "heb" => "שלום - :client_name -🌸, אני גלי, המזכירה הדיגיטלית של ברום סרוויס!\nבמה אוכל לעזור לך היום? 😊\n\nלהלן האפשרויות:\n1️⃣ צרו איתי קשר דחוף\n2️⃣ מתי מגיעים אלי?\n3️⃣ בקשה להצעת מחיר חדשה\n4️⃣ הנה'ח - פנייה למחלקת הנהלת חשבונות\n5️⃣ שינוי או עדכון שיבוץ\n6️⃣ גישה לפורטל הלקוחות שלנו\n\n❓ אם יש לך שאלה אחרת או בקשה שלא בתפריט, תוכל תמיד להחזיר אותי לתפריט הראשי על ידי כתיבת 'תפריט'."
         ],
         "not_recognized" => [
             "en" => "Hello, we couldn’t recognize your number in our system.\nAre you an existing client, or would you like to receive a quote for our service?\n 1️⃣ I am an existing client\n 2️⃣ I’d like a quote",
@@ -130,8 +130,8 @@ class LeadWebhookController extends Controller
             "heb" => "השירות בשבוע הבא מתוכנן ל- \n:date_time\n⏰ שים לב: זמן ההגעה עשוי להשתנות ולהגיע לעד כשעה וחצי משעת ההתחלה."
         ],
         "no_service_avail" => [
-            "en" => "We couldn't find any upcoming bookings for you in the system.\nClick to ask for more information about your schedule.",
-            "heb" => "לא מצאנו שיבוצים קרובים עבורך במערכת.\nניתן ללחוץ על ולבקש פרטים נוספים."
+            "en" => "We couldn't find any upcoming bookings for you in the system.\nClick 5 to ask for more information about your schedule.",
+            "heb" => "לא מצאנו שיבוצים קרובים עבורך במערכת.\nניתן ללחוץ על 5 ולבקש פרטים נוספים."
         ],
         "request_new_qoute" => [
             "en" => "Your request for a new quote has been recorded.\nOur team will contact you shortly. Thank you! 🌸",
@@ -166,8 +166,8 @@ class LeadWebhookController extends Controller
             "heb" => "🔔 לקוח בשם *:client_name* ביקש לשנות או לעדכן שיבוץ. ההודעה שנרשמה: *:message* \n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
         ],
         "access_portal" => [
-            "en" => "To access our client portal",
-            "heb" => "לכניסה לפורטל הלקוחות שלנו."
+            "en" => "To access our client portal, please click here: :client_portal_link.",
+            "heb" => "לכניסה לפורטל הלקוחות שלנו, אנא לחץ כאן: :client_portal_link."
         ],
         "sorry" => [
             "en" => "Sorry, I didn’t understand your request.\nPlease try again or type 'Menu' to return to the main menu.",
@@ -2787,30 +2787,6 @@ Broom Service Team 🌹",
                 $listId = isset($data['messages'][0]['reply']['list_reply']['id']) ? str_replace("ListV3:", "", $data['messages'][0]['reply']['list_reply']['id']) : "";
                 $ButtonPayload = isset($data['messages'][0]['reply']['buttons_reply']['id']) ? str_replace("ButtonsV3:", "", $data['messages'][0]['reply']['buttons_reply']['id']) : "";
                 $input = $data['messages'][0]['text']['body'] ?? $listId ?? $ButtonPayload ?? "";
-
-                // $msgStatus = Cache::get('client_review' . $client->id);
-                // // \Log::info($msgStatus . ' ' . $client->id);
-
-                // if (!empty($msgStatus)) {
-                //     \Log::info('Client already reviewed');
-                //     $this->clientReview($request);
-                //     die('Client already reviewed');
-                // }
-
-                // $msgStatus = Cache::get('client_review_input2' . $client->id);
-                // if (!empty($msgStatus)) {
-                //     \Log::info('Client already reviewed');
-                //     $this->clientReview($request);
-                //     die('Client already reviewed');
-                // }
-
-                // $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
-                // \Log::info($msgStatus . ' ' . $client->id);
-                // if ((!empty($msgStatus) && ($listId || $ButtonPayload) == '1') || (!empty($msgStatus) && $msgStatus != "main_msg")) {
-                //     \Log::info('Client already in (monday / wednesday) message first reply');
-                //     $this->activeClientsWednesday($request);
-                //     die('Client confirm job');
-                // }
             }
 
             if ($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT) {
@@ -2861,27 +2837,27 @@ Broom Service Team 🌹",
                     \Log::info('Client menu');
                     $send_menu = 'main_menu';
                 }
-            } else if ($last_menu == 'main_menu' && $listId == '1') {
+            } else if ($last_menu == 'main_menu' && $input == '1') {
                 $send_menu = 'urgent_contact';
-            } else if ($last_menu == 'main_menu' && $listId == '2') {
+            } else if ($last_menu == 'main_menu' && $input == '2') {
                 $send_menu = 'service_schedule';
-            } else if ($last_menu == 'main_menu' && $listId == '3') {
+            } else if ($last_menu == 'main_menu' && $input == '3') {
                 $send_menu = 'request_new_qoute';
-            } else if ($last_menu == 'main_menu' && $listId == '4') {
+            } else if ($last_menu == 'main_menu' && $input == '4') {
                 $send_menu = 'invoice_account';
-            } else if ($last_menu == 'main_menu' && $listId == '5') {
+            } else if ($last_menu == 'main_menu' && $input == '5') {
                 $send_menu = 'change_update_schedule';
-            } else if ($last_menu == 'main_menu' && $listId == '6') {
+            } else if ($last_menu == 'main_menu' && $input == '6') {
                 $send_menu = 'access_portal';
             } else if ($last_menu == 'urgent_contact' && !empty($input)) {
                 $send_menu = 'thankyou';
-            } else if ($last_menu == 'service_schedule' && $ButtonPayload == '5') {
+            } else if ($last_menu == 'service_schedule' && $input == '5') {
                 $send_menu = 'change_update_schedule';
             } else if ($last_menu == 'invoice_account' && !empty($input)) {
                 $send_menu = 'thank_you_invoice_account';
             } else if ($last_menu == 'change_update_schedule' && !empty($input)) {
                 $send_menu = 'thank_you_change_update_schedule';
-            } else if ($last_menu == 'team_send_message' && ($listId == '1' || $ButtonPayload == '1')) {
+            } else if ($last_menu == 'team_send_message' && $input == '1') {
                 $send_menu = 'team_send_message_1';
             } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
                 $send_menu = 'client_add_request';
@@ -3167,13 +3143,13 @@ Broom Service Team 🌹",
 
                     // If no jobs are found for both weeks
                     if (empty($currentWeeks) && empty($nextWeeks)) {
-                        $buttons = [
-                            [
-                                'type' => 'quick_reply',
-                                'title' => $lng == "heb" ? "פרטים נוספים" : "More details",
-                                'id' => '5',
-                            ]
-                        ];
+                        // $buttons = [
+                        //     [
+                        //         'type' => 'quick_reply',
+                        //         'title' => $lng == "heb" ? "פרטים נוספים" : "More details",
+                        //         'id' => '5',
+                        //     ]
+                        // ];
 
                         $nextMessage = $this->activeClientBotMessages['no_service_avail'][$lng];
                         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'buttons' => $buttons));
@@ -3321,19 +3297,21 @@ Broom Service Team 🌹",
                     break;
                 case 'access_portal':
 
-                    $buttons = [
-                        [
-                            'type' => 'url',
-                            'title' => $lng == "heb" ? "אנא לחץ כאן" : "please click here",
-                            'id' => 'portal',
-                            "url" => generateShortUrl(url("client/login"), 'admin')
+                    // $buttons = [
+                    //     [
+                    //         'type' => 'url',
+                    //         'title' => $lng == "heb" ? "אנא לחץ כאן" : "please click here",
+                    //         'id' => 'portal',
+                    //         "url" => generateShortUrl(url("client/login"), 'admin')
 
-                        ]
-                    ];
+                    //     ]
+                    // ];
 
                     $nextMessage = $this->activeClientBotMessages['access_portal'][$lng];
-                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $nextMessage, 'buttons' => $buttons));
-                    StoreWebhookResponse($nextMessage, $from, $result, true);
+                    $personalizedMessage = str_replace(':client_portal_link', generateShortUrl(url("client/login"), 'admin'), $nextMessage);
+
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'buttons' => $buttons));
+                    StoreWebhookResponse($personalizedMessage, $from, $result, true);
 
                     $clientMessageStatus->delete();
 
@@ -4876,7 +4854,7 @@ Broom Service Team 🌹",
         ];
 
 
-        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => $list, 'buttons' => []));
+        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => [], 'buttons' => []));
         StoreWebhookResponse($personalizedMessage, $from, $result);
 
         WhatsAppBotActiveClientState::updateOrCreate(

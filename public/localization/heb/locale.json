@@ -1893,6 +1893,7 @@
             "DeclinedPriceOffer": "הצעת מחיר נדחתה",
             "AddNew": "הוסף חדש",
             "Export": "ייצוא",
+            "icount_address": "כתובת icount",
             "Options": {
                 "sortBy": "-- מיין לפי --",
                 "ID": "מספר זיהוי",

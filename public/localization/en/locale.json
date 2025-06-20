@@ -1864,6 +1864,7 @@
             "DeclinedPriceOffer": "Declined price offer",
             "AddNew": "Add New",
             "Export": "Export",
+            "icount_address": "Icount Address",
             "Options": {
                 "sortBy": "-- Sort By--",
                 "ID": "ID",

@@ -2618,6 +2618,99 @@
             "sign": "Se requiere la firma del empleado"
         }
     },
+    "israilContract": {
+        "title1": "Aviso al empleado sobre detalles de las condiciones de trabajo",
+        "title2": "Según la Ley de Aviso al Empleado (Condiciones de Trabajo) de 2002",
+        "is1": "Nombre del empleador: Brom Service L.M. Ltd. - Número de empresa privada 515184208, Maan Hamel 11, Rosh Ha'Ein.",
+        "name": "Nombre del empleado",
+        "IDNumber": "Número de identificación:",
+        "Address": "Dirección:",
+        "StartDateOfJob": "Primera fecha de trabajo",
+        "HomePhone": "Teléfono de casa:",
+        "mobileNumber": "Móvil:",
+        "is1NOte": "Período del contrato: El período del contrato no está fijo",
+        "is3": "Las principales funciones del empleado son las siguientes: limpieza / otro",
+        "role": "rol",
+        "is4": "Nombre del supervisor directo del empleado o el título del supervisor directo: Nombre completo: Alex Kanev",
+        "is5-1": "El salario básico de los trabajadores de limpieza se calculará según el salario mínimo según la ley, y además se les dará un bono por persistencia, que complementará su salario a un salario básico de {{payment_per_hour}} NIS por hora más condiciones sociales, y esto como recompensa por la persistencia en el trabajo durante 3 meses completos seguidos en la empresa.",
+        "is5-2": "Si el empleado decide dejar el trabajo antes del final del período completo de tres meses, según lo acordado en este acuerdo, el empleador tendrá derecho a deducir la cantidad del bono que excede el salario mínimo pagado al empleado, e incluso exigir al empleado que devuelva la cantidad del bono ya pagado durante los primeros tres meses de trabajo, principalmente mediante la deducción del monto excedente de su salario o cualquier otro pago debido a él. El salario del empleado es el salario mínimo según el convenio colectivo en la industria de limpieza, que actualmente asciende a 32.3 nuevos shekels por hora.",
+        "is5-3": "El salario base de los trabajadores de limpieza se calculará con base en {{payment_per_hour}} NIS por hora, más los beneficios sociales.",
+        "is6": "El desglose de todos los pagos que se pagarán al empleado como salario son los siguientes:",
+        "is6Table": {
+            "paymentNotFixed": "Pagos no fijos",
+            "RegularPayments": "Pagos regulares",
+            "PaymentDate": "Fecha de pago",
+            "PaymentType": "Tipo de pago",
+            "tr1": {
+                "td1": "Salario",
+                "td2": "el 9 del mes",
+                "td3": "subsidio de comida",
+                "td4": "Según la costumbre del cliente para facturar el valor de las comidas"
+            },
+            "tr2": {
+                "td1": "viajar",
+                "td2": "El 9 del mes, excepto en casos en que el empleado utilice transporte, en cuyo caso no tiene derecho a reembolso de viaje.",
+                "td3": "Dejar para una fiesta familiar para trabajadores de limpieza",
+                "td4": "De acuerdo con el convenio colectivo en la industria de limpieza"
+            },
+            "tr3": {
+                "td1": "Recuperación (empleado por hora)",
+                "td2": "el 9 del mes",
+                "td3": "Vacaciones para trabajadores de limpieza",
+                "td4": "De acuerdo con la ley y el convenio colectivo en la industria de limpieza y según el procedimiento de licencia en el empleador."
+            },
+            "tr4": {
+                "td1": "Recuperación (empleado mensual)",
+                "td2": "una vez al año",
+                "td3": "Un día festivo para trabajadores de limpieza",
+                "td4": "En el mes en que caen las vacaciones de Tishrei y Sivan (alrededor de octubre y abril)"
+            },
+            "tr5": {
+                "td1": "Suplemento por antigüedad para trabajadores de limpieza",
+                "td2": "Después de un año de trabajo",
+                "td3": "Pago por enfermedad para trabajadores de limpieza",
+                "td4": "De acuerdo con la ley sobre pago por enfermedad y el convenio colectivo en la industria de limpieza"
+            },
+            "tr6": {
+                "td1": "Tarifas de vacaciones para trabajadores de limpieza",
+                "td2": "De acuerdo con el convenio colectivo en la industria de limpieza"
+            }
+        },
+        "is7": "Los derechos del empleado, incluidos los permisos, las vacaciones, la enfermedad, los días festivos, etc., se calculan y pagan según el alcance real del trabajo y las disposiciones legales pertinentes.",
+        "is8": "Reembolso de transporte según el convenio colectivo general, y según el costo más barato en transporte público: 13 NIS por día o un máximo de 236 NIS por mes completo de trabajo.",
+        "is9": "Por la presente autorizo la deducción de mi salario de la participación en comidas / valor de la comida como es costumbre en el sitio donde trabajo (marque según corresponda).",
+        "is10-1": "La duración de la jornada laboral regular para el empleado es: 8 horas diarias (6 días) / 8.4 horas diarias (5 días) / Además, se le pagará horas extras según la ley. El empleado es consciente de que durante un turno de más de 6 horas, tomará un descanso para comer no remunerado.",
+        "is10-2": "La duración de la semana laboral regular para el empleado es de 42 horas, y: 5 días / 6 días / según el arreglo de trabajo que se determine con antelación.",
+        "is11": "El día de descanso semanal del empleado: Para un empleado judío: sábado / Para un empleado no judío si así lo desea: domingo o viernes / Otro día",
+        "is12": "Como parte de su trabajo en la empresa, la empresa tendrá derecho a asignarle diferentes sitios a su discreción y según el gerente de servicio regional. El gerente de servicio y el gerente de operaciones estarán a su disposición en cualquier momento para cualquier pregunta/incertidumbre sobre cualquier tema.",
+        "is13-1": "Los pagos por condiciones sociales a los que tiene derecho el empleado se pagarán según las órdenes de extensión y los convenios colectivos aplicables a él.",
+        "is13-2": "Tipo de pago para pensiones / seguros y fondo de estudio. El organismo receptor y el nombre del plan: Según la elección del empleado y según la orden de extensión / convenio colectivo aplicable al empleado.",
+        "is13-3": "**Este acuerdo reemplaza y cancela cualquier acuerdo anterior firmado entre las partes. Se le solicita que notifique por escrito a su supervisor directo el nombre del fondo de pensión y / o estudio y / o fondo de pensiones al que desea unirse antes de que finalice el primer mes de empleo. Si no proporciona los detalles como se indica, lo inscribiremos en los fondos predeterminados. Soy consciente de que si termino mi empleo sin previo aviso a la empresa, la empresa ejercerá su derecho según la ley para deducir el pago por el aviso de cualquier monto debido a mí, incluido el pago de vacaciones y diversos pagos finales.",
+        "is14": "Si el empleador o una organización de empleadores de la que el empleador es miembro es parte de un convenio colectivo que regula las condiciones de trabajo del empleado, el nombre de la organización de empleadores que es parte de ese convenio colectivo es: Ninguno. Este aviso es un aviso del empleador sobre los términos principales del empleo: nada en este aviso resta ningún derecho otorgado al empleado por cualquier ley, orden de extensión, convenio colectivo o contrato de trabajo.",
+        "sign": "Firma del empleado:",
+        "Clear": "Borrar",
+        "signNote": "Atentamente, Broom Service Ltd.",
+        "BestRegards": "Atentamente",
+        "Broom": "Broom Service L.M. Ltd",
+        "Submit": "Enviar",
+        "Accept": "Aceptar",
+        "Date": "Fecha",
+        "singular_masculine": "(Lo que se afirma en singular y/o masculino en este documento también tiene un significado femenino)",
+        "errorMsg": {
+            "FullName": "Nombre del empleado",
+            "Role": "Rol",
+            "invalidNumber": "Número inválido",
+            "idRequired": "Número de identificación requerido",
+            "passportNumReq": "Se requiere pasaporte",
+            "Address": "Dirección",
+            "StartDateOfJob": "Fecha de inicio del trabajo",
+            "Date": "Fecha",
+            "Phone": "Teléfono",
+            "mobile": "Móvil",
+            "mobileRequired": "Número de móvil requerido",
+            "signRequired": "Firma requerida"
+        }
+    },
     "insurance": {
         "fname2CharLong": "El nombre debe tener al menos 2 caracteres",
         "fnameReq": "El nombre es obligatorio",
@@ -2719,99 +2812,6 @@
         "positive_finding_error": "Se requieren detalles porque un campo está marcado como 'sí'",
         "enter_required": "Ingrese si es necesario...",
         "Signature": "Firma"
-    },
-    "israilContract": {
-        "title1": "Aviso al empleado sobre detalles de las condiciones de trabajo",
-        "title2": "Según la Ley de Aviso al Empleado (Condiciones de Trabajo) de 2002",
-        "is1": "Nombre del empleador: Brom Service L.M. Ltd. - Número de empresa privada 515184208, Maan Hamel 11, Rosh Ha'Ein.",
-        "name": "Nombre del empleado",
-        "IDNumber": "Número de identificación:",
-        "Address": "Dirección:",
-        "StartDateOfJob": "Primera fecha de trabajo",
-        "HomePhone": "Teléfono de casa:",
-        "mobileNumber": "Móvil:",
-        "is1NOte": "Período del contrato: El período del contrato no está fijo",
-        "is3": "Las principales funciones del empleado son las siguientes: limpieza / otro",
-        "role": "rol",
-        "is4": "Nombre del supervisor directo del empleado o el título del supervisor directo: Nombre completo: Alex Kanev",
-        "is5-1": "El salario básico de los trabajadores de limpieza se calculará según el salario mínimo según la ley, y además se les dará un bono por persistencia, que complementará su salario a un salario básico de {{payment_per_hour}} NIS por hora más condiciones sociales, y esto como recompensa por la persistencia en el trabajo durante 3 meses completos seguidos en la empresa.",
-        "is5-2": "Si el empleado decide dejar el trabajo antes del final del período completo de tres meses, según lo acordado en este acuerdo, el empleador tendrá derecho a deducir la cantidad del bono que excede el salario mínimo pagado al empleado, e incluso exigir al empleado que devuelva la cantidad del bono ya pagado durante los primeros tres meses de trabajo, principalmente mediante la deducción del monto excedente de su salario o cualquier otro pago debido a él. El salario del empleado es el salario mínimo según el convenio colectivo en la industria de limpieza, que actualmente asciende a 32.3 nuevos shekels por hora.",
-        "is5-3": "El salario base de los trabajadores de limpieza se calculará con base en {{payment_per_hour}} NIS por hora, más los beneficios sociales.",
-        "is6": "El desglose de todos los pagos que se pagarán al empleado como salario son los siguientes:",
-        "is6Table": {
-            "paymentNotFixed": "Pagos no fijos",
-            "RegularPayments": "Pagos regulares",
-            "PaymentDate": "Fecha de pago",
-            "PaymentType": "Tipo de pago",
-            "tr1": {
-                "td1": "Salario",
-                "td2": "el 9 del mes",
-                "td3": "subsidio de comida",
-                "td4": "Según la costumbre del cliente para facturar el valor de las comidas"
-            },
-            "tr2": {
-                "td1": "viajar",
-                "td2": "El 9 del mes, excepto en casos en que el empleado utilice transporte, en cuyo caso no tiene derecho a reembolso de viaje.",
-                "td3": "Dejar para una fiesta familiar para trabajadores de limpieza",
-                "td4": "De acuerdo con el convenio colectivo en la industria de limpieza"
-            },
-            "tr3": {
-                "td1": "Recuperación (empleado por hora)",
-                "td2": "el 9 del mes",
-                "td3": "Vacaciones para trabajadores de limpieza",
-                "td4": "De acuerdo con la ley y el convenio colectivo en la industria de limpieza y según el procedimiento de licencia en el empleador."
-            },
-            "tr4": {
-                "td1": "Recuperación (empleado mensual)",
-                "td2": "una vez al año",
-                "td3": "Un día festivo para trabajadores de limpieza",
-                "td4": "En el mes en que caen las vacaciones de Tishrei y Sivan (alrededor de octubre y abril)"
-            },
-            "tr5": {
-                "td1": "Suplemento por antigüedad para trabajadores de limpieza",
-                "td2": "Después de un año de trabajo",
-                "td3": "Pago por enfermedad para trabajadores de limpieza",
-                "td4": "De acuerdo con la ley sobre pago por enfermedad y el convenio colectivo en la industria de limpieza"
-            },
-            "tr6": {
-                "td1": "Tarifas de vacaciones para trabajadores de limpieza",
-                "td2": "De acuerdo con el convenio colectivo en la industria de limpieza"
-            }
-        },
-        "is7": "Los derechos del empleado, incluidos los permisos, las vacaciones, la enfermedad, los días festivos, etc., se calculan y pagan según el alcance real del trabajo y las disposiciones legales pertinentes.",
-        "is8": "Reembolso de transporte según el convenio colectivo general, y según el costo más barato en transporte público: 13 NIS por día o un máximo de 236 NIS por mes completo de trabajo.",
-        "is9": "Por la presente autorizo la deducción de mi salario de la participación en comidas / valor de la comida como es costumbre en el sitio donde trabajo (marque según corresponda).",
-        "is10-1": "La duración de la jornada laboral regular para el empleado es: 8 horas diarias (6 días) / 8.4 horas diarias (5 días) / Además, se le pagará horas extras según la ley. El empleado es consciente de que durante un turno de más de 6 horas, tomará un descanso para comer no remunerado.",
-        "is10-2": "La duración de la semana laboral regular para el empleado es de 42 horas, y: 5 días / 6 días / según el arreglo de trabajo que se determine con antelación.",
-        "is11": "El día de descanso semanal del empleado: Para un empleado judío: sábado / Para un empleado no judío si así lo desea: domingo o viernes / Otro día",
-        "is12": "Como parte de su trabajo en la empresa, la empresa tendrá derecho a asignarle diferentes sitios a su discreción y según el gerente de servicio regional. El gerente de servicio y el gerente de operaciones estarán a su disposición en cualquier momento para cualquier pregunta/incertidumbre sobre cualquier tema.",
-        "is13-1": "Los pagos por condiciones sociales a los que tiene derecho el empleado se pagarán según las órdenes de extensión y los convenios colectivos aplicables a él.",
-        "is13-2": "Tipo de pago para pensiones / seguros y fondo de estudio. El organismo receptor y el nombre del plan: Según la elección del empleado y según la orden de extensión / convenio colectivo aplicable al empleado.",
-        "is13-3": "**Este acuerdo reemplaza y cancela cualquier acuerdo anterior firmado entre las partes. Se le solicita que notifique por escrito a su supervisor directo el nombre del fondo de pensión y / o estudio y / o fondo de pensiones al que desea unirse antes de que finalice el primer mes de empleo. Si no proporciona los detalles como se indica, lo inscribiremos en los fondos predeterminados. Soy consciente de que si termino mi empleo sin previo aviso a la empresa, la empresa ejercerá su derecho según la ley para deducir el pago por el aviso de cualquier monto debido a mí, incluido el pago de vacaciones y diversos pagos finales.",
-        "is14": "Si el empleador o una organización de empleadores de la que el empleador es miembro es parte de un convenio colectivo que regula las condiciones de trabajo del empleado, el nombre de la organización de empleadores que es parte de ese convenio colectivo es: Ninguno. Este aviso es un aviso del empleador sobre los términos principales del empleo: nada en este aviso resta ningún derecho otorgado al empleado por cualquier ley, orden de extensión, convenio colectivo o contrato de trabajo.",
-        "sign": "Firma del empleado:",
-        "Clear": "Borrar",
-        "signNote": "Atentamente, Broom Service Ltd.",
-        "BestRegards": "Atentamente",
-        "Broom": "Broom Service L.M. Ltd",
-        "Submit": "Enviar",
-        "Accept": "Aceptar",
-        "Date": "Fecha",
-        "singular_masculine": "(Lo que se afirma en singular y/o masculino en este documento también tiene un significado femenino)",
-        "errorMsg": {
-            "FullName": "Nombre del empleado",
-            "Role": "Rol",
-            "invalidNumber": "Número inválido",
-            "idRequired": "Número de identificación requerido",
-            "passportNumReq": "Se requiere pasaporte",
-            "Address": "Dirección",
-            "StartDateOfJob": "Fecha de inicio del trabajo",
-            "Date": "Fecha",
-            "Phone": "Teléfono",
-            "mobile": "Móvil",
-            "mobileRequired": "Número de móvil requerido",
-            "signRequired": "Firma requerida"
-        }
     },
     "formTxt": {
         "saftyAndGear": "Seguridad y Equipo",

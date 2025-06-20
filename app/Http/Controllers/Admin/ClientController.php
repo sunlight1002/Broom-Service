@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Enums\SettingKeyEnum;
 use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
@@ -17,6 +18,7 @@ use App\Models\Offer;
 use App\Models\ServiceSchedule;
 use App\Models\Services;
 use App\Models\Contract;
+use App\Models\Setting;
 use App\Models\Job;
 use App\Models\JobService;
 use Illuminate\Http\Request;
@@ -55,6 +57,7 @@ use App\Jobs\SaveGoogleCalendarCallJob;
 use App\Jobs\NotifyClientForCallAfterHoliday;
 use Twilio\Rest\Client as TwilioClient;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class ClientController extends Controller
 {
@@ -1343,5 +1346,100 @@ class ClientController extends Controller
                 'message' => 'No matching client meta records found.',
             ]);
         }
+    }
+
+    public function getClientIcountAddress($clientId)
+    {
+        $client = Client::find($clientId);
+
+        if(!$client || ($client && !$client['icount_client_id'])) {
+            return response()->json([
+                'message' => 'Icount Client Id Not Found.',
+            ],404);
+        };
+        // Retrieve iCount credentials from settings
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        // iCount API URL
+        $url = 'https://api.icount.co.il/api/v3.php/client/info';
+
+        // Request data, including client phone and email
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_id' => $client['icount_client_id'] ?? null,
+            // 'email' => $client['email'] ?? null,
+            'get_custom_info' => true,
+            'get_contacts' => true
+        ];
+
+        // Send POST request to iCount API
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code == 200 && $data['status'] == "true") {
+            $clientInfo = $data['client_info']; // Get client info from the response
+            return $clientInfo;
+        } else {
+            echo $client->email . PHP_EOL;
+        }
+    }
+
+    public function updateClientIcountAddress(Request $request, $clientId)
+    {
+        $data = $request->all();
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/client/update';
+
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_id' => $data['icount_client_id'] ?? 0,
+            'bus_street' => $data['street'] ?? null,
+            'bus_city' => $data['city'] ?? null,
+            'bus_zip' => $data['zipcode'] ?? null,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error: Failed to create or update user');
+        }
+
+        return response()->json([
+            'message' => 'Client address updated successfully.',
+        ]);
     }
 }

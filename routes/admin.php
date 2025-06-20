@@ -203,6 +203,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::post('import-clients', [ClientController::class, 'import']);
     Route::post('client-status-log', [ClientController::class, 'clienStatusLog']);
     Route::delete('/client-meta/{clientId}', [ClientController::class, 'deleteClientMetaIfExists']);
+    Route::get('/clients/{clientId}/icount-address', [ClientController::class, 'getClientIcountAddress']);
+    Route::put('/clients/{clientId}/icount-address', [ClientController::class, 'updateClientIcountAddress']);
 
     // Client Comments
     Route::get('clients/{id}/comments', [ClientController::class, 'getComments']);

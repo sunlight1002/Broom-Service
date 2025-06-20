@@ -58,6 +58,7 @@ class CloseActiveWorkerBot extends Command
             'spa' => "Sesión cerrada por inactividad. Si necesitas más ayuda, escribe 'menú' para reiniciar.",
         ];
         $activeWorkers = WhatsAppBotActiveWorkerState::where('menu_option', '!=', 'failed_attempts')->where('updated_at', '<', now()->subMinutes(15))->get();
+        \Log::info($activeWorkers);
         foreach ($activeWorkers as $worker) {
             try {
                 if ($worker->worker) {
@@ -85,9 +86,6 @@ class CloseActiveWorkerBot extends Command
                         );
 
                         StoreWebhookResponse($twi->body ?? "", $worker->worker->phone, $twi->toArray());
-                    } else if ($worker->type == "whapi") {
-                        $result = sendWhatsappMessage($worker->worker->phone, array('name' => '', 'message' => $nextMessage, 'list' => [], 'buttons' => []));
-                        StoreWebhookResponse($nextMessage, $worker->worker->phone, $result, true);
                     }
 
                     $worker->delete();
