@@ -1278,7 +1278,7 @@ class WorkerLeadWebhookController extends Controller
                 $last_menu = null;
                 $send_menu = null;
                 $sid = null;
-                $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->where('where', "meta")->first();
+                $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->where('type', "meta")->first();
 
                 if ($activeWorkerBot) {
                     $menu_option = explode('->', $activeWorkerBot->menu_option);
