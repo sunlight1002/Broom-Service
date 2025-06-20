@@ -128,6 +128,15 @@ class WorkerLeadsController extends Controller
 
         // Transform boolean values
         $workerLeads = $workerLeads->map(function ($lead) {
+            $statusDisplay = $lead->status;
+            if ($lead->status == "not-hired") {
+                if ($lead->reason) {
+                    $statusDisplay = $lead->sub_status . ' - ' . $lead->reason;
+                } else {
+                    $statusDisplay = $lead->sub_status ?: $lead->status;
+                }
+            }
+            
             return [
                 'id' => $lead->id,
                 'created_at' => $lead->created_at->format('d/m/Y'),
@@ -135,7 +144,7 @@ class WorkerLeadsController extends Controller
                 'email' => $lead->email,
                 'phone' => $lead->phone,
                 'source' => $lead->source,
-                'status' => $lead->sub_status && $lead->status == "not-hired" ? $lead->sub_status : $lead->status,
+                'status' => $statusDisplay,
                 'experience_in_house_cleaning' => $lead->experience_in_house_cleaning ? 'Yes' : 'No',
                 'you_have_valid_work_visa' => $lead->you_have_valid_work_visa ? 'Yes' : 'No',
             ];
@@ -364,6 +373,7 @@ class WorkerLeadsController extends Controller
         // Change the status
         $workerLead->status = $request->status;
         $workerLead->sub_status = $request->status == "not-hired" ? $request->sub_status : null;
+        $workerLead->reason = $request->status == "not-hired" ? $request->reason : null;
         if ($request->status === 'hiring') {
             $workerLead->email = $request->email;
             $workerLead->hourly_rate = $request->payment_per_hour;

@@ -28,6 +28,7 @@ export default function WorkerLead() {
     const [workerLeadId, setWorkerLeadId] = useState(null);
     const [status, setStatus] = useState("pending");
     const [notHiredStatus, setNotHiredStatus] = useState("construction visa");
+    const [reason, setReason] = useState("");
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
     const subFilterRef = useRef(subFilter);
@@ -103,6 +104,15 @@ export default function WorkerLead() {
     const toggleChangeStatusModal = (_id) => {
         setIsOpen(!isOpen);
         setWorkerLeadId(_id);
+        if (!isOpen) {
+            setReason("");
+            setFormValues({
+                email: "",
+                payment_per_hour: "",
+                company_type: "my-company",
+                manpower_company_id: "",
+            });
+        }
     };
 
     
@@ -117,18 +127,26 @@ export default function WorkerLead() {
     const handleChangeStatus = async () => {
         setLoading(true);
         try {
+            const requestData = {
+                status,
+            };
+
+            // Add fields based on status
+            if (status === "not-hired") {
+                requestData.sub_status = notHiredStatus;
+                requestData.reason = reason;
+            } else if (status === "hiring") {
+                requestData.email = formValues?.email || "";
+                requestData.payment_per_hour = formValues?.payment_per_hour || "";
+                requestData.company_type = formValues?.company_type || "my-company";
+                if (formValues?.company_type === "manpower") {
+                    requestData.manpower_company_id = formValues?.manpower_company_id || "";
+                }
+            }
+
             const response = await axios.post(
                 `/api/admin/worker-leads/${workerLeadId}/status`,
-                {
-                    status,
-                    sub_status: notHiredStatus,
-                    email: formValues.email,
-                    payment_per_hour: formValues?.payment_per_hour,
-                    company_type: formValues?.company_type,
-                    ...(formValues?.company_type === "manpower" && {
-                        manpower_company_id: formValues?.manpower_company_id,
-                    }),
-                },
+                requestData,
                 { headers }
             );
             setLoading(false);
@@ -140,6 +158,7 @@ export default function WorkerLead() {
 
         } catch (error) {
             console.error(error);
+            setLoading(false);
         }
     };
 
@@ -162,6 +181,9 @@ export default function WorkerLead() {
             .get(`/api/admin/worker-leads/${workerLeadId}/edit`, { headers })
             .then((response) => {
                 const worker = response.data;
+                setStatus(worker.status || "pending");
+                setNotHiredStatus(worker.sub_status || "construction visa");
+                setReason(worker.reason || "");
                 setFormValues({
                     ...formValues,
 
@@ -170,6 +192,9 @@ export default function WorkerLead() {
                     company_type: worker?.company_type || "my-company",
                     manpower_company_id: worker?.manpower_company_id,
                 });
+            })
+            .catch((error) => {
+                console.error("Error fetching worker:", error);
             });
     };
     useEffect(() => {
@@ -262,7 +287,7 @@ export default function WorkerLead() {
                         render: function (data, type, row) {
                             const _statusColor = leadStatusColor(data);
                             return `<p class="status-clickable" data-id="${row.id}" 
-                                       style="cursor: pointer; background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 100px; text-align: center;">
+                                       style="cursor: pointer; background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; text-align: center; word-wrap: break-word; max-width: 200px;">
                                     ${data}
                                 </p>`;
                         },
@@ -1037,30 +1062,49 @@ export default function WorkerLead() {
                             </div>
                         </div>
                         {status == "not-hired" && (
-                            <div className="col-sm-12">
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Sub Status
-                                    </label>
+                            <>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Sub Status
+                                        </label>
 
-                                    <select
-                                        name="status"
-                                        onChange={(e) =>
-                                            setNotHiredStatus(e.target.value)
-                                        }
-                                        value={notHiredStatus}
-                                        className="form-control mb-3"
-                                    >
-                                        {Object.keys(notHiredSubStatus).map(
-                                            (s) => (
-                                                <option key={s} value={s}>
-                                                    {notHiredSubStatus[s]}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
+                                        <select
+                                            name="status"
+                                            onChange={(e) =>
+                                                setNotHiredStatus(e.target.value)
+                                            }
+                                            value={notHiredStatus}
+                                            className="form-control mb-3"
+                                        >
+                                            {Object.keys(notHiredSubStatus).map(
+                                                (s) => (
+                                                    <option key={s} value={s}>
+                                                        {notHiredSubStatus[s]}
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Reason (Optional)
+                                        </label>
+                                        <textarea
+                                            name="reason"
+                                            onChange={(e) =>
+                                                setReason(e.target.value)
+                                            }
+                                            value={reason}
+                                            className="form-control mb-3"
+                                            placeholder="Enter additional reason details..."
+                                            rows="3"
+                                        />
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                         {status == "hiring" && (

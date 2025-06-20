@@ -102,6 +102,10 @@ export const leadStatusColor = (_status) => {
             _color = "red";
             break;
 
+        case "hiring":
+            _color = "green";
+            break;
+
         case "construction visa":
             _color = "#6f6e6e";
             break;
@@ -143,6 +147,7 @@ export const leadStatusColor = (_status) => {
             break;
 
         default:
+            _color = "#6c757d"; // Default gray color for unknown statuses
             break;
     }
 
