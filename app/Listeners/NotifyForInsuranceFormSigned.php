@@ -60,12 +60,18 @@ class NotifyForInsuranceFormSigned implements ShouldQueue
             $workerPassportDocName = str_replace(' ', '-', "Passport-{$workerName}");
             $workerVisaDocName = str_replace(' ', '-', "Visa-{$workerName}");
 
+            // Choose template based on worker's country
+            $template = ($worker->country == 'Israel') ? '/insuaranceCompanyIsrael' : '/insuaranceCompany';
+
             Mail::send(
-                '/insuaranceCompany',
+                $template,
                 ['worker' => $worker, 'dateOfBeginningWork' => $dateOfBeginningWork],
                 function ($message) use ($worker, $insuranceCompany, $file_name, $workerPassport, $workerPassportDocName, $workerVisa, $workerVisaDocName, $pdfPath) {
+                    // Choose subject based on worker's country
+                    $subjectKey = ($worker->country == 'Israel') ? 'mail.insuarance_company_israel.subject' : 'mail.insuarance_company.subject';
+                    
                     $message->to($insuranceCompany->email)
-                        ->subject(__('mail.insuarance_company.subject', [
+                        ->subject(__($subjectKey, [
                             'worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')
                         ]));
                     $message->bcc(config('services.mail.default'));
