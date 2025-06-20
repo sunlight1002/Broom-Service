@@ -10,6 +10,9 @@ use App\Models\UserSetting;
 use App\Enums\SettingKeyEnum;
 use App\Models\Client;
 use App\Models\User;
+use App\Models\WebhookResponse;
+use App\Models\WhatsAppBotActiveClientState;
+use App\Models\WhatsAppBotClientState;
 use App\Models\ScheduleChange;
 use App\Models\Setting;
 use App\Models\Notification;
@@ -20,16 +23,30 @@ use Aws\Api\Service;
 use Google\Service\CloudSearch\UserId;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
+use Twilio\Rest\Client as TwilioClient;
 
 
 class FetchGmailEmails extends Command
 {
     protected $signature = 'gmail:fetch';
     protected $description = 'Fetch emails from Gmail for all users with valid tokens';
+    protected $twilioAccountSid;
+    protected $twilioAuthToken;
+    protected $twilioWhatsappNumber;
+    protected $twilio;
 
     public function __construct()
     {
         parent::__construct();
+
+        $this->twilioAccountSid = config('services.twilio.twilio_id');
+        $this->twilioAuthToken = config('services.twilio.twilio_token');
+        $this->twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+
+        // Initialize the Twilio client
+        $this->twilio = new TwilioClient($this->twilioAccountSid, $this->twilioAuthToken);
     }
 
     protected $urgent_contact = [
@@ -107,9 +124,9 @@ class FetchGmailEmails extends Command
             try {
                 $fiveMinutesAgo = now()->subMinutes(5)->timestamp;
                 $query = "after:{$fiveMinutesAgo}";
-                
+
                 $messages = $service->users_messages->listUsersMessages($user, ['q' => $query]);
-                
+
                 if (count($messages->getMessages()) == 0) {
                     $this->info("No emails found for user ID: {$userId}.");
                 } else {
@@ -127,14 +144,14 @@ class FetchGmailEmails extends Command
                                 $fromEmail = $header->getValue();
                                 preg_match('/<([^>]+)>/', $fromEmail, $matches);
                                 $email = $matches[1] ?? null;
-                        
+
                                 if ($email == "TELESERVICE@beepertalk.co.il") {
                                     $matched = true;
                                     break;
                                 }
                             }
                         }
-                        
+
                         if ($matched) {
                             $hasAttachment = false;
                             $parts = $payload->getParts();
@@ -159,7 +176,7 @@ class FetchGmailEmails extends Command
                                 }
                             }
 
-                                $body = '';
+                            $body = '';
                             if ($payload->getBody()->getSize() > 0) {
                                 $rawBody = base64_decode(str_replace(['-', '_'], ['+', '/'], $payload->getBody()->getData()));
                                 $body = strip_tags($rawBody); // Strip HTML if any
@@ -204,14 +221,14 @@ class FetchGmailEmails extends Command
                                 $user = User::where('phone', $phoneNumber)->first();
                             }
 
-                            if($client && $user){
+                            if ($client && $user) {
                                 $this->warn("client and user found for phone number: {$phoneNumber}");
                                 return;
                             }
 
                             if (!$client) {
                                 $this->warn("No client found for phone number: {$phoneNumber}");
-                            
+
                                 $client = Client::create([
                                     'email'          => null,
                                     'payment_method' => 'cc',
@@ -239,10 +256,60 @@ class FetchGmailEmails extends Command
                                     'status' => 'created'
                                 ]);
 
+                                // Trigger WhatsApp notification
+                                event(new WhatsappNotificationEvent([
+                                    "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                                    "notificationData" => [
+                                        'client' => $client->toArray(),
+                                        // 'type' => "website"
+                                    ]
+                                ]));
+
+                                $sid = $client->lng == "heb" ? "HX3d7a626548e2c058c1fd609219588318" : "HX224fe723aaf81c50ee85b90a2ffbf859";
+
+                                $message = $this->twilio->messages->create(
+                                    "whatsapp:+$client->phone",
+                                    [
+                                        "from" => $this->twilioWhatsappNumber,
+                                        "contentSid" => $sid,
+
+                                    ]
+                                );
+                                \Log::info($message->sid);
+
+                                WebhookResponse::create([
+                                    'status'        => 1,
+                                    'name'          => 'whatsapp',
+                                    'message'       =>  $message->body ?? '',
+                                    'from'          => str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
+                                    'number'        =>  $client->phone,
+                                    'read'          => 1,
+                                    'flex'          => 'A',
+                                    'data'          => json_encode($message->toArray() ?? [])
+                                ]);
+
+                                WhatsAppBotClientState::updateOrCreate([
+                                    'client_id' => $client->id,
+                                ], [
+                                    'menu_option' => 'new_main_menu',
+                                    'language' => $client->lng == 'heb' ? 'he' : 'en',
+                                ]);
+
+                                WhatsAppBotActiveClientState::updateOrCreate(
+                                    [
+                                        "from" => $client->phone,
+                                    ],
+                                    [
+                                        'menu_option' => 'new_main_menu',
+                                        'lng' => $client->lng,
+                                        "from" => $client->phone,
+                                    ]
+                                );
+
                             } else {
                                 $this->info("Matched Client: {$client->firstname}, Phone: {$client->phone}");
                             }
-                            
+
                             // Create the schedule change
                             $scheduleChange = ScheduleChange::create([
                                 'user_type'      => Client::class,
@@ -252,21 +319,21 @@ class FetchGmailEmails extends Command
                                 'status'         => 'pending',
                                 'team_response'  => null,
                             ]);
-                            
+
                             // Prepare message replacements
                             $scheduleLink  = generateShortUrl(url('admin/schedule-requests?id=' . $scheduleChange->id), 'admin');
                             $clientLink    = generateShortUrl(url("admin/clients/view/" . $client->id), 'admin');
                             $cleanedText = preg_replace("/(\r?\n){2,}/", "\n", $body);
                             $trimmedBody   = '*' . trim($cleanedText) . '*';
 
-                            
+
                             // Replace placeholders in the message
                             $personalizedMessage = str_replace(
                                 [':message', ':client_phone', ':comment_link', ':client_link'],
                                 [$trimmedBody, $client->phone, $scheduleLink, $clientLink],
                                 $this->urgent_contact["heb"]
                             );
-                            
+
                             // Send the message to the team
                             sendTeamWhatsappMessage(
                                 config('services.whatsapp_groups.urgent'),

@@ -4925,7 +4925,7 @@ Broom Service Team 🌹",
             'status'        => 1,
             'name'          => 'whatsapp',
             'message'       =>  $message->body ?? '',
-            'from'          => config("services.whapi.whapi_number"),
+            'from'          =>  str_replace("whatsapp:+", "", $this->twilioWhatsappNumber),
             'number'        =>  $from,
             'read'          => 1,
             'flex'          => 'A',
@@ -4947,7 +4947,6 @@ Broom Service Team 🌹",
 
         WhatsAppBotClientState::updateOrCreate([
             'client_id' => $lead->id,
-            'type' => $source == "meta-lead-bot" ? "meta" : "whapi",
         ], [
             'menu_option' => 'new_main_menu',
             'language' => $lng == 'heb' ? 'he' : 'en',
@@ -4956,7 +4955,6 @@ Broom Service Team 🌹",
         WhatsAppBotActiveClientState::updateOrCreate(
             [
                 "from" => $from,
-                'type' => $source == "meta-lead-bot" ? "meta" : "whapi",
             ],
             [
                 'menu_option' => 'new_main_menu',
