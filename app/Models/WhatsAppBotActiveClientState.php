@@ -19,5 +19,6 @@ class WhatsAppBotActiveClientState extends Model
         'from',
         'client_phone',
         'final',
+        'type',
     ];
 }

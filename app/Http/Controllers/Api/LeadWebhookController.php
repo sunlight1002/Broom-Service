@@ -714,7 +714,6 @@ Broom Service Team 🌹",
             $listId = isset($data['messages'][0]['reply']['list_reply']['id']) ? str_replace("ListV3:", "", $data['messages'][0]['reply']['list_reply']['id']) : "";
             $ButtonPayload = isset($data['messages'][0]['reply']['buttons_reply']['id']) ? str_replace("ButtonsV3:", "", $data['messages'][0]['reply']['buttons_reply']['id']) : "";
             $input = $data['messages'][0]['text']['body'] ?? "";
-            \Log::info($input . "       llalalalalaalala");
             $lng = $this->detectLanguage($input);
 
             WebhookResponse::create([
@@ -748,7 +747,7 @@ Broom Service Team 🌹",
             if (!$client && !$user && !$workerLead) {
                 $this->sendNewLeadMainMenu($lng, $from, 'whapi-lead-bot');
             } else if ($client && $client->lead_status && in_array($client->lead_status->lead_status, ['active client', 'freeze client', 'pending client'])) {
-                \Log::info('client already exist from whapi');
+                \Log::info('client already exist from whapi  sss1');
                 $this->WhapifbActiveClientsWebhookCurrentLive($request);
             } else if ($user && (!$client || $client->lead_status->lead_status !== "active client")) {
                 \Log::info('User: ' . $user->id);
@@ -849,9 +848,10 @@ Broom Service Team 🌹",
                 \Log::info('Client: ' . $client->id);
             }
             if ($user && (!$client || $client->lead_status->lead_status !== "active client")) {
-                \Log::info('User: ' . $user->id);
                 $controller = app(WorkerLeadWebhookController::class);
                 return $controller->fbActiveWorkersWebhookCurrentLive($request);
+            } else {
+                \Log::info('User hhhhhhhhhhhhhhhhh: ');
             }
 
             if ($workerLead) {
@@ -2818,9 +2818,9 @@ Broom Service Team 🌹",
             }
 
             $lng = $client->lng ?? $this->detectLanguage($input);
-            if ($user || $workerLead) {
-                die('Worker or worker lead found');
-            }
+            // if ($user || $workerLead) {
+            //     die('Worker or worker lead found');
+            // }
 
             if ($client && $client->disable_notification == 1) {
                 \Log::info('Client disabled notification');
@@ -2838,7 +2838,9 @@ Broom Service Team 🌹",
                 //     die('Monday msg reply is pending.');
                 // }
             }
-            $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
+            $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)
+                ->where('type', 'whapi')
+                ->first();
 
             $last_menu = null;
             $send_menu = null;
@@ -3372,7 +3374,10 @@ Broom Service Team 🌹",
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "whapi"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'team_send_message_1'
@@ -3414,7 +3419,10 @@ Broom Service Team 🌹",
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "whapi"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'stop'
@@ -3430,7 +3438,10 @@ Broom Service Team 🌹",
                     StoreWebhookResponse($nextMessage, $from, $result, true);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "whapi"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'schedule_preferrence'
@@ -3467,7 +3478,10 @@ Broom Service Team 🌹",
                     StoreWebhookResponse($confirmationMessage, $from, $result, true);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "whapi"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'main_menu'
@@ -3557,9 +3571,9 @@ Broom Service Team 🌹",
             }
 
             $lng = $client->lng ?? $this->detectLanguage($input);
-            if ($user || $workerLead) {
-                die('Worker or worker lead found');
-            }
+            // if ($user || $workerLead) {
+            //     die('Worker or worker lead found');
+            // }
 
             if ($client && $client->disable_notification == 1) {
                 \Log::info('Client disabled notification');
@@ -3576,7 +3590,7 @@ Broom Service Team 🌹",
                     die('Monday msg reply is pending.');
                 }
             }
-            $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
+            $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->where('type', "meta")->first();
 
             $last_menu = null;
             $send_menu = null;
@@ -4393,7 +4407,10 @@ Broom Service Team 🌹",
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "meta"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'team_send_message_1'
@@ -4486,7 +4503,10 @@ Broom Service Team 🌹",
                     // sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "meta"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'stop'
@@ -4538,7 +4558,10 @@ Broom Service Team 🌹",
                     ]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "meta"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'schedule_preferrence'
@@ -4593,7 +4616,10 @@ Broom Service Team 🌹",
                     ]);
 
                     WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            "type" => "meta"
+                        ],
                         [
                             "from" => $from,
                             'menu_option' => 'main_menu'
@@ -4754,11 +4780,14 @@ Broom Service Team 🌹",
         }
 
         WhatsAppBotActiveClientState::updateOrCreate(
-            ['from' => $from],
+            [
+                'from' => $from,
+                'type' => 'meta'
+            ],
             [
                 'client_id' => $client->id,
                 'menu_option' => 'main_menu',
-                'lng' => $lng
+                'lng' => $lng,
             ]
         );
 
@@ -4766,10 +4795,12 @@ Broom Service Team 🌹",
 
         WhatsAppBotClientState::updateOrCreate([
             'client_id' => $client->id,
+            'type' => 'meta'
         ], [
             'menu_option' => 'main_menu',
             'language' => $lng,
             'final' => 1,
+            "type" => "meta"
         ]);
 
         WebhookResponse::create([
@@ -4849,11 +4880,15 @@ Broom Service Team 🌹",
         StoreWebhookResponse($personalizedMessage, $from, $result);
 
         WhatsAppBotActiveClientState::updateOrCreate(
-            ['from' => $from],
+            [
+                'from' => $from,
+                'type' => 'whapi',
+            ],
             [
                 'client_id' => $client->id,
                 'menu_option' => 'main_menu',
-                'lng' => $lng
+                'lng' => $lng,
+                'type' => 'whapi',
             ]
         );
 
@@ -4861,10 +4896,12 @@ Broom Service Team 🌹",
 
         WhatsAppBotClientState::updateOrCreate([
             'client_id' => $client->id,
+            'type' => 'whapi',
         ], [
             'menu_option' => 'main_menu',
             'language' => $lng,
             'final' => 1,
+            'type' => 'whapi',
         ]);
 
         return response()->json(['status' => 'success'], 200);
@@ -4910,13 +4947,17 @@ Broom Service Team 🌹",
 
         WhatsAppBotClientState::updateOrCreate([
             'client_id' => $lead->id,
+            'type' => $source == "meta-lead-bot" ? "meta" : "whapi",
         ], [
             'menu_option' => 'new_main_menu',
             'language' => $lng == 'heb' ? 'he' : 'en',
         ]);
 
         WhatsAppBotActiveClientState::updateOrCreate(
-            ["from" => $from],
+            [
+                "from" => $from,
+                'type' => $source == "meta-lead-bot" ? "meta" : "whapi",
+            ],
             [
                 'menu_option' => 'new_main_menu',
                 'lng' => $lng,

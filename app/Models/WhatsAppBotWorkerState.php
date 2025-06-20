@@ -16,5 +16,6 @@ class WhatsAppBotWorkerState extends Model
         'first_reminder',
         'second_reminder',
         'final_reminder',
+        'type',
     ];
 }

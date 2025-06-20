@@ -16,6 +16,8 @@ class WhatsAppBotActiveWorkerState extends Model
         'lng',
         'comment',
         'final',
+        'type',
+
     ];
 
 
