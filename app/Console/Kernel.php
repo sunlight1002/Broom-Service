@@ -66,6 +66,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('notify:team-reschedule-call-today')->onOneServer()->dailyAt('08:00');
         $schedule->command('making:task')->onOneServer()->dailyAt('08:00');
+        $schedule->command('notify:jewish-holidays-management')->onOneServer()->dailyAt('08:00');
 
         // $schedule->command('send:worker-lead-reminders')->onOneServer()->hourly();
 
