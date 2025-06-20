@@ -58,33 +58,37 @@ class CloseActiveWorkerBot extends Command
             'spa' => "Sesión cerrada por inactividad. Si necesitas más ayuda, escribe 'menú' para reiniciar.",
         ];
         $activeWorkers = WhatsAppBotActiveWorkerState::where('menu_option', '!=', 'failed_attempts')->where('updated_at', '<', now()->subMinutes(15))->get();
-        foreach ($activeWorkers as $worker)
-        {
+        foreach ($activeWorkers as $worker) {
             try {
-                if($worker->worker) {
+                if ($worker->worker) {
                     $lng = $worker->worker->lng ?? 'en';
                     $nextMessage = $message[$lng];
-                    
-                    if($lng == 'heb') {
-                        $sid = "HXb1b8dd0a46830a700b0e161579b9534a";
-                    }else if($lng == 'en') {
-                        $sid = "HX79bd5eb7e20421315b8f123b69c5fa6d";
-                    }else if($lng == 'ru') {
-                        $sid = "HX4dc7606ca6d5a9e43a65abeda077e618";
-                    }else if($lng == 'spa') {
-                        $sid = "HX01b0ebc538a841694df65a37f845dcbe";
+
+                    if ($worker->type == "meta") {
+                        if ($lng == 'heb') {
+                            $sid = "HXb1b8dd0a46830a700b0e161579b9534a";
+                        } else if ($lng == 'en') {
+                            $sid = "HX79bd5eb7e20421315b8f123b69c5fa6d";
+                        } else if ($lng == 'ru') {
+                            $sid = "HX4dc7606ca6d5a9e43a65abeda077e618";
+                        } else if ($lng == 'spa') {
+                            $sid = "HX01b0ebc538a841694df65a37f845dcbe";
+                        }
+
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+" . $worker->worker->phone,
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
+                                // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
+                            ]
+                        );
+
+                        StoreWebhookResponse($twi->body ?? "", $worker->worker->phone, $twi->toArray());
+                    } else if ($worker->type == "whapi") {
+                        $result = sendWhatsappMessage($worker->worker->phone, array('name' => '', 'message' => $nextMessage, 'list' => [], 'buttons' => []));
+                        StoreWebhookResponse($nextMessage, $worker->worker->phone, $result, true);
                     }
-
-                    $twi = $this->twilio->messages->create(
-                        "whatsapp:+" . $worker->worker->phone,
-                        [
-                            "from" => $this->twilioWhatsappNumber, 
-                            "contentSid" => $sid,
-                            // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
-                        ]
-                    );
-
-                    StoreWebhookResponse($twi->body ?? "", $worker->worker->phone, $twi->toArray());
 
                     $worker->delete();
                 }

@@ -57,24 +57,28 @@ class CloseActiveClientBot extends Command
             'en' => "We didn’t receive a response from you. This chat will close automatically.\nIf you need anything, please don’t hesitate to reach out again.",
         ];
         $activeClients = WhatsAppBotActiveClientState::where('menu_option', '!=', 'failed_attempts')->where('updated_at', '<', now()->subMinutes(10))->get();
-        foreach ($activeClients as $client)
-        {
+        foreach ($activeClients as $client) {
             try {
-                if($client->from) {
+                if ($client->from) {
                     $lng = ($client->lng == 'heb' ? 'heb' : 'en');
                     $nextMessage = $message[$lng];
 
-                    $sid = $lng == "heb" ? "HX2644430417b4d902fc511736b03ca652" : "HX60098186d1018c92154ac59afb8f92b4";
-                    $twi = $this->twilio->messages->create(
-                        "whatsapp:+$client->from",
-                        [
-                            "from" => $this->twilioWhatsappNumber,
-                            "contentSid" => $sid,
-                            // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
-                        ]
-                    );
+                    if ($client->type == "meta") {
+                        $sid = $lng == "heb" ? "HX2644430417b4d902fc511736b03ca652" : "HX60098186d1018c92154ac59afb8f92b4";
+                        $twi = $this->twilio->messages->create(
+                            "whatsapp:+$client->from",
+                            [
+                                "from" => $this->twilioWhatsappNumber,
+                                "contentSid" => $sid,
+                                // "statusCallback" => config("services.twilio.webhook") . "twilio/status-callback",
+                            ]
+                        );
 
-                    StoreWebhookResponse($twi->body ?? "", $client->from, $twi->toArray());
+                        StoreWebhookResponse($twi->body ?? "", $client->from, $twi->toArray());
+                    } else if($client->type == "whapi") {
+                        $result = sendWhatsappMessage($client->from, array('name' => '', 'message' => $nextMessage, 'list' => [], 'buttons' => []));
+                        StoreWebhookResponse($nextMessage, $client->from, $result, true);
+                    }
 
                     // sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
                     $client->delete();
