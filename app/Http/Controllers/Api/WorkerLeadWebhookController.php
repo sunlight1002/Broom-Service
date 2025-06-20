@@ -723,7 +723,7 @@ class WorkerLeadWebhookController extends Controller
                 $last_menu = null;
                 $send_menu = null;
                 $sid = null;
-                $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->first();
+                $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->where('type', 'whapi')->first();
 
                 if ($activeWorkerBot) {
                     $menu_option = explode('->', $activeWorkerBot->menu_option);
@@ -768,7 +768,10 @@ class WorkerLeadWebhookController extends Controller
                     case 'main_menu':
                         $initialMessage = $this->activeWorkersbotMessages['main_menu'][$lng];
                         WhatsAppBotActiveWorkerState::updateOrCreate(
-                            ["worker_id" => $user->id],
+                            [
+                                "worker_id" => $user->id,
+                                "type" => "whapi",
+                            ],
                             [
                                 'menu_option' => 'main_menu',
                                 'lng' => $lng,
@@ -1275,7 +1278,7 @@ class WorkerLeadWebhookController extends Controller
                 $last_menu = null;
                 $send_menu = null;
                 $sid = null;
-                $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->first();
+                $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->where('where', "meta")->first();
 
                 if ($activeWorkerBot) {
                     $menu_option = explode('->', $activeWorkerBot->menu_option);
@@ -1319,7 +1322,10 @@ class WorkerLeadWebhookController extends Controller
                     case 'main_menu':
                         $initialMessage = $this->activeWorkersbotMessages['main_menu'][$lng];
                         WhatsAppBotActiveWorkerState::updateOrCreate(
-                            ["worker_id" => $user->id],
+                            [
+                                "worker_id" => $user->id,
+                                "type" => "meta",
+                            ],
                             [
                                 'menu_option' => 'main_menu',
                                 'lng' => $lng,
