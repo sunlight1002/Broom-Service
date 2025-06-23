@@ -67,50 +67,79 @@ class WorkerNotifyNextDayJobReminder extends Command
             ->get();
 
 
-        // Group jobs by worker_id and get the first job per worker
-        $uniqueJobs = $jobs->groupBy('worker_id')->map->first();
+        $jobsGroupedByWorker = $jobs->groupBy('worker_id');
 
-        foreach ($uniqueJobs as $job) {
-            $worker = $job->worker;
-            $client = $job->client;
-            if ($worker) {
-                App::setLocale($worker['lng'] ?? 'en');
-                $notificationData = array(
-                    'job'  => $job->toArray(),
-                    'worker'  => $worker->toArray(),
-                    'client'  => $client->toArray(),
-                );
-                if (isset($notificationData['job']['worker']) && !empty($notificationData['job']['worker']['phone'])) {
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM,
-                        "notificationData" => $notificationData
-                    ]));
+        foreach ($jobsGroupedByWorker as $workerId => $workerJobs) {
+            $worker = $workerJobs->first()->worker;
+            $client = $workerJobs->first()->client;
+            $clientPhone = $client->phone ?? 'N/A';
+            $workerPhone = $worker->phone ?? 'N/A';
+            
+            App::setLocale($worker->lng ?? 'en');
+            $jobDetails = '';
+
+            $addressList = [];
+            foreach ($workerJobs as $index => $job) {
+                $addressParts = [];
+
+                $propertyAddress = $job->propertyAddress;
+                if (!$propertyAddress) continue;
+
+                if (!empty($propertyAddress->geo_address)) {
+                    $addressParts[] = $propertyAddress->geo_address;
+                }
+                if (!empty($propertyAddress->apt_no)) {
+                    $addressParts[] = 'דירה ' . $propertyAddress->apt_no;
+                }
+                if (!empty($propertyAddress->floor)) {
+                    $addressParts[] = 'קומה ' . $propertyAddress->floor;
+                }
+                if (!empty($propertyAddress->city)) {
+                    $addressParts[] = $propertyAddress->city;
+                }
+                if (!empty($propertyAddress->zipcode)) {
+                    $addressParts[] = $propertyAddress->zipcode;
                 }
 
-                Notification::create([
-                    'user_id' => $worker->id,
-                    'user_type' => get_class($worker),
-                    'type' => NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
-                    'status' => 'not-approved',
-                    'job_id' => $job->id
+                $formattedAddress = implode(', ', array_reverse($addressParts)); // for RTL
+                $addressList[] = '• ' . $formattedAddress;
+
+                // Save meta for each job to avoid notifying again
+                WorkerMetas::create([
+                    'worker_id' => $workerId,
+                    'job_id' => $job->id,
+                    'key' => 'next_day_job_reminder_at_5_pm',
+                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
+
+                $teamBtns = generateShortUrl(url("team-btn/" . base64_encode($job->uuid)), 'admin');
+
+                $jobDetails .="----\n🅰 אשר בשם העובד שראה כתובת\n" .
+                    "🅱 שינויים בסידור\n" .
+                    "{$teamBtns}\n" .
+                    "🆑 טלפון של העובד: {$workerPhone} | טלפון של הלקוח: {$clientPhone}\n" .
+                    "\n\n";
+
+                $job->update(['is_worker_reminded' => true]);
+            }
+
+            if (!empty($worker->phone) && count($addressList)) {
+                $notificationData = [
+                    'worker' => $worker->toArray(),
+                    'client' => $client->toArray(),
+                    'job_full_addresses' => implode("\n", $addressList),
+                    'job_details' => $jobDetails
+                ];
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM,
+                    "notificationData" => $notificationData
+                ]));
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM,
                     "notificationData" => $notificationData
                 ]));
-
-
-                WorkerMetas::create([
-                    'worker_id' => $worker->id,
-                    'job_id' => $job->id,
-                    'key' => 'next_day_job_reminder_at_6_pm',
-                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
-                ]);
-
-                $job->update([
-                    'is_worker_reminded' => true
-                ]);
             }
         }
 

@@ -445,7 +445,7 @@ class DashboardController extends Controller
                     \Log::info("Address updated");
                     $data = [
                         'id' => $firstAddress->client_id,
-                        'email' => Client::find($firstAddress->client_id)->email ?? null,
+                        'client_id' => Client::find($firstAddress->client_id)->icount_client_id ?? null,
                         'bus_street' => $firstAddress->geo_address,
                         'bus_city' => $firstAddress->city ?? null,
                         'bus_zip' => $firstAddress->zipcode ?? null,
@@ -494,8 +494,7 @@ class DashboardController extends Controller
             'cid' => $iCountCompanyID,
             'user' => $iCountUsername,
             'pass' => $iCountPassword,
-            'client_id' => $data['id'] ?? 0,
-            'email' => $data['email'] ?? null,
+            'client_id' => $data['client_id'] ?? 0,
             'bus_street' => $data['bus_street'] ?? null,
             'bus_city' => $data['bus_city'] ?? null,
             'bus_zip' => $data['bus_zip'] ?? null,

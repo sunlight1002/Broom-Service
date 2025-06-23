@@ -125,9 +125,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::post('jobs/reorder', [JobController::class, 'reorder']);
 
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
-    Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
-    Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
-    Route::post('jobs/start-time', [JobController::class, 'JobStartTime']);
+    // Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
+    // Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
+    // Route::post('jobs/start-time', [JobController::class, 'JobStartTime']);
 
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
     Route::post('add-job-time', [JobController::class, 'addJobTime']);
@@ -356,7 +356,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
     Route::post('seen', [DashboardController::class, 'seen'])->name('seen');
     Route::post('clear-notices', [DashboardController::class, 'clearNotices'])->name('clear-notices');
     Route::get('search', [DashboardController::class, 'generalSearch']);
-    
+
     // View Password
     Route::post('viewpass', [DashboardController::class, 'viewPass']);
 
@@ -535,8 +535,10 @@ Route::post('/hearing', [WorkerHearingController::class, 'getHearingDetails']);
 Route::post('/accept-hearing', [WorkerHearingController::class, 'acceptHearing']);
 Route::post('/reject-hearing', [WorkerHearingController::class, 'rejectHearing']);
 Route::post('/hearing/{id}/reschedule', [WorkerHearingController::class, 'rescheduleHearing']);
-Route::get('jobs/{uuid}', [JobController::class, 'getJobByUuid']);
-
+Route::get('get-jobs/{uuid}', [JobController::class, 'getJobByUuid']);
+Route::post('worker/{wid}/jobs/{uuid}/approve', [JobController::class, 'approveWorkerJob']);
+Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
+Route::post('jobs/start-time', [JobController::class, 'JobStartTime']);
 // Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 
 Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);

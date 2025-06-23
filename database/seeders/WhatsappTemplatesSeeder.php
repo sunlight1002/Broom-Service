@@ -21,61 +21,28 @@ class WhatsappTemplatesSeeder extends Seeder
                 'description' => '5 PM Daily Reminder to Worker to Confirm Address',
                 'message_en' => 'Hello, *:worker_name*,
 
-Please confirm that you have seen the address for tomorrow’s job:
-
-Client Name: *:translated_client_name*
-Address: *:job_full_address*
-Google Map Address: :google_address
-Job Hours: :job_hours
-Date/Time: :job_start_date_time
-
-- Accept Address :job_accept_url
-- Contact Manager :job_contact_manager_link if you have any questions.
+Here are your job addresses for tomorrow:
+:job_full_addresses
 
 Best Regards,
 Broom Service Team',
                 'message_heb' => 'שלום, *:worker_name*,
 
-אנא אשר שראית את הכתובת לעבודה מחר:
-
-שם הלקוח: *:translated_client_name*
-כתובת: *:job_full_address*
-כתובת מפת גוגל: :google_address
-שעות עבודה: :job_hours
-תאריך/שעה: :job_start_date_time
-
-- [אשר כתובת] :job_accept_url
-- צור קשר עם המנהל :job_contact_manager_link ב`מידה ויש לך שאלות או בעיות.
+אלה הכתובות שלך למחר:
+:job_full_addresses
 
 בברכה,
 צוות ברום סרוויס  ',
                 'message_spa' => 'Hola, *:worker_name*,
 
-Por favor confirma que has visto la dirección para el trabajo de mañana:
-
-Nombre del cliente: *:translated_client_name*
-Dirección: *:job_full_address*
-Dirección de Google Maps: :google_address
-Horas de trabajo: :job_hours
-Fecha/Hora: :job_start_date_time
-
-- Aceptar Dirección* :job_accept_url
-- Contactar al Gerente :job_contact_manager_link si tienes alguna pregunta.
+Вот ваши адреса на завтра:
 
 Saludos cordiales,
 Equipo de Broom Service',
                 'message_ru' => 'Здравствуйте, *:worker_name*,
 
-Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
-
-Имя клиента: *:translated_client_name*
-Адрес: *:job_full_address*
-Адрес на карте Google: :google_address
-Часы работы: :job_hours
-Дата/время: :job_start_date_time
-
-- Подтвердить адрес :job_accept_url
-- Связаться с менеджером :job_contact_manager_link если у вас есть вопросы.
+Вот ваши адреса на завтра:
+:job_full_addresses
 
 С уважением,
 Команда Broom Service',
@@ -92,68 +59,11 @@ Equipo de Broom Service',
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM,
                 'description' => '6 PM Daily Reminder to Worker to Confirm Address',
-                'message_en' => 'Hello, *:worker_name*,
 
-This is a reminder to confirm the address for tomorrow’s job as soon as possible:
-
-Client Name: *:translated_client_name*
-Address: *:job_full_address*
-Google Map Address: :google_address
-Job Hours: :job_hours
-Date/Time: :job_start_date_time
-
-- Accept Address :job_accept_url
-- Contact Manager :job_contact_manager_link if you have any questions.
-
-Best Regards,
-Broom Service Team
-',
-                'message_heb' => 'שלום, *:worker_name*,
-
-תזכורת לאשר בהקדם האפשרי את הכתובת לעבודה מחר:
-
-שם הלקוח: *:translated_client_name*
-כתובת: *:job_full_address*
-כתובת מפת גוגל: :google_address
-שעות עבודה: :job_hours
-תאריך/שעה: :job_start_date_time
-
-- [אשר כתובת] :job_accept_url
-- צור קשר עם המנהל :job_contact_manager_link במידה ויש לך שאלות או בעיות.
-
-בברכה,
-צוות ברום סרוויס  ',
-                'message_spa' => 'Hola, *:worker_name*,
-
-Este es un recordatorio para confirmar la dirección para el trabajo de mañana lo antes posible:
-
-Nombre del cliente: *:translated_client_name*
-Dirección: *:job_full_address*
-Dirección de Google Maps: :google_address
-Horas de trabajo: :job_hours
-Fecha/Hora: :job_start_date_time
-
-- Aceptar Dirección :job_accept_url
-- Contactar al Gerente :job_contact_manager_link si tienes alguna pregunta.
-
-Saludos cordiales,
-Equipo de Broom Service
-',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
-
-Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
-
-Имя клиента: *:translated_client_name*
-Адрес: *:job_full_address*
-Адрес на карте Google: :google_address
-Часы работы: :job_hours
-Дата/время: :job_start_date_time
-
-- Подтвердить адрес :job_accept_url
-- Связаться с менеджером :job_contact_manager_link если у вас есть вопросы.
-
-С уважением,
-Команда Broom Service',
+                'message_en' => 'Please confirm your addresses for tomorrow or contact a manager.',
+                'message_heb' => 'אנא אשר את הכתובות שלך למחר או צור קשר עם מנהל.',
+                'message_spa' => 'Por favor confirme sus direcciones para mañana o contacte a un gerente.',
+                'message_ru' => 'Пожалуйста, подтвердите свои адреса на завтра или свяжитесь с менеджером.',
 
                 'suggestions' => [
                     ':worker_name' => 'Worker Name',
@@ -168,21 +78,9 @@ Equipo de Broom Service
                 'key' => WhatsappMessageTemplateEnum::TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM,
                 'description' => '6 PM Notification to Team if Worker Has Not Confirmed Address',
                 'message_en' => '',
-                'message_heb' => 'שלום צוות,
-
-העובד, *:worker_name*, עדיין לא אישר את הכתובת לעבודה מחר.
-
-*שם הלקוח:* :client_name
-*טלפון לקוח:* :client_phone_number
-*טלפון עובד:* :worker_phone_number
-*כתובת:* :job_full_address
-*תאריך/שעה:* :job_start_date_time
-
-- *אשר כתובת עבור העובד* :team_action_btns_link
-- *נקוט פעולה* :team_job_action_link (החלפת עובד, שינוי משמרת או ביטול עבודה במידת הצורך).
-
-בברכה,
-צוות ברום סרוויס',
+                'message_heb' => ':worker_name עדיין לא אישר את הכתובות למחר.
+                
+:job_details',
                 'message_spa' => '',
                 'message_ru' => '',
 

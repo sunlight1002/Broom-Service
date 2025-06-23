@@ -42,7 +42,7 @@ export default function TeamButtons() {
 
     const getJob = () => {
         axios
-            .get(`/api/admin/jobs/${Base64.decode(params.id)}`)
+            .get(`/api/admin/get-jobs/${Base64.decode(params.id)}`)
             .then((res) => {
                 const r = res.data.job;
                 console.log(res);
@@ -66,7 +66,7 @@ export default function TeamButtons() {
 
     const handleOpeningTime = () => {
         let data = {
-            job_id: Base64.decode(params.id),
+            uuid: Base64.decode(params.id),
             worker_id: workerID
         };
 
@@ -92,7 +92,7 @@ export default function TeamButtons() {
 
     const startJob = async () => {
         let data = {
-            job_id: Base64.decode(params.id),
+            uuid: Base64.decode(params.id),
             worker_id: workerID
         };
         try {

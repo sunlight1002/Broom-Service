@@ -132,6 +132,24 @@ class WorkerLeadWebhookController extends Controller
             "en" => ":worker_name failed to complete their request. Please reach out to them.",
             "heb" => ":worker_name לא השלים את בקשתו. נא ליצור קשר עמו.",
             "ru" => ":worker_name не смог обработать свою заявку. Пожалуйста, свяжитесь с ним.",
+        ],
+        "seen_schedule" => [
+            "en" => "Thank you! We received the confirmation.",
+            "heb" => "תודה! קיבלנו את האישור.",
+            "ru" => "Спасибо! Мы получили подтверждение.",
+            "spa" => "¡Gracias! Recibimos la confirmación.",
+        ],
+        "contact_manager" => [
+            "en" => "What would you like to tell the manager?",
+            "heb" => "מה ברצונך למסור למנהל?",
+            "ru" => "Что бы вы хотели сказать менеджеру?",
+            "spa" => "¿Que quieres decir al manager?",
+        ],
+        "to_management" => [
+            "heb" => "הודעה בנוגע לאישור כתובות מחר מאת :worker_name\n\n:message\n"
+        ],
+        "to_management_link" => [
+            "heb" => "•	🅰 אשר בשם העובד שראה כתובת \n•	🅱 שינויים בסידור\n:link\n•	🆑 טלפון של העובד + טלפון של הלקוח"
         ]
     ];
 
@@ -748,7 +766,7 @@ class WorkerLeadWebhookController extends Controller
                     Cache::put($cacheKey, 0, now()->addHours(24));
                 }
 
-                if (empty($last_menu) || in_array(strtolower($ButtonPayload), ["menu", "меню", "תפריט", "menú"])) {
+                if ((empty($last_menu) && empty($ButtonPayload)) || in_array(strtolower($input), ["menu", "меню", "תפריט", "menú"])) {
                     $send_menu = 'main_menu';
                 } else if ($last_menu == 'main_menu' && $input == '1') {
                     $send_menu = 'talk_to_manager';
@@ -762,6 +780,12 @@ class WorkerLeadWebhookController extends Controller
                     $send_menu = 'today_and_tomorrow_schedule';
                 } else if ($last_menu == 'main_menu' && $input == '4') {
                     $send_menu = 'access_employee_portal';
+                } else if ($ButtonPayload == 'seen_schedule') {
+                    $send_menu = 'seen_schedule';
+                } else if ($ButtonPayload == 'contact_manager') {
+                    $send_menu = 'contact_manager';
+                } else if ($last_menu == "contact_manager" && !empty($input)) {
+                    $send_menu = 'contact_manager_comment';
                 } else {
                     // Handle 'sorry' case
                     $send_menu = 'sorry';
@@ -1223,6 +1247,103 @@ class WorkerLeadWebhookController extends Controller
                         // Reset the cache
                         Cache::forget($cacheKey);
                         $activeWorkerBot->delete();
+
+                        break;
+
+                    case 'seen_schedule':
+                        // Handle seen schedule logic
+                        $msg = $this->activeWorkersbotMessages['seen_schedule'][$lng];
+
+                        WhatsAppBotActiveWorkerState::updateOrCreate(
+                            [
+                                "worker_id" => $user->id,
+                                "type" => "whapi",
+                            ],
+                            [
+                                'menu_option' => 'seen_schedule',
+                                'lng' => $lng,
+                            ]
+                        );
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $msg, 'list' => [], 'buttons' => []));
+                        StoreWebhookResponse($msg, $from, $result, true);
+
+                        break;
+
+                    case "contact_manager":
+                        $msg = $this->activeWorkersbotMessages['contact_manager'][$lng];
+
+                        WhatsAppBotActiveWorkerState::updateOrCreate(
+                            [
+                                "worker_id" => $user->id,
+                                "type" => "whapi",
+                            ],
+                            [
+                                'menu_option' => 'contact_manager',
+                                'lng' => $lng,
+                            ]
+                        );
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $msg, 'list' => [], 'buttons' => []));
+                        StoreWebhookResponse($msg, $from, $result, true);
+                        break;
+
+                    case "contact_manager_comment":
+
+                        $tomorrow = Carbon::tomorrow()->toDateString();
+
+                        // Get all jobs for tomorrow where workers haven't been notified
+                        $job = Job::query()
+                            ->with(['worker', 'client'])
+                            ->whereIn('worker_id', [$user->id])
+                            ->whereNotNull('worker_id')
+                            ->whereHas('worker')
+                            ->whereNull('worker_approved_at')
+                            ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                            ->whereDate('start_date', $tomorrow)
+                            ->orderBy('start_time') // gets the earliest job for that day
+                            ->get();
+
+
+                        if ($lng == 'heb') {
+                            $reason = "צרו איתי קשר דחוף";
+                        } else if ($lng == 'spa') {
+                            $reason = "Contáctame urgentemente";
+                        } else if ($lng == 'ru') {
+                            $reason = "Свяжитесь со мной срочно";
+                        } else {
+                            $reason = "Contact me urgently";
+                        }
+                        $scheduleChange = new ScheduleChange();
+                        $scheduleChange->user_type = get_class($user);
+                        $scheduleChange->user_id = $user->id;
+                        $scheduleChange->reason = $reason;
+                        $scheduleChange->comments = trim($input);
+                        $scheduleChange->save();
+
+                        $workerName = trim(trim($user->firstname ?? '') . ' ' . trim($user->lastname ?? ''));
+                        $header = "הודעה בנוגע לאישור כתובות מחר מאת {$workerName}:\n*{$input}*\n\n";
+
+                        $jobDetails = '';
+
+                        foreach ($job as $j) {
+                            $clientPhone = $j->client->phone ?? 'N/A';
+                            $workerPhone = $j->worker->phone ?? 'N/A';
+
+                            $teamBtns = generateShortUrl(url("team-btn/" . base64_encode($j->uuid)), 'admin');
+
+                            $jobDetails .=
+                                "----\n🅰 אשר בשם העובד שראה כתובת\n" .
+                                "🅱 שינויים בסידור\n" .
+                                "{$teamBtns}\n" .
+                                "🆑 טלפון של העובד: {$workerPhone} | טלפון של הלקוח: {$clientPhone}\n" .
+                                "\n\n";
+                        }
+
+                        $finalMessage = $header . $jobDetails;
+
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_workers'), [
+                            'name' => '',
+                            'message' => $finalMessage
+                        ]);
 
                         break;
 

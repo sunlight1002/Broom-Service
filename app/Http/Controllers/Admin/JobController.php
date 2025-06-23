@@ -441,6 +441,7 @@ class JobController extends Controller
 
     public function getJobByUuid($uuid)
     {
+        \Log::info($uuid);
         $job = Job::query()
             ->with([
                 'client',
@@ -530,13 +531,13 @@ class JobController extends Controller
         ]);
     }
 
-    public function approveWorkerJob($wid, $jid)
+    public function approveWorkerJob($wid, $uuid)
     {
         $job = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
             ->where('worker_id', $wid)
             ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
-            ->find($jid);
+            ->where('uuid', $uuid)->first();
 
         if (!$job) {
             return response()->json([
@@ -3192,7 +3193,7 @@ class JobController extends Controller
                 ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
                 ->where('worker_id', $rData['worker_id'])
                 ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
-                ->find($rData['job_id']);
+                ->where("uuid", $rData['uuid'])->first();
 
             if (!$job) {
                 return response()->json([
@@ -3242,11 +3243,11 @@ class JobController extends Controller
     public function JobStartTime(Request $request)
     {
         $data = $request->all();
-        $job = Job::find($data['job_id']);
+        $job = Job::where('uuid', $data['uuid'])->first();
 
         $time = JobHours::query()
             ->where('worker_id', $data['worker_id'])
-            ->where('job_id', $data['job_id'])
+            ->where('job_id', $job->id)
             ->whereNull('end_time')
             ->first();
 

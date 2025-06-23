@@ -65,41 +65,68 @@ class WorkerNotifyNextDayJob extends Command
             ->orderBy('start_time') // gets the earliest job for that day
             ->get();
 
-        // Group jobs by worker_id and get the first job per worker
-        $uniqueJobs = $jobs->groupBy('worker_id')->map->first();
+            \Log::info('jobs: ' . $jobs);
 
-        foreach ($uniqueJobs as $job) {
-            $worker = $job->worker;
-            $client = $job->client;
+        // Group jobs by worker_id
+        $jobsGroupedByWorker = $jobs->groupBy('worker_id');
 
-            if ($worker) {
-                App::setLocale($worker->lng ?? 'en');
+        foreach ($jobsGroupedByWorker as $workerId => $workerJobs) {
+            $worker = $workerJobs->first()->worker;
+            $client = $workerJobs->first()->client;
 
-                $notificationData = [
-                    'job'    => $job->toArray(),
-                    'worker' => $worker->toArray(),
-                    'client' => $client->toArray(),
-                ];
+            App::setLocale($worker->lng ?? 'en');
 
-                if (!empty($worker->phone)) {
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM,
-                        "notificationData" => $notificationData
-                    ]));
+            $addressList = [];
+            foreach ($workerJobs as $index => $job) {
+                $addressParts = [];
+
+                $propertyAddress = $job->propertyAddress;
+                if (!$propertyAddress) continue;
+
+                if (!empty($propertyAddress->geo_address)) {
+                    $addressParts[] = $propertyAddress->geo_address;
+                }
+                if (!empty($propertyAddress->apt_no)) {
+                    $addressParts[] = 'דירה ' . $propertyAddress->apt_no;
+                }
+                if (!empty($propertyAddress->floor)) {
+                    $addressParts[] = 'קומה ' . $propertyAddress->floor;
+                }
+                if (!empty($propertyAddress->city)) {
+                    $addressParts[] = $propertyAddress->city;
+                }
+                if (!empty($propertyAddress->zipcode)) {
+                    $addressParts[] = $propertyAddress->zipcode;
                 }
 
+                $formattedAddress = implode(', ', array_reverse($addressParts)); // for RTL
+                $addressList[] = '• ' . $formattedAddress;
+
+                // Save meta for each job to avoid notifying again
                 WorkerMetas::create([
-                    'worker_id' => $worker->id,
+                    'worker_id' => $workerId,
                     'job_id' => $job->id,
                     'key' => 'next_day_job_reminder_at_5_pm',
                     'value' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
 
-                $job->update([
-                    'is_worker_reminded' => true
-                ]);
+                $job->update(['is_worker_reminded' => true]);
+            }
+
+            if (!empty($worker->phone) && count($addressList)) {
+                $notificationData = [
+                    'worker' => $worker->toArray(),
+                    'client' => $client->toArray(),
+                    'job_full_addresses' => implode("\n", $addressList),
+                ];
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM,
+                    "notificationData" => $notificationData
+                ]));
             }
         }
+
 
         return 0;
     }

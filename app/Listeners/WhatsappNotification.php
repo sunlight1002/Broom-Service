@@ -535,6 +535,7 @@ class WhatsappNotification
                 ':worker_lead_count' => $eventData['worker_lead_count'] ?? '',
                 ':time_interval' => $eventData['time_interval'] ?? '',
                 ':job_full_addresses' => $eventData['job_full_addresses'] ?? '',
+                ':job_details' => $eventData['job_details'] ?? '',
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];
@@ -583,38 +584,38 @@ class WhatsappNotification
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
 
-                        // if ($lng == "heb") {
-                        //     $title1 = "ראיתי";
-                        //     $title2 = "דבר עם מנהל";
-                        //     // $sid = "HX284d159218aad8b3b04de5ff06238f18";
-                        // } elseif ($lng == "spa") {
-                        //     $title1 = "He visto el horario";
-                        //     $title2 = "Administrador de contactos";
-                        //     // $sid = "HX38c7043fb5eea7a16534866075c64c90";
-                        // } elseif ($lng == "ru") {
-                        //     $title1 = "Я видел расписание";
-                        //     $title2 = "Связаться с менеджером";
-                        //     // $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
-                        // } else {
-                        //     $title1 = "I’ve seen the schedule";
-                        //     $title2 = "Contact manager";
-                        //     // $sid = "HX517f18e3ae6de354515fcdc52becfb28";
-                        // }
+                        if ($lng == "heb") {
+                            $title1 = "ראיתי";
+                            $title2 = "דבר עם מנהל";
+                            // $sid = "HX284d159218aad8b3b04de5ff06238f18";
+                        } elseif ($lng == "spa") {
+                            $title1 = "He visto el horario";
+                            $title2 = "Administrador de contactos";
+                            // $sid = "HX38c7043fb5eea7a16534866075c64c90";
+                        } elseif ($lng == "ru") {
+                            $title1 = "Я видел расписание";
+                            $title2 = "Связаться с менеджером";
+                            // $sid = "HXf2d268574176b3a56a0b78c5b63ba706";
+                        } else {
+                            $title1 = "I’ve seen the schedule";
+                            $title2 = "Contact manager";
+                            // $sid = "HX517f18e3ae6de354515fcdc52becfb28";
+                        }
 
-                        // $buttons = [
-                        //     [
-                        //         'type' => 'quick_reply',
-                        //         'title' => $title1,
-                        //         'id' => 'seen_schedule',
-                        //         // 'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
-                        //     ],
-                        //     [
-                        //         'type' => 'quick_reply',
-                        //         'title' => $title2,
-                        //         'id' => 'contact_manager',
-                        //         // 'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
-                        //     ]
-                        // ];
+                        $buttons = [
+                            [
+                                'type' => 'quick_reply',
+                                'title' => $title1,
+                                'id' => 'seen_schedule',
+                                // 'url' => isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : '',
+                            ],
+                            [
+                                'type' => 'quick_reply',
+                                'title' => $title2,
+                                'id' => 'contact_manager',
+                                // 'url' => url("worker/jobs/" . (isset($jobData['uuid']) ? $jobData['uuid'] : "")),
+                            ]
+                        ];
 
                         // if($lng == "heb"){
                         //     $sid = "HX284d159218aad8b3b04de5ff06238f18";
