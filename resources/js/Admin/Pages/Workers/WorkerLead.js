@@ -62,6 +62,7 @@ export default function WorkerLead() {
         unanswered: t("admin.leads.Unanswered"),
         hiring: t("admin.leads.Hiring"),
         "not-hired": t("admin.leads.Not_hired"),
+        "want-to-speak-representative": t("admin.leads.Want_to_speak_representative"),
         // "Not respond to bot": t("admin.leads.not_respond_to_bot"),
         // "Not respond to messages": t("admin.leads.not_respond_to_messages"),
     };
@@ -73,6 +74,7 @@ export default function WorkerLead() {
         hiring: "hiring",
         "will-think": "will-think",
         "not-hired": "not-hired",
+        "want-to-speak-representative": "want-to-speak-representative",
         // "Not respond to bot": "Not respond to bot",
         // "Not respond to messages": "Not respond to messages",
     };

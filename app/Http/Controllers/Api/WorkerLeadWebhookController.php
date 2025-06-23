@@ -46,8 +46,12 @@ class WorkerLeadWebhookController extends Controller
 
     protected $botMessages = [
         'step0' => [
-            'en' => "Hello, this is JOB4SERVICE.\nWe provide home and apartment cleaning jobs with regular clients in Tel Aviv and the surrounding area.\nTo continue and give you more details, please let us know:\n\nDo you have experience in house or apartment cleaning? What kind?\n\nDo you have an Israeli ID, a valid work visa (blue visa or other legal work visa), or a Ukrainian passport?\nUnfortunately, we cannot accept anything else.\nThank you in advance — looking forward to hearing from you!",
-            'ru' => "Здравствуйте, это JOB4SERVICE.\nМы предлагаем работу по уборке домов и квартир у постоянных клиентов в Тель-Авиве и окрестностях.\nЧтобы продолжить и дать вам больше информации, пожалуйста, ответьте:\n\nЕсть ли у вас опыт уборки домов или квартир? Какой именно?\n\nЕсть ли у вас теудат зеут, действующая рабочая виза (синяя виза или другая легальная рабочая виза) или украинский паспорт?\nК сожалению, другие документы мы не можем принять.\nЗаранее спасибо — ждём вашего ответа! 😊",
+            'en' => "Hello, this is JOB4SERVICE.\nWe provide home and apartment cleaning jobs with regular clients in Tel Aviv and the surrounding area.\nTo continue and give you more details, please let us know:\n\nDo you have experience in house or apartment cleaning? What kind?\n\nDo you have an Israeli ID, a valid work visa (blue visa or other legal work visa), or a Ukrainian passport?\nUnfortunately, we cannot accept anything else.\n\nIf you'd like to speak to a human representative, please type 'representative'.\nThank you in advance — looking forward to hearing from you!",
+            'ru' => "Здравствуйте, это JOB4SERVICE.\nМы предлагаем работу по уборке домов и квартир у постоянных клиентов в Тель-Авиве и окрестностях.\nЧтобы продолжить и дать вам больше информации, пожалуйста, ответьте:\n\nЕсть ли у вас опыт уборки домов или квартир? Какой именно?\n\nЕсть ли у вас теудат зеут, действующая рабочая виза (синяя виза или другая легальная рабочая виза) или украинский паспорт?\nК сожалению, другие документы мы не можем принять.\n\nЕсли вы хотите поговорить с представителем, пожалуйста, напишите 'представитель'.\nЗаранее спасибо — ждём вашего ответа! 😊",
+        ],
+        'speak_to_representative' => [
+            'en' => "Thank you for your request. A human representative will contact you shortly. Please stay available.",
+            'ru' => "Спасибо за ваш запрос. Представитель свяжется с вами в ближайшее время. Пожалуйста, оставайтесь на связи.",
         ],
         'step0_meta' => [
             'en' => "Hello,\nWe provide home and apartment cleaning jobs with regular clients in Tel Aviv and the surrounding area.\nTo continue and give you more details, please let us know:\n\nDo you have experience in house or apartment cleaning? What kind?\n\nDo you have an Israeli ID, a valid work visa (blue visa or other legal work visa), or a Ukrainian passport?\nUnfortunately, we cannot accept anything else.\nThank you in advance — looking forward to hearing from you",
@@ -124,7 +128,7 @@ class WorkerLeadWebhookController extends Controller
             'spa' => "Tu horario es el siguiente:\nHoy: :today_schedule\nMañana: :tomorrow_schedule\n\nEn cualquier momento, puedes volver al menú principal escribiendo 'Menú'.",
         ],
         'attempts' => [
-            "en" => "We couldn’t verify your request. Please contact the team directly for assistance.",
+            "en" => "We couldn't verify your request. Please contact the team directly for assistance.",
             "heb" => "לא הצלחנו לאמת את בקשתך. אנא צור קשר עם הצוות ישירות לעזרה.",
             "ru" => "Мы не смогли обработать ваш запрос. Пожалуйста, свяжитесь с командой напрямую для помощи.",
         ],
@@ -2084,6 +2088,34 @@ Broom Service Team 🌹 ';
         $messages = $this->botMessages;
         $lng = $workerState->language ? $workerState->language : 'en';
         $response = strtolower(trim($input));
+
+        // Check if user wants to speak to representative
+        if (in_array($response, ['representative', 'представитель', 'נציג'])) {
+            $workerLead->status = 'want-to-speak-representative';
+            $workerLead->save();
+            
+            // Send notification to team
+            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE);
+            
+            // Send confirmation message to worker
+            $message = $messages['speak_to_representative'][$lng] ?? $messages['speak_to_representative']['en'];
+            
+            $twi = $this->twilio->messages->create(
+                "whatsapp:+$workerLead->phone",
+                [
+                    "from" => $this->twilioWorkerLeadWhatsappNumber,
+                    "body" => $message,
+                ]
+            );
+            
+            \Log::info("Representative request - twilio response: " . $twi->sid);
+            
+            // Update worker state to completed
+            $workerState->step = 4;
+            $workerState->save();
+            
+            return $twi;
+        }
 
         switch ($currentStep) {
             case 0:

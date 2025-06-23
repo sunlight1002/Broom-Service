@@ -146,6 +146,10 @@ export const leadStatusColor = (_status) => {
             _color = "#456f63f2";
             break;
 
+        case "want-to-speak-representative":
+            _color = "#ff8c00";
+            break;
+
         default:
             _color = "#6c757d"; // Default gray color for unknown statuses
             break;
