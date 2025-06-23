@@ -332,7 +332,6 @@ class WorkerLeadsController extends Controller
 
     public function changeStatus(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
             'status' => ['required', 'string', Rule::in([
                 'pending', 'rejected', 'irrelevant', 'unanswered', 'hiring', 
@@ -359,10 +358,11 @@ class WorkerLeadsController extends Controller
             return response()->json(['message' => 'Worker Lead not found'], 404);
         }
 
-        // Change the status
+        $newStatus = $request->status;
         $workerLead->status = $request->status;
         $workerLead->sub_status = $request->status == "not-hired" ? $request->sub_status : null;
         $workerLead->reason = $request->status == "not-hired" ? $request->reason : null;
+
         if ($request->status === 'hiring') {
             $workerLead->email = $request->email;
             $workerLead->hourly_rate = $request->payment_per_hour;
@@ -374,8 +374,21 @@ class WorkerLeadsController extends Controller
             } else {
                 $workerLead->manpower_company_id = null;
             }
+        } elseif ($newStatus === 'active') {
+            // Only set to active if all forms are completed
+            if ($workerLead->hasCompletedAllForms()) {
+                $workerLead->status = 'active';
+                $workerLead->sub_status = null;
+            } else {
+                $workerLead->status = 'waiting';
+                return response()->json([
+                    'message' => 'Worker Lead cannot be set to active until all forms are completed and signed.',
+                ], 400);
+            }
+        } else {
+            $workerLead->status = $newStatus;
+            $workerLead->sub_status = $newStatus == "not-hired" ? $request->sub_status : null;
         }
-
         $workerLead->save();
 
         if ($workerLead->status === 'irrelevant') {
@@ -386,7 +399,7 @@ class WorkerLeadsController extends Controller
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED);
         } else if ($workerLead->status === 'not-hired') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM);
-        } else if ($workerLead->status === 'hiring') {
+        } else if ($workerLead->status === 'hiring' || $workerLead->status === 'waiting') {
             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM);
             $worker = $this->createUser($workerLead);
             $this->sendWhatsAppMessage($worker, WhatsappMessageTemplateEnum::WORKER_FORMS);
@@ -402,7 +415,6 @@ class WorkerLeadsController extends Controller
                 });
             }
         }
-
         return response()->json(['message' => 'Worker Lead status changed successfully']);
     }
 
@@ -461,7 +473,7 @@ class WorkerLeadsController extends Controller
             'passport' => $workerLead->passport ?? NULL,
             'passport_card' => $workerLead->passport_card ?? NULL,
             'id_number' => $workerLead->id_number ?? NULL,
-            'status' => 1,
+            'status' => $workerLead->hasCompletedAllForms() ? 1 : 2, // 1 = active, 2 = waiting
             'is_afraid_by_cat' => $workerLead->is_afraid_by_cat == 1 ? 1 : 0,
             'is_afraid_by_dog' => $workerLead->is_afraid_by_dog == 1 ? 1 : 0,
             'renewal_visa' => $workerLead->renewal_visa ?? NULL,

@@ -46,6 +46,27 @@ class WorkerLeads extends Model
         return $this->morphMany(Form::class, 'user');
     }
 
+    public function hasCompletedAllForms()
+    {
+        $requiredForms = [
+            \App\Enums\WorkerFormTypeEnum::FORM101,
+            \App\Enums\WorkerFormTypeEnum::CONTRACT,
+            \App\Enums\WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+            \App\Enums\WorkerFormTypeEnum::INSURANCE,
+        ];
+        if ($this->company_type === 'manpower') {
+            $requiredForms = [\App\Enums\WorkerFormTypeEnum::MANPOWER_SAFTEY];
+        }
+        $forms = $this->forms()->whereIn('type', $requiredForms)->get();
+        foreach ($requiredForms as $type) {
+            $form = $forms->where('type', $type)->first();
+            if (!$form || !$form->submitted_at) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
 
 
