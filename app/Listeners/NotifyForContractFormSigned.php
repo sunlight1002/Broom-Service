@@ -3,12 +3,14 @@
 namespace App\Listeners;
 
 use App\Enums\NotificationTypeEnum;
+use App\Enums\WorkerFormTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ContractFormSigned;
 use App\Events\WhatsappNotificationEvent;
 use App\Mail\Admin\ContractFormSignedMail as AdminContractFormSignedMail;
 use App\Mail\Worker\ContractFormSignedMail;
 use App\Models\Admin;
+use App\Models\InsuranceCompany;
 use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -57,6 +59,8 @@ class NotifyForContractFormSigned implements ShouldQueue
         // }
 
         if ($worker->company_type == 'my-company' && $worker->country == 'Israel') {
+            $insuranceCompany = InsuranceCompany::first();
+
             App::setLocale('heb');
 
             // **Retrieve all forms of the worker**
@@ -90,6 +94,42 @@ class NotifyForContractFormSigned implements ShouldQueue
                     $message->attach($filePath, ['as' => $fileName]);
                 }
             });
+
+            if ($insuranceCompany && $insuranceCompany->email) {
+                $workerDocuments = $worker->documents()->with('document_type')->get();
+                $form101 = $workerForms->where('type', WorkerFormTypeEnum::FORM101)
+                    ->first();
+                $workerIdCard = $worker->id_card ?? null;
+                $dateOfBeginningWork = $form101 ? data_get($form101->data, 'DateOfBeginningWork') : null;
+
+                Mail::send(
+                    '/IsraelInsuaranceCompany',
+                    ['worker' => $worker, 'workerDocuments' => $workerDocuments, 'workerIdCard' => $workerIdCard, 'dateOfBeginningWork' => $dateOfBeginningWork],
+                    function ($message) use ($worker, $insuranceCompany, $workerIdCard, $workerDocuments) {
+                        $message->to($insuranceCompany->email)
+                            ->subject(__('mail.insuarance_company_israel.subject', [
+                                'worker_name' => trim(trim($worker['firstname'] ?? '') . ' ' . trim($worker['lastname'] ?? ''))
+                            ]));
+                        $message->bcc(config('services.mail.default'));
+
+                        // Attach ID Card
+                        if ($workerIdCard) {
+                            $idCardDocName = "IDCard-{$worker->firstname}.pdf";
+                            $message->attach(storage_path("app/public/uploads/documents/{$workerIdCard}"), ['as' => $idCardDocName]);
+                        }
+
+                        // Attach Pension Form document from documents
+                        $pensionForm = $workerDocuments->first(function ($doc) {
+                            return $doc->document_type?->slug === 'pension-form';
+                        });
+
+                        if ($pensionForm) {
+                            $pensionFormDocName = "PensionForm-{$worker->firstname}.pdf";
+                            $message->attach(storage_path("app/public/uploads/documents/{$pensionForm->file}"), ['as' => $pensionFormDocName]);
+                        }
+                    }
+                );
+            }
         }
 
         // App::setLocale($worker->lng);

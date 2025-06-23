@@ -882,11 +882,11 @@ function AllForms() {
             employeeCollectiveMoshavMember:
                 formValues && formValues.employeeCollectiveMoshavMember
                     ? formValues.employeeCollectiveMoshavMember
-                    : worker?.country != "Israel" ? "No" : "Yes",
+                    : worker?.country != "Israel" ? "No" : "",
             employeeHealthFundMember:
                 formValues && formValues.employeeHealthFundMember
                     ? formValues.employeeHealthFundMember
-                    : worker?.country != "Israel" ? "No" : "Yes",
+                    : worker?.country != "Israel" ? "No" : "",
             employeeHealthFundname:
                 formValues && formValues.employeeHealthFundname
                     ? formValues.employeeHealthFundname

@@ -34,14 +34,15 @@ export default function WorkerLead() {
     const [paymentPerHour, setPaymentPerHour] = useState("");
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
     const sourceRef = useRef(source);
+    const [errors, setErrors] = useState([]);
+
     const [formValues, setFormValues] = useState({
         email: "",
-
         payment_per_hour: "",
-
         company_type: "my-company",
         manpower_company_id: "",
     });
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -100,12 +101,16 @@ export default function WorkerLead() {
         setIsOpen(!isOpen);
         setWorkerLeadId(_id);
     };
+
+    
+    
     useEffect(() => {
+        console.log(workerLeadId, "workerLeadId");
         if (workerLeadId && isOpen) {
             getWorker();
         }
     }, [workerLeadId, isOpen]);
-    const [errors, setErrors] = useState([]);
+
     const handleChangeStatus = async () => {
         setLoading(true);
         try {
@@ -115,10 +120,10 @@ export default function WorkerLead() {
                     status,
                     sub_status: notHiredStatus,
                     email: formValues.email,
-                    payment_per_hour: formValues.payment_per_hour,
-                    company_type: formValues.company_type,
-                    ...(formValues.company_type === "manpower" && {
-                        manpower_company_id: formValues.manpower_company_id,
+                    payment_per_hour: formValues?.payment_per_hour,
+                    company_type: formValues?.company_type,
+                    ...(formValues?.company_type === "manpower" && {
+                        manpower_company_id: formValues?.manpower_company_id,
                     }),
                 },
                 { headers }
@@ -157,10 +162,10 @@ export default function WorkerLead() {
                 setFormValues({
                     ...formValues,
 
-                    email: worker.email,
-                    payment_per_hour: worker.hourly_rate,
-                    company_type: worker.company_type || "my-company",
-                    manpower_company_id: worker.manpower_company_id,
+                    email: worker?.email,
+                    payment_per_hour: worker?.hourly_rate,
+                    company_type: worker?.company_type || "my-company",
+                    manpower_company_id: worker?.manpower_company_id,
                 });
             });
     };
@@ -690,6 +695,7 @@ export default function WorkerLead() {
                                     {Object.entries(leaveStatuses).map(
                                         ([key, value]) => (
                                             <button
+                                                key={key}
                                                 className="dropdown-item"
                                                 onClick={() => {
                                                     setFilter(key);
@@ -1060,35 +1066,39 @@ export default function WorkerLead() {
                                         />
                                     </div>
                                 </div>
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            Payment Per Hour
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="form-control mb-3"
-                                            value={formValues.payment_per_hour}
-                                            onChange={(e) =>
-                                                setFormValues({
-                                                    ...formValues,
-                                                    payment_per_hour:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            placeholder="Enter payment per hour"
-                                        />
-                                    </div>
-                                    <div>
-                                        {errors.payment_per_hour ? (
-                                            <small className="text-danger mb-1">
-                                                {errors.payment_per_hour}
-                                            </small>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </div>
-                                </div>
+                                {
+                                    formValues?.company_type != "manpower" && (
+                                        <div className="col-sm-12">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    Payment Per Hour
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control mb-3"
+                                                    value={formValues?.payment_per_hour}
+                                                    onChange={(e) =>
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            payment_per_hour:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    placeholder="Enter payment per hour"
+                                                />
+                                            </div>
+                                            <div>
+                                                {errors && errors?.payment_per_hour ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.payment_per_hour}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                }
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
@@ -1180,9 +1190,9 @@ export default function WorkerLead() {
                                         </div>
 
                                         <div>
-                                            {errors.company_type ? (
+                                            {errors && errors?.company_type ? (
                                                 <small className="text-danger mb-1">
-                                                    {errors.company_type}
+                                                    {errors?.company_type}
                                                 </small>
                                             ) : (
                                                 ""
@@ -1230,9 +1240,9 @@ export default function WorkerLead() {
                                             </select>
                                         </div>
                                         <div>
-                                            {errors.manpower_company_id ? (
+                                            {errors && errors?.manpower_company_id ? (
                                                 <small className="text-danger mb-1">
-                                                    {errors.manpower_company_id}
+                                                    {errors?.manpower_company_id}
                                                 </small>
                                             ) : (
                                                 ""
