@@ -708,7 +708,9 @@ Broom Service Team 🌹",
             $data['messages'][0]['from_me'] == false
         ) {
             $message_data = $data['messages'];
-            \Log::info($message_data);
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                die("Group message");
+            }
             $from = $message_data[0]['from'];
 
             $listId = isset($data['messages'][0]['reply']['list_reply']['id']) ? str_replace("ListV3:", "", $data['messages'][0]['reply']['list_reply']['id']) : "";
@@ -4855,7 +4857,7 @@ Broom Service Team 🌹",
 
 
         $result = sendWhatsappMessage($from, array('name' => '', 'message' => $personalizedMessage, 'list' => [], 'buttons' => []));
-        StoreWebhookResponse($personalizedMessage, $from, $result);
+        StoreWebhookResponse($personalizedMessage, $from, $result, true);
 
         WhatsAppBotActiveClientState::updateOrCreate(
             [

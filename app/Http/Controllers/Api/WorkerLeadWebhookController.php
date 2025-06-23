@@ -180,6 +180,9 @@ class WorkerLeadWebhookController extends Controller
         Cache::put('worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         $message_data = $data['messages'];
+        if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+            die("Group message");
+        }
         $from = $message_data[0]['from'];
         $input = $data['messages'][0]['text']['body'] ?? "";
         $lng = $this->detectLanguage($input);
@@ -269,6 +272,9 @@ class WorkerLeadWebhookController extends Controller
         Cache::put('worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         $message_data = $data['messages'];
+        if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+            die("Group message");
+        }
         $from = $message_data[0]['from'];
         $input = $data['messages'][0]['text']['body'] ?? "";
         $lng = $this->detectLanguage($input);
@@ -710,6 +716,10 @@ class WorkerLeadWebhookController extends Controller
             $ButtonPayload = isset($data['messages'][0]['reply']['buttons_reply']['id']) ? str_replace("ButtonsV3:", "", $data['messages'][0]['reply']['buttons_reply']['id']) : $listId;
             \Log::info(" bhai whapi he");
             $lng = "heb";
+
+            if (Str::endsWith($data['messages'][0]['chat_id'], '@g.us')) {
+                die("Group message");
+            }
 
             $user = User::where('phone', $from)
                 ->where('status', 1)
