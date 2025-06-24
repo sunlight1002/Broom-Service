@@ -122,6 +122,9 @@ return [
     'mail' => [
         'default' => env('DEFAULT_MAIL'),
     ],
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+    ],
 
     "enable_new_contract" => env('ENABLE_NEW_CONTRACT'),
 
