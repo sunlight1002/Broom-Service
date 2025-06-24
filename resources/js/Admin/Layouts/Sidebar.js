@@ -477,6 +477,11 @@ export default function Sidebar() {
                                 <i className="fa-solid fa-cart-shopping font-20"></i>{t("admin.sidebar.payments")}
                             </NavLink>
                         </li>
+                        <li className="list-group-item">
+                            <NavLink to="/admin/payment/cvv">
+                                <i className="fa-solid fa-credit-card font-20"></i>CVV
+                            </NavLink>
+                        </li>
                     </>
                 )
                 }
