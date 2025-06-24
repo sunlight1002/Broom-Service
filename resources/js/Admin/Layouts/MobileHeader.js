@@ -301,30 +301,36 @@ export default function MobileHeader() {
                                             {t("admin.sidebar.whatsapp")}
                                         </a>
                                     </li> */}
-                                    <li className="nav-item">
-                                        <div id="fence" className="fence commonDropdown">
-                                            <div id="fencehead1">
-                                                <a
-                                                    href="#"
-                                                    className="text-left btn btn-header-link"
-                                                    data-toggle="collapse"
-                                                    data-target="#fence1"
-                                                    aria-expanded="true"
-                                                    aria-controls="fence1"
-                                                >
-                                                    <i className="fa-solid fa-message"></i>{" "}
-                                                    {t("admin.sidebar.whatsapp")}{" "}
-                                                    <i className="fa-solid fa-angle-down"></i>
-                                                </a>
-                                            </div>
-                                            <div
-                                                id="fence1"
-                                                className="collapse"
-                                                aria-labelledby="fencehead1"
-                                                data-parent="#fence"
-                                            >
-                                                <div className="card-body">
-                                                    <ul className="list-group">
+                                </>
+                            )
+                        }
+                        <li className="nav-item">
+                            <div className="fence commonDropdown">
+                                <div id="fencehead1">
+                                    <a
+                                        href="#"
+                                        className="text-left btn btn-header-link"
+                                        data-toggle="collapse"
+                                        aria-expanded="true"
+                                        data-target="#chat"
+                                        aria-controls="chat"
+                                    >
+                                        <i className="fa-solid fa-message"></i>{" "}
+                                        {t("admin.sidebar.whatsapp")}{" "}
+                                        <i className="fa-solid fa-angle-down"></i>
+                                    </a>
+                                </div>
+                                <div
+                                    id="chat"
+                                    className="collapse"
+                                    aria-labelledby="chat"
+                                    data-parent="#chat"
+                                >
+                                    <div className="card-body">
+                                        <ul className="list-group">
+                                            {
+                                                admin?.role !== "hr" && (
+                                                    <>
                                                         <li className="list-group-item">
                                                             <a href="/admin/chat">
                                                                 <i className="fa fa-angle-right"></i>{" "}
@@ -337,33 +343,38 @@ export default function MobileHeader() {
                                                                 {t("admin.sidebar.whapi_bot_chat")}
                                                             </a>
                                                         </li>
-                                                        <li className="list-group-item">
-                                                            <a href="/admin/worker-lead-chat">
-                                                                <i className="fa fa-angle-right"></i>{" "}
-                                                                {t("admin.sidebar.workerLeadsChat")}
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a href="/admin/messenger" onClick={(e) => handleClick(e, "/admin/messenger")}>
-                                            <i className="fa-solid fa-comment"></i>
-                                            {t("admin.sidebar.messenger")}
-                                        </a>
-                                    </li>
+                                                    </>
+                                                )
+                                            }
+                                            <li className="list-group-item">
+                                                <a href="/admin/worker-lead-chat">
+                                                    <i className="fa fa-angle-right"></i>{" "}
+                                                    {t("admin.sidebar.workerLeadsChat")}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {(admin?.role !== "hr" && admin?.role !== "supervisor") && (
+                            <>
+                                <li className="nav-item">
+                                    <a href="/admin/messenger" onClick={(e) => handleClick(e, "/admin/messenger")}>
+                                        <i className="fa-solid fa-comment"></i>
+                                        {t("admin.sidebar.messenger")}
+                                    </a>
+                                </li>
 
-                                    <li className="nav-item">
-                                        <a href="/admin/payments" onClick={(e) => handleClick(e, "/admin/payments")}>
-                                            <i className="fa-solid fa-cart-shopping"></i>
-                                            {t("admin.sidebar.payments")}
-                                        </a>
-                                    </li>
-                                </>
-                            )
-                        }
+                                <li className="nav-item">
+                                    <a href="/admin/payments" onClick={(e) => handleClick(e, "/admin/payments")}>
+                                        <i className="fa-solid fa-cart-shopping"></i>
+                                        {t("admin.sidebar.payments")}
+                                    </a>
+                                </li>
+                            </>
+                        )}
+
 
                         {(admin?.role !== "member" && admin?.role !== "hr" && admin?.role !== "supervisor") && (
                             <li className="nav-item">

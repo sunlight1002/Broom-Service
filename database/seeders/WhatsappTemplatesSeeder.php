@@ -2913,6 +2913,62 @@ office@broomservice.co.il
             ],
 
             [
+                'key' => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE_LEAD,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hello,
+
+Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.
+
+Our service areas include:
+- Tel Aviv
+- Ramat Gan
+- Givatayim
+- Kiryat Ono
+- Ganei Tikva
+- Ramat Hasharon
+- Kfar Shmaryahu
+- Rishpon
+- Herzliya
+
+If you need our services in the future or if you are in one of these areas, we would be happy to assist you.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+תודה על התעניינותך בשירותי ברום סרוויס. בדקנו את פנייתך, ולצערנו, אנו לא מספקים שירותים באזור מגוריך או את השירות המסוים שאתה מחפש.
+
+אזורי השירות שלנו כוללים:
+- תל אביב
+- רמת גן
+- גבעתיים
+- קריית אונו
+- גני תקווה
+- רמת השרון
+- כפר שמריהו
+- רשפון
+- הרצליה
+
+אם בעתיד תצטרך את שירותינו או אם אתה נמצא באחד מהאזורים הללו, נשמח לעמוד לשירותך.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
                 'key' => WhatsappMessageTemplateEnum::PAST,
                 'description' => 'Client meeting schedule reminder message template',
                 'message_en' => "Hello, *:client_name*
@@ -3170,6 +3226,33 @@ Broom Service Team 🌹",
                 'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
                 'description' => 'Client meeting schedule reminder message template',
                 'message_en' => "Hi, *:client_name*
+
+Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us. 
+If this was a mistake or you wish to resubscribe, please let us know.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il",
+
+                'message_heb' => "שלום, *:client_name*
+
+הבקשה שלך התקבלה. הפסקנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר
+                
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-
+office@broomservice.co.il",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT_WHAPI,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, :client_name
 
 Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us. 
 If this was a mistake or you wish to resubscribe, please let us know.

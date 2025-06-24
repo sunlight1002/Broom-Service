@@ -60,13 +60,13 @@ class ActiveClientMessageSendOcasionaly extends Command
                 continue;
             }
 
-            // $sid = $client->lng == "heb" ? "HX9a0295f9e43f2a5903d3a87a8a708b8b" : "HXf9769a88d05e82ca7037aae128ea5b76";
+            $sid = $client->lng == "heb" ? "HX0ebd6aa4b0e2c899406127b1dfecb85e" : "HX9d05a88024abd02481e1904f2ec0e552";
 
             $twi = $this->twilio->messages->create(
                 "whatsapp:+" . $client->phone,
                 [
                     "from" => $this->twilioWhatsappNumber,
-                    "contentSid" => "HX9e21e0fae3a59fc26a28972193c6acab",
+                    "contentSid" => $sid,
                 ]
             );
 

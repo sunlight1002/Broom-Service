@@ -223,7 +223,7 @@ export default function Sidebar() {
                                 </div>
                             </li>
                         </>
-                    ) : (
+                    ) : role !== "hr" ? (
                         <li className="list-group-item">
                             <NavLink to="/admin/clients"
                                 className="d-flex align-items-center"
@@ -231,9 +231,8 @@ export default function Sidebar() {
                                 <i className="fa-solid fa-user-tie font-28"></i>{t("admin.sidebar.clients")}
                             </NavLink>
                         </li>
-                    )
+                    ) : null
                 }
-
 
                 {
                     role !== "supervisor" ? (
@@ -424,20 +423,23 @@ export default function Sidebar() {
                                         <ul className="list-group">
                                             {
                                                 role !== "hr" && (
-                                                    <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
-                                                        <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
-                                                            <i className="fa fa-angle-right"></i>{" "}
-                                                            {t("admin.sidebar.clientsAndWorkersChat")}
-                                                        </Link>
-                                                    </li>
+                                                    <>
+                                                        <li className={`list-group-item ${isActive(routes.client_worker_chat) ? "active" : ""}`}>
+                                                            <Link to={routes.client_worker_chat} style={isActive(routes.client_worker_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.clientsAndWorkersChat")}
+                                                            </Link>
+                                                        </li>
+                                                        <li className={`list-group-item ${isActive(routes.whapi_chat) ? "active" : ""}`}>
+                                                            <Link to={routes.whapi_chat} style={isActive(routes.whapi_chat) ? { color: "white" } : { color: "#757589" }}>
+                                                                <i className="fa fa-angle-right"></i>{" "}
+                                                                {t("admin.sidebar.whapi_bot_chat")}
+                                                            </Link>
+                                                        </li>
+                                                    </>
                                                 )
                                             }
-                                            <li className={`list-group-item ${isActive(routes.whapi_chat) ? "active" : ""}`}>
-                                                <Link to={routes.whapi_chat} style={isActive(routes.whapi_chat) ? { color: "white" } : { color: "#757589" }}>
-                                                    <i className="fa fa-angle-right"></i>{" "}
-                                                    {t("admin.sidebar.whapi_bot_chat")}
-                                                </Link>
-                                            </li>
+
                                             <li className={`list-group-item ${isActive(routes.worker_lead_chat) ? "active" : ""}`}>
                                                 <Link to={routes.worker_lead_chat} style={isActive(routes.worker_lead_chat) ? { color: "white" } : { color: "#757589" }}>
                                                     <i className="fa fa-angle-right"></i>{" "}

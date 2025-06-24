@@ -2029,6 +2029,17 @@ class WhatsappNotification
 
                         break;
 
+                    case WhatsappMessageTemplateEnum::INQUIRY_RESPONSE_LEAD:
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
+                            \Log::info("client disable notification");
+                            return;
+                        }
+                        $receiverNumber = $clientData['phone'] ?? null;
+                        Log::info($receiverNumber);
+                        $lng = $clientData['lng'] ?? 'heb';
+
+                        break;
+
                     case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
                         if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
                             \Log::info("client disable notification");
@@ -2054,6 +2065,16 @@ class WhatsappNotification
                         \Log::info($twi->sid);
                         $data = $twi->toArray();
                         $isTwilio = true;
+
+                        break;
+
+                    case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT_WHAPI:
+                        if (isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1) {
+                            \Log::info("client disable notification");
+                            return;
+                        }
+                        $receiverNumber = $clientData['phone'] ?? null;
+                        $lng = $clientData['lng'] ?? 'heb';
 
                         break;
 
