@@ -2716,7 +2716,7 @@ Broom Service Team 🌹",
         }
 
         // Store the messageId in the cache for 1 hour
-        Cache::put('whapi_processed_message_' . $messageId, $messageId, now()->addHours(1));
+        Cache::put('whapi_processed_message_' . $messageId, $messageId, now()->addHours(20));
 
         if (
             isset($data['messages']) &&
