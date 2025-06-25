@@ -9,6 +9,7 @@ use App\Models\Job;
 use App\Models\WorkerAvailability;
 use App\Models\ClientPropertyAddress;
 use App\Models\WorkerFreezeDate;
+use App\Models\InsuranceCompany;
 use App\Models\WorkerNotAvailableDate;
 use App\Http\Controllers\Controller;
 use App\Enums\Form101FieldEnum;
@@ -34,6 +35,8 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Rules\ValidPhoneNumber;
 use PDF;
 use App\Jobs\AddGoogleContactForWorkerJob;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\App;
 
 class WorkerController extends Controller
 {
@@ -256,7 +259,7 @@ class WorkerController extends Controller
                 return $q->selectRaw("* , {$haversine} AS distance")
                     ->orderBy('distance', 'desc');
             })
-            ->where('status', '!=' , 0)
+            ->where('status', '!=', 0)
             ->get();
 
         if (isset($request->filter)) {
@@ -486,6 +489,27 @@ class WorkerController extends Controller
             $role = $request->role;
         }
 
+        if ($request->status == 0 && $request->country != 'Israel' && $worker->status == 1) {
+            $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
+            if ($insuranceForm) {
+                $file_name = $insuranceForm->pdf_name;
+                $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+            }
+            $insuranceCompany = InsuranceCompany::first();
+
+            if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
+                App::setLocale('heb');
+                // Send email
+                Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
+                    $message->to($insuranceCompany->email)
+                        // ->bcc(config('services.mail.default'))
+                        ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
+                    if (is_file($pdfFile)) {
+                        $message->attach($pdfFile);
+                    }
+                });
+            }
+        }
 
         $worker = User::create([
             'firstname'     => $request->firstname,
@@ -973,7 +997,7 @@ class WorkerController extends Controller
             ->whereDoesntHave('notAvailableDates', function ($q) use ($dates) {
                 $q->whereIn('date', $dates);
             })
-            ->where('status', '!=' , 0)
+            ->where('status', '!=', 0)
             ->select(['id', 'firstname', 'lastname'])
             ->selectRaw('( 6371 * acos( cos( radians(' . $property['lat'] . ') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(' . $property['lng'] . ') ) + sin( radians(' . $property['lat'] . ') ) * sin( radians( latitude ) ) ) ) AS distance')
             ->orderBy('distance')
@@ -1361,6 +1385,7 @@ class WorkerController extends Controller
     {
 
         $data = $request->all();
+        $pdfFile = null;
         $worker = User::find($data['workerID']);
         if (!$worker) {
             return response()->json([
@@ -1368,6 +1393,27 @@ class WorkerController extends Controller
             ], 404);
         }
         $worker->update(['status' => $data['status']]);
+        if ($worker->status == 0 && $worker->country != 'Israel') {
+            $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
+            if ($insuranceForm) {
+                $file_name = $insuranceForm->pdf_name;
+                $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+            }
+            $insuranceCompany = InsuranceCompany::first();
+
+            if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
+                App::setLocale('heb');
+                // Send email
+                Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
+                    $message->to($insuranceCompany->email)
+                        ->bcc(config('services.mail.default'))
+                        ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
+                    if (is_file($pdfFile)) {
+                        $message->attach($pdfFile);
+                    }
+                });
+            }
+        }
         return response()->json([
             'message' => 'Worker status updated successfully',
         ]);
