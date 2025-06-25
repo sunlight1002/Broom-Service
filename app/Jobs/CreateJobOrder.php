@@ -219,15 +219,15 @@ class CreateJobOrder implements ShouldQueue
                 event(new ClientOrderWithDiscount($client, $order));
             }
 
-            $isEnableNewContract = config('services.enable_new_contract') === 'true';
-            if(in_array($job->client->id, ['88', '21', '1660']) || $isEnableNewContract) {
-                if ($service->freq_name == 'One Time' && isset($order)) {
-                    \Log::info("GenerateJobInvoice one time job");
-                    GenerateJobInvoice::dispatch($order->id, $client->id);
-                }else if ($job->is_one_time_in_month_job && isset($order)) {
-                    GenerateJobInvoice::dispatch(null, $client->id);
-                }
-            }
+            // $isEnableNewContract = config('services.enable_new_contract') === 'true';
+            // if(in_array($job->client->id, ['88', '21', '1660']) || $isEnableNewContract) {
+            //     if ($service->freq_name == 'One Time' && isset($order)) {
+            //         \Log::info("GenerateJobInvoice one time job");
+            //         GenerateJobInvoice::dispatch($order->id, $client->id);
+            //     }else if ($job->is_one_time_in_month_job && isset($order)) {
+            //         GenerateJobInvoice::dispatch(null, $client->id);
+            //     }
+            // }
         }
     }
 }

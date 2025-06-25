@@ -90,6 +90,7 @@ Route::post('change-password', [AuthController::class, 'changePassword']);
 Route::post('password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::get('client/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('client.password.reset');
 Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+Route::post('newClient', [AuthController::class, 'newClient']);
 // Route::post('password/update', [AuthController::class, 'updatePassword'])->name('password.update');
 
 // Emails Routes

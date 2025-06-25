@@ -19,6 +19,13 @@ use Illuminate\Support\Facades\Cookie;
 use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Password;
 use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
+use App\Models\Notification;
+use App\Enums\NotificationTypeEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
+use App\Models\LeadActivity;
+use App\Models\WebhookResponse;
+use App\Models\WhatsAppBotClientState;
 
 
 class AuthController extends Controller
@@ -453,5 +460,137 @@ class AuthController extends Controller
         return response()->json([
             'success' => 'Logged Out Successfully!'
         ]);
+    }
+
+    public function newClient(Request $request)
+    {
+        $twilioAccountSid = config('services.twilio.twilio_id');
+        $twilioAuthToken = config('services.twilio.twilio_token');
+        $twilioWhatsappNumber = config('services.twilio.twilio_whatsapp_number');
+        $twilio = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+
+        $validator = Validator::make($request->all(), [
+            'contacts' => ['required', 'array', 'min:1', 'max:2'],
+            'contacts.*.firstName'  => ['required', 'string', 'max:255'],
+            'contacts.*.lastName'   => ['required', 'string', 'max:255'],
+            'contacts.*.phone'      => ['required'],
+            'city'                  => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
+        $primary = $request->contacts[0];
+        $clientData = [
+            'firstname' => $primary['firstName'],
+            'lastname'  => $primary['lastName'],
+            'phone'     => $this->fixedPhoneNumber($primary['phone']),
+            'city'      => $request->city,
+            'source'    => 'CRM-Mobile',
+            'lng'       => $request->lng,
+        ];
+
+        // Check for a second contact
+        if (count($request->contacts) > 1) {
+            $secondary = $request->contacts[1];
+            $clientData['contact_person_name'] = $secondary['firstName'] . ' ' . $secondary['lastName'];
+            $clientData['contact_person_phone'] = $this->fixedPhoneNumber($secondary['phone']);
+        }
+
+        $client = Client::create($clientData);
+
+        $client->lng = str_starts_with($client->phone, '972') ? 'heb' : 'en';
+        $client->save();
+
+        $sid = str_starts_with($client->phone, '972')
+            ? "HX46b1587bfcaa3e6b29869edb538f45e0"
+            : "HXccd789be06e2fd60dd0708266ae7007f";
+
+        $message = $twilio->messages->create(
+            "whatsapp:+$client->phone",
+            [
+                "from" => "$twilioWhatsappNumber",
+                "contentSid" => $sid,
+            ]
+        );
+        \Log::info($message->sid);
+
+        WhatsAppBotClientState::updateOrCreate([
+            'client_id' => $client->id,
+        ], [
+            'menu_option' => 'main_menu',
+            'language' => str_starts_with($client->phone, '972') ? 'he' : 'en',
+        ]);
+
+        WebhookResponse::create([
+            'status'        => 1,
+            'name'          => 'whatsapp',
+            'message'       => $message->body ?? '',
+            'from'          => str_replace("whatsapp:+", "", $twilioWhatsappNumber),
+            'number'        => $client->phone,
+            'read'          => 1,
+            'flex'          => 'A',
+            'data'          => json_encode($message->toArray()),
+        ]);
+
+        // Trigger WhatsApp notification
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                // 'type' => "website"
+            ]
+        ]));
+
+        // Create a notification
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
+            'status' => 'created'
+        ]);
+
+        LeadActivity::create([
+            'client_id' => $client->id,
+            'created_date' => $client->created_at,
+            'status_changed_date' => " ",
+            'changes_status' => "pending",
+            'reason' => " ",
+        ]);
+
+        return response()->json([
+            'message' => 'Client created successfully.',
+            'data' => $client,
+        ]);
+    }
+
+    public function fixedPhoneNumber($phone)
+    {
+        // 1. Remove all special characters from the phone number
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // 2. If there's any string or invalid characters in the phone, extract the digits
+        if (preg_match('/\d+/', $phone, $matches)) {
+            $phone = $matches[0]; // Extract the digits
+
+            // Reapply rules on extracted phone number
+            // If the phone number starts with 0, add 972 and remove the first 0
+            if (strpos($phone, '0') === 0) {
+                $phone = '972' . substr($phone, 1);
+            }
+
+            // If the phone number starts with +, remove the +
+            if (strpos($phone, '+') === 0) {
+                $phone = substr($phone, 1);
+            }
+        }
+
+        $phoneLength = strlen($phone);
+        if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+            $phone = '972' . $phone;
+        }
+
+        return $phone;
     }
 }

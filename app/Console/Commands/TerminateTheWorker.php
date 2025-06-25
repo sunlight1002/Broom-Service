@@ -38,7 +38,7 @@ class TerminateTheWorker extends Command
         $today = Carbon::today()->toDateString();
 
         // Find users whose last_work_date is today and update their status
-        $workers = User::with('forms')->where('status', '!=' , 0)->whereDate('last_work_date', $today)->get();
+        $workers = User::with('forms')->where('status', '!=', 0)->whereDate('last_work_date', $today)->get();
         $insuranceCompany = InsuranceCompany::first();
 
 
@@ -47,10 +47,12 @@ class TerminateTheWorker extends Command
         } else {
             foreach ($workers as $worker) {
                 $worker->update(['status' => 0]);
-
+                $pdfFile = null;
                 $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
-                $file_name = $insuranceForm->pdf_name;
-                $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+                if ($insuranceForm) {
+                    $file_name = $insuranceForm->pdf_name;
+                    $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+                }
 
                 if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
                     App::setLocale('heb');
@@ -59,9 +61,9 @@ class TerminateTheWorker extends Command
                         $message->to($insuranceCompany->email)
                             ->bcc(config('services.mail.default'))
                             ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
-                            if(is_file($pdfFile)) {
-                                $message->attach($pdfFile);
-                            }
+                        if (is_file($pdfFile)) {
+                            $message->attach($pdfFile);
+                        }
                     });
                 }
 

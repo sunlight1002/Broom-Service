@@ -168,17 +168,21 @@ Please reply with the appropriate number.",
 
                 WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
                 $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
-                $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HX230e572381fa582bbb37949bd7798916";
-                $twi = $this->twilio->messages->create(
-                    "whatsapp:+$client->phone",
-                    [
-                        "from" => $this->twilioWhatsappNumber,
-                        "contentSid" => $sid,
-                        "contentVariables" => json_encode([
-                            "1" => $clientName,
-                        ]),
-                    ]
-                );
+                $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HXaf2da936f38341b595497b8ece2cc9a8";
+                try {
+                    $twi = $this->twilio->messages->create(
+                        "whatsapp:+$client->phone",
+                        [
+                            "from" => $this->twilioWhatsappNumber,
+                            "contentSid" => $sid,
+                            "contentVariables" => json_encode([
+                                "1" => $clientName,
+                            ]),
+                        ]
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Exception during WhatsApp message send: ' . $e->getMessage());
+                }
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
 
                 StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
