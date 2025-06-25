@@ -9,6 +9,7 @@ export default function WorkerHeader() {
   const alert = useAlert();
   const navigate = useNavigate();
   const [avatar, setAvatar] = useState("");
+  const [fullName, setFullName] = useState("");
   const { t } = useTranslation();
 
   const lng = localStorage.getItem("worker-lng");
@@ -84,6 +85,7 @@ if (lng === "en") {
       })
       .then((res) => {
         const lang = res.data.success.lng;
+        setFullName(res.data?.success?.firstname + " " + res.data?.success?.lastname);
         i18next.changeLanguage(lang);
 
         if (lang === "heb") {
@@ -119,7 +121,7 @@ if (lng === "en") {
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm-6">
-              <h1>{t('worker.welcome')} {localStorage.getItem("worker-name")}</h1>
+              <h1>{t('worker.welcome')} {fullName}</h1>
             </div>
             <div className="col-sm-6">
               <div className="float-right">

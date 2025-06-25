@@ -133,6 +133,9 @@ export default function Sidebar() {
         });
     };
 
+    console.log(role);
+    
+
     return (
         <div id="column-left">
             <div className="sideLogo">
@@ -402,8 +405,8 @@ export default function Sidebar() {
                                         data-toggle="collapse"
                                         onClick={toggleChatDropdown}
                                         aria-expanded={chatDropdown}
-                                        data-target="#chat"
-                                        aria-controls="chat"
+                                        data-target="#chat1"
+                                        aria-controls="chat1"
                                     >
                                         <i className={`fa-solid fa-message font-20 ${isChatDropdownActive ? "text-white" : ""}`}></i> {t("admin.sidebar.whatsapp")}{" "}
                                         <i className={`fa-solid fa-angle-down ${chatDropdown ? "text-white rotate-180" : ""}`}
@@ -414,10 +417,10 @@ export default function Sidebar() {
                                     </a>
                                 </div>
                                 <div
-                                    id="chat"
+                                    id="chat1"
                                     className={`collapse ${isParentActive(["client_worker_chat", "worker_lead_chat", "whapi_chat"]) ? "show" : ""}`}
-                                    aria-labelledby="chat"
-                                    data-parent="#chat"
+                                    aria-labelledby="chat1"
+                                    data-parent="#chat1"
                                 >
                                     <div className="card-body">
                                         <ul className="list-group">
