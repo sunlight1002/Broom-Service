@@ -489,28 +489,6 @@ class WorkerController extends Controller
             $role = $request->role;
         }
 
-        if ($request->status == 0 && $request->country != 'Israel' && $worker->status == 1) {
-            $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
-            if ($insuranceForm) {
-                $file_name = $insuranceForm->pdf_name;
-                $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
-            }
-            $insuranceCompany = InsuranceCompany::first();
-
-            if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
-                App::setLocale('heb');
-                // Send email
-                Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
-                    $message->to($insuranceCompany->email)
-                        ->bcc(config('services.mail.default'))
-                        ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
-                    if (is_file($pdfFile)) {
-                        $message->attach($pdfFile);
-                    }
-                });
-            }
-        }
-
         $worker = User::create([
             'firstname'     => $request->firstname,
             'lastname'      => ($request->lastname) ? $request->lastname : '',
@@ -723,6 +701,28 @@ class WorkerController extends Controller
             }
         } else {
             $role = $request->role;
+        }
+
+        if ($request->status == 0 && $request->country != 'Israel' && $worker->status == 1) {
+            $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
+            if ($insuranceForm) {
+                $file_name = $insuranceForm->pdf_name;
+                $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+            }
+            $insuranceCompany = InsuranceCompany::first();
+
+            if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
+                App::setLocale('heb');
+                // Send email
+                Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
+                    $message->to($insuranceCompany->email)
+                        ->bcc(config('services.mail.default'))
+                        ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
+                    if (is_file($pdfFile)) {
+                        $message->attach($pdfFile);
+                    }
+                });
+            }
         }
 
         $worker->update([
