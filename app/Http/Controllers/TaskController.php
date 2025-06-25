@@ -30,7 +30,7 @@ class TaskController extends Controller
         $query = TaskManagement::with([
             'phase',
             'comments',
-            'workers:id,firstname',
+            'workers:id,firstname,lastname',
             'users:id,name'
         ]);
 
@@ -90,6 +90,16 @@ class TaskController extends Controller
         // Sorting
         $sortBy = $request->get('sort_by', 'due_date');
         $sortOrder = $request->get('sort_order', 'desc');
+        
+        // Validate sort column to prevent SQL injection
+        $allowedSortColumns = ['task_name', 'status', 'due_date', 'priority', 'created_at'];
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'due_date';
+        }
+        
+        // Validate sort order
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        
         $query->orderBy($sortBy, $sortOrder);
 
         // Pagination
@@ -102,10 +112,13 @@ class TaskController extends Controller
     public function showWorkerTasks($workerId, Request $request)
     {
         // Build query for tasks assigned to the specific worker
-        $query = TaskManagement::with(['phase', 'comments.commentable', 'workers:id,firstname,lastname', 'users:id,name'])->where('user_id', $workerId);
+        $query = TaskManagement::with(['phase', 'comments.commentable', 'workers:id,firstname,lastname', 'users:id,name'])
+            ->whereHas('workers', function($q) use ($workerId) {
+                $q->where('users.id', $workerId);
+            });
 
         // Apply status filter
-        if ($request->has('status') && $request->status !== '' && $request->status !== null) {
+        if ($request->has('status') && $request->status !== '' && $request->status !== null && $request->status !== 'All') {
             $query->where('status', $request->status);
         }
 
@@ -129,6 +142,16 @@ class TaskController extends Controller
         // Apply sorting
         $sortBy = $request->get('sort_by', 'due_date');
         $sortOrder = $request->get('sort_order', 'desc');
+        
+        // Validate sort column to prevent SQL injection
+        $allowedSortColumns = ['task_name', 'status', 'due_date', 'priority', 'created_at'];
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'due_date';
+        }
+        
+        // Validate sort order
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        
         $query->orderBy($sortBy, $sortOrder);
 
         // Apply pagination

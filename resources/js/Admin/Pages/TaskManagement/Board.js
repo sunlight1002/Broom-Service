@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import './Board.css';
 import Sidebar from '../../Layouts/Sidebar';
 import { useTranslation } from 'react-i18next';
@@ -124,12 +124,46 @@ const App = () => {
         return { start: '', end: '' };
     };
 
-    const getTasks = async (params = {}) => {
+    const getTasks = useCallback(async (params = {}) => {
         setLoading("Loading...");
         try {
+            // Build query parameters
+            const queryParams = {
+                page: page,
+                per_page: pageSize,
+                sort_by: sortCol,
+                sort_order: order,
+                ...params
+            };
+
+            // Add filters only if they have values
+            if (statusFilter && statusFilter !== 'All') {
+                queryParams.status = statusFilter;
+            }
+            
+            if (search && search.trim()) {
+                queryParams.search = search.trim();
+            }
+            
+            if (dateRange.start) {
+                queryParams.due_date_start = dateRange.start;
+            }
+            
+            if (dateRange.end) {
+                queryParams.due_date_end = dateRange.end;
+            }
+            
+            if (selectedWorker && selectedWorker.length > 0) {
+                queryParams.worker_id = selectedWorker.map(w => w.value);
+            }
+            
+            if (selectedTeam && selectedTeam.length > 0) {
+                queryParams.user_id = selectedTeam.map(t => t.value);
+            }
+
             const response = await axios.get(`/api/admin/tasks`, {
                 headers,
-                params,
+                params: queryParams,
                 paramsSerializer: params => {
                     return Object.keys(params)
                         .map(key => {
@@ -150,7 +184,7 @@ const App = () => {
             setTasks([]);
             console.error('Error fetching tasks:', error);
         }
-    };
+    }, [page, pageSize, sortCol, order, statusFilter, search, dateRange, selectedWorker, selectedTeam, headers]);
 
     useEffect(() => {
         getTeamMembers();
@@ -159,9 +193,35 @@ const App = () => {
         getTasks();
     }, []);
 
+    // Separate useEffect for filters to prevent infinite loops
     useEffect(() => {
-        getTasks();
-    }, [statusFilter, datePeriod, dateRange.start, dateRange.end, selectedWorker, selectedTeam, search, sortCol, order, page]);
+        if (page === 1) {
+            getTasks();
+        } else {
+            setPage(1); // Reset to first page when filters change
+        }
+    }, [statusFilter, datePeriod, dateRange.start, dateRange.end, search, sortCol, order]);
+
+    // Separate useEffect for pagination
+    useEffect(() => {
+        if (page > 1) {
+            getTasks();
+        }
+    }, [page]);
+
+    // Separate useEffect for worker/team selection
+    useEffect(() => {
+        const workerIds = selectedWorker?.map(w => w.value) || [];
+        const teamIds = selectedTeam?.map(t => t.value) || [];
+        
+        if (workerIds.length > 0 || teamIds.length > 0 || (selectedWorker?.length === 0 && selectedTeam?.length === 0)) {
+            if (page === 1) {
+                getTasks();
+            } else {
+                setPage(1);
+            }
+        }
+    }, [selectedWorker?.length, selectedTeam?.length]);
 
     const handleAddCard = async () => {
 
@@ -517,9 +577,24 @@ const App = () => {
                                     <Thead>
                                         <Tr>
                                             <Th style={{ width: '50px' }}>No.</Th>
-                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>Task Name <span className="arr">&darr;</span></Th>
-                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>Status <span className="arr">&darr;</span></Th>
-                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>Deadline <span className="arr">&darr;</span></Th>
+                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>
+                                                Task Name 
+                                                <span className="arr">
+                                                    {sortCol === "task_name" ? (order === "ASC" ? "↑" : "↓") : "↕"}
+                                                </span>
+                                            </Th>
+                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>
+                                                Status 
+                                                <span className="arr">
+                                                    {sortCol === "status" ? (order === "ASC" ? "↑" : "↓") : "↕"}
+                                                </span>
+                                            </Th>
+                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>
+                                                Deadline 
+                                                <span className="arr">
+                                                    {sortCol === "due_date" ? (order === "ASC" ? "↑" : "↓") : "↕"}
+                                                </span>
+                                            </Th>
                                             <Th>Comment</Th>
                                             <Th>Worker/Team Member</Th>
                                             <Th>Actions</Th>
