@@ -1114,6 +1114,7 @@ export default function EditWorker() {
                                             setItemStatus(e.target.value)
                                         }
                                     >
+                                        <option value="2">{t("worker.settings.waiting")}</option>
                                         <option value="1">{t("worker.settings.Enable")}</option>
                                         <option value="0">{t("worker.settings.Disable")}</option>
                                     </select>
