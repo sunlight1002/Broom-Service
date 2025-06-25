@@ -129,7 +129,7 @@ const App = () => {
         try {
             const response = await axios.get(`/api/admin/tasks`, {
                 headers,
-                params: requestParams,
+                params,
                 paramsSerializer: params => {
                     return Object.keys(params)
                         .map(key => {
