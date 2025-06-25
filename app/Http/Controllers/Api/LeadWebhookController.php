@@ -2699,7 +2699,7 @@ Broom Service Team 🌹",
         ) {
             if ($number) {
                 // Store the number in the cache for 20 minutes
-                Cache::put('cached_from_number', $number, now()->addMinutes(1));
+                Cache::put('cached_from_number', $number, now()->addMinutes(20));
             }
         }
 
@@ -2716,7 +2716,7 @@ Broom Service Team 🌹",
         }
 
         // Store the messageId in the cache for 1 hour
-        Cache::put('whapi_processed_message_' . $messageId, $messageId, now()->addHours(20));
+        Cache::put('whapi_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         if (
             isset($data['messages']) &&
