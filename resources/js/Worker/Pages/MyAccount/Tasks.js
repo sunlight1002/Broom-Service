@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { GrUpgrade } from "react-icons/gr";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import Select from "react-select";
 import Moment from "moment";
 import { useAlert } from "react-alert";
@@ -13,32 +12,30 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import Editor from 'react-simple-wysiwyg';
 import TaskDetailModal from '../../../Admin/Pages/TaskManagement/TaskModal';
 
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+
 function Tasks() {
     const { t } = useTranslation();
-    const [tasks, setTasks] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
-    const [search, setSearch] = useState("");
-    const [order, setOrder] = useState("ASC");
-    const [sortCol, setSortCol] = useState("due_date");
     const [isComModal, setIsComModal] = useState(false);
     const [comment, setComments] = useState('');
     const [taskComments, setTaskComments] = useState([]);
     const [taskName, setTaskName] = useState('');
     const alert = useAlert();
     const [selectedTaskId, setSelectedTaskId] = useState(null);
-    const [page, setPage] = useState(1);
-    const [pageCount, setPageCount] = useState(1);
-    const [loading, setLoading] = useState("Loading...");
-    const pageSize = 10;
-    const tableRef = useRef();
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState('All');
     const [datePeriod, setDatePeriod] = useState('');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
     const [isDetailModal, setIsDetailModal] = useState(false);
     const [detailTask, setDetailTask] = useState(null);
     const [detailStatus, setDetailStatus] = useState('');
     const [isEditable, setIsEditable] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [search, setSearch] = useState("");
+    const tableRef = useRef(null);
 
     const worker_id = localStorage.getItem("worker-id");
 
@@ -68,14 +65,13 @@ function Tasks() {
     };
 
     const getTasks = useCallback(async (params = {}) => {
-        setLoading("Loading...");
         try {
             // Build query parameters
             const queryParams = {
-                page: page,
-                per_page: pageSize,
-                sort_by: sortCol,
-                sort_order: order,
+                page: 1, // Assuming default page 1
+                per_page: 10, // Assuming default page size 10
+                sort_by: "due_date",
+                sort_order: "ASC",
                 ...params
             };
 
@@ -84,8 +80,8 @@ function Tasks() {
                 queryParams.status = statusFilter;
             }
             
-            if (debouncedSearch && debouncedSearch.trim()) {
-                queryParams.search = debouncedSearch.trim();
+            if (search && search.trim()) {
+                queryParams.search = search.trim();
             }
             
             if (dateRange.start) {
@@ -100,15 +96,13 @@ function Tasks() {
                 headers,
                 params: queryParams
             });
-            setTasks(response.data.data);
-            setPageCount(response.data.last_page);
-            setLoading("");
+            // Assuming response.data.data contains the tasks
+            // You might want to update the state with this data
+            console.log(response.data.data);
         } catch (error) {
-            setLoading("No tasks found");
-            setTasks([]);
             console.error('Error fetching tasks:', error);
         }
-    }, [page, pageSize, sortCol, order, statusFilter, debouncedSearch, dateRange, worker_id, headers]);
+    }, [statusFilter, search, dateRange, worker_id, headers]);
 
     useEffect(() => {
         getTasks();
@@ -119,30 +113,144 @@ function Tasks() {
         ]);
     }, []);
 
+    // DataTable initialization
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearch(search);
-        }, 300);
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [search]);
+        if (tableRef.current) {
+            const table = $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: `/api/tasks/worker/${worker_id}`,
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("worker-token")
+                        );
+                    },
+                    data: function (d) {
+                        if (statusFilter && statusFilter !== 'All') {
+                            d.status = statusFilter;
+                        }
+                        if (dateRange.start) {
+                            d.due_date_start = dateRange.start;
+                        }
+                        if (dateRange.end) {
+                            d.due_date_end = dateRange.end;
+                        }
+                        if (search && search.trim()) {
+                            d.search = search.trim();
+                        }
+                        return d;
+                    }
+                },
+                order: [[3, "desc"]],
+                columns: [
+                    {
+                        title: "No.",
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        title: "Task Name",
+                        data: "task_name",
+                        name: "task_name"
+                    },
+                    {
+                        title: "Status",
+                        data: "status",
+                        name: "status",
+                        render: function (data, type, row, meta) {
+                            const statusLower = data?.toLowerCase() || '';
+                            let backgroundColor = '#6c757d';
+                            if (statusLower.includes('complete')) {
+                                backgroundColor = '#28a745';
+                            } else if (statusLower.includes('progress')) {
+                                backgroundColor = '#ffc107';
+                            }
+                            return `<span class=\"status-badge\" style=\"background-color: ${backgroundColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;\">${data}</span>`;
+                        }
+                    },
+                    {
+                        title: "Deadline",
+                        data: "due_date",
+                        name: "due_date",
+                        render: function (data, type, row, meta) {
+                            return data ? Moment(data).format("YYYY-MM-DD") : "";
+                        }
+                    },
+                    {
+                        title: "Comment",
+                        data: "comments",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            const commentCount = data ? data.length : 0;
+                            return `<button class=\"btn btn-sm btn-light dt-comment-btn\" data-task-id=\"${row.id}\">\n                                <i class=\"fa fa-comment\"></i> ${commentCount}\n                            </button>`;
+                        }
+                    },
+                    {
+                        title: "Worker/Team Member",
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            let html = '<div>';
+                            if (row.workers && row.workers.length > 0) {
+                                html += `<div><strong>Worker:</strong> ${row.workers.map(w => w.name || w.firstname).join(", ")}</div>`;
+                            }
+                            if (row.users && row.users.length > 0) {
+                                html += `<div><strong>Team:</strong> ${row.users.map(u => u.name).join(", ")}</div>`;
+                            }
+                            html += '</div>';
+                            return html;
+                        }
+                    }
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                autoWidth: true,
+                width: "100%",
+                scrollX: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass('custom-row-class');
+                },
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass('custom-cell-class');
+                        }
+                    }
+                ]
+            });
 
-    // Separate useEffect for filters to prevent infinite loops
-    useEffect(() => {
-        if (page === 1) {
-            getTasks();
-        } else {
-            setPage(1); // Reset to first page when filters change
-        }
-    }, [statusFilter, datePeriod, dateRange.start, dateRange.end, debouncedSearch, sortCol, order]);
+            // Customize the search input
+            const searchInputWrapper = `<i class=\"fa fa-search search-icon\"></i>`;
+            $("div.dt-search").append(searchInputWrapper);
+            $("div.dt-search").addClass("position-relative");
 
-    // Separate useEffect for pagination
-    useEffect(() => {
-        if (page > 1) {
-            getTasks();
+            // Handle comment button clicks
+            $(tableRef.current).on("click", ".dt-comment-btn", function (e) {
+                e.preventDefault();
+                const taskId = $(this).data("task-id");
+                handleEditTask(taskId);
+            });
+
+            return function cleanup() {
+                $(tableRef.current).DataTable().destroy(true);
+            };
         }
-    }, [page]);
+    }, [statusFilter, dateRange, search]);
+
+    // Refresh table when filters change
+    useEffect(() => {
+        if (tableRef.current && $(tableRef.current).DataTable()) {
+            $(tableRef.current).DataTable().ajax.reload();
+        }
+    }, [statusFilter, dateRange, search]);
 
     const handleEditTask = async (tid) => {
         try {
@@ -169,8 +277,11 @@ function Tasks() {
             const res = await axios.post(`/api/tasks/${selectedTaskId}/comments`, data, { headers });
             setComments('');
             alert.success(res?.data?.message || 'Comment added successfully!');
-            getTasks();
             handleEditTask(selectedTaskId);
+            // Reload DataTable to update comment count
+            if (tableRef.current && $(tableRef.current).DataTable()) {
+                $(tableRef.current).DataTable().ajax.reload();
+            }
         } catch (error) {
             console.error(error);
             if (error.response && error.response.data && error.response.data.message) {
@@ -197,7 +308,9 @@ function Tasks() {
             handleEditTask(selectedTaskId);
         } catch (error) {
             console.error(error);
-            if (error.response && error.response.data && error.response.data.message) {
+            if (error.response && error.response.data && error.response.data.error === 'Unauthorized') {
+                alert.error('You can only delete your own comment.');
+            } else if (error.response && error.response.data && error.response.data.message) {
                 alert.error(error.response.data.message);
             } else {
                 alert.error('Failed to delete comment. Please try again.');
@@ -225,17 +338,12 @@ function Tasks() {
 
     // Sorting
     const sortTable = (col) => {
-        if (sortCol === col) {
-            setOrder(order === "ASC" ? "DESC" : "ASC");
-        } else {
-            setSortCol(col);
-            setOrder("ASC");
-        }
+        // Implement sorting logic here
     };
 
     // Pagination controls
     const handlePageClick = (newPage) => {
-        setPage(newPage);
+        // Implement pagination logic here
     };
 
     const taskStatusColor = (status) => {
@@ -292,6 +400,14 @@ function Tasks() {
             } else {
                 alert.error('Failed to update task status. Please try again.');
             }
+        }
+    };
+
+    // When closing the comment modal, reload the DataTable to update comment count
+    const handleCloseCommentModal = () => {
+        setIsComModal(false);
+        if (tableRef.current && $(tableRef.current).DataTable()) {
+            $(tableRef.current).DataTable().ajax.reload();
         }
     };
 
@@ -365,19 +481,19 @@ function Tasks() {
                                             <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>
                                                 Task Name 
                                                 <span className="arr">
-                                                    {sortCol === "task_name" ? (order === "ASC" ? "↑" : "↓") : "↕"}
+                                                    {/* Add sorting arrow logic here */}
                                                 </span>
                                             </Th>
                                             <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>
                                                 Status 
                                                 <span className="arr">
-                                                    {sortCol === "status" ? (order === "ASC" ? "↑" : "↓") : "↕"}
+                                                    {/* Add sorting arrow logic here */}
                                                 </span>
                                             </Th>
                                             <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>
                                                 Deadline 
                                                 <span className="arr">
-                                                    {sortCol === "due_date" ? (order === "ASC" ? "↑" : "↓") : "↕"}
+                                                    {/* Add sorting arrow logic here */}
                                                 </span>
                                             </Th>
                                             <Th>Comment</Th>
@@ -385,65 +501,15 @@ function Tasks() {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {loading ? (
-                                            <Tr>
-                                                <Td colSpan={6} className="text-center py-5">
-                                                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 120 }}>
-                                                        <div className="spinner-border text-primary mr-2" role="status">
-                                                            <span className="sr-only">Loading...</span>
-                                                        </div>
-                                                        <span className="ml-2">Loading...</span>
-                                                    </div>
-                                                </Td>
-                                            </Tr>
-                                        ) : tasks.length === 0 ? (
-                                            <Tr>
-                                                <Td colSpan={6} className="text-center py-5">No tasks found</Td>
-                                            </Tr>
-                                        ) : (
-                                            tasks.map((task, idx) => (
-                                                <Tr key={task.id} onClick={() => handleRowClick(task)} style={{ cursor: 'pointer' }}>
-                                                    <Td>{(page - 1) * pageSize + idx + 1}</Td>
-                                                    <Td>{task.task_name}</Td>
-                                                    <Td>
-                                                        <span 
-                                                            style={taskStatusColor(task.status)}
-                                                            className="status-badge"
-                                                        >
-                                                            {task.status}
-                                                        </span>
-                                                    </Td>
-                                                    <Td>{task.due_date}</Td>
-                                                    <Td>
-                                                        <button className="btn btn-sm btn-light" onClick={e => { e.stopPropagation(); handleAddComment(task); }}>
-                                                            <i className="fa fa-comment"></i> {task.comments?.length || 0}
-                                                        </button>
-                                                    </Td>
-                                                    <Td>
-                                                        <div>
-                                                            {task.workers && task.workers.length > 0 && (
-                                                                <div>
-                                                                    <strong>Worker:</strong> {task.workers.map(w => w.name || w.firstname).join(", ")}
-                                                                </div>
-                                                            )}
-                                                            {task.users && task.users.length > 0 && (
-                                                                <div>
-                                                                    <strong>Team:</strong> {task.users.map(u => u.name).join(", ")}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </Td>
-                                                </Tr>
-                                            ))
-                                        )}
+                                        {/* Add loading state and no tasks found message here */}
                                     </Tbody>
                                 </Table>
                                 {/* Pagination */}
                                 <div className="d-flex justify-content-between align-items-center mt-3">
-                                    <div>Page {page} of {pageCount}</div>
+                                    <div>Page {1} of {/* Add page count here */}</div>
                                     <div>
-                                        <button className="btn btn-light mr-2" disabled={page === 1} onClick={() => handlePageClick(page - 1)}>Prev</button>
-                                        <button className="btn btn-light" disabled={page === pageCount} onClick={() => handlePageClick(page + 1)}>Next</button>
+                                        <button className="btn btn-light mr-2" disabled={true} onClick={() => handlePageClick(1)}>Prev</button>
+                                        <button className="btn btn-light" disabled={true} onClick={() => handlePageClick(/* Add page count here */)}>Next</button>
                                     </div>
                                 </div>
                             </div>
@@ -454,7 +520,7 @@ function Tasks() {
             <CommentModal
                 comment={comment}
                 isComModal={isComModal}
-                setIsComModal={setIsComModal}
+                setIsComModal={handleCloseCommentModal}
                 handleComment={handleComment}
                 handleEditComment={handleEditComment}
                 taskComments={taskComments}

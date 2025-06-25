@@ -81,31 +81,62 @@ class TaskController extends Controller
         
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('task_name', 'like', "%$search%")
-                  ->orWhere('description', 'like', "%$search%");
-            });
+            // Handle DataTables search object format
+            if (is_array($search) && isset($search['value'])) {
+                $search = $search['value'];
+            }
+            if (is_string($search) && !empty(trim($search))) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('task_name', 'like', "%$search%")
+                      ->orWhere('description', 'like', "%$search%");
+                });
+            }
         }
 
-        // Sorting
-        $sortBy = $request->get('sort_by', 'due_date');
-        $sortOrder = $request->get('sort_order', 'desc');
-        
-        // Validate sort column to prevent SQL injection
+        // DataTables sorting
+        $sortBy = 'due_date';
+        $sortOrder = 'desc';
         $allowedSortColumns = ['task_name', 'status', 'due_date', 'priority', 'created_at'];
-        if (!in_array($sortBy, $allowedSortColumns)) {
-            $sortBy = 'due_date';
+        if ($request->has('order') && $request->has('columns')) {
+            $orderArr = $request->input('order');
+            $columnsArr = $request->input('columns');
+            if (is_array($orderArr) && count($orderArr) > 0) {
+                $orderColIdx = $orderArr[0]['column'] ?? null;
+                $orderDir = $orderArr[0]['dir'] ?? 'desc';
+                if ($orderColIdx !== null && isset($columnsArr[$orderColIdx]['data'])) {
+                    $colName = $columnsArr[$orderColIdx]['data'];
+                    if (in_array($colName, $allowedSortColumns)) {
+                        $sortBy = $colName;
+                        $sortOrder = strtolower($orderDir) === 'asc' ? 'asc' : 'desc';
+                    }
+                }
+            }
+        } else {
+            // Fallback to legacy sort_by/sort_order
+            $sortBy = $request->get('sort_by', 'due_date');
+            $sortOrder = $request->get('sort_order', 'desc');
+            if (!in_array($sortBy, $allowedSortColumns)) {
+                $sortBy = 'due_date';
+            }
+            $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
         }
-        
-        // Validate sort order
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
-        
         $query->orderBy($sortBy, $sortOrder);
 
-        // Pagination
-        $perPage = $request->get('per_page', 10);
-        $tasks = $query->paginate($perPage);
+        // DataTables pagination
+        $perPage = $request->get('length', $request->get('per_page', 10));
+        $start = $request->get('start', 0);
+        $page = $perPage > 0 ? intval($start / $perPage) + 1 : 1;
+        $tasks = $query->paginate($perPage, ['*'], 'page', $page);
 
+        // DataTables response format
+        if ($request->has('draw')) {
+            return response()->json([
+                'draw' => intval($request->get('draw')),
+                'recordsTotal' => $tasks->total(),
+                'recordsFiltered' => $tasks->total(),
+                'data' => $tasks->items(),
+            ]);
+        }
         return response()->json($tasks);
     }
 
@@ -125,10 +156,16 @@ class TaskController extends Controller
         // Apply search filter
         if ($request->has('search') && $request->search !== '' && $request->search !== null) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('task_name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
+            // Handle DataTables search object format
+            if (is_array($search) && isset($search['value'])) {
+                $search = $search['value'];
+            }
+            if (is_string($search) && !empty(trim($search))) {
+                $query->where(function($q) use ($search) {
+                    $q->where('task_name', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
         }
 
         // Apply date range filter
@@ -139,25 +176,49 @@ class TaskController extends Controller
             $query->where('due_date', '<=', $request->due_date_end);
         }
 
-        // Apply sorting
-        $sortBy = $request->get('sort_by', 'due_date');
-        $sortOrder = $request->get('sort_order', 'desc');
-        
-        // Validate sort column to prevent SQL injection
+        // DataTables sorting
+        $sortBy = 'due_date';
+        $sortOrder = 'desc';
         $allowedSortColumns = ['task_name', 'status', 'due_date', 'priority', 'created_at'];
-        if (!in_array($sortBy, $allowedSortColumns)) {
-            $sortBy = 'due_date';
+        if ($request->has('order') && $request->has('columns')) {
+            $orderArr = $request->input('order');
+            $columnsArr = $request->input('columns');
+            if (is_array($orderArr) && count($orderArr) > 0) {
+                $orderColIdx = $orderArr[0]['column'] ?? null;
+                $orderDir = $orderArr[0]['dir'] ?? 'desc';
+                if ($orderColIdx !== null && isset($columnsArr[$orderColIdx]['data'])) {
+                    $colName = $columnsArr[$orderColIdx]['data'];
+                    if (in_array($colName, $allowedSortColumns)) {
+                        $sortBy = $colName;
+                        $sortOrder = strtolower($orderDir) === 'asc' ? 'asc' : 'desc';
+                    }
+                }
+            }
+        } else {
+            $sortBy = $request->get('sort_by', 'due_date');
+            $sortOrder = $request->get('sort_order', 'desc');
+            if (!in_array($sortBy, $allowedSortColumns)) {
+                $sortBy = 'due_date';
+            }
+            $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
         }
-        
-        // Validate sort order
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
-        
         $query->orderBy($sortBy, $sortOrder);
 
-        // Apply pagination
-        $perPage = $request->get('per_page', 10);
-        $tasks = $query->paginate($perPage);
+        // DataTables pagination
+        $perPage = $request->get('length', $request->get('per_page', 10));
+        $start = $request->get('start', 0);
+        $page = $perPage > 0 ? intval($start / $perPage) + 1 : 1;
+        $tasks = $query->paginate($perPage, ['*'], 'page', $page);
 
+        // DataTables response format
+        if ($request->has('draw')) {
+            return response()->json([
+                'draw' => intval($request->get('draw')),
+                'recordsTotal' => $tasks->total(),
+                'recordsFiltered' => $tasks->total(),
+                'data' => $tasks->items(),
+            ]);
+        }
         return response()->json($tasks);
     }
     
