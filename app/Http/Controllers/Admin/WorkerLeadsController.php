@@ -324,19 +324,36 @@ class WorkerLeadsController extends Controller
     public function changeStatus(Request $request, $id)
     {
 
-        $validator = Validator::make($request->all(), [
+        $status = $request->input('status');
+        $companyType = $request->input('company_type');
 
-            'email'     => ['nullable',  'unique:users,email,' . $id],
-            'payment_per_hour' => ['required', 'string'],
-            'company_type'    => [
+        // Base rules
+        $rules = [
+            'status' => ['required', 'string'],
+        ];
+
+        // Additional rules if status is "hiring"
+        if ($status === 'hiring') {
+            $rules['payment_per_hour'] = ['required', 'string'];
+            $rules['manpower_company_id'] = ['required_if:company_type,manpower'];
+            $rules['company_type'] = [
                 'required',
                 Rule::in(['my-company', 'manpower', 'freelancer']),
-            ],
-            'manpower_company_id' => ['required_if:company_type,manpower'],
-        ]);
+            ];
+            $rules['email'] = ['nullable', 'unique:users,email,' . $id];
+        }
+
+        // Adjust rules if company_type is "manpower"
+        if ($companyType === 'manpower') {
+            $rules['payment_per_hour'] = ['nullable'];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
+
 
         $workerLead = WorkerLeads::find($id);
         $admin = Admin::where('role', 'hr')->first();

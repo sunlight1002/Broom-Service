@@ -1258,7 +1258,12 @@ If this may suit you or your friends now or in the future, you are more than wel
 https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
 https://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr
 
-Have a wonderful day!🌟",
+Have a wonderful day!🌟
+
+Best Regards, 
+Job4Service Team 
+🌐 job4service.com 
+📧 officejob4service@gmail.com",
                 'message_heb' => "שלום *:worker_name*,
 
 🌟 תודה שפנית אלינו ב-Job4Service.
@@ -1274,7 +1279,12 @@ https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
 https://t.me/+m84PexCmLjs0MmZk
 https://www.facebook.com/JobinIsraelforubr
 
-שיהיה לך יום נפלא !🌟",
+שיהיה לך יום נפלא !🌟
+
+בברכה, 
+צוות Job4Service 
+🌐 job4service.com 
+📧 officejob4service@gmail.com",
                 'message_spa' => "Hola *:worker_name*
 
 🌟 Gracias por contactarnos en Job4Service.
@@ -1309,7 +1319,12 @@ https://www.facebook.com/JobinIsraelforubr
 
 Для получения дополнительной информации, не стесняйтесь обращаться к нам.
 
-Хорошего дня! 🌟",
+Хорошего дня! 🌟
+
+С уважением, 
+Команда Job4Service 
+🌐 job4service.com 
+📧 officejob4service@gmail.com",
             ],
 
 
@@ -4132,7 +4147,7 @@ We look forward to hearing from you!
 Best Regards, 
 Job4Service Team 
 🌐 job4service.com 
-📧 officejob4service@gmail.com ",
+📧 officejob4service@gmail.com",
 
                 'message_heb' => "🌟 שלום שוב! 
 
