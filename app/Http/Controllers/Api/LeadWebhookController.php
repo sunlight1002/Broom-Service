@@ -682,6 +682,7 @@ Broom Service Team 🌹",
 
         // Check if request content is JSON (likely from Whapi)
         $content = $request->getContent();
+        // \Log::info($content);
         if ($this->isJson($content)) {
             $this->WhapifbWebhookCurrentLive($request);
             die("whapi");
@@ -709,7 +710,6 @@ Broom Service Team 🌹",
             $message = $data['Body'] ?? null;
             $listId = $data['ListId'] ?? $message;
             $ButtonPayload = $data['ButtonPayload'] ?? null;
-            \Log::info($ButtonPayload . " - " . $listId . " - " . $message);
 
             switch ($listId) {
                 case 'About the Service':
@@ -799,7 +799,7 @@ Broom Service Team 🌹",
             if ($user && (!$client || $client->lead_status->lead_status !== "active client")) {
                 $controller = app(WorkerLeadWebhookController::class);
                 return $controller->fbActiveWorkersWebhookCurrentLive($request);
-            } 
+            }
 
             if ($workerLead) {
                 \Log::info('WorkerLead: ' . $workerLead->id);
@@ -2688,6 +2688,21 @@ Broom Service Team 🌹",
         $message = null;
         $content = $request->getContent();
         $data = json_decode($content, true);
+        $fromNumber = $data['messages'][0]['from'] ?? null;
+        $number = explode('@', $data['messages'][0]['chat_id'] ?? '')[0];
+
+        if (
+            isset($data['messages']) &&
+            isset($data['messages'][0]['from_me']) &&
+            $data['messages'][0]['from_me'] == true &&
+            $data['messages'][0]['source'] != "api"
+        ) {
+            if ($number) {
+                // Store the number in the cache for 20 minutes
+                Cache::put('cached_from_number', $number, now()->addMinutes(1));
+            }
+        }
+
         $messageId = $data['messages'][0]['id'] ?? null;
 
         if (!$messageId) {
@@ -2695,7 +2710,7 @@ Broom Service Team 🌹",
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('whapi_processed_message_' . $messageId) === $messageId) {
+        if ((Cache::get('whapi_processed_message_' . $messageId) === $messageId) || (Cache::get('cached_from_number') === $fromNumber)) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }

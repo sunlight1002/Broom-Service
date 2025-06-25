@@ -181,7 +181,20 @@ class WorkerLeadWebhookController extends Controller
         $content = $request->getContent();
         $data = json_decode($content, true);
         $messageId = $data['messages'][0]['id'] ?? null;
+        $fromNumber = $data['messages'][0]['from'] ?? null;
+        $number = explode('@', $data['messages'][0]['chat_id'] ?? '')[0];
 
+        if (
+            isset($data['messages']) &&
+            isset($data['messages'][0]['from_me']) &&
+            $data['messages'][0]['from_me'] == true &&
+            $data['messages'][0]['source'] != "api"
+        ) {
+            if ($number) {
+                // Store the number in the cache for 20 minutes
+                Cache::put('cached_from_number', $number, now()->addMinutes(20));
+            }
+        }
 
         if (!$messageId) {
             \Log::info('Invalid message data');
@@ -189,7 +202,7 @@ class WorkerLeadWebhookController extends Controller
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('worker_processed_message_' . $messageId) === $messageId) {
+        if ((Cache::get('worker_processed_message_' . $messageId) === $messageId) || (Cache::get('cached_from_number') === $fromNumber)) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
@@ -273,7 +286,20 @@ class WorkerLeadWebhookController extends Controller
         $content = $request->getContent();
         $data = json_decode($content, true);
         $messageId = $data['messages'][0]['id'] ?? null;
+        $fromNumber = $data['messages'][0]['from'] ?? null;
+        $number = explode('@', $data['messages'][0]['chat_id'] ?? '')[0];
 
+        if (
+            isset($data['messages']) &&
+            isset($data['messages'][0]['from_me']) &&
+            $data['messages'][0]['from_me'] == true &&
+            $data['messages'][0]['source'] != "api"
+        ) {
+            if ($number) {
+                // Store the number in the cache for 20 minutes
+                Cache::put('cached_from_number', $number, now()->addMinutes(20));
+            }
+        }
 
         if (!$messageId) {
             \Log::info('Invalid message data');
@@ -281,7 +307,7 @@ class WorkerLeadWebhookController extends Controller
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('worker_processed_message_' . $messageId) === $messageId) {
+        if ((Cache::get('worker_processed_message_' . $messageId) === $messageId) || (Cache::get('cached_from_number') === $fromNumber)) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
