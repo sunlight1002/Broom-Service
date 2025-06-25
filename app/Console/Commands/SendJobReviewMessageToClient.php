@@ -168,7 +168,7 @@ Please reply with the appropriate number.",
 
                 WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
                 $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
-                $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HXaf2da936f38341b595497b8ece2cc9a8";
+                $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HX230e572381fa582bbb37949bd7798916";
                 try {
                     $twi = $this->twilio->messages->create(
                         "whatsapp:+$client->phone",
