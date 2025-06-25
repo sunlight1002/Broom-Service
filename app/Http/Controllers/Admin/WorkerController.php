@@ -502,7 +502,7 @@ class WorkerController extends Controller
                 // Send email
                 Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
                     $message->to($insuranceCompany->email)
-                        // ->bcc(config('services.mail.default'))
+                        ->bcc(config('services.mail.default'))
                         ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
                     if (is_file($pdfFile)) {
                         $message->attach($pdfFile);
