@@ -133,7 +133,7 @@ Please reply with the appropriate number.",
                             $client = Client::where('email', $email)->first();
                         }
                         if ($client) {
-                            if($client->review_notification == 1 || $client->disable_notification == 1){
+                            if ($client->review_notification == 1 || $client->disable_notification == 1) {
                                 echo 'review notification client: ' . $client->id . PHP_EOL;
                                 continue;
                             }
@@ -157,22 +157,22 @@ Please reply with the appropriate number.",
                 }
             }
         }
-        foreach(array_unique($clientIds) as $clientId) {
+        foreach (array_unique($clientIds) as $clientId) {
 
             $client = Client::where('id', $clientId)
-                    ->where('review_notification', 0)
-                    ->where('disable_notification', 0)
-                    ->first();
+                ->where('review_notification', 0)
+                ->where('disable_notification', 0)
+                ->first();
 
-            if($client) {
+            if ($client) {
 
                 WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
                 $clientName = trim(trim($client->firstname ?? '') . ' ' . trim($client->lastname ?? ''));
-                $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HX230e572381fa582bbb37949bd7798916"; 
+                $sid = $client->lng == "heb" ? "HX1c07428ae8fa5b4688d71e11fa8101bb" : "HX230e572381fa582bbb37949bd7798916";
                 $twi = $this->twilio->messages->create(
                     "whatsapp:+$client->phone",
                     [
-                        "from" => $this->twilioWhatsappNumber, 
+                        "from" => $this->twilioWhatsappNumber,
                         "contentSid" => $sid,
                         "contentVariables" => json_encode([
                             "1" => $clientName,
@@ -180,7 +180,7 @@ Please reply with the appropriate number.",
                     ]
                 );
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
-                
+
                 StoreWebhookResponse($twi->body ?? "", $client->phone, $twi->toArray());
 
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
