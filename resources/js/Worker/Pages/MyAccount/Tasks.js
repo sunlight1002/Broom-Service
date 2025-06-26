@@ -36,6 +36,22 @@ function Tasks() {
     const [statusFilter, setStatusFilter] = useState('All');
     const [search, setSearch] = useState("");
     const tableRef = useRef(null);
+    
+    // Use refs to store current filter values for DataTable access
+    const filterRefs = useRef({
+        statusFilter: 'All',
+        dateRange: { start: '', end: '' },
+        search: ''
+    });
+
+    // Update refs when filters change
+    useEffect(() => {
+        filterRefs.current = {
+            statusFilter,
+            dateRange,
+            search
+        };
+    }, [statusFilter, dateRange, search]);
 
     const worker_id = localStorage.getItem("worker-id");
 
@@ -129,17 +145,20 @@ function Tasks() {
                         );
                     },
                     data: function (d) {
-                        if (statusFilter && statusFilter !== 'All') {
-                            d.status = statusFilter;
+                        // Access current filter values from refs
+                        const currentFilters = filterRefs.current;
+                        
+                        if (currentFilters.statusFilter && currentFilters.statusFilter !== 'All') {
+                            d.status = currentFilters.statusFilter;
                         }
-                        if (dateRange.start) {
-                            d.due_date_start = dateRange.start;
+                        if (currentFilters.dateRange.start) {
+                            d.due_date_start = currentFilters.dateRange.start;
                         }
-                        if (dateRange.end) {
-                            d.due_date_end = dateRange.end;
+                        if (currentFilters.dateRange.end) {
+                            d.due_date_end = currentFilters.dateRange.end;
                         }
-                        if (search && search.trim()) {
-                            d.search = search.trim();
+                        if (currentFilters.search && currentFilters.search.trim()) {
+                            d.search = currentFilters.search.trim();
                         }
                         return d;
                     }
@@ -240,10 +259,12 @@ function Tasks() {
             });
 
             return function cleanup() {
-                $(tableRef.current).DataTable().destroy(true);
+                if (tableRef.current && $(tableRef.current).DataTable()) {
+                    $(tableRef.current).DataTable().destroy(true);
+                }
             };
         }
-    }, [statusFilter, dateRange, search]);
+    }, []);
 
     // Refresh table when filters change
     useEffect(() => {
@@ -433,7 +454,7 @@ function Tasks() {
                                 <FilterButtons text="All" name="All" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
                                 <FilterButtons text="Pending" name="Pending" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
                                 <FilterButtons text="In Progress" name="In Progress" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
-                                <FilterButtons text="Completed" name="Completed" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                                <FilterButtons text="Complete" name="Complete" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
                             </div>
                         </div>
                         <div className="mr-4 mb-2">

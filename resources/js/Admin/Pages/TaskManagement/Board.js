@@ -47,6 +47,24 @@ const App = () => {
     const [datePeriod, setDatePeriod] = useState('');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
     const tableRef = useRef(null);
+    
+    // Use refs to store current filter values for DataTable access
+    const filterRefs = useRef({
+        statusFilter: 'All',
+        dateRange: { start: '', end: '' },
+        selectedWorker: [],
+        selectedTeam: []
+    });
+
+    // Update refs when filters change
+    useEffect(() => {
+        filterRefs.current = {
+            statusFilter,
+            dateRange,
+            selectedWorker,
+            selectedTeam
+        };
+    }, [statusFilter, dateRange, selectedWorker, selectedTeam]);
 
     const handleSelectChange = (selectedOptions) => {
         setSelectedOptions(selectedOptions);
@@ -198,20 +216,23 @@ const App = () => {
                     },
                     data: function (d) {
                         // Add custom filters to DataTables request
-                        if (statusFilter && statusFilter !== 'All') {
-                            d.status = statusFilter;
+                        // Access current filter values from refs
+                        const currentFilters = filterRefs.current;
+                        
+                        if (currentFilters.statusFilter && currentFilters.statusFilter !== 'All') {
+                            d.status = currentFilters.statusFilter;
                         }
-                        if (dateRange.start) {
-                            d.due_date_start = dateRange.start;
+                        if (currentFilters.dateRange.start) {
+                            d.due_date_start = currentFilters.dateRange.start;
                         }
-                        if (dateRange.end) {
-                            d.due_date_end = dateRange.end;
+                        if (currentFilters.dateRange.end) {
+                            d.due_date_end = currentFilters.dateRange.end;
                         }
-                        if (selectedWorker && selectedWorker.length > 0) {
-                            d.worker_id = selectedWorker.map(w => w.value);
+                        if (currentFilters.selectedWorker && currentFilters.selectedWorker.length > 0) {
+                            d.worker_id = currentFilters.selectedWorker.map(w => w.value);
                         }
-                        if (selectedTeam && selectedTeam.length > 0) {
-                            d.user_id = selectedTeam.map(t => t.value);
+                        if (currentFilters.selectedTeam && currentFilters.selectedTeam.length > 0) {
+                            d.user_id = currentFilters.selectedTeam.map(t => t.value);
                         }
                         return d;
                     }
@@ -346,10 +367,12 @@ const App = () => {
             });
 
             return function cleanup() {
-                $(tableRef.current).DataTable().destroy(true);
+                if (tableRef.current && $(tableRef.current).DataTable()) {
+                    $(tableRef.current).DataTable().destroy(true);
+                }
             };
         }
-    }, [statusFilter, dateRange, selectedWorker, selectedTeam]);
+    }, []);
 
     // Refresh table when filters change
     useEffect(() => {
@@ -629,7 +652,7 @@ const App = () => {
                                 <FilterButtons text="All" name="All" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
                                 <FilterButtons text="Pending" name="Pending" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
                                 <FilterButtons text="In Progress" name="In Progress" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
-                                <FilterButtons text="Completed" name="Completed" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
+                                <FilterButtons text="Complete" name="Complete" className="px-3 mr-2 mb-2" selectedFilter={statusFilter} setselectedFilter={setStatusFilter} />
                             </div>
                         </div>
                         <div className="mr-4 mb-2">
