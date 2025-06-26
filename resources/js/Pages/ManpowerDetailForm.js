@@ -144,8 +144,8 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
         } catch (error) {
             setError(
                 error.response?.data?.error ||
-                    error.message ||
-                    "Failed to fetch worker details"
+                error.message ||
+                "Failed to fetch worker details"
             );
         }
     };
@@ -158,7 +158,20 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                 formValues
             );
             if (response.status === 200) {
-                setNextStep((prev) => prev + 1);
+                // Check if the page parameter exists in the URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentPage = urlParams.get("page");
+
+                // Only increment the page parameter if it exists
+                if (currentPage !== null) {
+                    const nextPage = parseInt(currentPage) + 1;
+                    urlParams.set("page", nextPage);
+
+                    // Update the URL without reloading
+                    window.history.pushState({}, "", `${window.location.pathname}?${urlParams.toString()}`);
+                }
+
+                // Reload the page to reflect the new state
                 window.location.reload(true);
             }
         } catch (error) {
@@ -169,6 +182,8 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
             }
         }
     };
+
+
 
     useEffect(() => {
         if (type == "lead") {
