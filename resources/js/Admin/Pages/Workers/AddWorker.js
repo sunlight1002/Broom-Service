@@ -53,7 +53,7 @@ export default function AddWorker() {
     const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
     const [skill, setSkill] = useState([]);
-    const [itemStatus, setItemStatus] = useState("");
+    const [itemStatus, setItemStatus] = useState("2");
     const [country, setCountry] = useState("Israel");
 
     const [avl_skill, setAvlSkill] = useState([]);
@@ -150,7 +150,7 @@ export default function AddWorker() {
             lng: !lng ? "en" : lng,
             password: password,
             skill: skill,
-            status: !itemStatus ? 1 : parseInt(itemStatus),
+            status: parseInt(itemStatus),
             country: country,
             latitude: latitude,
             longitude: longitude,

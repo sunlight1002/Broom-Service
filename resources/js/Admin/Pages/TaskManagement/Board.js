@@ -125,13 +125,14 @@ const App = () => {
     };
 
     const handleAddCard = async () => {
-        if (!taskName || !status || !priority || !dueDate || !selectedPhaseId) {
+
+        const userIds = selectedOptions.map(option => option.value);
+        const workerIds = selectedWorkers.map(worker => worker.value);
+        if (!taskName || !status || !priority || !dueDate || !selectedPhaseId || !userIds.length || !workerIds.length) {
             alert.error('Please fill all required fields.');
             return;
         }
 
-        const userIds = selectedOptions.map(option => option.value);
-        const workerIds = selectedWorkers.map(worker => worker.value);
 
         const data = {
             phase_id: selectedPhaseId,
@@ -348,6 +349,7 @@ const App = () => {
             const res = await axios.delete(`/api/admin/comments/${cid}`, { headers })
             alert.success(res?.data?.message)
             handleEditTask(selectedTaskId);
+            getTasks();
         } catch (error) {
             alert.error("something went wrong")
         }

@@ -70,6 +70,7 @@ export default function TaxExemption({
                                         id="employeepassportCopy"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -130,6 +131,7 @@ export default function TaxExemption({
                                                     id="disabledCompensationCertificate"
                                                     accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                                     onChange={async (e) => {
+                                                        e.persist();
                                                         const originalFile = e.target.files[0];
                                                         const processedFile = await handleHeicConvert(originalFile);
                                                         setFieldValue(
@@ -230,6 +232,7 @@ export default function TaxExemption({
                                         id="exm3Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -305,6 +308,7 @@ export default function TaxExemption({
                                         id="exm4ImmigrationCertificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -391,6 +395,7 @@ export default function TaxExemption({
                                             id="exm5disabledCirtificate"
                                             accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                             onChange={async (e) => {
+                                                e.persist();
                                                 const originalFile = e.target.files[0];
                                                 const processedFile = await handleHeicConvert(originalFile);
                                                 setFieldValue(
@@ -763,6 +768,7 @@ export default function TaxExemption({
                                         id="employeepassportCopy"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -845,6 +851,7 @@ export default function TaxExemption({
                                         id="TaxExemption.exm11Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -905,6 +912,7 @@ export default function TaxExemption({
                                         id="TaxExemption.exm12Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -1025,6 +1033,7 @@ export default function TaxExemption({
                                         id="TaxExemption.exm14Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -1085,6 +1094,7 @@ export default function TaxExemption({
                                         id="TaxExemption.exm15Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(

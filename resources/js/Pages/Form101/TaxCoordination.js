@@ -103,6 +103,7 @@ const TaxCoordination = ({
                                         id="TaxCoordination.requestReason1Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -142,6 +143,7 @@ const TaxCoordination = ({
                                         id="TaxCoordination.requestReason3Certificate"
                                         accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                         onChange={async (e) => {
+                                            e.persist();
                                             const originalFile = e.target.files[0];
                                             const processedFile = await handleHeicConvert(originalFile);
                                             setFieldValue(
@@ -414,6 +416,7 @@ const TaxCoordination = ({
                                                             id={`TaxCoordination.employer[${index}].payslip`}
                                                             accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                                             onChange={async (e) => {
+                                                                e.persist();
                                                                 const originalFile = e.target.files[0];
                                                                 const processedFile = await handleHeicConvert(originalFile);
                                                                 setFieldValue(

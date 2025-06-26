@@ -241,7 +241,7 @@ export default function Contract() {
                 scrollX: true,
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
-                    $(row).attr("data-id", data.id);
+                    $(row).attr("data-id", data.client_id);
                 },
                 columnDefs: [
                     {
@@ -307,7 +307,7 @@ export default function Contract() {
             }
 
             if (_id) {
-                const url = `/admin/view-contract/${_id}`;
+                const url = `/admin/clients/view/${_id}`;
                 window.open(url, '_blank');
             }
         });

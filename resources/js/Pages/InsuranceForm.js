@@ -390,6 +390,32 @@ const InsuranceForm = ({
             const page3 = pdfDoc.getPage(2);
             const page4 = pdfDoc.getPage(3);
 
+            const fields = pdfForm.getFields();
+
+            // fields.forEach(field => {
+            //     const name = field.getName();
+            //     const type = field.constructor.name;
+
+            //     console.log(`Field name: ${name}, Field type: ${type}`);
+            // });
+
+            if (values?.g4 == "yes" && values?.g4WhenStop && (values?.g4Past == "yes" || values?.g4Today == "yes")) {
+                const g4CheckBox = pdfForm.getCheckBox("G4-Yes");
+                g4CheckBox.check();
+                // if (values?.g4Past == "yes") {
+                //     const g4PastCheckBox = pdfForm.getCheckBox("G4-Past");
+                //     g4PastCheckBox.check();
+                // } else {
+                //     const g4TodayCheckBox = pdfForm.getCheckBox("G4-Today");
+                //     g4TodayCheckBox.check();
+                // }
+            } else {
+                const g4CheckBox = pdfForm.getCheckBox("G4-No");
+                g4CheckBox.check();
+            }
+
+            // pdfForm.getRadioGroup("occupasion").select("other").defaultUpdateAppearances();
+
             const occupasionRadioGroup = pdfForm.getRadioGroup("occupasion");
             occupasionRadioGroup.select("other");
             occupasionRadioGroup.defaultUpdateAppearances();

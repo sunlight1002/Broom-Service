@@ -1590,6 +1590,8 @@ function AllForms() {
 
     const handleFileChange = async (e, typ) => {
         const file = e.target.files[0];
+        console.log(file);
+        
         const data = new FormData();
 
         data.append("id", id);

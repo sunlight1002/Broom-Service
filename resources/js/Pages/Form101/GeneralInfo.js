@@ -347,7 +347,8 @@ export default function GeneralInfo({
                                                     id="employeepassportCopy"
                                                     title={values.employeepassportCopy}
                                                     accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
-                                                    onChange={async(e) => {
+                                                    onChange={async (e) => {
+                                                        e.persist(); // keeps the event alive
                                                         const originalFile = e.target.files[0];
                                                         const processedFile = await handleHeicConvert(originalFile);
                                                         if (originalFile) {
@@ -387,10 +388,11 @@ export default function GeneralInfo({
                                                     style={{ fontSize: "unset", backgroundColor: "unset", }}
                                                     title={values.employeeResidencePermit}
                                                     accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
-                                                    onChange={async(e) => {
+                                                    onChange={async (e) => {
+                                                        e.persist(); // keeps the event alive
                                                         const originalFile = e.target.files[0];
                                                         const processedFile = await handleHeicConvert(originalFile);
-                                                        
+
                                                         setFieldValue(
                                                             "employeeResidencePermit",
                                                             processedFile
@@ -452,7 +454,8 @@ export default function GeneralInfo({
                                                     id="employeeIdCardCopy"
                                                     title={values.employeeIdCardCopy}
                                                     accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
-                                                    onChange={async(e) => {
+                                                    onChange={async (e) => {
+                                                        e.persist(); // keeps the event alive
                                                         const originalFile = e.target.files[0];
                                                         const processedFile = await handleHeicConvert(originalFile);
                                                         setFieldValue("employeeIdCardCopy", processedFile);

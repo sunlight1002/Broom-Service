@@ -15,6 +15,7 @@ import {
 import Geocode from "react-geocode";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import heic2any from "heic2any";
 
 const ManpowerDetailForm = ({ setNextStep, values, type }) => {
     const { t } = useTranslation();
@@ -230,20 +231,42 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
             });
     };
 
-    const handleFileChange = (e, typ) => {
+    const handleFileChange = async (e, typ) => {
+        const file = e.target.files[0];
         const data = new FormData();
         data.append("id", workerId);
         data.append("type", type == "lead" ? "lead" : "worker");
-        if (e.target.files.length > 0) {
-            const file = e.target.files[0];
-            const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
+
+        if (file) {
+            const fileSizeInMB = file.size / (1024 * 1024);
             if (fileSizeInMB > 10) {
-                alert.error(t("form101.step1.imageSize")); // Show an error message
+                alert.error(t("form101.step1.imageSize"));
                 return;
             }
-            data.append(`${typ}`, file);
+
+            let uploadFile = file;
+
+            // Convert HEIC to JPEG
+            if (file.name.toLowerCase().endsWith(".heic")) {
+                try {
+                    const outputBlob = await heic2any({
+                        blob: file,
+                        toType: "image/jpeg",
+                        quality: 0.8,
+                    });
+
+                    uploadFile = new File([outputBlob], file.name.replace(/\.heic$/, ".jpg"), {
+                        type: "image/jpeg",
+                    });
+                } catch (error) {
+                    alert.error("Failed to convert HEIC image.");
+                    return;
+                }
+            }
+
+            data.append(`${typ}`, uploadFile);
+            handleDocSubmit(data);
         }
-        handleDocSubmit(data);
     };
 
     return (
@@ -416,12 +439,9 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                                                 type="file"
                                                 name="employeepassportCopy"
                                                 id="employeepassportCopy"
-                                                accept="image/*"
+                                                accept=".jpg,.jpeg,.png,.heic,.heif,image/*"  // explicitly include HEIC/HEIF
                                                 onChange={(e) => {
-                                                    handleFileChange(
-                                                        e,
-                                                        "passport"
-                                                    );
+                                                    handleFileChange(e, "passport");
                                                 }}
                                             />
                                         </div>
