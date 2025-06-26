@@ -331,4 +331,100 @@
     background-repeat: no-repeat;
 }
 
+/* Status Badge Styles */
+.status-badge {
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Multi-select dropdown styling */
+.basic-multi-select {
+    min-height: 38px;
+}
+
+.basic-multi-select .select__control {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    min-height: 38px;
+    box-shadow: none;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.basic-multi-select .select__control:hover {
+    border-color: #80bdff;
+}
+
+.basic-multi-select .select__control--is-focused {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.basic-multi-select .select__menu {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.basic-multi-select .select__option {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.basic-multi-select .select__option--is-focused {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.basic-multi-select .select__option--is-selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.basic-multi-select .select__multi-value {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+.basic-multi-select .select__multi-value__label {
+    color: #1976d2;
+    font-size: 12px;
+    padding: 2px 6px;
+}
+
+.basic-multi-select .select__multi-value__remove {
+    color: #1976d2;
+    padding: 2px 4px;
+}
+
+.basic-multi-select .select__multi-value__remove:hover {
+    background-color: #bbdefb;
+    color: #1565c0;
+    border-radius: 2px;
+}
+
+.basic-multi-select .select__placeholder {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.basic-multi-select .select__indicator-separator {
+    background-color: #ced4da;
+}
+
+.basic-multi-select .select__indicator {
+    color: #6c757d;
+}
+
+.basic-multi-select .select__indicator:hover {
+    color: #495057;
+}
+
 

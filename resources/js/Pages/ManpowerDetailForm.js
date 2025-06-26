@@ -745,118 +745,116 @@ const ManpowerDetailForm = ({ setNextStep, values, type }) => {
                             </div>
 
                             <div className="form-group mt-4">
-                                <label className="control-label">
-                                    {t("admin.global.location")}
-                                </label>
-                                <LoadScript
-                                    googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
-                                    libraries={libraries}
-                                >
-                                    <GoogleMap
-                                        mapContainerStyle={containerStyle}
-                                        center={center}
-                                        zoom={15}
+                        <label className="control-label">
+                            {t("admin.global.location")}
+                        </label>
+                        <LoadScript
+                            googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
+                            libraries={libraries}
+                        >
+                            <GoogleMap
+                                mapContainerStyle={containerStyle}
+                                center={center}
+                                zoom={15}
+                            >
+                                <Marker
+                                    draggable={true}
+                                    onDragEnd={(e) =>
+                                        onMarkerDragEnd(e)
+                                    }
+                                    position={{
+                                        lat: latitude,
+                                        lng: longitude,
+                                    }}
+                                />
+                                {formValues.address ? (
+                                    <InfoWindow
+                                        onClose={(e) =>
+                                            onInfoWindowClose(e)
+                                        }
+                                        position={{
+                                            lat: latitude + 0.0018,
+                                            lng: longitude,
+                                        }}
                                     >
-                                        <Marker
-                                            draggable={true}
-                                            onDragEnd={(e) =>
-                                                onMarkerDragEnd(e)
-                                            }
-                                            position={{
-                                                lat: latitude,
-                                                lng: longitude,
-                                            }}
-                                        />
-                                        {formValues.address ? (
-                                            <InfoWindow
-                                                onClose={(e) =>
-                                                    onInfoWindowClose(e)
-                                                }
-                                                position={{
-                                                    lat: latitude + 0.0018,
-                                                    lng: longitude,
+                                        <div>
+                                            <span
+                                                style={{
+                                                    padding: 0,
+                                                    margin: 0,
                                                 }}
                                             >
-                                                <div>
-                                                    <span
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                        }}
-                                                    >
-                                                        {formValues.address}
-                                                    </span>
-                                                </div>
-                                            </InfoWindow>
-                                        ) : (
-                                            <></>
-                                        )}
-                                        <Marker />
-                                    </GoogleMap>
-                                    <Autocomplete
-                                        onLoad={(e) => setPlace(e)}
-                                        onPlaceChanged={handlePlaceChanged}
-                                    >
-                                        <input
-                                            type="text"
-                                            placeholder={t(
-                                                "workerInviteForm.search_your_address"
-                                            )}
-                                            className="form-control mt-1"
-                                        />
-                                    </Autocomplete>
-                                </LoadScript>
-                            </div>
-                            <div className="form-group">
-                                <label className="control-label">
-                                    {t("workerInviteForm.full_address")}
-                                    <small className="text-pink mb-1">
-                                        &nbsp; (
-                                        {t("workerInviteForm.auto_complete")})
-                                    </small>
-                                </label>
+                                                {formValues.address}
+                                            </span>
+                                        </div>
+                                    </InfoWindow>
+                                ) : (
+                                    <></>
+                                )}
+                                <Marker />
+                            </GoogleMap>
+                            <Autocomplete
+                                onLoad={(e) => setPlace(e)}
+                                onPlaceChanged={handlePlaceChanged}
+                            >
                                 <input
                                     type="text"
-                                    value={formValues.address}
-                                    className="form-control"
-                                    placeholder={t(
-                                        "workerInviteForm.enter_your_address"
-                                    )}
-                                    readOnly
+                                    placeholder={t("workerInviteForm.search_your_address")}
+                                    className="form-control mt-1"
                                 />
-                                {errors.address ? (
-                                    <small className="text-danger mb-1">
-                                        {errors.address}
-                                    </small>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
+                            </Autocomplete>
+                        </LoadScript>
+                    </div>
+                    {!formValues.address ? (
+                        <div className="form-group">
+                            <label className="control-label">
+                                {t("workerInviteForm.full_address")}
+                                <small className="text-pink mb-1">
+                                    &nbsp; ({t("workerInviteForm.auto_complete")})
+                                </small>
+                            </label>
+                            <input
+                                type="text"
+                                value={formValues.address}
+                                className="form-control"
+                                placeholder={t("workerInviteForm.enter_your_address")}
+                                readOnly
+                            />
+                            {errors.address ? (
+                                <small className="text-danger mb-1">
+                                    {errors.address}
+                                </small>
+                            ) : (
+                                ""
+                            )}
+                        </div>
+                    ) : null}
 
-                            {/* Buttons */}
-                            <div div>
-                                <div className="row justify-content-center mt-4">
-                                    <div className="col d-flex justify-content-end">
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                saveWorkerDetails(e);
-                                            }}
-                                            className="btn navyblue"
-                                        >
-                                            {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
-                                            {t("safeAndGear.Next")}{" "}
-                                            <GrFormNextLink />
-                                        </button>
-                                    </div>
-                                </div>
+                    {/* Buttons */}
+                    <div div >
+                        <div className="row justify-content-center mt-4">
+                            <div className="col d-flex justify-content-end">
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        saveWorkerDetails(e);
+                                    }}
+                                    className="btn navyblue"
+                                >
+                                    {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
+                                    {t("safeAndGear.Next")} <GrFormNextLink />
+
+                                </button>
+
                             </div>
-                        </section>
-                    </form>
-                </div>
+                        </div>
+                    </div>
+                </section >
+            </form >
+        </div >
             )}
         </div>
     );
 };
 
-export default ManpowerDetailForm;
+export default ManpowerDetailForm

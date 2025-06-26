@@ -25,33 +25,200 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = TaskManagement::with([
-            'phase', 
-            'comments', 
-            'workers:id,firstname',
+        $query = TaskManagement::with([
+            'phase',
+            'comments',
+            'workers:id,firstname,lastname',
             'users:id,name'
-        ])
-        ->orderBy('sort_order')
-        ->get();
+        ]);
+
+        // Filtering
+        if ($request->has('status') && $request->status && $request->status !== 'All') {
+            $query->whereRaw('LOWER(TRIM(status)) = ?', [strtolower(trim($request->status))]);
+        }
         
+        // Handle worker_id filtering
+        if ($request->has('worker_id')) {
+            $workerIds = $request->input('worker_id');
+            if (is_string($workerIds)) {
+                $workerIds = [$workerIds];
+            }
+            if (is_array($workerIds)) {
+                $workerIds = array_filter($workerIds);
+                if (!empty($workerIds)) {
+                    $query->whereHas('workers', function ($q) use ($workerIds) {
+                        $q->whereIn('users.id', $workerIds);
+                    });
+                }
+            }
+        }
+        
+        // Handle user_id filtering
+        if ($request->has('user_id')) {
+            $userIds = $request->input('user_id');
+            if (is_string($userIds)) {
+                $userIds = [$userIds];
+            }
+            if (is_array($userIds)) {
+                $userIds = array_filter($userIds);
+                if (!empty($userIds)) {
+                    $query->whereHas('users', function ($q) use ($userIds) {
+                        $q->whereIn('admins.id', $userIds);
+                    });
+                }
+            }
+        }
+        
+        if ($request->has('due_date_start') && $request->due_date_start) {
+            $query->where('due_date', '>=', $request->due_date_start);
+        }
+        
+        if ($request->has('due_date_end') && $request->due_date_end) {
+            $query->where('due_date', '<=', $request->due_date_end);
+        }
+        
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            // Handle DataTables search object format
+            if (is_array($search) && isset($search['value'])) {
+                $search = $search['value'];
+            }
+            if (is_string($search) && !empty(trim($search))) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('task_name', 'like', "%$search%")
+                      ->orWhere('description', 'like', "%$search%");
+                });
+            }
+        }
+
+        // DataTables sorting
+        $sortBy = 'due_date';
+        $sortOrder = 'desc';
+        $allowedSortColumns = ['task_name', 'status', 'due_date', 'priority', 'created_at'];
+        if ($request->has('order') && $request->has('columns')) {
+            $orderArr = $request->input('order');
+            $columnsArr = $request->input('columns');
+            if (is_array($orderArr) && count($orderArr) > 0) {
+                $orderColIdx = $orderArr[0]['column'] ?? null;
+                $orderDir = $orderArr[0]['dir'] ?? 'desc';
+                if ($orderColIdx !== null && isset($columnsArr[$orderColIdx]['data'])) {
+                    $colName = $columnsArr[$orderColIdx]['data'];
+                    if (in_array($colName, $allowedSortColumns)) {
+                        $sortBy = $colName;
+                        $sortOrder = strtolower($orderDir) === 'asc' ? 'asc' : 'desc';
+                    }
+                }
+            }
+        } else {
+            // Fallback to legacy sort_by/sort_order
+            $sortBy = $request->get('sort_by', 'due_date');
+            $sortOrder = $request->get('sort_order', 'desc');
+            if (!in_array($sortBy, $allowedSortColumns)) {
+                $sortBy = 'due_date';
+            }
+            $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        }
+        $query->orderBy($sortBy, $sortOrder);
+
+        // DataTables pagination
+        $perPage = $request->get('length', $request->get('per_page', 10));
+        $start = $request->get('start', 0);
+        $page = $perPage > 0 ? intval($start / $perPage) + 1 : 1;
+        $tasks = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // DataTables response format
+        if ($request->has('draw')) {
+            return response()->json([
+                'draw' => intval($request->get('draw')),
+                'recordsTotal' => $tasks->total(),
+                'recordsFiltered' => $tasks->total(),
+                'data' => $tasks->items(),
+            ]);
+        }
         return response()->json($tasks);
     }
 
-    public function showWorkerTasks($workerId)
+    public function showWorkerTasks($workerId, Request $request)
     {
-        // Fetch tasks assigned to the specific worker
-        $tasks = TaskManagement::with('phase')->whereHas('taskWorker', function($query) use ($workerId) {
-            $query->where('assignable_id', $workerId)
-                  ->where('assignable_type', User::class); // Adjust User::class if it's Admin or another class
-        })
-        ->with([
-            'comments',
-        ])
-        ->orderBy('sort_order')
-        ->get();
-        
+        // Build query for tasks assigned to the specific worker
+        $query = TaskManagement::with(['phase', 'comments.commentable', 'workers:id,firstname,lastname', 'users:id,name'])
+            ->whereHas('workers', function($q) use ($workerId) {
+                $q->where('users.id', $workerId);
+            });
+
+        // Apply status filter
+        if ($request->has('status') && $request->status !== '' && $request->status !== null && $request->status !== 'All') {
+            $query->where('status', $request->status);
+        }
+
+        // Apply search filter
+        if ($request->has('search') && $request->search !== '' && $request->search !== null) {
+            $search = $request->search;
+            // Handle DataTables search object format
+            if (is_array($search) && isset($search['value'])) {
+                $search = $search['value'];
+            }
+            if (is_string($search) && !empty(trim($search))) {
+                $query->where(function($q) use ($search) {
+                    $q->where('task_name', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
+        }
+
+        // Apply date range filter
+        if ($request->has('due_date_start') && $request->due_date_start !== '' && $request->due_date_start !== null) {
+            $query->where('due_date', '>=', $request->due_date_start);
+        }
+        if ($request->has('due_date_end') && $request->due_date_end !== '' && $request->due_date_end !== null) {
+            $query->where('due_date', '<=', $request->due_date_end);
+        }
+
+        // DataTables sorting
+        $sortBy = 'due_date';
+        $sortOrder = 'desc';
+        $allowedSortColumns = ['task_name', 'status', 'due_date', 'priority', 'created_at'];
+        if ($request->has('order') && $request->has('columns')) {
+            $orderArr = $request->input('order');
+            $columnsArr = $request->input('columns');
+            if (is_array($orderArr) && count($orderArr) > 0) {
+                $orderColIdx = $orderArr[0]['column'] ?? null;
+                $orderDir = $orderArr[0]['dir'] ?? 'desc';
+                if ($orderColIdx !== null && isset($columnsArr[$orderColIdx]['data'])) {
+                    $colName = $columnsArr[$orderColIdx]['data'];
+                    if (in_array($colName, $allowedSortColumns)) {
+                        $sortBy = $colName;
+                        $sortOrder = strtolower($orderDir) === 'asc' ? 'asc' : 'desc';
+                    }
+                }
+            }
+        } else {
+            $sortBy = $request->get('sort_by', 'due_date');
+            $sortOrder = $request->get('sort_order', 'desc');
+            if (!in_array($sortBy, $allowedSortColumns)) {
+                $sortBy = 'due_date';
+            }
+            $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        }
+        $query->orderBy($sortBy, $sortOrder);
+
+        // DataTables pagination
+        $perPage = $request->get('length', $request->get('per_page', 10));
+        $start = $request->get('start', 0);
+        $page = $perPage > 0 ? intval($start / $perPage) + 1 : 1;
+        $tasks = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // DataTables response format
+        if ($request->has('draw')) {
+            return response()->json([
+                'draw' => intval($request->get('draw')),
+                'recordsTotal' => $tasks->total(),
+                'recordsFiltered' => $tasks->total(),
+                'data' => $tasks->items(),
+            ]);
+        }
         return response()->json($tasks);
     }
     
@@ -156,7 +323,6 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phase_id' => 'required|exists:phase,id',
             'task_name' => 'required|string',
             'status' => 'required|string',
             'priority' => 'required|string|in:high,medium,low',
@@ -263,7 +429,7 @@ class TaskController extends Controller
         $tasks = TaskManagement::with([
             'phase', 
             'comments', 
-            'workers:id,firstname',
+            'workers:id,firstname,lastname',
             'users:id,name' 
         ])->find($id);
         
@@ -457,7 +623,14 @@ class TaskController extends Controller
         $user = Auth::user();
 
         // Check if the user is allowed to update the comment
-        if ($comment->commentable_id !== $user->id || $comment->commentable_type !== get_class($user)) {
+        // For workers, comments are saved with commentable_type as "App\Models\User"
+        // For admins, comments are saved with commentable_type as "App\Models\Admin"
+        $isWorkerComment = $comment->commentable_type === "App\\Models\\User";
+        $isAdminComment = $comment->commentable_type === "App\\Models\\Admin";
+        
+        if ($comment->commentable_id !== $user->id || 
+            ($isWorkerComment && get_class($user) !== "App\\Models\\User") ||
+            ($isAdminComment && get_class($user) !== "App\\Models\\Admin")) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -526,6 +699,38 @@ class TaskController extends Controller
     {
         $task = TaskManagement::with('comments.commentable')->findOrFail($taskId);
         return response()->json($task->comments);
+    }
+
+    /**
+     * Get team members that workers can access
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getWorkerTeamMembers()
+    {
+        $user = Auth::user();
+        
+        // Get team members (admins) that are assigned to tasks with this worker
+        $teamMembers = Admin::whereHas('taskWorkers', function ($query) use ($user) {
+            $query->whereHas('task', function ($taskQuery) use ($user) {
+                $taskQuery->whereHas('workers', function ($workerQuery) use ($user) {
+                    $workerQuery->where('assignable_id', $user->id)
+                               ->where('assignable_type', User::class);
+                });
+            });
+        })
+        ->select('id', 'name')
+        ->distinct()
+        ->orderBy('name')
+        ->get()
+        ->map(function ($admin) {
+            return [
+                'value' => $admin->id,
+                'label' => $admin->name
+            ];
+        });
+
+        return response()->json($teamMembers);
     }
 }
 

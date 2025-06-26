@@ -4521,110 +4521,151 @@ video::-webkit-media-controls-panel {
 }
 
 
- .timer-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+
+
+
+
+
+/* (A) SPEECH BOX */
+.speechAnd {
+  /* (A1) FONT & COLORS */
+  color: #2F4054;
+  background: #ffffff;
+
+  /* (A2) DIMENSIONS */
+  padding: 12px;
+  border-radius: 6px;
+  max-width: 600px;
+  /* Ensure speech box is on top */
+  z-index: 10; 
+  /* Ensure that it doesn’t affect the layout */
+  position: absolute;
+  box-shadow: 0px 9px 20px rgb(46 35 94 / 7%);
+
 }
 
-.timer-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+/* (B) USE ::AFTER TO CREATE THE "CALLOUT" */
+.speechAnd::after {
+  display: block; 
+  width: 0; 
+  content: "";
+  border: 15px solid transparent;
 }
 
-.timer-display {
-  font-family: 'Courier New', monospace;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 3px 10px;
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  min-width: 80px;
-  text-align: center;
-  letter-spacing: 1px;
+.speechAnd {
+  top: 100%; 
+  right: 0;
+  margin-top: 6px;
+  background: #fff;
+  white-space: nowrap;
+  z-index: 1;
+  color: #2F4054;
+  color: #2F4054;
+  background: #ffffff;
+  /* (A2) DIMENSIONS */
+  padding: 12px;
+  border-radius: 6px;
+  max-width: 600px;
+  z-index: 10; 
+  position: absolute;
+  box-shadow: 0px 9px 20px rgb(46 35 94 / 7%);
 }
 
-.timer-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.speechAnd::after {
+  display: block; 
+  width: 0; 
+  content: "";
+  border: 15px solid transparent;
 }
 
-.start-btn {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
+/* (C) "CALLOUT" DIRECTIONS */
+.speechAnd.up::after {
+  border-bottom-color: #ffffff;
+  border-top: 0;
 }
 
-.start-btn:hover {
-  background: linear-gradient(135deg, #45a049, #3d8b40);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+/* (D) POSITION THE CALLOUT */
+.speechAnd {
+  position: absolute;
+}
+.speechAnd.up::after {
+  position: absolute;
+  top: -13px; 
+  right: 10px;
 }
 
-.stop-btn {
-  background: linear-gradient(135deg, #f44336, #da190b);
-  color: white;
+.speech_And {
+  top: 100%; 
+  right: 0;
+  margin-top: 6px;
+  background: #fff;
+  white-space: nowrap;
+  z-index: 1;
+  color: #2F4054;
+  color: #2F4054;
+  background: #ffffff;
+  /* (A2) DIMENSIONS */
+  padding: 12px;
+  border-radius: 6px;
+  max-width: 650px;
+  z-index: 10; 
+  position: absolute;
+  box-shadow: 0px 9px 20px rgb(46 35 94 / 7%);
 }
 
-.stop-btn:hover {
-  background: linear-gradient(135deg, #da190b, #c62828);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+.speech_And::after {
+  display: block; 
+  width: 0; 
+  content: "";
+  border: 15px solid transparent;
 }
 
-.reset-btn {
-  background: linear-gradient(135deg, #757575, #616161);
-  color: white;
-  padding: 6px 12px;
-  font-size: 0.8rem;
+/* (C) "CALLOUT" DIRECTIONS */
+.speech_And.up::after {
+  border-bottom-color: #ffffff;
+  border-top: 0;
 }
 
-.reset-btn:hover {
-  background: linear-gradient(135deg, #616161, #424242);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.3);
+/* (D) POSITION THE CALLOUT */
+.speech_And {
+  position: absolute;
+}
+.speech_And.up::after {
+  position: absolute;
+  top: -13px; 
+  right: 20px;
 }
 
-.timer-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
+.speechand {
+  top: 80%; 
+  right: 0;
+  margin-top: 6px;
+  background: #fff;
+  white-space: nowrap;
+  z-index: 1;
+  color: #2F4054;
+  color: #2F4054;
+  background: #ffffff;
+  /* (A2) DIMENSIONS */
+  padding: 12px;
+  border-radius: 6px;
+  max-width: 650px;
+  z-index: 10; 
+  position: absolute;
+  box-shadow: 0px 9px 20px rgb(46 35 94 / 7%);
 }
 
-
-  .status-indicator.stopped {
-  background-color: #f44336;
-  animation: none;
+.speechand::after {
+  display: block; 
+  width: 0; 
+  content: "";
+  border: 15px solid transparent;
 }
 
-@keyframes pulse {
-  0% {
-      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-  }
-  70% {
-      box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-  }
-  100% {
-      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-  }
+/* (C) "CALLOUT" DIRECTIONS */
+.speechand.up::after {
+  border-bottom-color: #ffffff;
+  border-top: 0;
 }
 
 /* @media (max-width: 768px) {
@@ -4661,4 +4702,13 @@ video::-webkit-media-controls-panel {
 
 .custom-ol li {
     margin-bottom: 8px;
+}
+/* (D) POSITION THE CALLOUT */
+.speechand {
+  position: absolute;
+}
+.speechand.up::after {
+  position: absolute;
+  top: -10px; 
+  right: 20px;
 }
