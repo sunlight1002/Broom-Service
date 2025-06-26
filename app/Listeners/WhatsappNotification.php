@@ -3479,6 +3479,9 @@ class WhatsappNotification
                 ) {
                     $token = $this->whapiWorkerJobApiToken;
                 } else if (
+                    $eventType == WhatsappMessageTemplateEnum::FORM101 ||
+                    $eventType == WhatsappMessageTemplateEnum::WORKER_FORMS ||
+                    $eventType == WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING ||
                     $eventType == WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT ||
                     $eventType == WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD ||
