@@ -471,7 +471,7 @@ class WorkerLeadsController extends Controller
             'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
             'payment_per_hour' => $workerLead->hourly_rate ?? NULL,
             'two_factor_enabled' => 1,
-            'step' => $workerLead->step ?? 0
+            'step' => 0
         ]);
 
         $i = 1;

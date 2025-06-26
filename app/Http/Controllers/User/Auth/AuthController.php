@@ -667,7 +667,8 @@ class AuthController extends Controller
             'is_imported' => 0,
             'is_existing_worker' => 1,
             'two_factor_enabled' => 1,
-            'first_date' => $workerInvitation->first_date ?? 0
+            'first_date' => $workerInvitation->first_date ?? 0,
+            'step' => 0
         ];
 
         $worker = User::where('phone', $workerData['phone'])
@@ -1623,7 +1624,7 @@ class AuthController extends Controller
             'longitude' => $workerLead->longitude ?? NULL,
             'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
             'two_factor_enabled' => 1,
-            'step' => $workerLead->step ?? 1
+            'step' => 0
         ]);
 
         $i = 1;
