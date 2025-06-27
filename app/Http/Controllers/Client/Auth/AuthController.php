@@ -488,7 +488,7 @@ class AuthController extends Controller
             'phone'     => $this->fixedPhoneNumber($primary['phone']),
             'city'      => $request->city,
             'source'    => 'CRM-Mobile',
-            'lng'       => $request->lng,
+            'lng'       => str_starts_with($client->phone, '972') ? 'heb' : 'en',
         ];
 
         // Check for a second contact
@@ -499,9 +499,6 @@ class AuthController extends Controller
         }
 
         $client = Client::create($clientData);
-
-        $client->lng = str_starts_with($client->phone, '972') ? 'heb' : 'en';
-        $client->save();
 
         $sid = str_starts_with($client->phone, '972')
             ? "HX46b1587bfcaa3e6b29869edb538f45e0"
