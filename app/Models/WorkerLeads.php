@@ -28,6 +28,7 @@ class WorkerLeads extends Model
         'lng',
         'status',
         'sub_status',
+        'reason',
         'role',
         'hourly_rate',
         'company_type',
