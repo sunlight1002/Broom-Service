@@ -378,6 +378,7 @@ class WorkerLeadsController extends Controller
             $workerLead->email = $request->email;
             $workerLead->hourly_rate = $request->payment_per_hour;
             $workerLead->company_type = $request->company_type;
+            $workerLead->lng = $request->worker_language; // Set the selected language
 
             if ($request->company_type === 'manpower') {
                 $workerLead->manpower_company_id = $request->manpower_company_id;

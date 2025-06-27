@@ -45,6 +45,7 @@ export default function WorkerLead() {
         payment_per_hour: "",
         company_type: "my-company",
         manpower_company_id: "",
+        worker_language: "en",
     });
 
     const headers = {
@@ -186,11 +187,11 @@ export default function WorkerLead() {
                 setReason(worker.reason || "");
                 setFormValues({
                     ...formValues,
-
-                    email: worker?.email,
-                    payment_per_hour: worker?.hourly_rate,
-                    company_type: worker?.company_type || "my-company",
-                    manpower_company_id: worker?.manpower_company_id,
+                    email: worker.email,
+                    payment_per_hour: worker.hourly_rate,
+                    company_type: worker.company_type || "my-company",
+                    manpower_company_id: worker.manpower_company_id,
+                    worker_language: worker.lng || "en",
                 });
             })
             .catch((error) => {
@@ -1128,39 +1129,67 @@ export default function WorkerLead() {
                                         />
                                     </div>
                                 </div>
-                                {
-                                    formValues?.company_type != "manpower" && (
-                                        <div className="col-sm-12">
-                                            <div className="form-group">
-                                                <label className="control-label">
-                                                    Payment Per Hour
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control mb-3"
-                                                    value={formValues?.payment_per_hour}
-                                                    onChange={(e) =>
-                                                        setFormValues({
-                                                            ...formValues,
-                                                            payment_per_hour:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    placeholder="Enter payment per hour"
-                                                />
-                                            </div>
-                                            <div>
-                                                {errors && errors?.payment_per_hour ? (
-                                                    <small className="text-danger mb-1">
-                                                        {errors?.payment_per_hour}
-                                                    </small>
-                                                ) : (
-                                                    ""
-                                                )}
-                                            </div>
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Worker Language
+                                        </label>
+                                        <select
+                                            className="form-control mb-3"
+                                            value={formValues.worker_language}
+                                            onChange={(e) =>
+                                                setFormValues({
+                                                    ...formValues,
+                                                    worker_language: e.target.value,
+                                                })
+                                            }
+                                        >
+                                            <option value="en">English</option>
+                                            <option value="heb">Hebrew</option>
+                                            <option value="ru">Russian</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        {errors.worker_language ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.worker_language}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                                {(formValues.company_type === "my-company" || formValues.company_type === "freelancer") && (
+                                    <div className="col-sm-12">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Payment Per Hour
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control mb-3"
+                                                value={formValues.payment_per_hour}
+                                                onChange={(e) =>
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        payment_per_hour:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                placeholder="Enter payment per hour"
+                                            />
                                         </div>
-                                    )
-                                }
+                                        <div>
+                                            {errors.payment_per_hour ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.payment_per_hour}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
