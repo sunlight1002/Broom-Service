@@ -4668,6 +4668,112 @@ video::-webkit-media-controls-panel {
   border-top: 0;
 }
 
+.timer-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.timer-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.timer-display {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 80px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.timer-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.start-btn:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.stop-btn {
+  background: linear-gradient(135deg, #f44336, #da190b);
+  color: white;
+}
+
+.stop-btn:hover {
+  background: linear-gradient(135deg, #da190b, #c62828);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #757575, #616161);
+  color: white;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.reset-btn:hover {
+  background: linear-gradient(135deg, #616161, #424242);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.3);
+}
+
+.timer-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+
+  .status-indicator.stopped {
+  background-color: #f44336;
+  animation: none;
+}
+
+@keyframes pulse {
+  0% {
+      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+      box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
 /* @media (max-width: 768px) {
   .timer-container {
       gap: 10px;
