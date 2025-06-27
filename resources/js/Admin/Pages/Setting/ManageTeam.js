@@ -53,7 +53,7 @@ export default function ManageTeam() {
                     title: t("global.Email"),
                     data: "email",
                     render: function (data, type, row) {
-                        const badge = getMobileStatusBadgeHtml(row.status);
+                        const badge = getMobileStatusBadgeHtml(row.status == 1 ? "Active" : "Inactive");
                         return `${data ? data : ''} ${badge}`;
                     },
                 },
