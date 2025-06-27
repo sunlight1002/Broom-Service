@@ -5,11 +5,15 @@ import { useAlert } from "react-alert";
 import { CSVLink } from "react-csv";
 import { renderToString } from "react-dom/server";
 import { useTranslation } from "react-i18next";
-import { json, useNavigate } from "react-router-dom";
+import { json, useNavigate, useLocation } from "react-router-dom";
 import { Rating } from "react-simple-star-rating";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
+import { Button, Modal } from "react-bootstrap";
+import i18next from "i18next";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -19,6 +23,7 @@ import $ from "jquery";
 
 import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Conflicts() {
     const { t, i18n } = useTranslation();
@@ -48,6 +53,7 @@ export default function Conflicts() {
 
     const alert = useAlert();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -69,11 +75,10 @@ export default function Conflicts() {
         "Next": t("global.next")
     }
 
-
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -157,7 +162,21 @@ export default function Conflicts() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.CONFLICTS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Conflicts table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Conflicts table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();
@@ -816,16 +835,6 @@ export default function Conflicts() {
                                     ref={endDateRef}
                                 />
                             </div>
-                        </div>
-                        <div className="col-sm-6 hidden-xl mt-2">
-                            <select
-                                className="form-control"
-                                onChange={(e) => sortTable(e.target.value)}
-                            >
-                                <option value="">{t("admin.leads.Options.sortBy")}</option>
-                                <option value="0">{t("admin.dashboard.jobs.jobDate")}</option>
-                                <option value="1">{t("admin.dashboard.jobs.client")}</option>
-                            </select>
                         </div> */}
                     </div>
                 </div>

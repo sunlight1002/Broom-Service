@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
-
-import axios from "axios";
-import Moment from "moment";
-import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 import { useAlert } from "react-alert";
-
-import $, { data } from "jquery";
+import Moment from "moment";
+import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
@@ -22,6 +20,7 @@ import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 export default function Schedule() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLoading, setIsLoading] = useState(false);
     const [filter, setFilter] = useState("All");
     const tableRef = useRef(null);
@@ -86,7 +85,7 @@ export default function Schedule() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -227,7 +226,21 @@ export default function Schedule() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.SCHEDULE, {
+                onStateLoad: (settings, data) => {
+                    console.log('Schedule table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Schedule table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();

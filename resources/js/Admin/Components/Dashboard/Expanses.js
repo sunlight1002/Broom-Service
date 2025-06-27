@@ -11,6 +11,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 function Expanses() {
     const { t, i18n } = useTranslation();
@@ -114,7 +115,7 @@ function Expanses() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            const table = $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -203,28 +204,38 @@ function Expanses() {
                 },
                 columnDefs: [
                     {
-                        targets: 3,
-                        className: 'text-left'
-                    },
-                    {
-                        targets: '_all',
+                        targets: "_all",
                         createdCell: function (td, cellData, rowData, row, col) {
-                            $(td).addClass('custom-cell-class');
-                        }
-                    }
+                            $(td).addClass("custom-cell-class");
+                        },
+                    },
                 ],
                 initComplete: function () {
-                    // Explicitly set the initial page after table initialization
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.EXPENSES, {
+                onStateLoad: (settings, data) => {
+                    console.log('Expenses table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Expenses table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            const table = $(tableRef.current).DataTable(fullConfig);
+
+            $(tableRef.current).css('table-layout', 'fixed');
         } else {
-            // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();
             table.page(initialPage).draw("page");
         }
-    }
+    };
 
 
     const getCurrentPageNumber = () => {

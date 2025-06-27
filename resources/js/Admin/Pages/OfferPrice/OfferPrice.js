@@ -1,22 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 import Moment from "moment";
-
+import i18next from "i18next";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
 import ViewOfferModal from "./ViewOfferModal";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function OfferPrice() {
     const { t, i18n } = useTranslation();
@@ -119,7 +120,7 @@ export default function OfferPrice() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -239,7 +240,21 @@ export default function OfferPrice() {
                     const table = $(tableRef.current).DataTable();
                     table.page(initialPage).draw("page");
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.OFFER_PRICE, {
+                onStateLoad: (settings, data) => {
+                    console.log('Offer price table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Offer price table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
         } else {
             // Reuse the existing table and set the page directly
             const table = $(tableRef.current).DataTable();

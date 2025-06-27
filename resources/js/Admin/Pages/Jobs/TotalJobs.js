@@ -240,6 +240,16 @@ export default function TotalJobs() {
                 processing: true,
                 serverSide: true,
                 pageLength: 100,
+                // Enable state saving with unique table ID
+                stateSave: true,
+                stateLoadParams: function (settings, data) {
+                    console.log('Loading jobs table state for:', settings.sTableId);
+                },
+                stateSaveParams: function (settings, data) {
+                    console.log('Saving jobs table state for:', settings.sTableId);
+                },
+                // Unique table identifier for state management
+                sTableId: 'total_jobs_table',
                 rowReorder: allowReorder ? {
                     enable: true,
                     dataSrc: 'order_by',

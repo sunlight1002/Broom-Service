@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useAlert } from 'react-alert';
 import { useTranslation } from "react-i18next";
-
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import Sidebar from "../../Layouts/WorkerSidebar";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
@@ -29,7 +31,7 @@ export default function WorkerAdvance() {
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const baseConfig = {
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
@@ -100,7 +102,21 @@ export default function WorkerAdvance() {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
                 },
+            };
+
+            // Add state management configuration
+            const stateConfig = getDataTableStateConfig(TABLE_IDS.WORKER_ADVANCE_LOANS, {
+                onStateLoad: (settings, data) => {
+                    console.log('Worker advance loans table state loaded:', data);
+                },
+                onStateSave: (settings, data) => {
+                    console.log('Worker advance loans table state saved:', data);
+                }
             });
+
+            const fullConfig = { ...baseConfig, ...stateConfig };
+
+            $(tableRef.current).DataTable(fullConfig);
 
             $(tableRef.current).css('table-layout', 'fixed');
         }

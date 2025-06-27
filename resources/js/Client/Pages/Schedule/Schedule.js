@@ -10,6 +10,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/ClientSidebar";
 
@@ -19,7 +20,7 @@ export default function Schedule() {
     const tableRef = useRef(null);
 
     useEffect(() => {
-        const table = $(tableRef.current).DataTable({
+        const baseConfig = {
             serverSide: true,
             processing: true,
             ajax: {
@@ -132,7 +133,21 @@ export default function Schedule() {
                     }
                 }
             ]
+        };
+
+        // Add state management configuration
+        const stateConfig = getDataTableStateConfig(TABLE_IDS.CLIENT_SCHEDULE, {
+            onStateLoad: (settings, data) => {
+                console.log('Client schedule table state loaded:', data);
+            },
+            onStateSave: (settings, data) => {
+                console.log('Client schedule table state saved:', data);
+            }
         });
+
+        const fullConfig = { ...baseConfig, ...stateConfig };
+
+        const table = $(tableRef.current).DataTable(fullConfig);
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;

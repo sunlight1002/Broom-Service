@@ -10,6 +10,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getDataTableStateConfig, TABLE_IDS } from '../../../Utils/datatableStateManager';
 
 import Sidebar from "../../Layouts/WorkerSidebar";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
@@ -20,7 +21,7 @@ export default function Hearing() {
     const tableRef = useRef(null);
 
     useEffect(() => {
-        const table = $(tableRef.current).DataTable({
+        const baseConfig = {
             serverSide: true,
             processing: true,
             ajax: {
@@ -116,7 +117,21 @@ export default function Hearing() {
                     }
                 }
             ]
+        };
+
+        // Add state management configuration
+        const stateConfig = getDataTableStateConfig(TABLE_IDS.WORKER_HEARING, {
+            onStateLoad: (settings, data) => {
+                console.log('Worker hearing table state loaded:', data);
+            },
+            onStateSave: (settings, data) => {
+                console.log('Worker hearing table state saved:', data);
+            }
         });
+
+        const fullConfig = { ...baseConfig, ...stateConfig };
+
+        const table = $(tableRef.current).DataTable(fullConfig);
 
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
