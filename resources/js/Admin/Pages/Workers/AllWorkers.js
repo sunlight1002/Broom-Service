@@ -18,6 +18,7 @@ import { CSVLink } from "react-csv";
 import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 import FilterButtons from "../../../Components/common/FilterButton";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function AllWorkers() {
     const { t, i18n } = useTranslation();
@@ -100,10 +101,18 @@ export default function AllWorkers() {
                     {
                         title: t("admin.global.Name"),
                         data: "name",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.status == 1 ? t("admin.global.active") : row.status == 0 ? t("admin.global.inactive") : t("worker.settings.waiting"));
+                            return `${data ? data : ''} ${badge}`;
+                        },
                     },
                     {
                         title: t("admin.global.Email"),
                         data: "email",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.status == 1 ? t("admin.global.active") : row.status == 0 ? t("admin.global.inactive") : t("worker.settings.waiting"));
+                            return `${data ? data : ''} ${badge}`;
+                        },
                     },
                     {
                         title: t("admin.global.Phone"),
@@ -129,18 +138,18 @@ export default function AllWorkers() {
                         data: "status",
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            // return data == 1 ? "Active" : "Inactive";
+                            const badge = getMobileStatusBadgeHtml(data == 1 ? t("admin.global.active") : data == 0 ? t("admin.global.inactive") : t("worker.settings.waiting"));
                             if (data == 1) {
                                 return `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        ${t("admin.global.active")}
+                                        ${t("admin.global.active")} ${badge}
                                     </p>`;
                             } else if (data == 0) {
                                 return `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        ${t("admin.global.inactive")}
+                                        ${t("admin.global.inactive")} ${badge}
                                     </p>`;
                             } else {
                                 return `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: purple; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        ${t("worker.settings.waiting")}
+                                        ${t("worker.settings.waiting")} ${badge}
                                     </p>`;
                             }
                         },

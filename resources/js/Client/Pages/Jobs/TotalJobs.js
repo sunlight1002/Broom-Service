@@ -10,6 +10,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/ClientSidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function TotalJobs() {
     const tableRef = useRef(null);
@@ -45,13 +46,11 @@ export default function TotalJobs() {
                     title: t("client.jobs.service"),
                     data: "service_name",
                     render: function (data, type, row, meta) {
-                        let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"
-                            };">`;
-
+                        let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"};">`;
                         _html += data;
-
+                        const badge = getMobileStatusBadgeHtml(row.status);
+                        _html += ` ${badge}`;
                         _html += `</span>`;
-
                         return _html;
                     },
                 },

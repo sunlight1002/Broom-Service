@@ -11,6 +11,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function ManageTeam() {
     const { t } = useTranslation();
@@ -51,6 +52,10 @@ export default function ManageTeam() {
                 {
                     title: t("global.Email"),
                     data: "email",
+                    render: function (data, type, row) {
+                        const badge = getMobileStatusBadgeHtml(row.status);
+                        return `${data ? data : ''} ${badge}`;
+                    },
                 },
                 {
                     title: t("global.phone"),

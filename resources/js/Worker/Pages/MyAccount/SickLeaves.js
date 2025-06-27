@@ -12,6 +12,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/WorkerSidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function ManageSickLeaves() {
     const { t } = useTranslation();
@@ -67,7 +68,8 @@ export default function ManageSickLeaves() {
                         data: "status",
                         render: function (data, type, row, meta) {
                             const style = getStatusStyle(data);
-                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data}</span>`;
+                            const badge = getMobileStatusBadgeHtml(data);
+                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data} ${badge}</span>`;
                         }
 
                     },

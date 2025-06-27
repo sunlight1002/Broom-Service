@@ -8,6 +8,7 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function OfferedPrice() {
     const params = useParams();
@@ -53,8 +54,8 @@ export default function OfferedPrice() {
                         } else {
                             color = "red";
                         }
-
-                        return `<span style="color: ${color};">${data}</span>`;
+                        const badge = getMobileStatusBadgeHtml(data);
+                        return `<span style="color: ${color};">${data} ${badge}</span>`;
                     },
                 },
                 {

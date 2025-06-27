@@ -17,6 +17,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import FilterButtons from "../../../Components/common/FilterButton";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function Schedule() {
     const { t, i18n } = useTranslation();
@@ -133,7 +134,8 @@ export default function Schedule() {
                         title: t("admin.global.Name"),
                         data: "name",
                         render: function (data, type, row, meta) {
-                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
+                            const badge = getMobileStatusBadgeHtml(row.booking_status);
+                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} ${badge}</a>`;
                         },
                     },
                     {
@@ -176,10 +178,9 @@ export default function Schedule() {
                             } else {
                                 color = "red";
                             }
-
-                            // return `<span style="color: ${color};">${data}</span>`;
+                            const badge = getMobileStatusBadgeHtml(data);
                             return `<p class="dt-meeting-status" data-id="${row.id}" data-status="${data}" style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                        ${data}
+                                        ${data} ${badge}
                                     </p>`;
                         },
                     },

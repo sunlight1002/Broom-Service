@@ -1,6 +1,6 @@
-
 import heic2any from "heic2any";
 import useAlert from "react-alert";
+import { leadStatusColor } from "./client.utils";
 
 export const monthNames = [
     "January",
@@ -81,8 +81,6 @@ export const convertTimeSlotsToRange = (slots) => {
     groupedSlots.push(currentGroup.join(" - "));
     return groupedSlots;
 };
-
-
 
 export const generateUnique15MinShifts = (shiftsArray, maxDurationInHours) => {
     const uniqueShifts = new Set(); // To avoid duplicate shifts
@@ -180,7 +178,6 @@ export const workerHours = (s, msg) => {
     return "--";
 };
 
-
 export const handleHeicConvert = async (file) => {
     const ext = file.name.split('.').pop().toLowerCase();
 
@@ -203,8 +200,6 @@ export const handleHeicConvert = async (file) => {
 
     return file;
 };
-
-
 
 export const getLocationAndAddress = async (alert) => {
     return new Promise((resolve, reject) => {
@@ -238,3 +233,14 @@ export const getLocationAndAddress = async (alert) => {
         );
     });
 };
+
+/**
+ * Returns a mobile status badge as an HTML string (for use in DataTables, etc.)
+ * @param {string} status
+ * @returns {string}
+ */
+export function getMobileStatusBadgeHtml(status) {
+    if (!status) return '';
+    const color = leadStatusColor(status)?.backgroundColor || '#ccc';
+    return `<span class="mobile-status-badge" style="background:${color};" title="${status}">${status.charAt(0).toUpperCase()}</span>`;
+}

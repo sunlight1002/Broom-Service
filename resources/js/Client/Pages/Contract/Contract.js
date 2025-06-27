@@ -10,6 +10,7 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/ClientSidebar";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function Contract() {
     const { t } = useTranslation();
@@ -59,6 +60,10 @@ export default function Contract() {
                 {
                     title: t("client.contract.status"),
                     data: "status",
+                    render: function (data, type, row, meta) {
+                        const badge = getMobileStatusBadgeHtml(row.status);
+                        return `${data ? data : ''} ${badge}`;
+                    },
                 },
                 {
                     title: t("client.contract.action"),

@@ -17,6 +17,7 @@ import AddPaymentModal from "../../Components/Modals/AddPaymentModal";
 import AddCreditCardModal from "../../Components/Modals/AddCreditCardModal";
 import FilterButtons from "../../../Components/common/FilterButton";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
 
 export default function Payments() {
     const { t } = useTranslation();
@@ -83,13 +84,13 @@ export default function Payments() {
                     responsivePriority: 0,
                     render: function (data, type, row, meta) {
                         let _html = `<span class="client-name-badge dt-client-badge" style="color: #FFFFFF; background-color: #D500A6;" data-client-id="${row.client_id}">`;
-
                         _html += `<i class="fa-solid fa-user"></i>`;
-
                         _html += data;
-
+                        if (row.priority_paid_status) {
+                            const badge = getMobileStatusBadgeHtml(row.priority_paid_status);
+                            _html += ` ${badge}`;
+                        }
                         _html += `</span>`;
-
                         return _html;
                     },
                 },
@@ -99,8 +100,8 @@ export default function Payments() {
                     render: function (data, type, row, meta) {
                         if (data) {
                             const _statusName = priorityStatus(data);
-
-                            return `<div class="client-payment-status-badge"> ${_statusName} </div>`;
+                            const badge = getMobileStatusBadgeHtml(data);
+                            return `<div class="client-payment-status-badge"> ${_statusName} ${badge} </div>`;
                         } else {
                             return "";
                         }

@@ -18,6 +18,8 @@ import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 import { CSVLink } from "react-csv";
+import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
+
 export default function Lead() {
     const { t, i18n } = useTranslation();
     const statusArr = {
@@ -130,8 +132,19 @@ export default function Lead() {
                         data: "name",
                         responsivePriority: 2,
                         width: "15%",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.lead_status);
+                            return `${data ? data : ''} ${badge}`;
+                        },
                     },
-                    { title: t("admin.global.Email"), data: "email" },
+                    {
+                        title: t("admin.global.Email"),
+                        data: "email",
+                        render: function (data, type, row) {
+                            const badge = getMobileStatusBadgeHtml(row.lead_status);
+                            return `${data ? data : ''} ${badge}`;
+                        },
+                    },
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
@@ -152,7 +165,7 @@ export default function Lead() {
                         render: function (data, type, row) {
                             const _statusColor = leadStatusColor(data);
                             let _html = ``;
-
+                            let badge = getMobileStatusBadgeHtml(data);
                             // Add reschedule details with tooltip if the lead status is 'reschedule call'
                             if (
                                 row.lead_status === "reschedule call" &&
@@ -166,7 +179,7 @@ export default function Lead() {
                                     data-id="${row.id}" 
                                     data-tooltip-html="${tooltipContent}" 
                                     style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
-                                    ${data}
+                                    ${data} ${badge}
                                 </p>`;
                             } else if (row.reason) {
                                 const reason = `${row.reason}`;
@@ -176,14 +189,14 @@ export default function Lead() {
                                     data-tooltip-html="${reason}" 
                                     data-id="${row.id}" 
                                     style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
-                                    ${data}
+                                    ${data} ${badge}
                                 </p>`;
                             } else {
                                 _html = `<p 
                                     class="badge dt-change-status-btn" 
                                     data-id="${row.id}" 
                                     style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
-                                    ${data}
+                                    ${data} ${badge}
                                 </p>`;
                             }
                             return _html;
