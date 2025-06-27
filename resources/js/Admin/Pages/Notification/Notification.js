@@ -189,7 +189,7 @@ export default function Notification() {
                                 notices &&
                                 notices.map((n, i) => {
                                     // Check if this is a birthday notification
-                                    const isBirthdayNotification = n.data && n.data.includes('🎉') && n.data.includes('🎂');
+                                    const isBirthdayNotification = n.data && typeof n.data === 'string' && n.data.includes('🎉') && n.data.includes('🎂');
                                     
                                     return (
                                         <div className="agg-list" key={i}>
