@@ -46,6 +46,7 @@ class ScheduleChangeController extends Controller
         $end_date = $request->get('end_date');
         $reason = $request->get('reason');
         $client_id = $request->get('client_id');
+        $date_filter = $request->get('date_filter', 'all_time'); // New date filter parameter
 
         $query = ScheduleChange::with('user');
 
@@ -93,30 +94,19 @@ class ScheduleChangeController extends Controller
             ->when($end_date, function ($q) use ($end_date) {
                 return $q->whereDate('created_at', '<=', $end_date);
             })
-            ->when($reason, function ($q) use ($reason) {
-                if ($reason == "Contact me urgently") {
-                    return $q->whereIn('reason', ["Contact me urgently", "צרו איתי קשר דחוף", "Свяжитесь со мной срочно", "Contáctame urgentemente"]);
-                } else if ($reason == "Change or update schedule") {
-                    $q->whereIn('reason', ["Change or update schedule", "שינוי או עדכון שיבוץ", "Change Schedule", "שנה לוח זמנים", "Cambiar horario", "Изменить расписание"]);
-                } else if ($reason == "Invoice and accounting inquiry") {
-                    $q->whereIn('reason', ["Invoice and accounting inquiry", 'הנה"ח - פנייה למחלקת הנהלת חשבונות']);
-                } else if ($reason == "additional information") {
-                    $q->whereIn('reason', ["additional information", "מידע נוסף"]);
-                } else if ($reason == "Client Feedback") {
-                    $q->whereIn('reason', ["Client Feedback", "משוב לקוח"]);
-                } else if($reason == "teleservice"){
-                    return $q->where('reason', 'teleservice');
-                }else if ($reason == "All") {
-                    return $q;
-                }
+            ->when($reason && $reason !== 'All', function ($q) use ($reason) {
+                return $q->where('reason', $reason);
             });
 
-        $query->select($columns);
-
-        $query->orderBy($columns[$columnIndex] ?? 'id', $dir);
+        // Apply date filtering based on the date_filter parameter
+        $query = $this->applyDateFilter($query, $date_filter);
 
         $totalRecords = $query->count();
-        $scheduleChanges = $query->skip($start)->take($length)->get();
+
+        $scheduleChanges = $query->orderBy($columns[$columnIndex] ?? 'id', $dir)
+            ->skip($start)
+            ->take($length)
+            ->get();
 
         $scheduleChanges = $scheduleChanges->map(function ($change) {
             $user = $change->user;
@@ -136,6 +126,7 @@ class ScheduleChangeController extends Controller
                 'reason' => $change->reason ?? '',
                 'comments' => $change->comments ?? '',
                 'created_at' => $change->created_at,
+                'scheduled_date' => $change->scheduled_date,
             ];
         });
 
@@ -146,6 +137,46 @@ class ScheduleChangeController extends Controller
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $totalRecords,
         ]);
+    }
+
+    /**
+     * Apply date filtering based on the filter type
+     */
+    private function applyDateFilter($query, $dateFilter)
+    {
+        $today = now()->startOfDay();
+        
+        switch ($dateFilter) {
+            case 'day':
+                return $query->whereDate('scheduled_date', $today);
+                
+            case 'week':
+                $weekStart = $today->copy()->startOfWeek();
+                $weekEnd = $today->copy()->endOfWeek();
+                return $query->whereBetween('scheduled_date', [$weekStart, $weekEnd]);
+                
+            case 'month':
+                $monthStart = $today->copy()->startOfMonth();
+                $monthEnd = $today->copy()->endOfMonth();
+                return $query->whereBetween('scheduled_date', [$monthStart, $monthEnd]);
+                
+            case 'current':
+                return $query->where('scheduled_date', '>=', $today);
+                
+            case 'next':
+                $nextWeekStart = $today->copy()->addWeek()->startOfWeek();
+                $nextWeekEnd = $today->copy()->addWeek()->endOfWeek();
+                return $query->whereBetween('scheduled_date', [$nextWeekStart, $nextWeekEnd]);
+                
+            case 'previous':
+                $prevWeekStart = $today->copy()->subWeek()->startOfWeek();
+                $prevWeekEnd = $today->copy()->subWeek()->endOfWeek();
+                return $query->whereBetween('scheduled_date', [$prevWeekStart, $prevWeekEnd]);
+                
+            case 'all_time':
+            default:
+                return $query; // No date filtering
+        }
     }
 
     public function addScheduleRequest(Request $request)
@@ -310,6 +341,32 @@ class ScheduleChangeController extends Controller
         ], 200);
     }
 
+    /**
+     * Schedule a request for a future date
+     */
+    public function scheduleForFuture(Request $request, $id)
+    {
+        $request->validate([
+            'scheduled_date' => 'required|date|after:today',
+        ]);
+
+        $scheduleChange = ScheduleChange::find($id);
+
+        if (!$scheduleChange) {
+            return response()->json([
+                'message' => 'Schedule Change record not found.'
+            ], 404);
+        }
+
+        $scheduleChange->update([
+            'scheduled_date' => $request->scheduled_date,
+        ]);
+
+        return response()->json([
+            'message' => 'Request scheduled for future date successfully.',
+            'data' => $scheduleChange
+        ], 200);
+    }
 
     public function getScheduleChange($id)
     {

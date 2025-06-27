@@ -514,6 +514,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
 
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
+    Route::post('/schedule-changes/{id}/schedule-future', [ScheduleChangeController::class, 'scheduleForFuture']);
     Route::get('/schedule-change/{id}', [ScheduleChangeController::class, 'getScheduleChange']);
     Route::post('/add-schedule-request', [ScheduleChangeController::class, 'addScheduleRequest']);
     Route::post('/send-message-to-user/{id}', [ScheduleChangeController::class, 'sendMessageToUser']);

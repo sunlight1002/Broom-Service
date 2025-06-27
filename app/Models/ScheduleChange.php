@@ -17,8 +17,24 @@ class ScheduleChange extends Model
         'comments',
         'user_id',
         'status',
-        'team_response'
+        'team_response',
+        'scheduled_date'
     ];
+
+    protected $casts = [
+        'scheduled_date' => 'date',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($scheduleChange) {
+            if (!$scheduleChange->scheduled_date) {
+                $scheduleChange->scheduled_date = now()->toDateString();
+            }
+        });
+    }
 
     /**
      * Get the associated user (Client or User).
