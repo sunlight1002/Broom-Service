@@ -130,6 +130,11 @@ const HeaderTimer = () => {
 
                     setTime(elapsed > 0 ? elapsed : 0);
                     setIsRunning(true);
+                }else{
+                    localStorage.removeItem('admin-timer-log-id');
+                    localStorage.removeItem('admin-timer-start-time');
+                    setIsRunning(false);
+                    setTime(0);
                 }
             } catch (error) {
                 console.error("Error fetching last timer log", error);
