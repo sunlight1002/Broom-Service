@@ -461,6 +461,18 @@ class AuthController extends Controller
     }
 
 
+    public function getAdminLastTimerLog($id)
+    {
+        $lastLog = AdminTimeLog::where('admins_id', $id)
+            ->whereNull('end_timer') // Only logs where timer is still running
+            ->latest('start_timer')
+            ->first();
+
+        return response()->json([
+            'timerLog' => $lastLog
+        ]);
+    }
+
 
     public function storeAdminTimeLogs(Request $request)
     {

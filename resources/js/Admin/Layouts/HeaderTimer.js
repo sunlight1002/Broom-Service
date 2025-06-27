@@ -112,6 +112,34 @@ const HeaderTimer = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchLastTimer = async () => {
+            const adminId = localStorage.getItem("admin-id"); 
+            if (!adminId) return;
+
+            try {
+                const res = await axios.get(`/api/admin/last-time-log/${adminId}`, { headers });
+                const timerLog = res?.data?.timerLog;
+
+                if (timerLog && timerLog.start_timer && !timerLog.end_timer) {
+                    const startTime = new Date(timerLog.start_timer);
+                    const elapsed = Math.floor((Date.now() - startTime.getTime()) / 1000);
+
+                    localStorage.setItem('admin-timer-log-id', timerLog.id);
+                    localStorage.setItem('admin-timer-start-time', startTime.toISOString());
+
+                    setTime(elapsed > 0 ? elapsed : 0);
+                    setIsRunning(true);
+                }
+            } catch (error) {
+                console.error("Error fetching last timer log", error);
+            }
+        };
+
+        fetchLastTimer();
+    }, []);
+
+
     return (
         <>
             <style jsx>{`
