@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 use PDF;
+use Illuminate\Support\Facades\App;
+
 
 
 class WorkerFormService
@@ -1909,7 +1911,7 @@ class WorkerFormService
         }
     }
 
-    public static function generateWorkerFormsPdf($htmlContent, $fileName)
+    public static function generateWorkerFormsPdf($data, $worker, $fileName)
     {
         try {
             // Load image and convert to base64
@@ -2153,6 +2155,7 @@ class WorkerFormService
             return false;
         }
     }
+
 
     public static function buildSignatureTag($url, $width = 250, $height = 150)
     {

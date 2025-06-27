@@ -101,49 +101,29 @@ Equipo de Broom Service',
                 'description' => 'Reminder to Worker 1 Hour Before Job Start',
                 'message_en' => 'Hello, *:worker_name*,
 
-You have a job scheduled at *:job_start_time* at the following location:
-
-Address: *:job_full_address*
-Client: *:translated_client_name*
-
-- I’m On My Way :leave_for_work
-- Contact Manager :job_contact_manager_link if you need assistance.
+Your work is scheduled to begin in an hour at *:translated_client_name*, located at *:job_full_address*.
+Please confirm:
 
 Best Regards,
 Broom Service Team',
                 'message_heb' => 'שלום, *:worker_name*,
 
-יש לך עבודה המתוכננת לשעה *:job_start_time* בכתובת הבאה:
-
-כתובת: *:job_full_address*
-לקוח:  *:translated_client_name*
-
-- אני בדרכי :leave_for_work
-- צור קשר עם המנה :job_contact_manager_link במידה ואתה זקוק לעזרה.
+בעוד שעה אמורה להתחיל עבודתך אצל *:translated_client_name*, בכתובת: *:job_full_address*
+אנא אשר:
 
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => 'Hola, *:worker_name*,
 
-Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
-
-Dirección: *:job_full_address*
-Cliente: *:translated_client_name*
-
-- Estoy en camino :leave_for_work
-- Contactar al gerente :job_contact_manager_link si necesitas ayuda.
+Su trabajo está programado para comenzar en una hora en *:translated_client_name*, ubicado en *:job_full_address*.
+Por favor confirme:
 
 Saludos cordiales,
 Equipo de Broom Service',
                 'message_ru' => 'Здравствуйте, *:worker_name*,
 
-У вас назначена работа на *:job_start_time* по следующему адресу:
-
-Адрес: *:job_full_address*
-Клиент: *:translated_client_name*
-
-- Я в пути :leave_for_work
-- Связаться с менеджером :job_contact_manager_link если вам нужна помощь.
+Ваша работа должна начаться через час у *:translated_client_name*, по адресу: *:job_full_address*.
+Пожалуйста, подтвердите:
 
 С уважением,
 Команда Broom Service',
@@ -155,16 +135,9 @@ Equipo de Broom Service',
                 'message_en' => '',
                 'message_heb' => 'שלום צוות,
 
-העובד, *:worker_name*, עדיין לא אישר שהוא בדרכו לעבודה שתתחיל בשעה *:job_start_time*.
+:worker_name עדיין לא אישר שהוא בדרך לעבודה אצל :client_name.
 
-*שם הלקוח:* :client_name
-*טלפון לקוח:* :client_phone_number
-*טלפון עובד:* :worker_phone_number
-*כתובת:* :job_full_address
-*תאריך/שעה:* :job_start_date_time
-
-- *אשר בדרכו עבור העובד* :team_action_btns_link
-- *נקוט פעולה* :team_job_action_link (אפשרויות: החלפת עובד, שינוי משמרת, ביטול עבודה ועדכון הלקוח לפי הצורך).
+:job_details
 
 בברכה,
 צוות ברום סרוויס',
@@ -4139,8 +4112,8 @@ https://www.facebook.com/JobinIsraelforubr
                 'description' => 'Alex reply lead UNANSWERED to lead',
                 'message_en' => "🌟 Hi again! 
 
-Galina from our team tried contacting you but couldn’t reach you. 
-Please call her back at: +972 55-564-9446. 
+Alex from our team tried contacting you but couldn’t reach you. 
+Please call her back at: +972528480808.
 
 We look forward to hearing from you! 
 
@@ -4149,37 +4122,37 @@ Job4Service Team
 🌐 job4service.com 
 📧 officejob4service@gmail.com",
 
-                'message_heb' => "🌟 שלום שוב! 
+                'message_heb' => "🌟 שלום שוב!
 
-גלינה מהצוות שלנו ניסתה ליצור איתך קשר אך לא הצליחה להשיג אותך. 
-נשמח אם תחזיר לה שיחה למספר: +972 55-564-9446. 
+אלכס מהצוות שלנו ניסה ליצור איתך קשר אך לא הצליח להשיג אותך.
+נשמח אם תתקשר אליה בחזרה למספר: 972528480808+.
 
-מחכים לשמוע ממך! 
+מצפים לשמוע ממך!
 
-בברכה, 
-צוות Job4Service 
-🌐 job4service.com 
-📧 officejob4service@gmail.com ",
+בברכה,
+צוות Job4Service
+🌐 job4service.com
+📧 officejob4service@gmail.com",
                 'message_spa' => "🌟 ¡Hola de nuevo!
 
 Alex, nuestro gerente, intentó comunicarse contigo pero no pudo comunicarse contigo.
-Por favor, vuelve a llamarlo al: +972 52-848-0808.
+Por favor, vuelve a llamarlo al: +972528480808.
 
 ¡Esperamos tener noticias tuyas! 😊
 
 Saludos cordiales,
 Equipo de Broom Service 🌹",
-                'message_ru' => "🌟 Здравствуйте снова! 
+                'message_ru' => "🌟 Здравствуйте снова!
 
-Галина из нашей команды пыталась с вами связаться, но не смогла дозвониться. 
-Пожалуйста, перезвоните ей по номеру: +972 55-564-9446. 
+Алекс из нашей команды пыталась связаться с вами, но не смогла.
+Пожалуйста, перезвоните ей по номеру: +972528480808.
 
-Будем рады вашему звонку! 
+Мы будем рады услышать от вас!
 
-С уважением, 
-Команда Job4Service 
-🌐 job4service.com 
-📧 officejob4service@gmail.com ",
+С уважением,
+Команда Job4Service
+🌐 job4service.com
+📧 officejob4service@gmail.com",
             ],
 
             [
