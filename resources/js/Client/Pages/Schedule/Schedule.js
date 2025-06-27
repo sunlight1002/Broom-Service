@@ -23,6 +23,7 @@ export default function Schedule() {
         const baseConfig = {
             serverSide: true,
             processing: true,
+            pageLength: 100,
             ajax: {
                 url: "/api/client/schedule",
                 type: "GET",

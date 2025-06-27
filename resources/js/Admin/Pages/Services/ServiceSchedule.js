@@ -31,6 +31,7 @@ export default function ServiceSchedule() {
             const baseConfig = {
                 processing: true,
                 serverSide: true,
+                pageLength: 100,
                 ajax: {
                     url: "/api/admin/service-schedule",
                     type: "GET",

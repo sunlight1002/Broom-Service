@@ -140,6 +140,7 @@ export default function PendingRequest({ clientId }) {
             const baseConfig = {
                 processing: true,
                 serverSide: true,
+                pageLength: 100,
                 // autoWidth: false,
                 ajax: {
                     url: "/api/admin/schedule-changes",
