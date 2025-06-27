@@ -109,6 +109,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('add:jobs-in-google-sheet')->dailyAt('19:00');
 
+        // Worker birthday notifications
+        $schedule->command('workers:send-birthday-notifications')->onOneServer()->dailyAt('09:00');
+
         // if (now()->toDateString() === '2025-05-31') {
         //     $schedule->command('send:messagefordeactivatednumbers')->onOneServer()->dailyAt('20:30');
         // }

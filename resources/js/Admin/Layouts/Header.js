@@ -172,6 +172,9 @@ export default function AdminHeader() {
                                     </button>
                                     <ul className="dropdown-menu adminIconDropdown">
                                         {notices.map((n, i) => {
+                                            // Check if this is a birthday notification
+                                            const isBirthdayNotification = n.data && typeof n.data === 'string' && n.data.includes('🎉') && n.data.includes('🎂');
+                                            
                                             return (
                                                 <li
                                                     key={i}
@@ -199,7 +202,11 @@ export default function AdminHeader() {
                                                         className="agg-list"
                                                     >
                                                         <div className="icons">
-                                                            <i className="fas fa-check-circle"></i>
+                                                            {isBirthdayNotification ? (
+                                                                <i className="fas fa-birthday-cake" style={{ color: '#ff6b6b' }}></i>
+                                                            ) : (
+                                                                <i className="fas fa-check-circle"></i>
+                                                            )}
                                                         </div>
                                                         <div className="agg-text">
                                                             <h6

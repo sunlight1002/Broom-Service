@@ -189,4 +189,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const MESSAGE_SEND_TO_CLIENT_AFTER_VERIFYED_CONTRACT = "message-send-to-client-after-verified-contract";
     public const INQUIRY_RESPONSE_LEAD = "inquiry-response-lead";
     public const AFTER_STOP_TO_CLIENT_WHAPI = "after-stop-to-client-whapi";
+    public const WORKER_BIRTHDAY_WISH = "worker-birthday-wish";
 }

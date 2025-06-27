@@ -36,6 +36,7 @@ export default function EditWorker() {
         lastname: "",
         phone: "",
         email: "",
+        birth_date: "",
         gender: "",
         role: "",
         payment_hour: "",
@@ -228,6 +229,7 @@ export default function EditWorker() {
                     lastname: _worker.lastname,
                     email: _worker.email,
                     phone: _worker.phone,
+                    birth_date: _worker.birth_date || '',
                     renewal_date: _worker.renewal_visa,
                     gender: _worker.gender,
                     role: response?.data?.role,
@@ -458,6 +460,25 @@ export default function EditWorker() {
                                             ) : (
                                                 ""
                                             )}
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("worker.settings.birth_date") || "Birth Date"}
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={formValues.birth_date || ''}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        birth_date: e.target.value,
+                                                    });
+                                                }}
+                                                className="form-control"
+                                                max={new Date().toISOString().split('T')[0]}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">

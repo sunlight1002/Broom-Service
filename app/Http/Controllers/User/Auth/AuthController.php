@@ -386,6 +386,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'address'   => ['required', 'string'],
             'phone'     => ['required'],
+            'birth_date' => ['nullable', 'date', 'before:today'],
             'two_factor_enabled' => ['nullable', 'boolean'],
             'payment_type' => ['required', 'string'],
             'full_name' => ['required_if:payment_type,money_transfer'],
@@ -400,7 +401,8 @@ class AuthController extends Controller
             'bank_number.required_if' => 'The bank number is required.',
             'branch_number.required_if' => 'The branch number is required.',
             'account_number.required_if' => 'The account number is required.',
-            'manpower_company_id.required_if' => 'Manpower Company ID is required.'
+            'manpower_company_id.required_if' => 'Manpower Company ID is required.',
+            'birth_date.before' => 'Birth date must be before today.',
         ]);
 
         if ($validator->fails()) {
@@ -410,6 +412,7 @@ class AuthController extends Controller
         $worker                = User::find(Auth::user()->id);
         $worker->phone         = $request->phone;
         $worker->address       = $request->address;
+        $worker->birth_date    = $request->birth_date;
         $worker->renewal_visa  = $request->renewal_visa;
         $worker->lng           = $request->lng;
         $worker->passcode      = $request->password;
