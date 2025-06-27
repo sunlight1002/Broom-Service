@@ -1,6 +1,7 @@
 export const leadStatusColor = (_status) => {
     let _color = "";
-    switch (_status) {
+    console.log("Status Color", _status);
+    switch (_status?.toLowerCase() || '') {
         case "pending":
             _color = "#ffa500";
             break;
@@ -49,11 +50,19 @@ export const leadStatusColor = (_status) => {
             _color = "green";
             break;
 
+        case "active":
+            _color = "green";
+            break;
+
         case "past":
             _color = "black";
             break;
 
         case "approved":
+            _color = "green";
+            break;
+
+        case "verified":
             _color = "green";
             break;
 
@@ -64,6 +73,11 @@ export const leadStatusColor = (_status) => {
         case "rejected":
             _color = "#d51212";
             break;
+
+        case "not-signed":
+            _color = "#d51212";
+            break;
+
         case "unhappy":
             _color = "red";
             break;

@@ -18,6 +18,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { getMobileStatusBadgeHtml } from '../../../Utils/common.utils';
+import { leadStatusColor } from '../../../Utils/client.utils';
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Clients() {
