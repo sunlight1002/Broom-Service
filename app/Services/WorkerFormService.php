@@ -1911,197 +1911,247 @@ class WorkerFormService
 
     public static function generateWorkerFormsPdf($htmlContent, $fileName)
     {
-
-        // Load image and convert to base64
-        $imagePath = public_path('images/company-sign.png');
-        $imageData = base64_encode(file_get_contents($imagePath));
-        $src = 'data:image/png;base64,' . $imageData;
-
-        // ✅ Replace the <img class="company-sign" /> placeholder with actual signature image
-        $htmlContent = preg_replace(
-            '/<img[^>]*class="company-sign"[^>]*>/i',
-            self::buildSignatureTag($src),
-            $htmlContent
-        );
-
-        \Log::info($htmlContent);
-
-
-        $styledHtml = '
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            body {
-                font-family: "Rubik", sans-serif;
-                font-size: 11pt;
-                line-height: 1.6;
-                color: #333;
-                padding: 10px;
-                margin: 0;
-            }
-
-            h1, h2, h3 {
-                text-align: center;
-                margin-bottom: 20px;
-                color: #007BFF;
-            }
-
-            .section-title {
-                font-weight: bold;
-                font-size: 13pt;
-                margin-top: 25px;
-                margin-bottom: 10px;
-                border-bottom: 2px solid #007BFF;
-                padding-bottom: 3px;
-            }
-
-            .field {
-                margin-bottom: 10px;
-            }
-
-            .field-label {
-                font-weight: bold;
-                display: inline-block;
-                width: 200px;
-                color: #555;
-            }
-
-            .field-value {
-                display: inline-block;
-            }
-
-            .signature-block {
-                margin-top: 40px;
-            }
-
-            .signature-label {
-                font-weight: bold;
-            }
-
-            .signature-line {
-                margin-top: 20px;
-                border-bottom: 2px solid #007BFF;
-                width: 300px;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 15px 0;
-                font-size: 11px;
-                page-break-inside: avoid;
-                border: 1px solid #ddd;
-            }
-
-            th {
-                background-color: #f2f2f2;
-                font-weight: bold;
-                text-align: left;
-                padding: 12px 15px;
-                border-bottom: 2px solid #ddd;
-            }
-
-            td {
-                border-bottom: 1px solid #ddd;
-                padding: 10px 15px;
-                text-align: left;
-            }
-
-            td:hover {
-                background-color: #f9f9f9;
-            }
-
-            th, td {
-                border-right: 1px solid #ddd;
-            }
-
-            th:last-child, td:last-child {
-                border-right: none;
-            }
-
-            .right {
-                text-align: right;
-            }
-
-            .center {
-                text-align: center;
-            }
-
-            .footer {
-                margin-top: 30px;
-                font-size: 10px;
-                text-align: center;
-                color: #666;
-                border-top: 1px solid #eee;
-                padding-top: 10px;
-            }
-
-            input[type="text"],
-            input[type="number"],
-            textarea {
-                width: 100%;
-                padding: 8px;
-                font-size: 10pt;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                margin-top: 4px;
-            }
-
-            input[type="text"]:focus,
-            input[type="number"]:focus,
-            textarea:focus {
-                border-color: #007BFF;
-                outline: none;
-            }
-
-            input[type="submit"] {
-                display: none;
-            }
-
-            button {
-                display: none;
-            }
-
-            .pdf-safegear-title {
-                font-weight: bold;
-                font-size: 25pt;
-            }
-
-            .pdf-safegear-title2 {
-                font-weight: bold;
-                font-size: 20pt;
-            }
-
-            .pdf-safegear-section2-list{
-                margin-top: 0px;
-                margin-bottom: 5px;
+        try {
+            // Load image and convert to base64
+            $imagePath = public_path('images/company-sign.png');
+            
+            if (!file_exists($imagePath)) {
+                \Log::error('Company signature image not found: ' . $imagePath);
+                throw new \Exception('Company signature image not found');
             }
             
-            .hide-in-pdf {
-                display: none;
+            $imageData = base64_encode(file_get_contents($imagePath));
+            $src = 'data:image/png;base64,' . $imageData;
+
+            // ✅ Replace the <img class="company-sign" /> placeholder with actual signature image
+            $htmlContent = preg_replace(
+                '/<img[^>]*class="company-sign"[^>]*>/i',
+                self::buildSignatureTag($src),
+                $htmlContent
+            );
+
+            \Log::info('Original HTML Content length: ' . strlen($htmlContent));
+            \Log::info('HTML Content preview: ' . substr($htmlContent, 0, 1000) . '...');
+
+            // Check if HTML content is empty or too short
+            if (empty(trim($htmlContent)) || strlen(trim($htmlContent)) < 50) {
+                \Log::error('HTML content is too short or empty: ' . strlen($htmlContent));
+                throw new \Exception('HTML content is too short or empty');
             }
 
-        </style>
-    </head>
-    <body>
-        ' . $htmlContent . '
-    </body>
-    </html>
-    ';
+            $styledHtml = '
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 12pt;
+                    line-height: 1.4;
+                    color: #333;
+                    padding: 20px;
+                    margin: 0;
+                }
 
-        // Generate and save PDF
-        $pdf = PDF::loadHTML($styledHtml)
-            ->setPaper('A4')
-            ->setOptions([
-                'defaultFont' => 'DejaVu Sans',
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-            ])
-            ->save(storage_path("app/public/signed-docs/{$fileName}"));
+                h1, h2, h3 {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    color: #007BFF;
+                }
 
+                .section-title {
+                    font-weight: bold;
+                    font-size: 14pt;
+                    margin-top: 25px;
+                    margin-bottom: 10px;
+                    border-bottom: 2px solid #007BFF;
+                    padding-bottom: 3px;
+                }
 
-        return true;
+                .field {
+                    margin-bottom: 10px;
+                }
+
+                .field-label {
+                    font-weight: bold;
+                    display: inline-block;
+                    width: 200px;
+                    color: #555;
+                }
+
+                .field-value {
+                    display: inline-block;
+                }
+
+                .signature-block {
+                    margin-top: 40px;
+                }
+
+                .signature-label {
+                    font-weight: bold;
+                }
+
+                .signature-line {
+                    margin-top: 20px;
+                    border-bottom: 2px solid #007BFF;
+                    width: 300px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                    font-size: 11px;
+                    page-break-inside: avoid;
+                    border: 1px solid #ddd;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                    text-align: left;
+                    padding: 12px 15px;
+                    border-bottom: 2px solid #ddd;
+                }
+
+                td {
+                    border-bottom: 1px solid #ddd;
+                    padding: 10px 15px;
+                    text-align: left;
+                }
+
+                th, td {
+                    border-right: 1px solid #ddd;
+                }
+
+                th:last-child, td:last-child {
+                    border-right: none;
+                }
+
+                .right {
+                    text-align: right;
+                }
+
+                .center {
+                    text-align: center;
+                }
+
+                .footer {
+                    margin-top: 30px;
+                    font-size: 10px;
+                    text-align: center;
+                    color: #666;
+                    border-top: 1px solid #eee;
+                    padding-top: 10px;
+                }
+
+                input[type="submit"], button {
+                    display: none;
+                }
+
+                .pdf-safegear-title {
+                    font-weight: bold;
+                    font-size: 25pt;
+                }
+
+                .pdf-safegear-title2 {
+                    font-weight: bold;
+                    font-size: 20pt;
+                }
+
+                .pdf-safegear-section2-list{
+                    margin-top: 0px;
+                    margin-bottom: 5px;
+                }
+                
+                .hide-in-pdf {
+                    display: none;
+                }
+
+            </style>
+        </head>
+        <body>
+            ' . $htmlContent . '
+        </body>
+        </html>
+        ';
+
+            \Log::info('Starting PDF generation for file: ' . $fileName);
+            \Log::info('Styled HTML length: ' . strlen($styledHtml));
+
+            // Ensure directory exists
+            if (!Storage::disk('public')->exists('signed-docs')) {
+                Storage::disk('public')->makeDirectory('signed-docs');
+            }
+
+            $pdfPath = storage_path("app/public/signed-docs/{$fileName}");
+
+            // Try mPDF first (more reliable)
+            try {
+                \Log::info('Attempting to generate PDF with mPDF...');
+                
+                $mpdf = new \Mpdf\Mpdf([
+                    'mode' => 'utf-8',
+                    'format' => 'A4',
+                    'margin_left' => 15,
+                    'margin_right' => 15,
+                    'margin_top' => 15,
+                    'margin_bottom' => 15,
+                    'default_font' => 'arial',
+                ]);
+                
+                $mpdf->WriteHTML($styledHtml);
+                $mpdf->Output($pdfPath, 'F');
+                
+                \Log::info('mPDF generation completed. File saved at: ' . $pdfPath);
+                \Log::info('File size: ' . (file_exists($pdfPath) ? filesize($pdfPath) : 'File not found'));
+                
+                // Check if file was created and has content
+                if (file_exists($pdfPath) && filesize($pdfPath) > 1000) {
+                    return true;
+                } else {
+                    \Log::warning('mPDF generated file is too small or empty, trying DomPDF...');
+                    throw new \Exception('mPDF generated empty file');
+                }
+
+            } catch (\Exception $mpdfException) {
+                \Log::error('mPDF failed: ' . $mpdfException->getMessage());
+                
+                // Fallback to DomPDF
+                try {
+                    \Log::info('Attempting to generate PDF with DomPDF...');
+                    
+                    // Generate and save PDF using DomPDF
+                    $pdf = PDF::loadHTML($styledHtml)
+                        ->setPaper('A4')
+                        ->setOptions([
+                            'defaultFont' => 'Arial',
+                            'isHtml5ParserEnabled' => true,
+                            'isRemoteEnabled' => true,
+                            'debugCss' => false,
+                            'debugKeepTemp' => false,
+                            'debugPng' => false,
+                            'debugLayout' => false,
+                        ]);
+
+                    $result = $pdf->save($pdfPath);
+                    
+                    \Log::info('DomPDF generation completed. File saved at: ' . $pdfPath);
+                    \Log::info('File size: ' . (file_exists($pdfPath) ? filesize($pdfPath) : 'File not found'));
+                    
+                    return true;
+                    
+                } catch (\Exception $dompdfException) {
+                    \Log::error('DomPDF also failed: ' . $dompdfException->getMessage());
+                    throw new \Exception('Both mPDF and DomPDF failed to generate PDF');
+                }
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('PDF generation failed: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return false;
+        }
     }
 
     public static function buildSignatureTag($url, $width = 250, $height = 150)
@@ -2109,5 +2159,185 @@ class WorkerFormService
         if (!$url) return '';
 
         return '<img src="' . $url . '" width="' . $width . '" height="' . $height . '" style="object-fit: contain;" />';
+    }
+
+    public static function regenerateExistingPdf($form, $fileName)
+    {
+        try {
+            \Log::info('Regenerating PDF for form: ' . $form->id . ' - Type: ' . $form->type);
+            
+            // Create HTML content based on form type and data
+            $htmlContent = self::createHtmlFromFormData($form);
+            
+            if (empty($htmlContent)) {
+                \Log::error('Could not create HTML content for form: ' . $form->id);
+                return false;
+            }
+            
+            // Use the existing PDF generation method
+            return self::generateWorkerFormsPdf($htmlContent, $fileName);
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to regenerate PDF: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    private static function createHtmlFromFormData($form)
+    {
+        $data = $form->data;
+        $html = '';
+        
+        switch ($form->type) {
+            case 'contract':
+                $html = self::createContractHtml($data);
+                break;
+            case 'saftey-and-gear':
+                $html = self::createSafetyGearHtml($data);
+                break;
+            case 'insurance':
+                $html = self::createInsuranceHtml($data);
+                break;
+            case 'form101':
+                $html = self::createForm101Html($data);
+                break;
+            default:
+                $html = self::createGenericHtml($data, $form->type);
+                break;
+        }
+        
+        return $html;
+    }
+    
+    private static function createContractHtml($data)
+    {
+        return '
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; color: #007BFF;">Work Contract</h1>
+            
+            <div style="margin: 20px 0;">
+                <h2>Employee Information</h2>
+                <p><strong>Full Name:</strong> ' . ($data['fullName'] ?? 'N/A') . '</p>
+                <p><strong>Role:</strong> ' . ($data['role'] ?? 'N/A') . '</p>
+                <p><strong>Address:</strong> ' . ($data['Address'] ?? 'N/A') . '</p>
+                <p><strong>Start Date:</strong> ' . ($data['startDate'] ?? 'N/A') . '</p>
+                <p><strong>Passport:</strong> ' . ($data['passport'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h2>Signatures</h2>
+                <p><strong>Employee Signature Date:</strong> ' . ($data['signatureDate1'] ?? 'N/A') . '</p>
+                <p><strong>Company Signature Date:</strong> ' . ($data['signatureDate2'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin-top: 40px; text-align: center;">
+                <p><em>This contract has been electronically signed and is legally binding.</em></p>
+            </div>
+        </div>';
+    }
+    
+    private static function createSafetyGearHtml($data)
+    {
+        return '
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; color: #007BFF;">Safety and Gear Form</h1>
+            
+            <div style="margin: 20px 0;">
+                <h2>Worker Information</h2>
+                <p><strong>Worker Name:</strong> ' . ($data['workerName'] ?? 'N/A') . '</p>
+                <p><strong>Worker Name 2:</strong> ' . ($data['workerName2'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h2>Safety Equipment</h2>
+                <p>I acknowledge that I have received and understand the safety equipment and procedures.</p>
+            </div>
+            
+            <div style="margin-top: 40px; text-align: center;">
+                <p><em>This form has been electronically signed.</em></p>
+            </div>
+        </div>';
+    }
+    
+    private static function createInsuranceHtml($data)
+    {
+        return '
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; color: #007BFF;">Insurance Form</h1>
+            
+            <div style="margin: 20px 0;">
+                <h2>Personal Information</h2>
+                <p><strong>First Name:</strong> ' . ($data['FirstName'] ?? 'N/A') . '</p>
+                <p><strong>Last Name:</strong> ' . ($data['LastName'] ?? 'N/A') . '</p>
+                <p><strong>Email:</strong> ' . ($data['Email'] ?? 'N/A') . '</p>
+                <p><strong>Date of Birth:</strong> ' . ($data['canDOB'] ?? 'N/A') . '</p>
+                <p><strong>Gender:</strong> ' . ($data['gender'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h2>Contact Information</h2>
+                <p><strong>Address:</strong> ' . ($data['canStreet'] ?? 'N/A') . ' ' . ($data['canHouseNo'] ?? '') . '</p>
+                <p><strong>Phone:</strong> ' . ($data['canTelephone'] ?? 'N/A') . '</p>
+                <p><strong>Cell Phone:</strong> ' . ($data['canCellPhone'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin-top: 40px; text-align: center;">
+                <p><em>This insurance form has been electronically signed.</em></p>
+            </div>
+        </div>';
+    }
+    
+    private static function createForm101Html($data)
+    {
+        return '
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; color: #007BFF;">Form 101 - Employee Declaration</h1>
+            
+            <div style="margin: 20px 0;">
+                <h2>Employee Information</h2>
+                <p><strong>First Name:</strong> ' . ($data['employeeFirstName'] ?? 'N/A') . '</p>
+                <p><strong>Last Name:</strong> ' . ($data['employeeLastName'] ?? 'N/A') . '</p>
+                <p><strong>ID Number:</strong> ' . ($data['employeeIdNumber'] ?? 'N/A') . '</p>
+                <p><strong>Date of Birth:</strong> ' . ($data['employeeDob'] ?? 'N/A') . '</p>
+                <p><strong>Address:</strong> ' . ($data['employeeStreet'] ?? 'N/A') . ' ' . ($data['employeeHouseNo'] ?? '') . '</p>
+                <p><strong>City:</strong> ' . ($data['employeeCity'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h2>Employment Information</h2>
+                <p><strong>Start Date:</strong> ' . ($data['DateOfBeginningWork'] ?? 'N/A') . '</p>
+                <p><strong>Employer:</strong> ' . ($data['employerName'] ?? 'N/A') . '</p>
+            </div>
+            
+            <div style="margin-top: 40px; text-align: center;">
+                <p><em>This form has been electronically signed.</em></p>
+            </div>
+        </div>';
+    }
+    
+    private static function createGenericHtml($data, $type)
+    {
+        return '
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; color: #007BFF;">' . ucfirst(str_replace('-', ' ', $type)) . ' Form</h1>
+            
+            <div style="margin: 20px 0;">
+                <h2>Form Data</h2>';
+        
+        foreach ($data as $key => $value) {
+            if (is_string($value) && !empty($value) && !str_contains($key, 'signature')) {
+                $html .= '<p><strong>' . ucfirst(str_replace('_', ' ', $key)) . ':</strong> ' . htmlspecialchars($value) . '</p>';
+            }
+        }
+        
+        $html .= '
+            </div>
+            
+            <div style="margin-top: 40px; text-align: center;">
+                <p><em>This form has been electronically signed.</em></p>
+            </div>
+        </div>';
+        
+        return $html;
     }
 }
