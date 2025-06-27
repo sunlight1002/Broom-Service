@@ -208,6 +208,7 @@ import Contracts from "./Pages/Contracts";
 import Discount from "./Admin/Pages/Setting/Discount";
 import WorkerTutorial from "./Worker/Pages/MyAccount/WorkerTutorial";
 import AdminTimerLogs from "./Admin/Pages/Setting/AdminTimerLogs";
+import Cvv from "./Admin/Pages/Payment/Cvv";
 
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
@@ -1208,6 +1209,11 @@ export default function MyRoutes() {
                                 exact
                                 path="messenger"
                                 element={<Messenger />}
+                            />
+                            <Route
+                                exact
+                                path="payment/cvv"
+                                element={<Cvv />}
                             />
                         </Route>
                     </Route>

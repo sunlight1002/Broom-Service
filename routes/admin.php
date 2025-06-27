@@ -51,6 +51,7 @@ use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\DecisionController;
 use App\Http\Controllers\WhapiController;
 use App\Http\Controllers\FacebookCampaignController;
+use App\Http\Controllers\Admin\CvvController;
 // use App\Http\Controllers\Admin\ChangeWorkerController;
 
 /*
@@ -203,6 +204,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin', 'log.admin.acti
 
     // Clients Api
     Route::resource('clients', ClientController::class)->except('create');
+    Route::post('cvv/search', [CvvController::class, 'search']);
     Route::get('all-clients', [ClientController::class, 'AllClients']);
     Route::get('all-active-clients', [ClientController::class, 'AllActiveClients']);
     Route::post('import-clients', [ClientController::class, 'import']);
