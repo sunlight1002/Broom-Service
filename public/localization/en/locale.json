@@ -1523,6 +1523,7 @@
             "not_respond_to_bot": "Not respond to bot",
             "not_respond_to_messages": "Not respond to messages",
             "Voice_bot": "Voice bot",
+            "Want_to_speak_representative": "Want to speak to representative",
             "Options": {
                 "sortBy": "-- Sort By--",
                 "ID": "ID",

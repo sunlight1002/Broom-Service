@@ -1209,6 +1209,7 @@
             "PriceOfferSent": "Oferta de Precio Enviada",
             "DeclinedPriceOffer": "Oferta de Precio Rechazada",
             "AddNew": "Agregar Nuevo",
+            "Want_to_speak_representative": "Quiero hablar con un representante",
             "Options": {
                 "sortBy": "-- Ordenar Por --",
                 "ID": "ID",

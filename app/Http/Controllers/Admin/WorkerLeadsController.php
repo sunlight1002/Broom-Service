@@ -333,31 +333,20 @@ class WorkerLeadsController extends Controller
     public function changeStatus(Request $request, $id)
     {
 
-        $status = $request->input('status');
-        $companyType = $request->input('company_type');
-
-        // Base rules
-        $rules = [
-            'status' => ['required', 'string'],
-        ];
-
-        // Additional rules if status is "hiring"
-        if ($status === 'hiring') {
-            $rules['payment_per_hour'] = ['required', 'string'];
-            $rules['manpower_company_id'] = ['required_if:company_type,manpower'];
-            $rules['company_type'] = [
+        $validator = Validator::make($request->all(), [
+            'status' => ['required', 'string', Rule::in([
+                'pending', 'rejected', 'irrelevant', 'unanswered', 'hiring', 
+                'will-think', 'not-hired', 'want-to-speak-representative'
+            ])],
+            'email'     => ['nullable',  'unique:users,email,' . $id],
+            'payment_per_hour' => ['required', 'string'],
+            'company_type'    => [
                 'required',
                 Rule::in(['my-company', 'manpower', 'freelancer']),
-            ];
-            $rules['email'] = ['nullable', 'unique:users,email,' . $id];
-        }
+            ],
+            'manpower_company_id' => ['required_if:company_type,manpower']
+        ]);
 
-        // Adjust rules if company_type is "manpower"
-        if ($companyType === 'manpower') {
-            $rules['payment_per_hour'] = ['nullable'];
-        }
-
-        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);

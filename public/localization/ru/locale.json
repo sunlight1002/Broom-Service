@@ -1112,6 +1112,7 @@
             "PriceOfferSent": "Ценовое предложение отправлено",
             "DeclinedPriceOffer": "Ценовое предложение отклонено",
             "AddNew": "Добавить нового",
+            "Want_to_speak_representative": "Хочу поговорить с представителем",
             "Options": {
                 "sortBy": "-- Сортировать по --",
                 "ID": "ID",
