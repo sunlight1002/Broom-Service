@@ -11,12 +11,49 @@ import Sidebar from "../../Layouts/WorkerSidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 import Editor from 'react-simple-wysiwyg';
 import TaskDetailModal from '../../../Admin/Pages/TaskManagement/TaskModal';
+import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
+
+// Add custom styles for the table
+const tableStyles = `
+    <style>
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .clickable-row:hover {
+            background-color: #f8f9fa !important;
+        }
+        .dt-comment-btn {
+            transition: all 0.2s ease;
+        }
+        .dt-comment-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            font-weight: 500;
+        }
+        .custom-row-class {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .custom-cell-class {
+            vertical-align: middle;
+        }
+        .modal-container {
+            z-index: 9999 !important;
+        }
+        .modal-backdrop {
+            z-index: 9998 !important;
+        }
+    </style>
+`;
 
 function Tasks() {
     const { t } = useTranslation();
@@ -35,6 +72,8 @@ function Tasks() {
     const [isEditable, setIsEditable] = useState(false);
     const [statusFilter, setStatusFilter] = useState('All');
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const tableRef = useRef(null);
     
     // Use refs to store current filter values for DataTable access
@@ -54,6 +93,17 @@ function Tasks() {
     }, [statusFilter, dateRange, search]);
 
     const worker_id = localStorage.getItem("worker-id");
+
+    // Inject custom styles
+    useEffect(() => {
+        const styleElement = document.createElement('style');
+        styleElement.textContent = tableStyles.replace('<style>', '').replace('</style>', '');
+        document.head.appendChild(styleElement);
+        
+        return () => {
+            document.head.removeChild(styleElement);
+        };
+    }, []);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -161,6 +211,10 @@ function Tasks() {
                             d.search = currentFilters.search.trim();
                         }
                         return d;
+                    },
+                    error: function (xhr, error, thrown) {
+                        console.error('DataTable error:', error);
+                        setError('Failed to load tasks. Please try again.');
                     }
                 },
                 order: [[3, "desc"]],
@@ -228,13 +282,24 @@ function Tasks() {
                     }
                 ],
                 ordering: true,
-                searching: true,
+                searching: false,
                 responsive: true,
                 autoWidth: true,
                 width: "100%",
                 scrollX: true,
+                language: {
+                    processing: "Loading tasks...",
+                    search: "Search:",
+                    lengthMenu: "Show _MENU_ tasks per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ tasks",
+                    infoEmpty: "Showing 0 to 0 of 0 tasks",
+                    infoFiltered: "(filtered from _MAX_ total tasks)",
+                    emptyTable: "No tasks found",
+                    zeroRecords: "No tasks match your search criteria"
+                },
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass('custom-row-class');
+                    $(row).addClass('clickable-row');
                 },
                 columnDefs: [
                     {
@@ -243,19 +308,33 @@ function Tasks() {
                             $(td).addClass('custom-cell-class');
                         }
                     }
-                ]
-            });
+                ],
+                drawCallback: function (settings) {
+                    $(tableRef.current).off("click", ".dt-comment-btn").on("click", ".dt-comment-btn", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        const taskId = $(this).data("task-id");
+                        console.log('Comment button clicked for task ID:', taskId);
+                        
+                        setTimeout(() => {
+                            handleEditTask(taskId);
+                            setIsComModal(true);
+                        }, 100);
+                    });
 
-            // Customize the search input
-            const searchInputWrapper = `<i class=\"fa fa-search search-icon\"></i>`;
-            $("div.dt-search").append(searchInputWrapper);
-            $("div.dt-search").addClass("position-relative");
-
-            // Handle comment button clicks
-            $(tableRef.current).on("click", ".dt-comment-btn", function (e) {
-                e.preventDefault();
-                const taskId = $(this).data("task-id");
-                handleEditTask(taskId);
+                    $(tableRef.current).off("click", "tbody tr").on("click", "tbody tr", function (e) {
+                        if (!$(e.target).closest('.dt-comment-btn').length) {
+                            const data = $(tableRef.current).DataTable().row(this).data();
+                            if (data) {
+                                console.log('Row clicked for task:', data);
+                                setDetailTask(data);
+                                setDetailStatus(data.status);
+                                setIsDetailModal(true);
+                            }
+                        }
+                    });
+                }
             });
 
             return function cleanup() {
@@ -274,13 +353,15 @@ function Tasks() {
     }, [statusFilter, dateRange, search]);
 
     const handleEditTask = async (tid) => {
+        console.log('handleEditTask called with task ID:', tid); // Debug log
         try {
             const response = await axios.get(`/api/tasks/${tid}`, { headers });
+            console.log('Task details response:', response.data); // Debug log
             setSelectedTaskId(response.data?.id);
             setTaskComments(response.data?.comments);
             setTaskName(response.data?.task_name);
         } catch (error) {
-            console.error(error);
+            console.error('Error in handleEditTask:', error);
             if (error.response && error.response.data && error.response.data.message) {
                 alert.error(error.response.data.message);
             } else {
@@ -357,16 +438,6 @@ function Tasks() {
         }
     };
 
-    // Sorting
-    const sortTable = (col) => {
-        // Implement sorting logic here
-    };
-
-    // Pagination controls
-    const handlePageClick = (newPage) => {
-        // Implement pagination logic here
-    };
-
     const taskStatusColor = (status) => {
         const statusLower = status?.toLowerCase() || '';
         
@@ -426,11 +497,29 @@ function Tasks() {
 
     // When closing the comment modal, reload the DataTable to update comment count
     const handleCloseCommentModal = () => {
+        console.log('Closing comment modal'); // Debug log
         setIsComModal(false);
         if (tableRef.current && $(tableRef.current).DataTable()) {
             $(tableRef.current).DataTable().ajax.reload();
         }
     };
+
+    // Clear error message
+    const clearError = () => {
+        setError(null);
+    };
+
+    // Clear error when filters change
+    useEffect(() => {
+        if (error) {
+            clearError();
+        }
+    }, [statusFilter, dateRange, search]);
+
+    // Debug modal state changes
+    useEffect(() => {
+        console.log('Comment modal state changed:', isComModal); // Debug log
+    }, [isComModal]);
 
     return (
         <div id="container">
@@ -490,49 +579,24 @@ function Tasks() {
                     </div>
                 </div>
 
+                {/* Error Display */}
+                {error && (
+                    <div className="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                        {error}
+                        <button type="button" className="close" onClick={clearError}>
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                )}
+
                 {/* Tasks Table */}
                 <div className="card">
                     <div className="card-body">
                         <div className="boxPanel">
                             <div className="table-responsive">
-                                <Table className="table table-bordered">
-                                    <Thead>
-                                        <Tr>
-                                            <Th style={{ width: '50px' }}>No.</Th>
-                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("task_name")}>
-                                                Task Name 
-                                                <span className="arr">
-                                                    {/* Add sorting arrow logic here */}
-                                                </span>
-                                            </Th>
-                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("status")}>
-                                                Status 
-                                                <span className="arr">
-                                                    {/* Add sorting arrow logic here */}
-                                                </span>
-                                            </Th>
-                                            <Th style={{ cursor: "pointer" }} onClick={() => sortTable("due_date")}>
-                                                Deadline 
-                                                <span className="arr">
-                                                    {/* Add sorting arrow logic here */}
-                                                </span>
-                                            </Th>
-                                            <Th>Comment</Th>
-                                            <Th>Worker/Team Member</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {/* Add loading state and no tasks found message here */}
-                                    </Tbody>
-                                </Table>
-                                {/* Pagination */}
-                                <div className="d-flex justify-content-between align-items-center mt-3">
-                                    <div>Page {1} of {/* Add page count here */}</div>
-                                    <div>
-                                        <button className="btn btn-light mr-2" disabled={true} onClick={() => handlePageClick(1)}>Prev</button>
-                                        <button className="btn btn-light" disabled={true} onClick={() => handlePageClick(/* Add page count here */)}>Next</button>
-                                    </div>
-                                </div>
+                                <table ref={tableRef} className="table table-bordered">
+                                    {/* DataTables will populate this table */}
+                                </table>
                             </div>
                         </div>
                     </div>
