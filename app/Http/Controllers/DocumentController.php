@@ -11,7 +11,7 @@ use App\Models\Admin;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-
+use App\Services\GeminiVisaExtractorService;
 class DocumentController extends Controller
 {
     public function documents($id)
@@ -63,6 +63,7 @@ class DocumentController extends Controller
     {
         $data = $request->all();
         $user = User::find($data['id']);
+        $aiExtractor = new GeminiVisaExtractorService();
         
         if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
             
@@ -79,6 +80,20 @@ class DocumentController extends Controller
                 if (Storage::disk('public')->putFileAs("uploads/documents", $visa_file, $tmp_file_name)) {
                     $user->visa = $tmp_file_name;
                     $user->save();
+
+                    $fullPath = Storage::disk('public')->path('uploads/documents/' . $tmp_file_name);
+                    $aiResult = $aiExtractor->extractExpiryDateAndNumber($fullPath);
+                    if ($aiResult['expiry_date'] || $aiResult['number']) {
+                        $user->renewal_visa = $aiResult['expiry_date'];
+                        $user->id_number = $aiResult['number'];
+                        $user->save();
+                        if ($user->renewal_visa) {
+                            $expiry = \Carbon\Carbon::parse($user->renewal_visa);
+                            if ($expiry->isPast()) {
+                                $user->save();
+                            }
+                        }
+                    }
                 }
             }
     
@@ -159,7 +174,7 @@ class DocumentController extends Controller
         }
         
         return response()->json([
-            'message' => 'Document has been created successfully!'
+            'message' => 'Document1111 has been created successfully!'
         ]);
         
     }

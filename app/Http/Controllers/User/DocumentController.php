@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Services\GeminiVisaExtractorService;
 
 class DocumentController extends Controller
 {
@@ -84,6 +85,7 @@ class DocumentController extends Controller
     {
         $data = $request->all();
         $user = $request->type == "worker" ? User::find($data['id']) : WorkerLeads::find($data['id']);        
+        $aiExtractor = new GeminiVisaExtractorService();
         if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
             
             // Handle visa file upload
@@ -99,6 +101,21 @@ class DocumentController extends Controller
                 if (Storage::disk('public')->putFileAs("uploads/documents", $visa_file, $tmp_file_name)) {
                     $user->visa = $tmp_file_name;
                     $user->save();
+
+                    // AI extraction for expiry date and number
+                    $fullPath = Storage::disk('public')->path('uploads/documents/' . $tmp_file_name);
+                    $aiResult = $aiExtractor->extractExpiryDateAndNumber($fullPath);
+                    if ($aiResult['expiry_date'] || $aiResult['number']) {
+                        $user->renewal_visa = $aiResult['expiry_date'];
+                        $user->id_number = $aiResult['number'];
+                        $user->save();
+                        if ($user->renewal_visa) {
+                            $expiry = \Carbon\Carbon::parse($user->renewal_visa);
+                            if ($expiry->isPast()) {
+                                $user->save();
+                            }
+                        }
+                    }
                 }
             }
     
