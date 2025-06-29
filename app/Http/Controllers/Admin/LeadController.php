@@ -842,6 +842,10 @@ class LeadController extends Controller
         $totalSpend = 0;
         $costPerLead = 0;
         $costPerClient = 0;
+        $workerLeadCount = 0;
+        $workerCount = 0;
+        $costPerWorkerLead = 0;
+        $costPerWorker = 0;
 
         // Get all Facebook Insights data
         $insights = FacebookInsights::all();
@@ -860,10 +864,16 @@ class LeadController extends Controller
         // Total count of all clients (ignoring date range)
         $totalClients = Client::whereNotNull('campaign_id')->count();
 
+        // Worker stats
+        $workerLeadCount = $insights->sum('worker_lead_count');
+        $workerCount = $insights->sum('worker_count');
+
         // Calculations
         $totalSpend = $insights->sum('spend');
         $costPerLead = $totalClients > 0 ? $totalSpend / $totalClients : 0;
         $costPerClient = $insights->sum('client_count') > 0 ? $totalSpend / $insights->sum('client_count') : 0;
+        $costPerWorkerLead = $workerLeadCount > 0 ? $totalSpend / $workerLeadCount : 0;
+        $costPerWorker = $workerCount > 0 ? $totalSpend / $workerCount : 0;
 
         return response()->json([
             'insights' => $insights,
@@ -871,6 +881,10 @@ class LeadController extends Controller
             'totalSpend' => $totalSpend,
             'costPerLead' => $costPerLead,
             'costPerClient' => $costPerClient,
+            'workerLeadCount' => $workerLeadCount,
+            'workerCount' => $workerCount,
+            'costPerWorkerLead' => $costPerWorkerLead,
+            'costPerWorker' => $costPerWorker,
         ]);
     }
 

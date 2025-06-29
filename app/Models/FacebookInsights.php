@@ -24,13 +24,17 @@ class FacebookInsights extends Model
         'ctr', 
         'cpp',
         'lead_count',
-        'client_count'
+        'client_count',
+        'worker_lead_count',
+        'worker_count'
     ];
 
    // To ensure that lead_count gets incremented
    protected $casts = [
     'lead_count' => 'integer',
-    'client_count' => 'integer'
+    'client_count' => 'integer',
+    'worker_lead_count' => 'integer',
+    'worker_count' => 'integer'
     ];
 
 }

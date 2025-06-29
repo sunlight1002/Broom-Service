@@ -15,6 +15,8 @@ class AddLeadCountToFacebookCampaignsTable extends Migration
     {
         Schema::table('facebook_campaigns', function (Blueprint $table) {
             $table->integer('lead_count')->default(0)->after('cpp');
+            $table->integer('worker_lead_count')->default(0)->after('lead_count');
+            $table->integer('worker_count')->default(0)->after('worker_lead_count');
         });
     }
 
@@ -27,6 +29,8 @@ class AddLeadCountToFacebookCampaignsTable extends Migration
     {
         Schema::table('facebook_campaigns', function (Blueprint $table) {
             $table->dropColumn('lead_count');
+            $table->dropColumn('worker_lead_count');
+            $table->dropColumn('worker_count');
         });
     }
 }

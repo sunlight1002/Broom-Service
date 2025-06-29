@@ -13,7 +13,11 @@ function FacebookInsights() {
         total_count: 0,
         total_spend: 0,
         total_per_lead: 0,
-        total_per_client: 0
+        total_per_client: 0,
+        worker_lead_count: 0,
+        worker_count: 0,
+        cost_per_worker_lead: 0,
+        cost_per_worker: 0
     });
     const [filter, setFilter] = useState("all");
     const [dateRange, setDateRange] = useState({
@@ -42,7 +46,11 @@ function FacebookInsights() {
                 total_count: response.data.clientCount,
                 total_spend: response.data.totalSpend,
                 total_per_lead: response.data.costPerLead,
-                total_per_client: response.data.costPerClient
+                total_per_client: response.data.costPerClient,
+                worker_lead_count: response.data.workerLeadCount,
+                worker_count: response.data.workerCount,
+                cost_per_worker_lead: response.data.costPerWorkerLead,
+                cost_per_worker: response.data.costPerWorker
             });
         } catch (error) {
             console.error(error);
@@ -243,6 +251,58 @@ function FacebookInsights() {
                                         <div className="dashText">
                                             <h3>${insightsData.total_per_client.toFixed(2)}</h3>
                                             <p> Total Cost Per Client</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4 col-sm-6  col-xs-6">
+                                <div>
+                                    <div className="dashBox">
+                                        <div className="dashIcon">
+                                            <i className="fa-solid fa-user-tie font-50"></i>
+                                        </div>
+                                        <div className="dashText">
+                                            <h3>{insightsData.worker_lead_count}</h3>
+                                            <p> Worker Leads Count</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4 col-sm-6  col-xs-6">
+                                <div>
+                                    <div className="dashBox">
+                                        <div className="dashIcon">
+                                            <i className="fa-solid fa-user-check font-50"></i>
+                                        </div>
+                                        <div className="dashText">
+                                            <h3>{insightsData.worker_count}</h3>
+                                            <p> Hired/Active Workers</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4 col-sm-6  col-xs-6">
+                                <div>
+                                    <div className="dashBox">
+                                        <div className="dashIcon">
+                                            <i className="fa-solid fa-money-bill-wave font-50"></i>
+                                        </div>
+                                        <div className="dashText">
+                                            <h3>${insightsData.cost_per_worker_lead.toFixed(2)}</h3>
+                                            <p> Cost Per Worker Lead</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4 col-sm-6  col-xs-6">
+                                <div>
+                                    <div className="dashBox">
+                                        <div className="dashIcon">
+                                            <i className="fa-solid fa-chart-line font-50"></i>
+                                        </div>
+                                        <div className="dashText">
+                                            <h3>${insightsData.cost_per_worker.toFixed(2)}</h3>
+                                            <p className="text-left"> Cost Per Hired/Active Worker</p>
                                         </div>
                                     </div>
                                 </div>
