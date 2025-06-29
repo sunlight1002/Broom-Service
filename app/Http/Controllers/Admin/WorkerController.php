@@ -36,7 +36,6 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Rules\ValidPhoneNumber;
 use PDF;
 use App\Jobs\AddGoogleContactForWorkerJob;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 
 class WorkerController extends Controller
