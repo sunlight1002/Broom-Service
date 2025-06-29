@@ -1383,7 +1383,6 @@ class WorkerController extends Controller
 
     public function changeStatus(Request $request)
     {
-
         $data = $request->all();
         $pdfFile = null;
         $worker = User::find($data['workerID']);
@@ -1414,6 +1413,25 @@ class WorkerController extends Controller
                 });
             }
         }
+        
+        $newStatus = $data['status'];
+        // If status is set to 'hiring' or forms are assigned, set to 'waiting' until all forms are completed
+        if ($newStatus === 'hiring' || $newStatus === 'waiting') {
+            $worker->status = 2; // 2 = waiting
+        } elseif ($newStatus === 'active' || $newStatus == 1) {
+            // Only set to active if all forms are completed
+            if ($worker->hasCompletedAllForms()) {
+                $worker->status = 1; // 1 = active
+            } else {
+                $worker->status = 2; // waiting
+                return response()->json([
+                    'message' => 'Worker cannot be set to active until all forms are completed and signed.',
+                ], 400);
+            }
+        } else {
+            $worker->status = $newStatus;
+        }
+        $worker->save();
         return response()->json([
             'message' => 'Worker status updated successfully',
         ]);

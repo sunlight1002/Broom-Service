@@ -946,10 +946,12 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
 
-            if ($worker->country == "Israel") {
+            if (method_exists($worker, 'hasCompletedAllForms') && $worker->hasCompletedAllForms()) {
                 $worker->status = 1;
-                $worker->save();
+            } else {
+                $worker->status = 2;
             }
+            $worker->save();
         }
 
         return response()->json([
@@ -1094,6 +1096,12 @@ class AuthController extends Controller
             ]);
 
             event(new Form101Signed($worker, $form));
+            if (method_exists($worker, 'hasCompletedAllForms') && $worker->hasCompletedAllForms()) {
+                $worker->status = 1;
+            } else {
+                $worker->status = 2;
+            }
+            $worker->save();
         }
 
         // Return the appropriate message based on the saving type
@@ -1262,10 +1270,12 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
             event(new SafetyAndGearFormSigned($worker, $form));
-            if ($worker->company_type == "manpower") {
+            if (method_exists($worker, 'hasCompletedAllForms') && $worker->hasCompletedAllForms()) {
                 $worker->status = 1;
-                $worker->save();
+            } else {
+                $worker->status = 2;
             }
+            $worker->save();
         }
 
         return response()->json([
@@ -1515,10 +1525,12 @@ class AuthController extends Controller
                 $user = $this->createUser($worker);
             }
             event(new InsuranceFormSigned($worker, $form));
-
-            $worker->status = 1;
+            if (method_exists($worker, 'hasCompletedAllForms') && $worker->hasCompletedAllForms()) {
+                $worker->status = 1;
+            } else {
+                $worker->status = 2;
+            }
             $worker->save();
-
             App::setLocale('heb');
         }
 
@@ -1608,6 +1620,13 @@ class AuthController extends Controller
                 'pdf_name' => $file_name
             ]);
         }
+        // Set status to active if all forms are completed
+        if (method_exists($worker, 'hasCompletedAllForms') && $worker->hasCompletedAllForms()) {
+            $worker->status = 1;
+        } else {
+            $worker->status = 2;
+        }
+        $worker->save();
 
         return response()->json([
             'message' => 'Manpower form signed successfully.'

@@ -233,4 +233,26 @@ class User extends Authenticatable
     {
         return $this->belongsTo(DocumentType::class, 'document_type_id');
     }
+
+    public function hasCompletedAllForms()
+    {
+        $requiredForms = [
+            \App\Enums\WorkerFormTypeEnum::FORM101,
+            \App\Enums\WorkerFormTypeEnum::CONTRACT,
+            \App\Enums\WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+            \App\Enums\WorkerFormTypeEnum::INSURANCE,
+        ];
+        // For manpower company, require MANPOWER_SAFTEY instead of the others
+        if ($this->company_type === 'manpower') {
+            $requiredForms = [\App\Enums\WorkerFormTypeEnum::MANPOWER_SAFTEY];
+        }
+        $forms = $this->forms()->whereIn('type', $requiredForms)->get();
+        foreach ($requiredForms as $type) {
+            $form = $forms->where('type', $type)->first();
+            if (!$form || !$form->submitted_at) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
