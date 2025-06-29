@@ -190,4 +190,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const INQUIRY_RESPONSE_LEAD = "inquiry-response-lead";
     public const AFTER_STOP_TO_CLIENT_WHAPI = "after-stop-to-client-whapi";
     public const WORKER_BIRTHDAY_WISH = "worker-birthday-wish";
+    public const JEWISH_HOLIDAY_NOTIFICATION_TO_MANAGEMENT = "jewish-holiday-notification-to-management";
 }

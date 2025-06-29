@@ -63,4 +63,5 @@ final class NotificationTypeEnum extends AbstractEnum
     public const SICK_LEAVE_CREATED = "sick-leave-created";
     public const REFUND_CLAIM_REQUEST = "refund-claim-request";
     public const WORKER_BIRTHDAY = "worker-birthday";
+    public const JEWISH_HOLIDAY_NOTIFICATION = "jewish-holiday-notification";
 }

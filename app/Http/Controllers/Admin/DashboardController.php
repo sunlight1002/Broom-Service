@@ -634,6 +634,11 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "🎉 <a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
                 "</a> is celebrating their birthday today! 🎂";
             }
+          } else if ($notice->type == NotificationTypeEnum::JEWISH_HOLIDAY_NOTIFICATION) {
+            $holidayData = $notice->data;
+            $noticeAll[$k]->data = "Jewish Holiday Alert: <strong>" . $holidayData['holiday_name'] . "</strong> starts on " . $holidayData['start_date'] . 
+              " and ends on " . $holidayData['end_date'] . " (" . $holidayData['duration'] . "). " . 
+              $holidayData['days_until'] . " days until the holiday. Please review schedules and prepare messages.";
           }
         }
       }
