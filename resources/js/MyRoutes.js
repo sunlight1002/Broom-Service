@@ -210,6 +210,9 @@ import WorkerTutorial from "./Worker/Pages/MyAccount/WorkerTutorial";
 import AdminTimerLogs from "./Admin/Pages/Setting/AdminTimerLogs";
 import Cvv from "./Admin/Pages/Payment/Cvv";
 
+// Service Brochure
+import ServiceBrochure from "./Pages/ServiceBrochure";
+
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -445,6 +448,18 @@ export default function MyRoutes() {
                         exact
                         path="/request-to-change/:id"
                         element={<RequestToChangeScheduled />}
+                    />
+
+                    {/* Service Brochure Routes */}
+                    <Route
+                        exact
+                        path="brochure"
+                        element={<ServiceBrochure />}
+                    />
+                    <Route
+                        exact
+                        path="brochure/:page"
+                        element={<ServiceBrochure />}
                     />
 
                     {/* Client Routes Start  */}
