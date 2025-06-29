@@ -56,12 +56,15 @@ class TerminateTheWorker extends Command
 
                 if ($insuranceCompany && $insuranceCompany->email && $pdfFile) {
                     App::setLocale('heb');
+                    $template = ($worker->country == 'Israel') ? '/stopInsuaranceFormIsrael' : '/stopInsuaranceFormNonIsrael';
+                    $subjectKey = ($worker->country == 'Israel') ? 'mail.stop_insuarance_form_israel.subject' : 'mail.stop_insuarance_form_non_israel.subject';
+                    
                     // Send email
-                    Mail::send('/stopInsuaranceFormNonIsrael', ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile) {
+                    Mail::send($template, ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile, $subjectKey) {
                         $message->to($insuranceCompany->email)
                             ->bcc(config('services.mail.default'))
-                            ->subject(__('mail.stop_insuarance_form_non_israel.subject', ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
-                        if (is_file($pdfFile)) {
+                            ->subject(__($subjectKey, ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
+                        if(is_file($pdfFile)) {
                             $message->attach($pdfFile);
                         }
                     });

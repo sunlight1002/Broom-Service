@@ -26,6 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -1391,6 +1392,8 @@ class WorkerController extends Controller
                 'message' => 'Worker not found',
             ], 404);
         }
+
+        $oldStatus = $worker->status;
         $worker->update(['status' => $data['status']]);
         if ($worker->status == 0 && $worker->country != 'Israel') {
             $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
@@ -1432,9 +1435,52 @@ class WorkerController extends Controller
             $worker->status = $newStatus;
         }
         $worker->save();
+
+        // Send email to insurance company if status changed to inactive (0)
+        if ($oldStatus != 0 && $data['status'] == 0) {
+            $this->sendInactiveNotificationToInsurance($worker);
+        }
+
         return response()->json([
             'message' => 'Worker status updated successfully',
         ]);
+    }
+
+    private function sendInactiveNotificationToInsurance($worker)
+    {
+        $insuranceCompany = \App\Models\InsuranceCompany::first();
+        
+        if (!$insuranceCompany || !$insuranceCompany->email) {
+            return;
+        }
+
+        $insuranceForm = $worker->forms()->where('type', 'insurance')->first();
+        if (!$insuranceForm || !$insuranceForm->pdf_name) {
+            return;
+        }
+
+        $file_name = $insuranceForm->pdf_name;
+        $pdfFile = storage_path("app/public/signed-docs/{$file_name}");
+
+        if (!is_file($pdfFile)) {
+            return;
+        }
+
+        \App::setLocale('heb');
+        
+        // Choose template and subject based on worker's country
+        $template = ($worker->country == 'Israel') ? '/stopInsuaranceFormIsrael' : '/stopInsuaranceFormNonIsrael';
+        $subjectKey = ($worker->country == 'Israel') ? 'mail.stop_insuarance_form_israel.subject' : 'mail.stop_insuarance_form_non_israel.subject';
+
+        Mail::send($template, ['worker' => $worker], function ($message) use ($worker, $insuranceCompany, $pdfFile, $subjectKey) {
+            $message->to($insuranceCompany->email)
+                ->bcc(config('services.mail.default'))
+                ->subject(__($subjectKey, ['worker_name' => ($worker['firstname'] ?? '') . ' ' . ($worker['lastname'] ?? '')]));
+            
+            if (is_file($pdfFile)) {
+                $message->attach($pdfFile);
+            }
+        });
     }
 
     public function getFinalEmploymentLetter($workerId)
